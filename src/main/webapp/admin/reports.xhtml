@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" template="/WEB-INF/templates/main.xhtml">
+    <ui:define name="content">
+        <p:growl id="growl" showDetail="true" />
+
+        <p:dataTable id="reportTable" rowKey="#{report.reportID}" var="report" value="#{reportDeckController.reports}">
+            <p:column style="width:2rem">
+                <p:rowToggler/>
+            </p:column>
+
+            <p:column headerText="Report reason" field="reason" filterable="true"/>
+            <p:column headerText="Deck" field="deck.name" filterable="true"/>
+            <p:column headerText="Reported from" field="reporter.username" filterable="true"/>
+
+            <p:column>
+                <p:commandButton action='#{reportDeckController.acceptReport(report)}'
+                                 value="Accept"
+                                 update="reportTable"
+                                 id="accept-button"
+                                 icon="pi pi-save"
+                                 style="margin-right: 20px"
+                                 styleClass="ui-button-raised ui-button-success">
+                    <p:confirm type="popup" header="Confirmation" message="Do you want to deactivate this deck?" icon="pi pi-info-circle"/>
+                </p:commandButton>
+                <p:commandButton action='#{reportDeckController.denyReport(report)}'
+                                 value="Deny"
+                                 update="reportTable"
+                                 id="deny-button"
+                                 icon="pi pi-save"
+                                 styleClass="ui-button-raised ui-button-danger">
+                    <p:confirm type="popup" header="Confirmation" message="Do you want to delete this report?" icon="pi pi-info-circle"/>
+                </p:commandButton>
+            </p:column>
+
+            <p:rowExpansion style="background: #F8F9FA">
+                <p:dataTable scrollable="true" scrollHeight="250" var="card" value="#{reportDeckController.getCardsOfDeck(report.deck)}">
+                    <p:column headerText="Question" field="front" filterable="true"/>
+                    <p:column headerText="Answer" field="back" filterable="true"/>
+                </p:dataTable>
+            </p:rowExpansion>
+        </p:dataTable>
+
+        <p:confirmPopup global="true">
+            <p:commandButton value="No" type="button" styleClass="ui-confirm-popup-no ui-button-flat"/>
+            <p:commandButton value="Yes" type="button" styleClass="ui-confirm-popup-yes"/>
+        </p:confirmPopup>
+    </ui:define>
+</ui:composition>
