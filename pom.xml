@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.qe</groupId>
-    <artifactId>memori</artifactId>
+    <artifactId>lecute</artifactId>
     <version>0.1</version>
     <packaging>war</packaging>
 
-    <name>Memori</name>
+    <name>lecute</name>
     <description>A skeleton project to be used as starting point for the courses
         "Software Architecture" offered by the University of Innsbruck.
 
