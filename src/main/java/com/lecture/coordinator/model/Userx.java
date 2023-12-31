@@ -22,9 +22,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import org.springframework.data.domain.Persistable;
 
-import at.qe.memori.g7.t1.model.deck.Deck;
-import at.qe.memori.g7.t1.model.deck.UserDeckData;
-
 /**
  * Entity representing users.
  *
@@ -57,12 +54,6 @@ public class Userx implements Persistable<String>, Serializable, Comparable<User
     private String email;
 
     boolean enabled;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserDeckData> deckDatas = new ArrayList<>();
-
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<Deck> ownedDecks = new ArrayList<>();
 
     @ElementCollection(targetClass = UserxRole.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "Userx_UserxRole")

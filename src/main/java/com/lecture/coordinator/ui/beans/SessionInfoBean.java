@@ -2,7 +2,6 @@ package com.lecture.coordinator.ui.beans;
 
 import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.model.UserxRole;
-import at.qe.memori.g7.t1.model.deck.Deck;
 import com.lecture.coordinator.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

@@ -3,8 +3,8 @@ package com.lecture.coordinator.ui.controllers;
 import com.lecture.coordinator.exceptions.user.UserAlreadyExistsException;
 import com.lecture.coordinator.exceptions.user.UserInvalidEmailException;
 import com.lecture.coordinator.exceptions.user.UserRequiredFieldEmptyException;
-import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.services.UserService;
+import com.lecture.coordinator.model.Userx;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

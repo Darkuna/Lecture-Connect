@@ -1,9 +1,9 @@
 package com.lecture.coordinator.tests;
 
+import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.exceptions.user.UserAlreadyExistsException;
 import com.lecture.coordinator.exceptions.user.UserInvalidEmailException;
 import com.lecture.coordinator.exceptions.user.UserRequiredFieldEmptyException;
-import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.model.UserxRole;
 import com.lecture.coordinator.services.UserService;
 import org.assertj.core.util.Lists;

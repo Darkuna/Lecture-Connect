@@ -1,9 +1,9 @@
 package com.lecture.coordinator.services;
 
+import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.exceptions.user.UserAlreadyExistsException;
 import com.lecture.coordinator.exceptions.user.UserInvalidEmailException;
 import com.lecture.coordinator.exceptions.user.UserRequiredFieldEmptyException;
-import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.model.UserxRole;
 import com.lecture.coordinator.repositories.UserRepository;
 import org.springframework.context.annotation.Scope;
@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
 
 import java.util.Date;
 import java.util.HashSet;

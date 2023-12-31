@@ -5,6 +5,7 @@ import com.lecture.coordinator.model.UserxRole;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+
 /**
  * Repository for managing {@link Userx} entities.
  * <p>
