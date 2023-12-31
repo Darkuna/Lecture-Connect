@@ -1,0 +1,166 @@
+body {
+    background: lightsteelblue;
+}
+
+h1 {
+    color: #262626;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 55px;
+    font-weight: bold;
+    letter-spacing: -1px;
+    line-height: 1;
+    text-align: center;
+}
+
+h3 {
+    color: #262626;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 30px;
+    font-weight: normal;
+    letter-spacing: -1px;
+    line-height: 1;
+    text-align: center;
+    padding-bottom: 30px;
+}
+
+h5 {
+    color: #262626;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 15px;
+    font-weight: normal;
+    letter-spacing: 1px;
+    line-height: 1;
+    text-align: left;
+    padding-top: 5px;
+    padding-left: 5px;
+}
+
+button.ui-button {
+    margin-right: .5rem;
+    margin-left: .5rem;
+    font-size: 16px;
+}
+
+.headline_class {
+    font-size: 24px;
+    float: bottom;
+}
+
+.boxSize {
+    width: 95%;
+    margin: 10px auto;
+    padding: 7px;
+    overflow: auto;
+    background: #ffffff;
+    display: table;
+    border-radius: 5px
+}
+
+.card-info {
+    width: 40%;
+    overflow-wrap: anywhere;
+}
+
+
+.card-list {
+    margin: 15px;
+}
+
+.card-row {
+    width: 95%;
+    margin: auto;
+    padding: 7px;
+    overflow: auto;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.col {
+    display: table-cell; /* Make elements inside the container behave like table cells */
+    color: #262626FF;
+    width: 30%;
+    padding: 2px 0;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.input-fields {
+    width: 100%;
+    display: flex;
+}
+
+.detail-col {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    height: 100px;
+}
+
+.deck-details {
+    height: 100px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.new-deck-buttons {
+    margin-top: 40px;
+}
+
+.description {
+    float: left;
+    margin: 10px 0 0 10px;
+    display: contents;
+}
+
+.card-inputs {
+    padding: 20px;
+    display: grid;
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-columns: 14fr repeat(4, 1fr);
+    grid-template-areas: 'question . reversible reversible .' 'answer clear-button clear-button create-button create-button';
+    gap: 20px;
+}
+
+.question-input {
+    grid-area: question;
+}
+
+.answer-input {
+    grid-area: answer;
+}
+
+.reversible-checkbox {
+    grid-area: reversible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.create-card-button {
+    grid-area: create-button;
+}
+
+.clear-card-button {
+    grid-area: clear-button;
+}
+
+td.cards-button-column {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(1rem, 1fr));
+    grid-gap: 1rem;
+
+    align-items: center;
+}
