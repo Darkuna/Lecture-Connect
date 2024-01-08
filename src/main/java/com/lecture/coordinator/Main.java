@@ -12,13 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 
 import javax.faces.webapp.FacesServlet;
 
-/**
- * Spring boot application. Execute maven with <code>mvn spring-boot:run</code>
- * to start this web application.
- * <p>
- * This class is part of the skeleton project provided for students of the
- * course "Software Architecture" offered by Innsbruck University.
- */
+
 @SpringBootApplication
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class Main extends SpringBootServletInitializer {
