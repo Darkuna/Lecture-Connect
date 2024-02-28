@@ -34,184 +34,189 @@ body {
 }
 
 .login-div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-top: 200px;
-}
-
-.login-button {
-    width: 100%
-}
-
-.register-button {
-    width: 115%
-}
-
-.login {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-}
-
-h1 {
-    color: #262626FF;
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 55px;
-    font-weight: bold;
-    letter-spacing: -1px;
-    line-height: 1;
-    text-align: center;
-}
-
-h3 {
-    color: #262626FF;
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 30px;
-    font-weight: normal;
-    letter-spacing: -1px;
-    line-height: 1;
-    text-align: center;
-}
-
-h5 {
-    color: #262626FF;
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 15px;
-    font-weight: normal;
-    letter-spacing: 1px;
-    line-height: 1;
-}
-
-p {
-    color: #262626FF;
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 16px;
-    margin: 0;
-    padding-bottom: 10px;
-}
-
-button.ui-button {
-    font-size: 16px;
-    margin-right: .5rem;
-    margin-left: .5rem;
-    padding: 5px;
-}
-
-.boxSize {
-    width: 98%;
-    height: 400px;
-    margin: auto;
-    padding: 5px;
-    overflow: auto;
-    background: #ffffff;
-    display: table;
-    position: relative;
-    border-radius: 5px;
-}
-
-.popupBox {
-    width: auto;
-    height: auto;
-    margin-bottom: 30px;
-    padding: 5px;
-    overflow: auto;
-    background: #ffffff;
-    display: table;
-    position: relative;
-}
-
-.ui-datalist {
-    overflow: auto;
-    height: 435px;
-}
-
-.brake {
-    text-align: center;
-    float: left;
-    width: 240px;
-
-}
-
-.toggle {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-.toggle-text {
-    padding-left: 10px;
-}
-
-.center {
-    text-align: center;
-    padding-bottom: 20px;
-}
-
-body .ui-toggleswitch.ui-toggleswitch-checked .ui-toggleswitch-slider {
-    background: #607D8B;
-}
-
-body .ui-datalist .ui-datalist-content {
-    border: 1px solid #dee2e6;
-    background: #ffffff;
-    color: #495057;
-    padding: 0;
-}
-
-.col {
-    color: #262626FF;
-    font-size: 24px;
-    width: 70%;
-    padding: 10px;
-    vertical-align: middle;
-    text-align: center;
-    margin: auto;
-    display: block;
-}
-
-.btn-bot {
+    background-image: url('/pics/Campus_Technik.jpg');
+    background-size: cover; /* Adjust the background size as needed */
+    background-repeat: no-repeat;
+    background-position: center center;
+    min-height: 100vh; /* Ensure the background covers the entire viewport height */
     display: flex;
     justify-content: center;
-    flex-direction: row-reverse;
-    margin: auto;
-    position: absolute;
-    right: 30%;
-    left: 30%;
-    bottom: 20px;
+    align-items: center;
+    filter: blur(8px);
+    -webkit-filter: blur(8px);
 }
+    .login-button {
+        width: 100%
+    }
 
-.tooltip {
-    position: relative;
-    display: inline-block;
-}
+    .register-button {
+        width: 115%
+    }
 
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: 120px;
-    text-align: left;
-    border-radius: 6px;
-    padding: 5px 0;
-    position: absolute;
-    z-index: 1;
-    bottom: 50px;
-    margin-left: -50%;
-    opacity: 0;
-    transition: opacity 1s;
-}
+    .login {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-evenly;
+    }
 
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-}
+    h1 {
+        color: #262626FF;
+        font-family: 'Helvetica Neue', sans-serif;
+        font-size: 55px;
+        font-weight: bold;
+        letter-spacing: -1px;
+        line-height: 1;
+        text-align: center;
+    }
 
-body .ui-carousel .ui-carousel-indicators {
-    padding: 1rem;
-    margin-bottom: 60px;
-}
+    h3 {
+        color: #262626FF;
+        font-family: 'Helvetica Neue', sans-serif;
+        font-size: 30px;
+        font-weight: normal;
+        letter-spacing: -1px;
+        line-height: 1;
+        text-align: center;
+    }
 
-body .ui-divider.ui-divider-horizontal:before {
-    border-top: 1px #dee2e600;
-}
+    h5 {
+        color: #262626FF;
+        font-family: 'Helvetica Neue', sans-serif;
+        font-size: 15px;
+        font-weight: normal;
+        letter-spacing: 1px;
+        line-height: 1;
+    }
+
+    p {
+        color: #262626FF;
+        font-family: 'Helvetica Neue', sans-serif;
+        font-size: 16px;
+        margin: 0;
+        padding-bottom: 10px;
+    }
+
+    button.ui-button {
+        font-size: 16px;
+        margin-right: .5rem;
+        margin-left: .5rem;
+        padding: 5px;
+    }
+
+    .boxSize {
+        width: 98%;
+        height: 400px;
+        margin: auto;
+        padding: 5px;
+        overflow: auto;
+        background: #ffffff;
+        display: table;
+        position: relative;
+        border-radius: 5px;
+    }
+
+    .popupBox {
+        width: auto;
+        height: auto;
+        margin-bottom: 30px;
+        padding: 5px;
+        overflow: auto;
+        background: #ffffff;
+        display: table;
+        position: relative;
+    }
+
+    .ui-datalist {
+        overflow: auto;
+        height: 435px;
+    }
+
+    .brake {
+        text-align: center;
+        float: left;
+        width: 240px;
+
+    }
+
+    .toggle {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .toggle-text {
+        padding-left: 10px;
+    }
+
+    .center {
+        text-align: center;
+        padding-bottom: 20px;
+    }
+
+    body .ui-toggleswitch.ui-toggleswitch-checked .ui-toggleswitch-slider {
+        background: #607D8B;
+    }
+
+    body .ui-datalist .ui-datalist-content {
+        border: 1px solid #dee2e6;
+        background: #ffffff;
+        color: #495057;
+        padding: 0;
+    }
+
+    .col {
+        color: #262626FF;
+        font-size: 24px;
+        width: 70%;
+        padding: 10px;
+        vertical-align: middle;
+        text-align: center;
+        margin: auto;
+        display: block;
+    }
+
+    .btn-bot {
+        display: flex;
+        justify-content: center;
+        flex-direction: row-reverse;
+        margin: auto;
+        position: absolute;
+        right: 30%;
+        left: 30%;
+        bottom: 20px;
+    }
+
+    .tooltip {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 120px;
+        text-align: left;
+        border-radius: 6px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        bottom: 50px;
+        margin-left: -50%;
+        opacity: 0;
+        transition: opacity 1s;
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    body .ui-carousel .ui-carousel-indicators {
+        padding: 1rem;
+        margin-bottom: 60px;
+    }
+
+    body .ui-divider.ui-divider-horizontal:before {
+        border-top: 1px #dee2e600;
+    }
