@@ -1,0 +1,2 @@
+Design wurde im Jira Ticket LECON-13 niedergeschrieben.
+Bei weiteren Fragen bitte an @Elias Walder wenden.
