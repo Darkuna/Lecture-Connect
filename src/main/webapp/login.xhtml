@@ -6,29 +6,8 @@
 
     <ui:define name="content">
         <h:outputStylesheet library="css" name="main.css" />
-
-        <p:card style="width: 25em; margin-top: 10%">
-                <div class="login" style="margin-bottom: -20px">
-                    <c:if test="${param.error != null}">
-                        <div class="login-error">
-                            <p style="color: #B71C1C; font-weight: bold">Wrong username or password</p>
-                        </div>
-                    </c:if>
-                     <form id="login_form" class="login" action="#{request.contextPath}/login" method="post">
-                        <h:panelGrid columns="2" class="login-sep">
-                            <p:outputLabel for="username" value="Username:" />
-                            <p:inputText id="username" type="text" required="true" />
-
-                            <p:outputLabel for="password" value="Password:" />
-                            <p:inputText id="password" type="password" required="true" />
-
-                        </h:panelGrid>
-
-                        <button type="submit" class="login-button ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
-                            <span class="ui-button-text">Login</span>
-                        </button>
-                     </form>
-                </div>
-            </p:card>
+        <div class="login">
+            <img src="../../pics/login.jpg" alt="background pic"/>
+        </div>
     </ui:define>
 </ui:composition>

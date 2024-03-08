@@ -2,15 +2,24 @@ body {
     background: #f4f4f4;
 }
 
+.login {
+    margin-top: auto;
+}
+
+.login img {
+    height: auto;
+    max-width: 85%;
+}
+
+
 .container {
     /* Rectangle 3 */
 
     position: absolute;
-    left: 0%;
-    right: 0%;
-    top: 0%;
+    left: 0;
+    right: 0;
+    top: 0;
     bottom: 90%;
-
     background: #F39200;
 }
 
@@ -26,13 +35,10 @@ body {
 
 .container h1 {
     /* Lecture Connect */
-    margin: 0;
-
     font-family: 'Copperplate Gothic Light', sans-serif;
     font-style: normal;
     font-weight: 400;
-    font-size: 50px;
-    line-height: 59px;
+    font-size: 3.2vw;
     color: #F6F6F6;
 }
 
