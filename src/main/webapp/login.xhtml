@@ -7,7 +7,7 @@
     <ui:define name="content">
         <h:outputStylesheet library="css" name="main.css" />
 
-        <p:card style="width: 25em">
+        <p:card style="width: 25em; margin-top: 10%">
                 <div class="login" style="margin-bottom: -20px">
                     <c:if test="${param.error != null}">
                         <div class="login-error">
@@ -28,9 +28,7 @@
                             <span class="ui-button-text">Login</span>
                         </button>
                      </form>
-                    <p:button value="No account? Register" href="register.xhtml" style="margin-top:20px" styleClass="ui-button-secondary ui-button-flat" />
                 </div>
             </p:card>
-        <div class="login-div"></div>
     </ui:define>
 </ui:composition>
