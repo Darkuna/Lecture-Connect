@@ -1,222 +1,85 @@
 body {
-    background: lightsteelblue;
+    background: #f4f4f4;
 }
 
-.error-box {
-    font-family: 'Helvetica Neue', sans-serif;
-    font-size: 25px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100px;
-    max-width: 70%;
-    margin: 10px auto;
-    padding: 15px 10px 15px 50px;
-    background-repeat: no-repeat;
-    background-position: 10px center;
-    background-color: rgba(230, 19, 11, 0.7);
+.login {;
+    position: inherit;
+
 }
 
-.login-error {
-    background: #FFCDD2;
-    width: 95%;
-    padding: 20px;
-    margin: 0 20px 20px 20px;
-    border-radius: 5px;
-    border: 1px solid #ef5350;
-    border-width: 0 0 0 6px;
+.login img {
+    height: auto;
+    max-width: 85%;
+    margin: auto;
+    display: block;
+}
+
+body .ui-card{
+    width: 40%;
+    height: 20%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    color: #D9D9D9;
+
+    background: #D9D9D9;
+    box-shadow: 0px 10px 4px rgba(43, 43, 43, 0.25);
+}
+
+body .ui-card .ui-card-content {
+    padding: 0 0;
+}
+
+body .pi {
+    color: white;
+    margin-right: 10px;
+    font-size: 30px;
+    text-align: center;
+}
+
+.ui-float-label{
+    padding-top: 10px;
+}
+
+.field{
+    height: 63.67px;
+    width: 70%;
 }
 
 
-.login-sep {
-    margin-bottom: 30px
+.container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 92%;
+    background: #F39200;
 }
 
-.login-div {
-    background-image: url('/pics/Campus_Technik.jpg');
-    background-size: cover; /* Adjust the background size as needed */
-    background-repeat: no-repeat;
-    background-position: center center;
-    min-height: 100vh; /* Ensure the background covers the entire viewport height */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    filter: blur(8px);
-    -webkit-filter: blur(8px);
+.container img {
+    right: 1%;
+    top: 50%;
+    bottom: 50%;
+
+    height: 70%;
+    position: absolute;
+    transform: translateY(-50%);
 }
-    .login-button {
-        width: 100%
-    }
 
-    .register-button {
-        width: 115%
-    }
+.container h1 {
+    /* Lecture Connect */
+    font-family: 'Copperplate Gothic Light', sans-serif;
+    font-style: normal;
+    font-weight: 200;
+    font-size: 2vw;
+    color: #F6F6F6;
+    text-align: center;
 
-    .login {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-evenly;
-    }
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
 
-    h1 {
-        color: #262626FF;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-size: 55px;
-        font-weight: bold;
-        letter-spacing: -1px;
-        line-height: 1;
-        text-align: center;
-    }
-
-    h3 {
-        color: #262626FF;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-size: 30px;
-        font-weight: normal;
-        letter-spacing: -1px;
-        line-height: 1;
-        text-align: center;
-    }
-
-    h5 {
-        color: #262626FF;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-size: 15px;
-        font-weight: normal;
-        letter-spacing: 1px;
-        line-height: 1;
-    }
-
-    p {
-        color: #262626FF;
-        font-family: 'Helvetica Neue', sans-serif;
-        font-size: 16px;
-        margin: 0;
-        padding-bottom: 10px;
-    }
-
-    button.ui-button {
-        font-size: 16px;
-        margin-right: .5rem;
-        margin-left: .5rem;
-        padding: 5px;
-    }
-
-    .boxSize {
-        width: 98%;
-        height: 400px;
-        margin: auto;
-        padding: 5px;
-        overflow: auto;
-        background: #ffffff;
-        display: table;
-        position: relative;
-        border-radius: 5px;
-    }
-
-    .popupBox {
-        width: auto;
-        height: auto;
-        margin-bottom: 30px;
-        padding: 5px;
-        overflow: auto;
-        background: #ffffff;
-        display: table;
-        position: relative;
-    }
-
-    .ui-datalist {
-        overflow: auto;
-        height: 435px;
-    }
-
-    .brake {
-        text-align: center;
-        float: left;
-        width: 240px;
-
-    }
-
-    .toggle {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-    }
-
-    .toggle-text {
-        padding-left: 10px;
-    }
-
-    .center {
-        text-align: center;
-        padding-bottom: 20px;
-    }
-
-    body .ui-toggleswitch.ui-toggleswitch-checked .ui-toggleswitch-slider {
-        background: #607D8B;
-    }
-
-    body .ui-datalist .ui-datalist-content {
-        border: 1px solid #dee2e6;
-        background: #ffffff;
-        color: #495057;
-        padding: 0;
-    }
-
-    .col {
-        color: #262626FF;
-        font-size: 24px;
-        width: 70%;
-        padding: 10px;
-        vertical-align: middle;
-        text-align: center;
-        margin: auto;
-        display: block;
-    }
-
-    .btn-bot {
-        display: flex;
-        justify-content: center;
-        flex-direction: row-reverse;
-        margin: auto;
-        position: absolute;
-        right: 30%;
-        left: 30%;
-        bottom: 20px;
-    }
-
-    .tooltip {
-        position: relative;
-        display: inline-block;
-    }
-
-    .tooltip .tooltiptext {
-        visibility: hidden;
-        width: 120px;
-        text-align: left;
-        border-radius: 6px;
-        padding: 5px 0;
-        position: absolute;
-        z-index: 1;
-        bottom: 50px;
-        margin-left: -50%;
-        opacity: 0;
-        transition: opacity 1s;
-    }
-
-    .tooltip:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-    }
-
-    body .ui-carousel .ui-carousel-indicators {
-        padding: 1rem;
-        margin-bottom: 60px;
-    }
-
-    body .ui-divider.ui-divider-horizontal:before {
-        border-top: 1px #dee2e600;
-    }
