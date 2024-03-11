@@ -29,21 +29,35 @@ body .ui-card{
 
 body .ui-card .ui-card-content {
     padding: 0 0;
+    height: 40%;
 }
 
 body .pi {
-    color: white;
+    color: #D9D9D9;
+    background: white;
     margin-right: 10px;
-    font-size: 30px;
-    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+
+    font-size: 24px;
 }
 
 .ui-float-label{
-    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+body .ui-button {
+    background: #003361;
+    color: #ffffff;
+    border: 1px solid #003361;
+    margin: 0;
+    outline: 0 none;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
 .field{
-    height: 63.67px;
+    height: clamp(12px, 4vw, 50px);
     width: 70%;
 }
 
@@ -72,7 +86,7 @@ body .pi {
     font-family: 'Copperplate Gothic Light', sans-serif;
     font-style: normal;
     font-weight: 200;
-    font-size: 2vw;
+    font-size: clamp(0.4rem, 02043rem + 2.4783vw, 1.6rem);
     color: #F6F6F6;
     text-align: center;
 
