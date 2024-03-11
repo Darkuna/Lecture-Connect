@@ -1,0 +1,31 @@
+name: Auto Merge dev to master
+
+on:
+  schedule:
+    - cron: '30 23 * * 0' # Führt den Workflow jeden Sonntag um 23:30 Uhr aus
+
+jobs:
+  merge-dev-to-master:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: dev # Checkt den dev Branch aus
+
+      - name: Konfiguriere Git
+        run: |
+          git config --global user.email "elias.j.walder@student.uibk.ac.at"
+          git config --global user.name "Darkuna"
+
+      - name: Merge dev Branch in master
+        run: |
+          git fetch origin master:master
+          git checkout master
+          git merge dev --no-ff -m "Automatischer Merge von dev nach master"
+          
+      - name: Push Änderungen
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
