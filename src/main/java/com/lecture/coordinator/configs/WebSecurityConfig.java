@@ -44,8 +44,6 @@ public class WebSecurityConfig {
                 // Permit access for all to error pages
                 .antMatchers("/error/**")
                 .permitAll()
-                // Permit access to register
-                .antMatchers("/register.xhtml").permitAll()
                 // Only access with admin role
                 .antMatchers("/admin/**")
                 .hasAnyAuthority("ADMIN")
