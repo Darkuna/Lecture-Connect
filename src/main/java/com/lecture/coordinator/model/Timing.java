@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.time.LocalTime;
 
 @Entity
-public class Timing implements Persistable<Long>, Serializable, Comparable<Timing>{
+public class Timing implements Persistable<Long>, Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -49,10 +49,5 @@ public class Timing implements Persistable<Long>, Serializable, Comparable<Timin
     @Override
     public boolean isNew(){
         return true;
-    }
-    @Override
-    public int compareTo(Timing timing){
-        assert timing.getId() != null;
-        return this.id.compareTo(timing.getId());
     }
 }

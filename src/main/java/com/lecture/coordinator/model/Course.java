@@ -3,11 +3,14 @@ package com.lecture.coordinator.model;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
-public class Course implements Persistable<String>, Serializable, Comparable<Course>{
+public class Course implements Persistable<String>, Serializable{
     @Id
     private String id;
     private String name;
@@ -16,6 +19,9 @@ public class Course implements Persistable<String>, Serializable, Comparable<Cou
     private int numberOfGroups;
     private boolean computersNecessary;
     private boolean hasFixedTiming;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
+    private Set<CourseSession> courseSessions;
 
     @Override
     public String getId() {
@@ -77,10 +83,5 @@ public class Course implements Persistable<String>, Serializable, Comparable<Cou
     @Override
     public boolean isNew() {
         return true;
-    }
-
-    public int compareTo(Course course){
-        assert course.getId() != null;
-        return this.id.compareTo(course.getId());
     }
 }

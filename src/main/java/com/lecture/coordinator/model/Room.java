@@ -4,15 +4,19 @@ import org.springframework.data.domain.Persistable;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
-public class Room implements Persistable<String>, Serializable, Comparable<Room> {
+public class Room implements Persistable<String>, Serializable {
     @Id
     private String id;
     private int capacity;
     private boolean computersAvailable;
 
+    @OneToMany
+    private List<Timing> timingConstraints;
 
     // CONSTRUCTOR
     public Room(){}
@@ -39,10 +43,5 @@ public class Room implements Persistable<String>, Serializable, Comparable<Room>
     //OTHER METHODS
     public boolean isNew(){
         return true;
-    }
-
-    public int compareTo(Room room){
-        assert room.getId() != null;
-        return this.id.compareTo(room.getId());
     }
 }
