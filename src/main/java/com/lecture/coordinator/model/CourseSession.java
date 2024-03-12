@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
-public class CourseSession implements Persistable<Long>, Serializable {
+public class CourseSession implements Persistable<String>, Serializable {
     @Id
-    private Long id;
+    private String id;
     @OneToOne
     private Timing timing;
     @OneToMany
@@ -52,11 +52,11 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
 
     @Override
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
