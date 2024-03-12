@@ -2,6 +2,7 @@ package com.lecture.coordinator.repositories;
 
 import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.model.UserxRole;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -12,7 +13,7 @@ import org.springframework.data.repository.query.Param;
  * This class is part of the skeleton project provided for students of the
  * course "Software Architecture" offered by Innsbruck University.
  */
-public interface UserRepository extends AbstractRepository<Userx, String> {
+public interface UserRepository extends JpaRepository<Userx, String> {
 
     Iterable<Userx> findByUsernameContaining(String username);
 
