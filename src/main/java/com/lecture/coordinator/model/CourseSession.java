@@ -15,6 +15,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     @OneToMany
     private List<Timing> timingConstraints;
     private boolean isAssigned;
+    private int duration;
     @ManyToOne
     private Course course;
 
@@ -62,5 +63,13 @@ public class CourseSession implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return id == null;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 }
