@@ -33,7 +33,6 @@ public class Room implements Persistable<String>, Serializable {
     public void setComputersAvailable(boolean computersAvailable) {
         this.computersAvailable = computersAvailable;
     }
-
     @Override
     public String getId(){
         return id;

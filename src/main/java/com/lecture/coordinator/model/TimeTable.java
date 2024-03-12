@@ -4,6 +4,7 @@ import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 public class TimeTable implements Persistable<Long>, Serializable{
@@ -13,7 +14,18 @@ public class TimeTable implements Persistable<Long>, Serializable{
     @Column(name = "academic_year")
     private int year;
     private Semester semester;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Room> rooms;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Room> courses;
 
+    @OneToMany(mappedBy = "timeTable", fetch= FetchType.LAZY)
+    private List<RoomTable> roomTables;
+
+    //CONSTRUCTOR
+    public TimeTable(){}
+
+    //GETTERS AND SETTERS
     @Override
     public Long getId() {
         return id;
@@ -39,6 +51,7 @@ public class TimeTable implements Persistable<Long>, Serializable{
         this.semester = semester;
     }
 
+    //OTHER METHODS
     @Override
     public boolean isNew() {
         return id == null;

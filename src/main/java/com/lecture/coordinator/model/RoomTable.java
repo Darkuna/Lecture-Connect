@@ -11,6 +11,12 @@ public class RoomTable implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @OneToOne
+    private Room room;
+
+    @ManyToOne
+    private TimeTable timeTable;
     @Transient
     private Set<CourseSession> assignedCourses;
 
