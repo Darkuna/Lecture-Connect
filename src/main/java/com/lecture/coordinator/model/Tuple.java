@@ -1,25 +1,10 @@
 package com.lecture.coordinator.model;
 
 import org.springframework.data.domain.Persistable;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import java.io.Serializable;
 
-public class Tuple{
-
-}
-
-/*
-
-@Entity
-public class Tuple<T> implements Persistable<Long>, Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+public abstract class Tuple<T> implements Persistable<Long>, Serializable {
     private Long id;
-
     private T l;
     private T r;
 
@@ -49,4 +34,3 @@ public class Tuple<T> implements Persistable<Long>, Serializable {
         return id == null;
     }
 }
-*/

@@ -18,13 +18,13 @@ public class Course implements Persistable<String>, Serializable{
     private int numberOfParticipants;
     private int numberOfGroups;
     private boolean isSplit;
-    //@OneToOne
-    //private Tuple<Integer> splitTimes;
+    @OneToOne
+    private IntegerTuple splitTimes;
     private boolean computersNecessary;
     private boolean isTimingFixed;
 
-    //@OneToOne
-    //private Tuple<Timing> fixedTimings;
+    @OneToOne
+    private TimingTuple fixedTimings;
 
     @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
     private Set<CourseSession> courseSessions;
@@ -126,21 +126,19 @@ public class Course implements Persistable<String>, Serializable{
     public void setTimingFixed(boolean timingFixed) {
         isTimingFixed = timingFixed;
     }
-    /*
-    public Tuple<Timing> getFixedTimings() {
+
+    public TimingTuple getFixedTimings() {
         return fixedTimings;
     }
-
-    public void setFixedTimings(Tuple<Timing> fixedTimings) {
+    public void setFixedTimings(TimingTuple fixedTimings) {
         this.fixedTimings = fixedTimings;
     }
 
-    public Tuple<Integer> getSplitTimes() {
+    public IntegerTuple getSplitTimes() {
         return splitTimes;
     }
 
-    public void setSplitTimes(Tuple<Integer> splitTimes) {
+    public void setSplitTimes(IntegerTuple splitTimes) {
         this.splitTimes = splitTimes;
     }
-    */
 }

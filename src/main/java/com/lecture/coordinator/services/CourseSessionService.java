@@ -22,7 +22,7 @@ public class CourseSessionService {
     @Autowired
     TimingService timingService;
 
-    /*
+
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> createCourseSessionsFromCourse(Course course){
         List<CourseSession> courseSessions = new ArrayList<>();
@@ -53,13 +53,6 @@ public class CourseSessionService {
 
             courseSessions.add(courseSession);
         }
-
-        //TODO: Find a way to deal with fixed timings (either 2 separate classes TimingTuple and DurationTuple or a
-        // different solution
-
         return courseSessions;
-
-
     }
-    */
 }
