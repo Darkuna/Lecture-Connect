@@ -18,36 +18,34 @@ public class Timing implements Persistable<Long>, Serializable, Comparable<Timin
     private LocalTime endTime;
     private Day day;
 
+    //CONSTRUCTOR
     public Timing(){}
 
+    //GETTERS AND SETTERS
     public LocalTime getStartTime() {
         return startTime;
     }
-
     public void setStartTime(LocalTime startTime) {
         this.startTime = startTime;
     }
-
     public LocalTime getEndTime() {
         return endTime;
     }
-
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
     }
-
     public Day getDay() {
         return day;
     }
-
     public void setDay(Day day) {
         this.day = day;
     }
-
     @Override
     public Long getId() {
         return id;
     }
+
+    //OTHER METHODS
     @Override
     public boolean isNew(){
         return true;
