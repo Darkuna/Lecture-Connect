@@ -2,9 +2,7 @@ package com.lecture.coordinator.model;
 
 import org.springframework.data.domain.Persistable;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
@@ -15,7 +13,8 @@ public class Room implements Persistable<String>, Serializable {
     private int capacity;
     private boolean computersAvailable;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "room_id")
     private List<Timing> timingConstraints;
 
     // CONSTRUCTOR

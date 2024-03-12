@@ -2,10 +2,7 @@ package com.lecture.coordinator.model;
 
 import org.springframework.data.domain.Persistable;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalTime;
 
@@ -16,6 +13,7 @@ public class Timing implements Persistable<Long>, Serializable{
     private Long id;
     private LocalTime startTime;
     private LocalTime endTime;
+    @Column(name = "day_of_the_week")
     private Day day;
 
     //CONSTRUCTOR

@@ -2,11 +2,9 @@ package com.lecture.coordinator.model;
 
 import org.springframework.data.domain.Persistable;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,6 +21,9 @@ public class Course implements Persistable<String>, Serializable{
     @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
     private Set<CourseSession> courseSessions;
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "course_id")
+    private List<Timing> timingConstraints;
     @Override
     public String getId() {
         return id;
