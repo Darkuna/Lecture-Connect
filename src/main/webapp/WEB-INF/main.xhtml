@@ -3,31 +3,46 @@
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
-      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:p="http://java.sun.com/jsf/composite"
       xml:lang="en">
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
 
 <h:head>
     <link rel="stylesheet" href="../resources/css/main.css"/>
     <h:outputScript name="redirect.js" library="js"/>
-
     <title>Lecture-Connect</title>
-    <div class="container">
-        <h:button id="connectorButton" value="Connector" styleClass="headerButton"
-                  rendered="#{sessionInfoBean.loggedIn}"
-                  onclick="redirectTo('/welcome.xhtml')"/>
-        <h:button id="lecturesButton" value="Lectures" styleClass="headerButton"
-                  rendered="#{sessionInfoBean.loggedIn}"
-                  onclick="redirectTo('/lectures.xhtml')"/>
-        <h:button id="roomsButton" value="Rooms" styleClass="headerButton"
-                  rendered="#{sessionInfoBean.loggedIn}"
-                  onclick="redirectTo('/rooms.xhtml')"/>
 
-        <h1>Lecture Connect</h1>
-        <img src="../pics/universitaet-innsbruck-logo-cmyk-graustufen%20(1).jpg" alt="uibk Logo"/>
+    <div class="container">
+        <div id="wrapper" >
+            <div class="item">
+                <p:button id="connectorButton" value="Connector" styleClass="headerButton"
+                          rendered="#{sessionInfoBean.loggedIn}"
+                          href="welcome.xhtml"/>
+            </div>
+
+            <div class="item">
+                <p:button id="lecturesButton" value="Lectures" styleClass="headerButton"
+                          rendered="#{sessionInfoBean.loggedIn}"
+                          href="lectures.xhtml"/>
+            </div>
+            <div class="item">
+                <p:button id="roomsButton" value="Rooms" styleClass="headerButton"
+                          rendered="#{sessionInfoBean.loggedIn}"
+                          href="rooms.xhtml"/>
+            </div>
+        </div>
+
+    <h1>Lecture Connect</h1>
+
+    <img src="../pics/universitaet-innsbruck-logo-cmyk-graustufen%20(1).jpg" alt="uibk Logo"/>
     </div>
 </h:head>
 
 <h:body>
     <ui:insert name="content">Content</ui:insert>
 </h:body>
+</ui:composition>
+
 </html>
