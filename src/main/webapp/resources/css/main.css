@@ -113,3 +113,26 @@ body .ui-button {
     opacity: 1;
 }
 
+.container .headerButton {
+    left: 1%;
+    top: 50%;
+    bottom: 50%;
+
+    height: 70%;
+    position: absolute;
+    transform: translateY(-50%);
+
+    font-family: 'Copperplate Gothic Light', sans-serif;
+    font-size: 20px;
+
+    color: #898989;
+    background: #F4F4F4;
+    border-radius: 15px;
+    transition: all 0.25s ease;
+}
+
+.container .headerButton:hover{
+    color: #F4F4F4;
+    background: #003361;
+}
+
