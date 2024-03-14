@@ -34,7 +34,7 @@ public class CourseSessionService {
             courseSession.setTimingConstraints(course.getTimingConstraints());
 
             if(isSplitCourse){
-                courseSession.setDuration(i == 0 ? course.getSplitTimes().getL(): course.getSplitTimes().getR());
+                courseSession.setDuration(course.getSplitTimes().get(i));
             } else{
                 courseSession.setDuration(course.getDuration());
             }

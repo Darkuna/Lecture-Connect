@@ -12,19 +12,20 @@ public class Course implements Persistable<String>, Serializable{
     private String id;
     private String name;
     private String lecturer;
+    private int semester;
     private int duration;
     private int numberOfParticipants;
     private int numberOfGroups;
     private boolean isSplit;
-    @Transient
-    private IntegerTuple splitTimes;
+    @ElementCollection(fetch=FetchType.EAGER)
+    private List<Integer> splitTimes;
     private boolean computersNecessary;
     private boolean isTimingFixed;
 
     @Transient
     private TimingTuple fixedTimings;
 
-    @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     private List<CourseSession> courseSessions;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -132,11 +133,19 @@ public class Course implements Persistable<String>, Serializable{
         this.fixedTimings = fixedTimings;
     }
 
-    public IntegerTuple getSplitTimes() {
+    public List<Integer> getSplitTimes() {
         return splitTimes;
     }
 
-    public void setSplitTimes(IntegerTuple splitTimes) {
+    public void setSplitTimes(List<Integer> splitTimes) {
         this.splitTimes = splitTimes;
+    }
+
+    public int getSemester() {
+        return semester;
+    }
+
+    public void setSemester(int semester) {
+        this.semester = semester;
     }
 }

@@ -26,10 +26,11 @@ public class CourseServiceTest {
         String name = "TestCourse";
         String lecturer = "Johannes Karrer";
         int duration = 2;
+        int semester = 1;
         int numberOfParticipants = 35;
         int numberOfGroups = 6;
         boolean isSplit = false;
-        IntegerTuple splitTimes = null;
+        List<Integer> splitTimes = null;
         boolean computersNecessary = false;
         boolean isTimingFixed = false;
         TimingTuple fixedTimings = null;
@@ -39,12 +40,13 @@ public class CourseServiceTest {
         constraint.setEndTime(LocalTime.of(14, 30));
         List<Timing> timingConstraints = List.of(constraint);
 
-        Course course = courseService.createCourse(id, name, lecturer, duration, numberOfParticipants, numberOfGroups,
+        Course course = courseService.createCourse(id, name, lecturer, semester, duration, numberOfParticipants, numberOfGroups,
                 isSplit, splitTimes, computersNecessary, isTimingFixed, fixedTimings, timingConstraints);
 
         assertEquals(id, course.getId());
         assertEquals(name, course.getName());
         assertEquals(lecturer, course.getLecturer());
+        assertEquals(semester, course.getSemester());
         assertEquals(duration, course.getDuration());
         assertEquals(numberOfParticipants, course.getNumberOfParticipants());
         assertEquals(numberOfGroups, course.getNumberOfGroups());
