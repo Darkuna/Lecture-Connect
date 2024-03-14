@@ -1,9 +1,6 @@
 package com.lecture.coordinator.services;
 
-import com.lecture.coordinator.model.Course;
-import com.lecture.coordinator.model.CourseSession;
-import com.lecture.coordinator.model.Timing;
-import com.lecture.coordinator.model.Tuple;
+import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.repositories.CourseSessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -21,7 +18,6 @@ public class CourseSessionService {
     CourseSessionRepository courseSessionRepository;
     @Autowired
     TimingService timingService;
-
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> createCourseSessionsFromCourse(Course course){
@@ -54,5 +50,29 @@ public class CourseSessionService {
             courseSessions.add(courseSession);
         }
         return courseSessions;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public CourseSession assignCourseSession(CourseSession courseSession, Room room, Timing timing){
+        courseSession.setRoom(room);
+        courseSession.setTiming(timing);
+        courseSession.setAssigned(true);
+        return courseSessionRepository.save(courseSession);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public CourseSession unassignCourseSession(CourseSession courseSession){
+        courseSession.setRoom(null);
+        courseSession.setTiming(null);
+        courseSession.setAssigned(false);
+        return courseSessionRepository.save(courseSession);
+    }
+
+    public List<CourseSession> loadAllAssignedToRoom(Room room){
+        return courseSessionRepository.findAllByRoom(room);
+    }
+
+    public List<CourseSession> loadAllUnassignedCourseSessionsFor(TimeTable timeTable){
+        return courseSessionRepository.findAllByIsAssignedFalseAndTimeTable(timeTable);
     }
 }

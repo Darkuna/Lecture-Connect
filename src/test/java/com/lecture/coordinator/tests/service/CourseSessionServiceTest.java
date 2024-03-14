@@ -36,4 +36,16 @@ public class CourseSessionServiceTest {
     public void testCreateCourseSessionOfCourseWithFixedTiming(){
         //TODO: create test for a course with fixed timing
     }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testAssignCourse(){
+        //TODO: create test for assigning a courseSession to a specific room and timing
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testUnassignCourse(){
+        //TODO: create a test for unassigning a courseSession
+    }
 }

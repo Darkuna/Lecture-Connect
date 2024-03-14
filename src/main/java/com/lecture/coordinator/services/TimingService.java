@@ -30,6 +30,14 @@ public class TimingService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Timing updateTiming(Timing timing, LocalTime startTime, LocalTime endTime, Day day){
+        timing.setStartTime(startTime);
+        timing.setEndTime(endTime);
+        timing.setDay(day);
+        return timingRepository.save(timing);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Timing> loadTimingConstraintsOfRoom(Room room){
         return timingRepository.findAllByRoom(room);
     }

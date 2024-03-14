@@ -36,8 +36,17 @@ public class RoomServiceTest {
         assertEquals(25, newRoom.getCapacity());
         assertEquals(true, newRoom.isComputersAvailable());
         assertEquals(timingConstraints, newRoom.getTimingConstraints());
+    }
 
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testUpdateRoom(){
+        //TODO: create test for updating a room
+    }
 
-
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteRoom(){
+        //TODO: create test for deleting a room
     }
 }

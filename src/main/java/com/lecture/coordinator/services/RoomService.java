@@ -26,8 +26,7 @@ public class RoomService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Room updateRoom(Room room, String id, int capacity, boolean computersAvailable, List<Timing> timingConstraints){
-        room.setId(id);
+    public Room updateRoom(Room room, int capacity, boolean computersAvailable, List<Timing> timingConstraints){
         room.setCapacity(capacity);
         room.setComputersAvailable(computersAvailable);
         room.setTimingConstraints(timingConstraints);
@@ -36,7 +35,6 @@ public class RoomService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteRoom(Room room){
-        //TODO: delete Room and unassign all courses that are assigned to this room
+        //TODO: delete Room and unassign all courseSessions that are assigned to this room
     }
-
 }

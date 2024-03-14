@@ -15,6 +15,8 @@ import java.util.List;
 public class RoomTableService {
     @Autowired
     private RoomTableRepository roomTableRepository;
+    @Autowired
+    private CourseSessionService courseSessionService;
 
     public RoomTable createRoomTableFromRoom(Room room){
         RoomTable roomTable = new RoomTable();
@@ -26,7 +28,6 @@ public class RoomTableService {
     }
 
     public List<CourseSession> loadAssignedCourses(RoomTable roomTable){
-        //TODO: Load all courses assigned to the room assigned to the roomTable
-        return null;
+        return courseSessionService.loadAllAssignedToRoom(roomTable.getRoom());
     }
 }

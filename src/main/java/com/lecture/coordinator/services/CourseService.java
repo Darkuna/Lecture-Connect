@@ -42,4 +42,23 @@ public class CourseService {
     public void deleteCourse(Course course){
         courseRepository.delete(course);
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Course updateCourse(Course course, String name, String lecturer, int duration, int numberOfParticipants,
+                               int numberOfGroups, boolean isSplit, IntegerTuple splitTimes, boolean computersNecessary,
+                               boolean isTimingFixed, TimingTuple fixedTimings, List<Timing> timingConstraints){
+        course.setName(name);
+        course.setLecturer(lecturer);
+        course.setDuration(duration);
+        course.setNumberOfParticipants(numberOfParticipants);
+        course.setNumberOfGroups(numberOfGroups);
+        course.setSplit(isSplit);
+        course.setSplitTimes(splitTimes);
+        course.setComputersNecessary(computersNecessary);
+        course.setTimingFixed(isTimingFixed);
+        course.setFixedTimings(fixedTimings);
+        course.setTimingConstraints(timingConstraints);
+
+        return courseRepository.save(course);
+    }
 }

@@ -62,6 +62,14 @@ public class TimeTableService {
         // timeTable.courseSessions
     }
 
+    public void removeRoom(TimeTable timeTable, Room room){
+        //TODO: Remove room from timeTable, also deleting its roomTable
+    }
+
+    public void removeCourse(TimeTable timeTable, Course course){
+        //TODO: Remove a course from timeTable, also deleting the corresponding generated courseSessions
+    }
+
     public void assignCourseSessionsToRooms(TimeTable timeTable){
         //TODO: This is the place where our ALGORITHM will be executed
     }
