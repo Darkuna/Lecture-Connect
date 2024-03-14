@@ -27,7 +27,7 @@ public class Course implements Persistable<String>, Serializable{
     private TimingTuple fixedTimings;
 
     @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
-    private Set<CourseSession> courseSessions;
+    private List<CourseSession> courseSessions;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")
@@ -111,11 +111,11 @@ public class Course implements Persistable<String>, Serializable{
         this.timingConstraints = timingConstraints;
     }
 
-    public Set<CourseSession> getCourseSessions() {
+    public List<CourseSession> getCourseSessions() {
         return courseSessions;
     }
 
-    public void setCourseSessions(Set<CourseSession> courseSessions) {
+    public void setCourseSessions(List<CourseSession> courseSessions) {
         this.courseSessions = courseSessions;
     }
 

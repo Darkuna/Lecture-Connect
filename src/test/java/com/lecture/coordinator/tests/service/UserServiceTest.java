@@ -1,4 +1,4 @@
-package com.lecture.coordinator.tests;
+package com.lecture.coordinator.tests.service;
 
 import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.exceptions.user.UserAlreadyExistsException;
