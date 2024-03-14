@@ -40,4 +40,9 @@ public class CourseService {
 
         return courseRepository.save(course);
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void deleteCourse(Course course){
+        courseRepository.delete(course);
+    }
 }

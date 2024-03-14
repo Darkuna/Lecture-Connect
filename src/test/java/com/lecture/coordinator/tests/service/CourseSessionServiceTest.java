@@ -16,7 +16,6 @@ public class CourseSessionServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfNormalCourse(){
-
     }
 
     @Test

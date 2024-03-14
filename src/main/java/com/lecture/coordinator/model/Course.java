@@ -18,12 +18,12 @@ public class Course implements Persistable<String>, Serializable{
     private int numberOfParticipants;
     private int numberOfGroups;
     private boolean isSplit;
-    @OneToOne
+    @Transient
     private IntegerTuple splitTimes;
     private boolean computersNecessary;
     private boolean isTimingFixed;
 
-    @OneToOne
+    @Transient
     private TimingTuple fixedTimings;
 
     @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
