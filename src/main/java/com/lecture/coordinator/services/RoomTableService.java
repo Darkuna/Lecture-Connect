@@ -20,7 +20,7 @@ public class RoomTableService {
         RoomTable roomTable = new RoomTable();
         roomTable.setRoom(room);
 
-        //TODO: Think of a way to use a room's timingContraints to create the available time in a RoomTable object
+        //TODO: Think of a way to use a room's timingConstraints to create the available time in a RoomTable object
 
         return roomTableRepository.save(roomTable);
     }

@@ -1,12 +1,10 @@
 package com.lecture.coordinator.model;
 
 import org.springframework.data.domain.Persistable;
-import org.springframework.data.util.Pair;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 public class Course implements Persistable<String>, Serializable{

@@ -18,6 +18,10 @@ public class CourseSession implements Persistable<String>, Serializable {
     private int duration;
     @ManyToOne
     private Course course;
+    @ManyToOne
+    private TimeTable timeTable;
+    @ManyToOne
+    private Room room;
 
     public Timing getTiming() {
         return timing;
@@ -71,5 +75,21 @@ public class CourseSession implements Persistable<String>, Serializable {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public TimeTable getTimeTable() {
+        return timeTable;
+    }
+
+    public void setTimeTable(TimeTable timeTable) {
+        this.timeTable = timeTable;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 }

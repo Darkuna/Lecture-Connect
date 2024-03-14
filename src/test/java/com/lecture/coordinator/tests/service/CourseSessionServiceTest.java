@@ -16,17 +16,24 @@ public class CourseSessionServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfNormalCourse(){
+        //TODO: create test for a course without split or groups
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfSplitCourse(){
-
+        //TODO: create test for a split course
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfCourseWithGroups(){
+        //TODO: create test for a group course
+    }
 
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testCreateCourseSessionOfCourseWithFixedTiming(){
+        //TODO: create test for a course with fixed timing
     }
 }

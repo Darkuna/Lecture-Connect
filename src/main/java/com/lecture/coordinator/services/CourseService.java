@@ -35,9 +35,6 @@ public class CourseService {
         course.setFixedTimings(fixedTimings);
         course.setTimingConstraints(timingConstraints);
 
-        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(course);
-        course.setCourseSessions(courseSessions);
-
         return courseRepository.save(course);
     }
 
