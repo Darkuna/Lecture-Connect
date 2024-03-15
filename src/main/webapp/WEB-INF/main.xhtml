@@ -15,13 +15,12 @@
     <title>Lecture-Connect</title>
 
     <div class="container">
-        <div id="wrapper" >
+        <div id="wrapperLeftButtons" >
             <div class="item">
                 <p:button id="connectorButton" value="Connector" styleClass="headerButton"
                           rendered="#{sessionInfoBean.loggedIn}"
                           href="welcome.xhtml"/>
             </div>
-
             <div class="item">
                 <p:button id="lecturesButton" value="Lectures" styleClass="headerButton"
                           rendered="#{sessionInfoBean.loggedIn}"
@@ -34,9 +33,22 @@
             </div>
         </div>
 
-    <h1>Lecture Connect</h1>
+        <h1>Lecture Connect</h1>
 
-    <img src="../pics/universitaet-innsbruck-logo-cmyk-graustufen%20(1).jpg" alt="uibk Logo"/>
+        <div id="wrapperRightButtons">
+            <div class="itemRight">
+                <p:button id="usersAdminButton" value="Users" styleClass="headerButton"
+                          rendered="#{sessionInfoBean.loggedIn and sessionInfoBean.hasRole('ADMIN')}"
+                          href="/logout" style="color: #898989"/>
+            </div>
+            <div class="itemRight">
+                <p:button id="logoutButton" value="Logout" styleClass="headerButton"
+                          rendered="#{sessionInfoBean.loggedIn}"
+                          href="/logout" style="color: #898989"/>
+            </div>
+        </div>
+
+        <img src="../pics/universitaet-innsbruck-logo-cmyk-graustufen%20(1).jpg" alt="uibk Logo"/>
     </div>
 </h:head>
 

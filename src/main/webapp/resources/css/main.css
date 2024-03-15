@@ -42,28 +42,10 @@ body .pi {
     font-size: 24px;
 }
 
-.ui-float-label{
-    padding-bottom: 10px;
-}
-
-body .ui-button {
-    background: #003361;
-    color: #ffffff;
-    border: 1px solid #003361;
-    margin: 0;
-    outline: 0 none;
-    border-radius: 4px;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
-}
-
-.field{
-    height: clamp(12px, 4vw, 50px);
-    width: 70%;
-    text-align: center
-}
-
-
 .container {
+    display: flex;
+    justify-content: space-between; /* Adjust if necessary, but it might help with initial layout */
+    align-items: center;
     position: absolute;
     left: 0;
     right: 0;
@@ -75,19 +57,16 @@ body .ui-button {
     transition: bottom 0.3s ease;
 }
 
+
 .container:hover {
     bottom: 92%;
 }
 
 .container img {
-    right: 1%;
-    top: 50%;
-    bottom: 50%;
-
     height: 70%;
-    position: absolute;
-    transform: translateY(-50%);
+    align-self: center;
 }
+
 
 .container h1 {
     /* Lecture Connect */
@@ -120,25 +99,63 @@ body .ui-button {
     height: 100%;
 
     background: #F4F4F4;
+    border-color: #f4f4f4;
     border-radius: 15px;
     transition: all 0.25s ease;
 }
 
 .container .headerButton:hover{
+    border-color: #003361;
     background: #003361;
     color: #f4f4f4;
 }
 
-#wrapper {
-    width: 33%;
+#wrapperLeftButtons {
     display: flex;
     justify-content: flex-start;
     align-items: center;
     height: 100%;
 }
 
+
 .item {
     height: 90%;
     width: auto;
     margin-right: 10px;
+}
+
+#wrapperRightButtons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    height: 100%;
+    margin-right: 10px; /* This margin pushes the wrapper 10px to the left of its next sibling */
+}
+
+
+.itemRight {
+    height: 90%;
+    width: auto;
+    margin-left: 10px; /* Adjust for spacing between buttons if necessary */
+}
+
+.ui-float-label{
+    padding-bottom: 10px;
+}
+
+body .ui-button {
+    background: #003361;
+    color: #ffffff;
+    border: 1px solid #003361;
+    margin: 0;
+    outline: 0 none;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+
+.field{
+    height: clamp(12px, 4vw, 50px);
+    width: 70%;
+    text-align: center
 }
