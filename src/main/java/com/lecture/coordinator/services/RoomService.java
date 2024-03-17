@@ -37,4 +37,22 @@ public class RoomService {
     public void deleteRoom(Room room){
         //TODO: delete Room and unassign all courseSessions that are assigned to this room
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Room> getFirstRooms(int ammount){
+        return null;
+        //TODO: get a List of first rooms
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Room> getAllRooms(){
+        return null;
+        //TODO: get a List of all rooms
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Room getRoomWithID(){
+        return null;
+        //TODO: get a List of all rooms
+    }
 }

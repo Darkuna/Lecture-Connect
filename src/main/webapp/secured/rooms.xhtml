@@ -6,7 +6,51 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/WEB-INF/main.xhtml">
     <ui:define name="content">
-        <h:outputStylesheet name="css/main.css"/>
-        <h1 style="font-size: 200px">rooms</h1>
+        <div class="card">
+            <h:form id="form">
+                <p:dataTable id="roomTable" var="room" value="#{contextMenuRooms.rooms}"
+                             selection="#{contextMenuRooms.selectedRoom}" selectionMode="single">
+                    <f:facet name="header">
+                        RightClick to View Options
+                    </f:facet>
+
+                    <p:column headerText="Name">
+                        <h:outputText value="#{room.id}" />
+                    </p:column>
+                    <p:column headerText="Capacity">
+                        <h:outputText value="#{room.capacity}" />
+                    </p:column>
+                    <p:column headerText="Has Computers">
+                        <h:outputText value="#{room.computersAvailable ? 'Yes' : 'No'}" />
+                    </p:column>
+                </p:dataTable>
+
+                <p:contextMenu for="roomTable">
+                    <p:menuitem value="View" update="roomTable" icon="pi pi-search"
+                                oncomplete="PF('productDialog').show()" actionListener="#{contextMenuRooms.viewRoom}"/>
+                    <p:menuitem value="Delete" update="roomTable" icon="pi pi-times"
+                                action="#{contextMenuRooms.editRoom}"/>
+                    <p:menuitem value="Delete" update="roomTable" icon="pi pi-times"
+                                action="#{contextMenuRooms.deleteRoom}"/>
+                </p:contextMenu>
+
+                <p:dialog header="Room Info" widgetVar="roomDialog" modal="true" showEffect="fade"
+                          hideEffect="fade" resizable="false">
+                    <p:outputPanel id="roomDetail" style="text-align:center;">
+                        <p:column rendered="#{not empty contextMenuRooms.selectedRoom}">
+                            <div class="product">
+                                <div class="product-grid-item border-0" style="margin-bottom: 0">
+                                    <div class="product-grid-item-content">
+                                        <div class="product-name">#{contextMenuRooms.selectedRoom.id}</div>
+                                        <div class="product-description">#{contextMenuRooms.selectedRoom.capacity}</div>
+                                        <p:rating readonly="true" value="#{contextMenuRooms.selectedRoom.computersAvailable}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </p:column>
+                    </p:outputPanel>
+                </p:dialog>
+            </h:form>
+        </div>
     </ui:define>
 </ui:composition>
