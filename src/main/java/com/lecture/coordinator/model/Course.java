@@ -5,7 +5,6 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 public class Course implements Persistable<String>, Serializable{
@@ -13,13 +12,21 @@ public class Course implements Persistable<String>, Serializable{
     private String id;
     private String name;
     private String lecturer;
+    private int semester;
+    private int duration;
     private int numberOfParticipants;
     private int numberOfGroups;
+    private boolean isSplit;
+    @ElementCollection(fetch=FetchType.EAGER)
+    private List<Integer> splitTimes;
     private boolean computersNecessary;
-    private boolean hasFixedTiming;
+    private boolean isTimingFixed;
 
-    @OneToMany(mappedBy = "course", fetch = FetchType.EAGER)
-    private Set<CourseSession> courseSessions;
+    @Transient
+    private TimingTuple fixedTimings;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private List<CourseSession> courseSessions;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")
@@ -73,16 +80,72 @@ public class Course implements Persistable<String>, Serializable{
         this.computersNecessary = computersNecessary;
     }
 
-    public boolean isHasFixedTiming() {
-        return hasFixedTiming;
-    }
-
-    public void setHasFixedTiming(boolean hasFixedTiming) {
-        this.hasFixedTiming = hasFixedTiming;
-    }
 
     @Override
     public boolean isNew() {
         return true;
+    }
+
+    public boolean isSplit() {
+        return isSplit;
+    }
+
+    public void setSplit(boolean split) {
+        isSplit = split;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public List<Timing> getTimingConstraints() {
+        return timingConstraints;
+    }
+
+    public void setTimingConstraints(List<Timing> timingConstraints) {
+        this.timingConstraints = timingConstraints;
+    }
+
+    public List<CourseSession> getCourseSessions() {
+        return courseSessions;
+    }
+
+    public void setCourseSessions(List<CourseSession> courseSessions) {
+        this.courseSessions = courseSessions;
+    }
+
+    public boolean isTimingFixed() {
+        return isTimingFixed;
+    }
+
+    public void setTimingFixed(boolean timingFixed) {
+        isTimingFixed = timingFixed;
+    }
+
+    public TimingTuple getFixedTimings() {
+        return fixedTimings;
+    }
+    public void setFixedTimings(TimingTuple fixedTimings) {
+        this.fixedTimings = fixedTimings;
+    }
+
+    public List<Integer> getSplitTimes() {
+        return splitTimes;
+    }
+
+    public void setSplitTimes(List<Integer> splitTimes) {
+        this.splitTimes = splitTimes;
+    }
+
+    public int getSemester() {
+        return semester;
+    }
+
+    public void setSemester(int semester) {
+        this.semester = semester;
     }
 }

@@ -7,16 +7,21 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
-public class CourseSession implements Persistable<Long>, Serializable {
+public class CourseSession implements Persistable<String>, Serializable {
     @Id
-    private Long id;
+    private String id;
     @OneToOne
     private Timing timing;
     @OneToMany
     private List<Timing> timingConstraints;
     private boolean isAssigned;
+    private int duration;
     @ManyToOne
     private Course course;
+    @ManyToOne
+    private TimeTable timeTable;
+    @ManyToOne
+    private Room room;
 
     public Timing getTiming() {
         return timing;
@@ -51,16 +56,40 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
 
     @Override
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     @Override
     public boolean isNew() {
         return id == null;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public TimeTable getTimeTable() {
+        return timeTable;
+    }
+
+    public void setTimeTable(TimeTable timeTable) {
+        this.timeTable = timeTable;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
     }
 }

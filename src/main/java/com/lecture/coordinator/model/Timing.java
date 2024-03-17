@@ -16,6 +16,11 @@ public class Timing implements Persistable<Long>, Serializable{
     @Column(name = "day_of_the_week")
     private Day day;
 
+    @OneToOne
+    private Course course;
+    @OneToOne
+    private Room room;
+
     //CONSTRUCTOR
     public Timing(){}
 

@@ -11,16 +11,19 @@ public class TimeTable implements Persistable<Long>, Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private Semester semester;
     @Column(name = "academic_year")
     private int year;
-    private Semester semester;
     @OneToMany(fetch = FetchType.LAZY)
     private List<Room> rooms;
     @OneToMany(fetch = FetchType.LAZY)
-    private List<Room> courses;
+    private List<Course> courses;
 
     @OneToMany(mappedBy = "timeTable", fetch= FetchType.LAZY)
     private List<RoomTable> roomTables;
+
+    @Transient
+    private List<CourseSession> courseSessions;
 
     //CONSTRUCTOR
     public TimeTable(){}
@@ -55,5 +58,37 @@ public class TimeTable implements Persistable<Long>, Serializable{
     @Override
     public boolean isNew() {
         return id == null;
+    }
+
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
+    }
+
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(List<Course> courses) {
+        this.courses = courses;
+    }
+
+    public List<RoomTable> getRoomTables() {
+        return roomTables;
+    }
+
+    public void setRoomTables(List<RoomTable> roomTables) {
+        this.roomTables = roomTables;
+    }
+
+    public List<CourseSession> getCourseSessions() {
+        return courseSessions;
+    }
+
+    public void setCourseSessions(List<CourseSession> courseSessions) {
+        this.courseSessions = courseSessions;
     }
 }

@@ -11,10 +11,8 @@ public class RoomTable implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @OneToOne
     private Room room;
-
     @ManyToOne
     private TimeTable timeTable;
     @Transient
@@ -40,5 +38,21 @@ public class RoomTable implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return id == null;
+    }
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
+    public TimeTable getTimeTable() {
+        return timeTable;
+    }
+
+    public void setTimeTable(TimeTable timeTable) {
+        this.timeTable = timeTable;
     }
 }
