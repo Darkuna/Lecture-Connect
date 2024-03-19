@@ -1,4 +1,4 @@
-package com.lecture.coordinator.uiBackend;
+package com.lecture.coordinator.ui.controllers.TableControllers;
 
 import com.lecture.coordinator.model.Room;
 import com.lecture.coordinator.services.RoomService;

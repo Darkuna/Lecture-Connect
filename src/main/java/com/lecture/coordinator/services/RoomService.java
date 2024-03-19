@@ -39,9 +39,9 @@ public class RoomService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<Room> getFirstRooms(int ammount){
+    public List<Room> getFirstRooms(int amount){
         return null;
-        //TODO: get a List of first rooms
+        //TODO: get a List of first (amount) rooms
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
@@ -53,6 +53,6 @@ public class RoomService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Room getRoomWithID(){
         return null;
-        //TODO: get a List of all rooms
+        //TODO: get a specific room
     }
 }
