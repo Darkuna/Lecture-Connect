@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.qe</groupId>
-    <artifactId>memori</artifactId>
+    <artifactId>lecture_connect</artifactId>
     <version>0.1</version>
     <packaging>war</packaging>
 
-    <name>Memori</name>
+    <name>lecture_connect</name>
     <description>A skeleton project to be used as starting point for the courses
         "Software Architecture" offered by the University of Innsbruck.
 
@@ -75,6 +75,11 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>2.7.4</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -135,6 +140,23 @@
             <version>2.10.10</version>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <spring.profiles.active>dev</spring.profiles.active>
+                <spring.config.location>classpath:application-dev.properties</spring.config.location>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+                <spring.config.location>classpath:application-prod.properties</spring.config.location>
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
