@@ -19,17 +19,17 @@
             <div class="item">
                 <p:button id="connectorButton" value="Connector" styleClass="headerButton"
                           rendered="#{sessionInfoBean.loggedIn}"
-                          href="welcome.xhtml"/>
+                          href="#{request.contextPath}/secured/welcome.xhtml"/>
             </div>
             <div class="item">
                 <p:button id="lecturesButton" value="Lectures" styleClass="headerButton"
                           rendered="#{sessionInfoBean.loggedIn}"
-                          href="lectures.xhtml"/>
+                          href="#{request.contextPath}/secured/lectures.xhtml"/>
             </div>
             <div class="item">
                 <p:button id="roomsButton" value="Rooms" styleClass="headerButton"
                           rendered="#{sessionInfoBean.loggedIn}"
-                          href="rooms.xhtml"/>
+                          href="#{request.contextPath}/secured/rooms.xhtml"/>
             </div>
         </div>
 
@@ -39,12 +39,12 @@
             <div class="itemRight">
                 <p:button id="usersAdminButton" value="Users" styleClass="headerButton"
                           rendered="#{sessionInfoBean.loggedIn and sessionInfoBean.hasRole('ADMIN')}"
-                          href="/logout" style="color: #898989"/>
+                          href="#{request.contextPath}/admin/users.xhtml"/>
             </div>
             <div class="itemRight">
                 <p:button id="logoutButton" value="Logout" styleClass="headerButton"
                           rendered="#{sessionInfoBean.loggedIn}"
-                          href="/logout" style="color: #898989"/>
+                          href="/logout"/>
             </div>
             <div class="itemRight">
                 <img src="../pics/universitaet-innsbruck-logo-cmyk-graustufen%20(1).jpg" alt="uibk Logo"/>
