@@ -32,7 +32,7 @@ body .ui-card .ui-card-content {
     height: 40%;
 }
 
-body .pi {
+.case .pi {
     color: #D9D9D9;
     background: white;
     margin-right: 10px;
@@ -55,6 +55,8 @@ body .pi {
     text-overflow: ellipsis;
     overflow: hidden;
     transition: bottom 0.3s ease;
+
+    z-index: 2;
 }
 
 
@@ -157,9 +159,27 @@ body .ui-button {
     transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-
 .field{
     height: clamp(12px, 4vw, 50px);
     width: 70%;
     text-align: center
 }
+
+.tableButtons{
+    display: flex;
+    justify-content: space-between; /* Adjust if necessary, but it might help with initial layout */
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: bottom 0.3s ease;
+
+    margin-top: 2.25%;
+    margin-bottom: 10px;
+    width: 100%;
+    z-index: 1;
+}
+.icon_button{
+    margin-right: 15px;
+}
+
+
