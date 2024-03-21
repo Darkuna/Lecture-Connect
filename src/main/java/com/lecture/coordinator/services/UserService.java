@@ -16,7 +16,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Service for accessing and manipulating user data.
@@ -37,45 +40,26 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * Returns a collection of all users.
-     *
-     * @return
-     */
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public Iterable<Userx> getAllUsers() {
-        return userRepository.findAll();
+    private List<Userx> streamToList(Iterable<Userx> userStream){
+        return  StreamSupport.stream(userStream.spliterator(), false)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Loads a single user identified by its username.
-     *
-     * @param username the username to search for
-     * @return the user with the given username
-     */
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public List<Userx> getAllUsers() {
+        return streamToList(userRepository.findAll());
+    }
+
     @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #username")
     public Optional<Userx> loadUser(String username) {
         return userRepository.findById(username);
     }
 
-    /**
-     * Checks if there is a user with this username
-     *
-     * @param username the username to search for
-     * @return there is a user with this username
-     */
     public boolean existsUser(String username) {
         return userRepository.findById(username).isPresent();
     }
 
-    /**
-     * Checks the requirements a user has to have if it doesn't have the
-     * requirements then it throws a exception
-     *
-     * @param user
-     * @throws UserRequiredFieldEmptyException
-     * @throws UserAlreadyExistsException
-     */
     private void checkUserRequirements(Userx user)
             throws UserRequiredFieldEmptyException, UserAlreadyExistsException, UserInvalidEmailException {
 
@@ -100,14 +84,6 @@ public class UserService {
         }
     }
 
-    /**
-     * Registers a new User.
-     *
-     * @param user the user to save
-     * @return the registerd user
-     * @throws UserAlreadyExistsException
-     * @throws UserRequiredFieldEmptyException
-     */
     public Userx registerUser(Userx user)
             throws UserAlreadyExistsException, UserRequiredFieldEmptyException, UserInvalidEmailException {
         checkUserRequirements(user);
@@ -122,17 +98,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    /**
-     * Saves the user. This method will also set {@link Userx#createDate} for new
-     * entities or {@link Userx#updateDate} for updated entities. The user
-     * requesting this operation will also be stored as {@link Userx#createDate}
-     * or {@link Userx#updateUser} respectively.
-     *
-     * @param user the user to save
-     * @return the updated user
-     * @throws UserRequiredFieldEmptyException
-     * @throws UserAlreadyExistsException
-     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Userx saveUser(Userx user)
             throws UserAlreadyExistsException, UserRequiredFieldEmptyException, UserInvalidEmailException {
@@ -150,14 +115,16 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    /**
-     * Deletes the user.
-     *
-     * @param user the user to delete
-     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteUser(Userx user) {
         userRepository.delete(user);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public void deleteMultipleUser(List<Userx> users) {
+        for(Userx u : users) {
+            deleteUser(u);
+        }
     }
 
     public Userx getAuthenticatedUser() {
