@@ -5,126 +5,146 @@
                 xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:p="http://primefaces.org/ui" template="/WEB-INF/main.xhtml">
     <ui:define name="content">
-        <div class="card crud-demo" style="margin-top: 3%">
-            <h:form id="form">
-                <p:growl id="messages" showDetail="true" />
+        <h:form id="form" class="card crud-demo" style="margin-top: 3%">
+            <p:growl id="messages" showDetail="true"/>
 
-                <p:toolbar>
-                    <p:toolbarGroup>
-                        <p:commandButton value="New" icon="pi pi-plus" actionListener="#{crudUserView.openNew}"
-                                         update=":dialogs:manage-product-content" oncomplete="PF('manageProductDialog').show()"
-                                         styleClass="ui-button-success" style="margin-right: .5rem">
-                            <p:resetInput target=":dialogs:manage-product-content" />
-                        </p:commandButton>
-                        <p:commandButton id="delete-products-button" value="#{crudUserView.deleteButtonMessage}"
-                                         icon="pi pi-trash" actionListener="#{crudUserView.deleteSelectedUsers}"
-                                         styleClass="ui-button-danger" disabled="#{!crudUserView.hasSelectedUsers()}" update="@this">
-                            <p:confirm header="Confirmation" message="Delete the selected products?"
-                                       icon="pi pi-exclamation-triangle" />
-                        </p:commandButton>
-                    </p:toolbarGroup>
-                    <p:toolbarGroup align="right">
-                        <p:fileUpload mode="simple" skinSimple="true" label="Import" chooseIcon="pi pi-download" />
-                        <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
-                            <p:dataExporter type="pdf" target="dt-products" fileName="products" />
-                        </p:commandButton>
-                    </p:toolbarGroup>
-                </p:toolbar>
-
-                <p:dataTable id="dt-products" widgetVar="dtProducts" var="user" value="#{crudUserView.users}"
-                             reflow="true" styleClass="products-table" selection="#{crudUserView.selectedUsers}"
-                             rowKey="#{user.username}" paginator="true" rows="10" scrollable="true" scrollHeight="550"
-                             rowSelectMode="add" paginatorPosition="bottom">
-                    <f:facet name="header">
-                        <div class="products-table-header">
-                            <span style="font-weight: bold">USERS</span>
-                            <span class="filter-container ui-input-icon-left">
-                                <i class="pi pi-search"></i>
-                                <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Search" />
-                            </span>
-                        </div>
-                    </f:facet>
-
-                    <p:ajax event="rowSelect" update=":form:delete-products-button" />
-                    <p:ajax event="rowUnselect" update=":form:delete-products-button" />
-                    <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
-                    <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
-                    <p:ajax event="toggleSelect" update=":form:delete-products-button" />
-
-                    <p:column selectionMode="multiple" exportable="false"/>
-
-                    <p:column headerText="Username" sortBy="#{user.username}" filterBy="#{user.username}">
-                        <h:outputText value="#{user.username}" />
-                    </p:column>
-                    <p:column headerText="Username" sortBy="#{user.email}" filterBy="#{user.email}">
-                        <h:outputText value="#{user.email}" />
-                    </p:column>
-                    <p:column headerText="Username" filterBy="#{user.enabled}">
-                        <h:outputText value="#{user.enabled}" />
-                    </p:column>
-                    <p:column headerText="Username" filterBy="#{user.roles}">
-                        <h:outputText value="#{user.roles}" />
-                    </p:column>
-                    <p:column headerText="Username" sortBy="#{user.firstName}" filterBy="#{user.firstName}">
-                        <h:outputText value="#{user.firstName}" />
-                    </p:column>
-                    <p:column headerText="Username" sortBy="#{user.lastName}" filterBy="#{user.lastName}">
-                        <h:outputText value="#{user.lastName}" />
-                    </p:column>
+            <p:toolbar>
+                <p:toolbarGroup>
+                    <p:commandButton value="New" icon="pi pi-plus" actionListener="#{crudUserView.openNew}"
+                                     update=":dialogs:userCreationDialog" oncomplete="PF('userCreationDialog').show()"
+                                     styleClass="ui-button-success" style="margin-right: .5rem">
+                        <p:resetInput target=":dialogs:userCreationDialog" />
+                    </p:commandButton>
+                    <p:commandButton id="delete-products-button" value="#{crudUserView.deleteButtonMessage}"
+                                     icon="pi pi-trash" actionListener="#{crudUserView.deleteSelectedUsers}"
+                                     styleClass="ui-button-danger" disabled="#{!crudUserView.hasSelectedUsers()}" update="@this">
+                        <p:confirm header="Confirmation" message="Delete the selected Users?"
+                                   icon="pi pi-exclamation-triangle" />
+                    </p:commandButton>
+                </p:toolbarGroup>
+                <p:toolbarGroup align="right">
+                    <p:fileUpload mode="simple" skinSimple="true" label="Import" chooseIcon="pi pi-download" />
+                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                        <p:dataExporter type="pdf" target="dt-products" fileName="products" />
+                    </p:commandButton>
+                </p:toolbarGroup>
+            </p:toolbar>
 
 
-                    <p:column exportable="false">
-                        <p:commandButton icon="pi pi-pencil" update=":dialogs:manage-product-content"
-                                         oncomplete="PF('manageProductDialog').show()"
-                                         styleClass="edit-button rounded-button ui-button-success" process="@this">
-                            <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
-                            <p:resetInput target=":dialogs:manage-product-content" />
-                        </p:commandButton>
-                        <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash"
-                                         process="@this"
-                                         oncomplete="PF('deleteProductDialog').show()">
-                            <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
-                        </p:commandButton>
-                    </p:column>
 
-                </p:dataTable>
-            </h:form>
+            <p:dataTable id="dt-products" widgetVar="dtProducts" var="user" value="#{crudUserView.users}"
+                         reflow="true" styleClass="products-table" selection="#{crudUserView.selectedUsers}"
+                         rowKey="#{user.username}" paginator="true" rows="10" scrollable="true" scrollHeight="550"
+                         rowSelectMode="add" paginatorPosition="bottom">
+                <f:facet name="header">
+                    <div class="products-table-header">
+                        <span style="font-weight: bold">USERS</span>
+                        <span class="filter-container ui-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Search" />
+                        </span>
+                    </div>
+                </f:facet>
 
-            <h:form id="dialogs">
-                <p:dialog header="Product Details" showEffect="fade" modal="true" widgetVar="manageProductDialog"
-                          responsive="true">
-                    <p:outputPanel id="manage-product-content" class="ui-fluid">
-                        <p:outputPanel rendered="#{not empty crudUserView.selectedUser}">
-                            <div class="field">
-                                <p:outputLabel for="name">Username</p:outputLabel>
-                                <p:inputText id="name" value="#{crudUserView.selectedUser.username}" required="true" />
-                            </div>
-                        </p:outputPanel>
-                    </p:outputPanel>
+                <p:ajax event="rowSelect" update=":form:delete-products-button" />
+                <p:ajax event="rowUnselect" update=":form:delete-products-button" />
+                <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
+                <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
+                <p:ajax event="toggleSelect" update=":form:delete-products-button" />
 
-                    <f:facet name="footer">
-                        <p:commandButton value="Save" icon="pi pi-check" actionListener="#{crudUserView.saveUser}"
-                                         update="manage-product-content" process="manage-product-content @this" />
-                        <p:commandButton value="Cancel" icon="pi pi-times" onclick="PF('manageProductDialog').hide()"
-                                         class="ui-button-secondary" type="button" />
-                    </f:facet>
-                </p:dialog>
+                <p:column selectionMode="multiple" exportable="false"/>
 
-                <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
-                                 message="Delete the product?" header="Confirm" severity="warn">
-                    <p:commandButton value="Yes" icon="pi pi-check" actionListener="#{crudUserView.deleteUser}"
-                                     process="@this" update=":form:delete-products-button"
-                                     oncomplete="PF('deleteProductDialog').hide()" />
-                    <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
-                                     onclick="PF('deleteProductDialog').hide()" />
-                </p:confirmDialog>
+                <p:column headerText="Username" sortBy="#{user.username}" filterBy="#{user.username}">
+                    <h:outputText value="#{user.username}" />
+                </p:column>
+                <p:column headerText="Mail" sortBy="#{user.email}" filterBy="#{user.email}">
+                    <h:outputText value="#{user.email}" />
+                </p:column>
+                <p:column headerText="enabled" filterBy="#{user.enabled}">
+                    <h:outputText value="#{user.enabled ? 'Yes' : 'No' }" />
+                </p:column>
+                <p:column headerText="Role" filterBy="#{user.roles}">
+                    <h:outputText value="#{user.roles}" />
+                </p:column>
+                <p:column headerText="Firstname" sortBy="#{user.firstName}" filterBy="#{user.firstName}">
+                    <h:outputText value="#{user.firstName}" />
+                </p:column>
+                <p:column headerText="Lastname" sortBy="#{user.lastName}" filterBy="#{user.lastName}">
+                    <h:outputText value="#{user.lastName}" />
+                </p:column>
 
-                <p:confirmDialog global="true" showEffect="fade" width="300">
-                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
-                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
-                                     icon="pi pi-times" />
-                </p:confirmDialog>
-            </h:form>
-        </div>
+                <p:column exportable="false">
+                    <p:commandButton icon="pi pi-pencil" update=":dialogs:userCreationDialog"
+                                     oncomplete="PF('manageProductDialog').show()"
+                                     styleClass="edit-button rounded-button ui-button-success" process="@this">
+                        <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
+                        <p:resetInput target=":dialogs:userCreationDialog" />
+                    </p:commandButton>
+                    <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash"
+                                     process="@this"
+                                     oncomplete="PF('deleteProductDialog').show()">
+                        <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
+                    </p:commandButton>
+                </p:column>
+            </p:dataTable>
+
+
+
+        </h:form>
+
+        <h:form id="dialogs">
+            <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
+                             message="Delete the user?" header="Confirm" severity="warn">
+                <p:commandButton value="Yes" icon="pi pi-check" actionListener="#{crudUserView.doDeleteUser}"
+                                 process="@this" update=":form:delete-products-button"
+                                 oncomplete="PF('deleteProductDialog').hide()" />
+                <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
+                                 onclick="PF('deleteProductDialog').hide()" />
+            </p:confirmDialog>
+
+            <p:confirmDialog global="true" showEffect="fade" width="300">
+                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
+                                 icon="pi pi-times" />
+            </p:confirmDialog>
+
+            <p:dialog header="Create New User" id="userCreationDialog" widgetVar="userCreationDialog" modal="true"
+                      showEffect="fade" hideEffect="fade" resizable="false">
+                <p:outputPanel id="userCreation">
+                    <h:panelGrid columns="2">
+                        <p:outputLabel for="firstNameCreation" value="Vorname:"/>
+                        <p:inputText id="firstNameCreation" name="firstNameCreation" type="text"/>
+
+                        <p:outputLabel for="lastNameCreation" value="Nachname:"/>
+                        <p:inputText id="lastNameCreation" name="lastNameCreation" type="text"/>
+
+                        <p:outputLabel for="mailCreation" value="Mail:"/>
+                        <p:inputText id="mailCreation" name="mailCreation" type="text@text.at"
+                                     required="true" requiredMessage="Email is not allowed to be empty"/>
+
+                        <p:outputLabel for="usernameCreation" value="Username:"/>
+                        <p:inputText id="usernameCreation" name="usernameCreation" type="text"
+                                     required="true" requiredMessage="Username must be set"/>
+
+                        <p:outputLabel for="passwordCreation" value="Password:"/>
+                        <p:inputText id="passwordCreation" name="passwordCreation" type="password"
+                                     required="true" requiredMessage="Password is required"/>
+
+                        <p:selectManyCheckbox id="rolesCreation" value="#{crudUserView.selectedRoles}">
+                            <f:selectItem itemLabel="ADMIN" itemValue="ADMIN"/>
+                            <f:selectItem itemLabel="USER" itemValue="USER"/>
+                        </p:selectManyCheckbox>
+
+                    </h:panelGrid>
+
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Save" action="#{crudUserView.selectedRoles}"
+                                         oncomplete="PF('userCreationDialog').hide()" update=":dialogs:userCreationDialog"/>
+                        <p:commandButton styleClass="ui-button-secondary" value="Abort"
+                                         oncomplete="PF('userCreationDialog').hide()" update=":dialogs:userCreationDialog"/>
+                    </h:panelGrid>
+                </p:outputPanel>
+            </p:dialog>
+        </h:form>
     </ui:define>
 </ui:composition>

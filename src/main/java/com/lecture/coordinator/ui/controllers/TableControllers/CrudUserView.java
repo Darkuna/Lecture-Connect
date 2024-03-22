@@ -1,7 +1,12 @@
 package com.lecture.coordinator.ui.controllers.TableControllers;
 
+import com.lecture.coordinator.exceptions.user.UserAlreadyExistsException;
+import com.lecture.coordinator.exceptions.user.UserInvalidEmailException;
+import com.lecture.coordinator.exceptions.user.UserRequiredFieldEmptyException;
 import com.lecture.coordinator.model.Userx;
+import com.lecture.coordinator.model.UserxRole;
 import com.lecture.coordinator.services.UserService;
+import com.lecture.coordinator.ui.controllers.ControllerUtils;
 import org.primefaces.PrimeFaces;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -9,9 +14,12 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @Scope("view")
@@ -25,6 +33,8 @@ public class CrudUserView implements Serializable {
     private List<Userx> selectedUsers;
 
     private final UserService userService;
+
+    private List<String> selectedRoles;
 
     public CrudUserView(UserService userxService) {
         this.userService = userxService;
@@ -61,25 +71,50 @@ public class CrudUserView implements Serializable {
         this.selectedUser = new Userx();
     }
 
-    public void saveUser() {
-        if (this.selectedUser.getUsername() == null) {
-            this.users.add(this.selectedUser);
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("User Added"));
-        }
-        else {
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("User Updated"));
+
+    public void createUser() {
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
+                .getRequest();
+
+        selectedUser.setFirstName(request.getParameter("createForm:firstNameCreation"));
+        selectedUser.setLastName(request.getParameter("createForm:lastNameCreation"));
+        selectedUser.setEmail(request.getParameter("createForm:mailCreation"));
+        selectedUser.setId(request.getParameter("createForm:usernameCreation"));
+        selectedUser.setPassword(request.getParameter("createForm:passwordCreation"));
+        selectedUser.setEnabled(true);
+
+        Set<UserxRole> roles = new HashSet<>();
+        if (selectedRoles != null) {
+            for (String role : selectedRoles) {
+                if (role.equals("USER"))
+                    roles.add(UserxRole.ADMIN);
+                if (role.equals("USER"))
+                    roles.add(UserxRole.USER);
+            }
         }
 
+        selectedUser.setRoles(roles);
+        try {
+            selectedUser = this.userService.saveUser(selectedUser);
+            init();
+        } catch (UserAlreadyExistsException | UserRequiredFieldEmptyException | UserInvalidEmailException e) {
+            ControllerUtils.addMessage(FacesMessage.SEVERITY_FATAL, "Couldn't create user", e.getMessage());
+        }
+    }
+
+    public void doSaveUser() throws UserAlreadyExistsException, UserRequiredFieldEmptyException, UserInvalidEmailException {
+        selectedUser = this.userService.saveUser(selectedUser);
+        users.add(this.selectedUser);
+        init();
+
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("User Updated"));
         PrimeFaces.current().executeScript("PF('manageuserDialog').hide()");
         PrimeFaces.current().ajax().update("form:messages", "form:dt-users");
     }
 
-    public void deleteUser() {
-        this.users.remove(this.selectedUser);
-        this.selectedUsers.remove(this.selectedUser);
-        this.selectedUser = null;
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("user Removed"));
-        PrimeFaces.current().ajax().update("form:messages", "form:dt-users");
+    public void doDeleteUser() {
+        this.userService.deleteUser(selectedUser);
+        selectedUser = null;
     }
 
     public String getDeleteButtonMessage() {
@@ -96,6 +131,7 @@ public class CrudUserView implements Serializable {
     }
 
     public void deleteSelectedUsers() {
+        userService.deleteMultipleUser(selectedUsers);
         this.users.removeAll(this.selectedUsers);
         this.selectedUsers = null;
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("users Removed"));
@@ -103,5 +139,11 @@ public class CrudUserView implements Serializable {
         PrimeFaces.current().executeScript("PF('dtusers').clearFilters()");
     }
 
+    public List<String> getSelectedRoles() {
+        return selectedRoles;
+    }
 
+    public void setSelectedRoles(List<String> selectedRoles) {
+        this.selectedRoles = selectedRoles;
+    }
 }
