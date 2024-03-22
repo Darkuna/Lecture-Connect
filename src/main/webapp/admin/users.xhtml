@@ -22,6 +22,15 @@
                                    icon="pi pi-exclamation-triangle" />
                     </p:commandButton>
                 </p:toolbarGroup>
+                <p:toolbarGroup align="center">
+                    <div class="products-table-header">
+                        <span style="font-weight: bold">USERS</span>
+                        <span class="filter-container ui-input-icon-left">
+                            <i class="pi pi-search"></i>
+                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Search" />
+                        </span>
+                    </div>
+                </p:toolbarGroup>
                 <p:toolbarGroup align="right">
                     <p:fileUpload mode="simple" skinSimple="true" label="Import" chooseIcon="pi pi-download" />
                     <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
@@ -36,15 +45,6 @@
                          reflow="true" styleClass="products-table" selection="#{crudUserView.selectedUsers}"
                          rowKey="#{user.username}" paginator="true" rows="10" scrollable="true" scrollHeight="550"
                          rowSelectMode="add" paginatorPosition="bottom">
-                <f:facet name="header">
-                    <div class="products-table-header">
-                        <span style="font-weight: bold">USERS</span>
-                        <span class="filter-container ui-input-icon-left">
-                            <i class="pi pi-search"></i>
-                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Search" />
-                        </span>
-                    </div>
-                </f:facet>
 
                 <p:ajax event="rowSelect" update=":form:delete-products-button" />
                 <p:ajax event="rowUnselect" update=":form:delete-products-button" />
@@ -78,11 +78,12 @@
                                      oncomplete="PF('manageProductDialog').show()"
                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
                         <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
-                        <p:resetInput target=":dialogs:userCreationDialog" />
+                        <p:resetInput target=":dialogs:userCreationDialog"/>
                     </p:commandButton>
+
                     <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash"
-                                     process="@this"
-                                     oncomplete="PF('deleteProductDialog').show()">
+                                     process="@this" update=":form:dt-products"
+                                     oncomplete="PF('deleteProductDialog').show()" style=" margin-left: 5px; background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
                         <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
                     </p:commandButton>
                 </p:column>
@@ -94,7 +95,7 @@
 
         <h:form id="dialogs">
             <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
-                             message="Delete the user?" header="Confirm" severity="warn">
+                             message="Are you sure to delete the user?" header="Confirm" severity="warn">
                 <p:commandButton value="Yes" icon="pi pi-check" actionListener="#{crudUserView.doDeleteUser}"
                                  process="@this" update=":form:delete-products-button"
                                  oncomplete="PF('deleteProductDialog').hide()" />
@@ -138,7 +139,7 @@
                     </h:panelGrid>
 
                     <h:panelGrid columns="2">
-                        <p:commandButton value="Save" action="#{crudUserView.selectedRoles}"
+                        <p:commandButton value="Save" action="#{crudUserView.createUser}"
                                          oncomplete="PF('userCreationDialog').hide()" update=":dialogs:userCreationDialog"/>
                         <p:commandButton styleClass="ui-button-secondary" value="Abort"
                                          oncomplete="PF('userCreationDialog').hide()" update=":dialogs:userCreationDialog"/>

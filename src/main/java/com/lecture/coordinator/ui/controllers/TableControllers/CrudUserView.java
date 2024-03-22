@@ -73,20 +73,20 @@ public class CrudUserView implements Serializable {
 
 
     public void createUser() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext()
-                .getRequest();
+        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
+                .getExternalContext().getRequest();
 
-        selectedUser.setFirstName(request.getParameter("createForm:firstNameCreation"));
-        selectedUser.setLastName(request.getParameter("createForm:lastNameCreation"));
-        selectedUser.setEmail(request.getParameter("createForm:mailCreation"));
-        selectedUser.setId(request.getParameter("createForm:usernameCreation"));
-        selectedUser.setPassword(request.getParameter("createForm:passwordCreation"));
+        selectedUser.setFirstName(request.getParameter("dialogs:firstNameCreation"));
+        selectedUser.setLastName(request.getParameter("dialogs:createForm:lastNameCreation"));
+        selectedUser.setEmail(request.getParameter("dialogs:mailCreation"));
+        selectedUser.setId(request.getParameter("dialogs:usernameCreation"));
+        selectedUser.setPassword(request.getParameter("dialogs:passwordCreation"));
         selectedUser.setEnabled(true);
 
         Set<UserxRole> roles = new HashSet<>();
         if (selectedRoles != null) {
             for (String role : selectedRoles) {
-                if (role.equals("USER"))
+                if (role.equals("ADMIN"))
                     roles.add(UserxRole.ADMIN);
                 if (role.equals("USER"))
                     roles.add(UserxRole.USER);
@@ -97,8 +97,15 @@ public class CrudUserView implements Serializable {
         try {
             selectedUser = this.userService.saveUser(selectedUser);
             init();
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("User created"));
+
+
         } catch (UserAlreadyExistsException | UserRequiredFieldEmptyException | UserInvalidEmailException e) {
-            ControllerUtils.addMessage(FacesMessage.SEVERITY_FATAL, "Couldn't create user", e.getMessage());
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
+        }
+        finally {
+            PrimeFaces.current().ajax().update("form:messages", "form:dt-users");
+            PrimeFaces.current().executeScript("PF('dtusers').clearFilters()");
         }
     }
 
@@ -134,6 +141,7 @@ public class CrudUserView implements Serializable {
         userService.deleteMultipleUser(selectedUsers);
         this.users.removeAll(this.selectedUsers);
         this.selectedUsers = null;
+
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("users Removed"));
         PrimeFaces.current().ajax().update("form:messages", "form:dt-users");
         PrimeFaces.current().executeScript("PF('dtusers').clearFilters()");

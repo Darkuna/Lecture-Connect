@@ -68,7 +68,7 @@ public class UserService {
         }
 
         if (existsUser(user.getUsername())) {
-            throw new UserAlreadyExistsException();
+            throw new UserAlreadyExistsException("already in use");
         }
 
         if (user.getPassword() == null || user.getPassword().isBlank()) {
