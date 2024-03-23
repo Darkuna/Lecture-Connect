@@ -115,13 +115,17 @@ public class CrudUserView implements Serializable {
         init();
 
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("User Updated"));
-        PrimeFaces.current().executeScript("PF('manageuserDialog').hide()");
+        PrimeFaces.current().executeScript("PF('manageUserDialog').hide()");
         PrimeFaces.current().ajax().update("form:messages", "form:dt-users");
     }
 
     public void doDeleteUser() {
         this.userService.deleteUser(selectedUser);
         selectedUser = null;
+
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("User Updated"));
+        PrimeFaces.current().executeScript("PF('manageuserDialog').hide()");
+        PrimeFaces.current().ajax().update("form:messages", "form:dt-users");
     }
 
     public String getDeleteButtonMessage() {

@@ -2,8 +2,8 @@
 <!DOCTYPE html
         PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3c.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core"
-                xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:p="http://primefaces.org/ui" template="/WEB-INF/main.xhtml">
+      xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui" template="/WEB-INF/main.xhtml">
     <ui:define name="content">
         <h:form id="form" class="card crud-demo" style="margin-top: 3%">
             <p:growl id="messages" showDetail="true"/>
@@ -17,23 +17,20 @@
                     </p:commandButton>
                     <p:commandButton id="delete-products-button" value="#{crudUserView.deleteButtonMessage}"
                                      icon="pi pi-trash" actionListener="#{crudUserView.deleteSelectedUsers}"
-                                     styleClass="ui-button-danger" disabled="#{!crudUserView.hasSelectedUsers()}" update="@this">
+                                     styleClass="ui-button-danger" disabled="#{!crudUserView.hasSelectedUsers()}"
+                                     update=":form:dt-products" style="margin-left: 5px; color: #f4f4f4;
+                                     background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
                         <p:confirm header="Confirmation" message="Delete the selected Users?"
                                    icon="pi pi-exclamation-triangle" />
                     </p:commandButton>
                 </p:toolbarGroup>
                 <p:toolbarGroup align="center">
-                    <div class="products-table-header">
-                        <span style="font-weight: bold">USERS</span>
-                        <span class="filter-container ui-input-icon-left">
-                            <i class="pi pi-search"></i>
-                            <p:inputText id="globalFilter" onkeyup="PF('dtProducts').filter()" placeholder="Search" />
-                        </span>
-                    </div>
                 </p:toolbarGroup>
                 <p:toolbarGroup align="right">
-                    <p:fileUpload mode="simple" skinSimple="true" label="Import" chooseIcon="pi pi-download" />
-                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false">
+                    <p:fileUpload mode="simple" skinSimple="true" label="Import" chooseIcon="pi pi-download"
+                                  style="color: #f4f4f4"/>
+                    <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false"
+                                     style="background-color: rgba(0,51,97,0.71); border-color: rgba(0,51,97,0.71); color: #f4f4f4">
                         <p:dataExporter type="pdf" target="dt-products" fileName="products" />
                     </p:commandButton>
                 </p:toolbarGroup>
@@ -41,10 +38,18 @@
 
 
 
-            <p:dataTable id="dt-products" widgetVar="dtProducts" var="user" value="#{crudUserView.users}"
+            <p:dataTable id="dt-products" widgetVar="dt-products" var="user" value="#{crudUserView.users}"
                          reflow="true" styleClass="products-table" selection="#{crudUserView.selectedUsers}"
                          rowKey="#{user.username}" paginator="true" rows="10" scrollable="true" scrollHeight="550"
                          rowSelectMode="add" paginatorPosition="bottom">
+
+                <f:facet name="header">
+                    <div class="products-table-header" style="align-content: end; margin-right: 1rem">
+                            <span class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i>
+                        <p:inputText id="globalFilter" onkeyup="PF('dt-products').filter()" placeholder="Search" />
+                    </span>
+                    </div>
+                </f:facet>
 
                 <p:ajax event="rowSelect" update=":form:delete-products-button" />
                 <p:ajax event="rowUnselect" update=":form:delete-products-button" />
@@ -75,7 +80,7 @@
 
                 <p:column exportable="false">
                     <p:commandButton icon="pi pi-pencil" update=":dialogs:userCreationDialog"
-                                     oncomplete="PF('manageProductDialog').show()"
+                                     oncomplete="PF('userCreationDialog').show()"
                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
                         <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
                         <p:resetInput target=":dialogs:userCreationDialog"/>
@@ -83,7 +88,9 @@
 
                     <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash"
                                      process="@this" update=":form:dt-products"
-                                     oncomplete="PF('deleteProductDialog').show()" style=" margin-left: 5px; background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
+                                     oncomplete="PF('deleteProductDialog').show()"
+                                     style="margin-left: 5px; color: #f4f4f4;
+                                     background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
                         <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
                     </p:commandButton>
                 </p:column>
