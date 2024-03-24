@@ -6,7 +6,6 @@ import com.lecture.coordinator.exceptions.user.UserRequiredFieldEmptyException;
 import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.model.UserxRole;
 import com.lecture.coordinator.services.UserService;
-import com.lecture.coordinator.ui.controllers.ControllerUtils;
 import org.primefaces.PrimeFaces;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -41,7 +40,7 @@ public class CrudUserView implements Serializable {
     }
 
     @PostConstruct
-    private void init(){
+    private void init() {
         this.users = userService.getAllUsers();
         this.selectedUsers = new ArrayList<>();
         this.selectedUser = null;
@@ -102,8 +101,7 @@ public class CrudUserView implements Serializable {
 
         } catch (UserAlreadyExistsException | UserRequiredFieldEmptyException | UserInvalidEmailException e) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
-        }
-        finally {
+        } finally {
             PrimeFaces.current().ajax().update("form:messages", "form:dt-users");
             PrimeFaces.current().executeScript("PF('dtusers').clearFilters()");
         }
@@ -121,6 +119,7 @@ public class CrudUserView implements Serializable {
 
     public void doDeleteUser() {
         this.userService.deleteUser(selectedUser);
+        this.users.remove(selectedUser);
         selectedUser = null;
 
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("User Updated"));

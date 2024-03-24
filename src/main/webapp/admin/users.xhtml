@@ -2,8 +2,8 @@
 <!DOCTYPE html
         PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3c.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core"
-      xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
-      xmlns:p="http://primefaces.org/ui" template="/WEB-INF/main.xhtml">
+                xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui" template="/WEB-INF/main.xhtml">
     <ui:define name="content">
         <h:form id="form" class="card crud-demo" style="margin-top: 3%">
             <p:growl id="messages" showDetail="true"/>
@@ -13,7 +13,7 @@
                     <p:commandButton value="New" icon="pi pi-plus" actionListener="#{crudUserView.openNew}"
                                      update=":dialogs:userCreationDialog" oncomplete="PF('userCreationDialog').show()"
                                      styleClass="ui-button-success" style="margin-right: .5rem">
-                        <p:resetInput target=":dialogs:userCreationDialog" />
+                        <p:resetInput target=":dialogs:userCreationDialog"/>
                     </p:commandButton>
                     <p:commandButton id="delete-products-button" value="#{crudUserView.deleteButtonMessage}"
                                      icon="pi pi-trash" actionListener="#{crudUserView.deleteSelectedUsers}"
@@ -21,7 +21,7 @@
                                      update=":form:dt-products" style="margin-left: 5px; color: #f4f4f4;
                                      background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
                         <p:confirm header="Confirmation" message="Delete the selected Users?"
-                                   icon="pi pi-exclamation-triangle" />
+                                   icon="pi pi-exclamation-triangle"/>
                     </p:commandButton>
                 </p:toolbarGroup>
                 <p:toolbarGroup align="center">
@@ -31,11 +31,10 @@
                                   style="color: #f4f4f4"/>
                     <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false"
                                      style="background-color: rgba(0,51,97,0.71); border-color: rgba(0,51,97,0.71); color: #f4f4f4">
-                        <p:dataExporter type="pdf" target="dt-products" fileName="products" />
+                        <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
                     </p:commandButton>
                 </p:toolbarGroup>
             </p:toolbar>
-
 
 
             <p:dataTable id="dt-products" widgetVar="dt-products" var="user" value="#{crudUserView.users}"
@@ -46,16 +45,16 @@
                 <f:facet name="header">
                     <div class="products-table-header" style="align-content: end; margin-right: 1rem">
                             <span class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i>
-                        <p:inputText id="globalFilter" onkeyup="PF('dt-products').filter()" placeholder="Search" />
+                        <p:inputText id="globalFilter" onkeyup="PF('dt-products').filter()" placeholder="Search"/>
                     </span>
                     </div>
                 </f:facet>
 
-                <p:ajax event="rowSelect" update=":form:delete-products-button" />
-                <p:ajax event="rowUnselect" update=":form:delete-products-button" />
-                <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button" />
-                <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button" />
-                <p:ajax event="toggleSelect" update=":form:delete-products-button" />
+                <p:ajax event="rowSelect" update=":form:delete-products-button"/>
+                <p:ajax event="rowUnselect" update=":form:delete-products-button"/>
+                <p:ajax event="rowSelectCheckbox" update=":form:delete-products-button"/>
+                <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button"/>
+                <p:ajax event="toggleSelect" update=":form:delete-products-button"/>
 
                 <p:column selectionMode="multiple" exportable="true"/>
 
@@ -63,26 +62,26 @@
                     <h:outputText value="#{user.username}"/>
                 </p:column>
                 <p:column headerText="Mail" sortBy="#{user.email}" filterBy="#{user.email}">
-                    <h:outputText value="#{user.email}" />
+                    <h:outputText value="#{user.email}"/>
                 </p:column>
                 <p:column headerText="enabled" filterBy="#{user.enabled}">
-                    <h:outputText value="#{user.enabled ? 'Yes' : 'No' }" />
+                    <h:outputText value="#{user.enabled ? 'Yes' : 'No' }"/>
                 </p:column>
                 <p:column headerText="Role" filterBy="#{user.roles}">
-                    <h:outputText value="#{user.roles}" />
+                    <h:outputText value="#{user.roles}"/>
                 </p:column>
                 <p:column headerText="Firstname" sortBy="#{user.firstName}" filterBy="#{user.firstName}">
-                    <h:outputText value="#{user.firstName}" />
+                    <h:outputText value="#{user.firstName}"/>
                 </p:column>
                 <p:column headerText="Lastname" sortBy="#{user.lastName}" filterBy="#{user.lastName}">
-                    <h:outputText value="#{user.lastName}" />
+                    <h:outputText value="#{user.lastName}"/>
                 </p:column>
 
                 <p:column exportable="false">
                     <p:commandButton icon="pi pi-pencil" update=":dialogs:userCreationDialog"
                                      oncomplete="PF('userCreationDialog').show()"
                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
-                        <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
+                        <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}"/>
                         <p:resetInput target=":dialogs:userCreationDialog"/>
                     </p:commandButton>
 
@@ -91,11 +90,10 @@
                                      oncomplete="PF('deleteProductDialog').show()"
                                      style="margin-left: 5px; color: #f4f4f4;
                                      background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
-                        <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}" />
+                        <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}"/>
                     </p:commandButton>
                 </p:column>
             </p:dataTable>
-
 
 
         </h:form>
@@ -104,16 +102,16 @@
             <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
                              message="Are you sure to delete the user?" header="Confirm" severity="warn">
                 <p:commandButton value="Yes" icon="pi pi-check" actionListener="#{crudUserView.doDeleteUser}"
-                                 process="@this" update=":form:delete-products-button"
-                                 oncomplete="PF('deleteProductDialog').hide()" />
+                                 process="@this" update=":form:dt-products"
+                                 oncomplete="PF('deleteProductDialog').hide()"/>
                 <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
-                                 onclick="PF('deleteProductDialog').hide()" />
+                                 onclick="PF('deleteProductDialog').hide()"/>
             </p:confirmDialog>
 
             <p:confirmDialog global="true" showEffect="fade" width="300">
-                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check"/>
                 <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary"
-                                 icon="pi pi-times" />
+                                 icon="pi pi-times"/>
             </p:confirmDialog>
 
             <p:dialog header="Create New User" id="userCreationDialog" widgetVar="userCreationDialog" modal="true"
@@ -147,9 +145,11 @@
 
                     <h:panelGrid columns="2">
                         <p:commandButton value="Save" action="#{crudUserView.createUser}"
-                                         oncomplete="PF('userCreationDialog').hide()" update=":dialogs:userCreationDialog"/>
+                                         oncomplete="PF('userCreationDialog').hide()"
+                                         update=":dialogs:userCreationDialog"/>
                         <p:commandButton styleClass="ui-button-secondary" value="Abort"
-                                         oncomplete="PF('userCreationDialog').hide()" update=":dialogs:userCreationDialog"/>
+                                         oncomplete="PF('userCreationDialog').hide()"
+                                         update=":dialogs:userCreationDialog"/>
                     </h:panelGrid>
                 </p:outputPanel>
             </p:dialog>
