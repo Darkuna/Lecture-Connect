@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
-public class Course implements Persistable<String>, Serializable{
+public class Course implements Persistable<String>, Serializable {
     @Id
     private String id;
     private String name;
@@ -17,11 +17,10 @@ public class Course implements Persistable<String>, Serializable{
     private int numberOfParticipants;
     private int numberOfGroups;
     private boolean isSplit;
-    @ElementCollection(fetch=FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Integer> splitTimes;
     private boolean computersNecessary;
     private boolean isTimingFixed;
-
     @Transient
     private TimingTuple fixedTimings;
 
@@ -31,6 +30,7 @@ public class Course implements Persistable<String>, Serializable{
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")
     private List<Timing> timingConstraints;
+
     @Override
     public String getId() {
         return id;
@@ -129,6 +129,7 @@ public class Course implements Persistable<String>, Serializable{
     public TimingTuple getFixedTimings() {
         return fixedTimings;
     }
+
     public void setFixedTimings(TimingTuple fixedTimings) {
         this.fixedTimings = fixedTimings;
     }
