@@ -6,7 +6,6 @@ import com.lecture.coordinator.exceptions.user.UserRequiredFieldEmptyException;
 import com.lecture.coordinator.model.Userx;
 import com.lecture.coordinator.model.UserxRole;
 import com.lecture.coordinator.services.UserService;
-import com.lecture.coordinator.ui.controllers.ControllerUtils;
 import org.primefaces.PrimeFaces;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -15,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -24,6 +24,7 @@ import java.util.Set;
 @Component
 @Scope("view")
 public class CrudUserView implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private List<Userx> users;
@@ -41,7 +42,7 @@ public class CrudUserView implements Serializable {
     }
 
     @PostConstruct
-    private void init(){
+    private void init() {
         this.users = userService.getAllUsers();
         this.selectedUsers = new ArrayList<>();
         this.selectedUser = null;
@@ -77,7 +78,7 @@ public class CrudUserView implements Serializable {
                 .getExternalContext().getRequest();
 
         selectedUser.setFirstName(request.getParameter("dialogs:firstNameCreation"));
-        selectedUser.setLastName(request.getParameter("dialogs:createForm:lastNameCreation"));
+        selectedUser.setLastName(request.getParameter("dialogs:lastNameCreation"));
         selectedUser.setEmail(request.getParameter("dialogs:mailCreation"));
         selectedUser.setId(request.getParameter("dialogs:usernameCreation"));
         selectedUser.setPassword(request.getParameter("dialogs:passwordCreation"));
@@ -102,8 +103,7 @@ public class CrudUserView implements Serializable {
 
         } catch (UserAlreadyExistsException | UserRequiredFieldEmptyException | UserInvalidEmailException e) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
-        }
-        finally {
+        } finally {
             PrimeFaces.current().ajax().update("form:messages", "form:dt-users");
             PrimeFaces.current().executeScript("PF('dtusers').clearFilters()");
         }
@@ -121,6 +121,7 @@ public class CrudUserView implements Serializable {
 
     public void doDeleteUser() {
         this.userService.deleteUser(selectedUser);
+        this.users.remove(selectedUser);
         selectedUser = null;
 
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("User Updated"));
