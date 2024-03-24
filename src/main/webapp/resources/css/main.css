@@ -14,7 +14,7 @@ body {
     display: block;
 }
 
-body .ui-card{
+body .ui-card {
     width: 40%;
     height: 20%;
     position: absolute;
@@ -106,7 +106,7 @@ body .ui-card .ui-card-content {
     transition: all 0.25s ease;
 }
 
-.container .headerButton:hover{
+.container .headerButton:hover {
     border-color: #003361;
     background: #003361;
     color: #f4f4f4;
@@ -144,7 +144,7 @@ body .ui-card .ui-card-content {
 
 }
 
-.ui-float-label{
+.ui-float-label {
     padding-bottom: 10px;
 }
 
@@ -159,13 +159,13 @@ body .ui-button {
     transition: background-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-.field{
+.field {
     height: clamp(12px, 4vw, 50px);
     width: 70%;
     text-align: center
 }
 
-.tableButtons{
+.tableButtons {
     display: flex;
     justify-content: space-between; /* Adjust if necessary, but it might help with initial layout */
     align-items: center;
@@ -178,8 +178,13 @@ body .ui-button {
     width: 100%;
     z-index: 1;
 }
-.icon_button{
+
+.icon_button {
     margin-right: 15px;
+}
+
+.columnMargin {
+    margin-bottom: 1rem; /* Adjust the margin value as needed */
 }
 
 

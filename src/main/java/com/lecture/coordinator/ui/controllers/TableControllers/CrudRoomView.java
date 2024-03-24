@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +17,7 @@ import java.util.List;
 @Component
 @Scope("view")
 public class CrudRoomView implements Serializable {
+    @Serial
     private static final long serialVersionUID = 2L;
 
     private List<Room> rooms;
@@ -43,32 +44,18 @@ public class CrudRoomView implements Serializable {
     }
 
     public void createRoom() {
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                .getExternalContext().getRequest();
-
-        /*
-        selectedRoom.setFirstName(request.getParameter("dialogs:firstNameCreation"));
-        selectedRoom.setLastName(request.getParameter("dialogs:createForm:lastNameCreation"));
-        selectedRoom.setEmail(request.getParameter("dialogs:mailCreation"));
-        selectedRoom.setId(request.getParameter("dialogs:usernameCreation"));
-        selectedUser.setPassword(request.getParameter("dialogs:passwordCreation"));
-        selectedUser.setEnabled(true);
-
-
-        selectedUser.setRoles(roles);
+        //parameter werden in rooms.xhtml :dialogs:roomCreationDialog gesetzt
         try {
-            selectedUser = this.Roomservice.saveUser(selectedUser);
-            init();
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("User created"));
-
-
-        } catch (UserAlreadyExistsException | UserRequiredFieldEmptyException | UserInvalidEmailException e) {
+            selectedRoom = this.roomService.createRoom(selectedRoom);
+            this.rooms.add(selectedRoom);
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Room created"));
+        } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
         } finally {
+            this.selectedRoom = null;
             PrimeFaces.current().ajax().update("form:messages", "form:dt-Rooms");
             PrimeFaces.current().executeScript("PF('dtRooms').clearFilters()");
         }
-         */
     }
 
     /*

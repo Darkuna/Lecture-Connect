@@ -18,7 +18,7 @@
                     <p:commandButton id="delete-products-button" value="#{crudRoomView.deleteButtonMessage}"
                                      icon="pi pi-trash" actionListener="#{crudRoomView.deleteSelectedRooms}"
                                      styleClass="ui-button-danger" disabled="#{!crudRoomView.hasSelectedRooms()}"
-                                     update=":form:dt-products" style="margin-left: 5px; color: #f4f4f4;
+                                     update=":form:dt-products, form:delete-products-button" style="margin-left: 5px; color: #f4f4f4;
                                      background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
                         <p:confirm header="Confirmation" message="Delete the selected Rooms?"
                                    icon="pi pi-exclamation-triangle"/>
@@ -105,33 +105,34 @@
                                  icon="pi pi-times"/>
             </p:confirmDialog>
 
-            <p:dialog header="Create New Room" id="roomCreationDialog" widgetVar="roomCreationDialog" modal="true"
+            <p:dialog header="Create new Room" id="roomCreationDialog" widgetVar="roomCreationDialog" modal="true"
                       showEffect="fade" hideEffect="fade" resizable="false">
                 <p:outputPanel id="roomCreation">
                     <h:panelGrid columns="2">
-                        <p:outputLabel for="firstNameCreation" value="Vorname:"/>
-                        <p:inputText id="firstNameCreation" name="firstNameCreation" type="text"/>
+                        <p:outputLabel for="idCreation" value="ID (Room Name):" styleClass="columnMargin"/>
+                        <p:inputText id="idCreation" name="idCreation" type="text" styleClass="columnMargin"
+                                     requiredMessage="ID is not allowed to be empty" required="true"
+                                     value="#{crudRoomView.selectedRoom.id}"/>
 
-                        <p:outputLabel for="lastNameCreation" value="Nachname:"/>
-                        <p:inputText id="lastNameCreation" name="lastNameCreation" type="text"/>
+                        <p:outputLabel for="capacityCreation" value="Capacity (Number):" styleClass="columnMargin"/>
+                        <p:inputNumber id="capacityCreation" name="capacityCreation" minValue="1" decimalPlaces="0"
+                                       requiredMessage="number of Seats must be defined" required="true"
+                                       value="#{crudRoomView.selectedRoom.capacity}"
+                                       styleClass="columnMargin"/>
 
-                        <p:outputLabel for="mailCreation" value="Mail:"/>
-                        <p:inputText id="mailCreation" name="mailCreation" type="text@text.at"
-                                     required="true" requiredMessage="Email is not allowed to be empty"/>
+                        <p:outputLabel value="Computers available:"
+                                       styleClass="columnMargin"/>
+                        <p:toggleSwitch value="#{crudRoomView.selectedRoom.computersAvailable}"
+                                        id="availabilityCreation"
+                                        onIcon="pi pi-check" offIcon="pi pi-times" required="true"
+                                        style="margin: 1rem 1rem 0 0"/>
 
-                        <p:outputLabel for="roomnameCreation" value="roomname:"/>
-                        <p:inputText id="roomnameCreation" name="roomnameCreation" type="text"
-                                     required="true" requiredMessage="roomname must be set"/>
-
-                        <p:outputLabel for="passwordCreation" value="Password:"/>
-                        <p:inputText id="passwordCreation" name="passwordCreation" type="password"
-                                     required="true" requiredMessage="Password is required"/>
                     </h:panelGrid>
 
                     <h:panelGrid columns="2">
                         <p:commandButton value="Save" action="#{crudRoomView.createRoom}"
                                          oncomplete="PF('roomCreationDialog').hide()"
-                                         update=":dialogs:roomCreationDialog"/>
+                                         update=":dialogs:roomCreationDialog, :form:dt-products"/>
                         <p:commandButton styleClass="ui-button-secondary" value="Abort"
                                          oncomplete="PF('roomCreationDialog').hide()"
                                          update=":dialogs:roomCreationDialog"/>

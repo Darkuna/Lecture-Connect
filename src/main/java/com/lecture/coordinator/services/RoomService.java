@@ -28,6 +28,12 @@ public class RoomService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Room createRoom(Room room) {
+        roomRepository.save(room);
+        return room;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Room updateRoom(Room room, int capacity, boolean computersAvailable, List<Timing> timingConstraints) {
         room.setCapacity(capacity);
         room.setComputersAvailable(computersAvailable);
@@ -43,12 +49,6 @@ public class RoomService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteMultipleRooms(List<Room> rooms) {
         //TODO: delete Room and unassign all courseSessions that are assigned to this room
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<Room> getFirstRooms(int amount) {
-        return null;
-        //TODO: get a List of first (amount) rooms
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")

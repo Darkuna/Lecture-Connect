@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import java.util.Set;
 @Component
 @Scope("view")
 public class CrudUserView implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     private List<Userx> users;
@@ -76,7 +78,7 @@ public class CrudUserView implements Serializable {
                 .getExternalContext().getRequest();
 
         selectedUser.setFirstName(request.getParameter("dialogs:firstNameCreation"));
-        selectedUser.setLastName(request.getParameter("dialogs:createForm:lastNameCreation"));
+        selectedUser.setLastName(request.getParameter("dialogs:lastNameCreation"));
         selectedUser.setEmail(request.getParameter("dialogs:mailCreation"));
         selectedUser.setId(request.getParameter("dialogs:usernameCreation"));
         selectedUser.setPassword(request.getParameter("dialogs:passwordCreation"));
