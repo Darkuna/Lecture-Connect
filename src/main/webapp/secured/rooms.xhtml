@@ -10,17 +10,17 @@
 
             <p:toolbar>
                 <p:toolbarGroup>
-                    <p:commandButton value="New" icon="pi pi-plus" actionListener="#{crudUserView.openNew}"
-                                     update=":dialogs:userCreationDialog" oncomplete="PF('userCreationDialog').show()"
+                    <p:commandButton value="New" icon="pi pi-plus" actionListener="#{crudRoomView.openNew}"
+                                     update=":dialogs:roomCreationDialog" oncomplete="PF('roomCreationDialog').show()"
                                      styleClass="ui-button-success" style="margin-right: .5rem">
-                        <p:resetInput target=":dialogs:userCreationDialog"/>
+                        <p:resetInput target=":dialogs:roomCreationDialog"/>
                     </p:commandButton>
-                    <p:commandButton id="delete-products-button" value="#{crudUserView.deleteButtonMessage}"
-                                     icon="pi pi-trash" actionListener="#{crudUserView.deleteSelectedUsers}"
-                                     styleClass="ui-button-danger" disabled="#{!crudUserView.hasSelectedUsers()}"
-                                     update=":form:dt-products" style="margin-left: 5px; color: #f4f4f4;
+                    <p:commandButton id="delete-products-button" value="#{crudRoomView.deleteButtonMessage}"
+                                     icon="pi pi-trash" actionListener="#{crudRoomView.deleteSelectedRooms}"
+                                     styleClass="ui-button-danger" disabled="#{!crudRoomView.hasSelectedRooms()}"
+                                     update=":form:dt-products, form:delete-products-button" style="margin-left: 5px; color: #f4f4f4;
                                      background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
-                        <p:confirm header="Confirmation" message="Delete the selected Users?"
+                        <p:confirm header="Confirmation" message="Delete the selected Rooms?"
                                    icon="pi pi-exclamation-triangle"/>
                     </p:commandButton>
                 </p:toolbarGroup>
@@ -37,9 +37,9 @@
             </p:toolbar>
 
 
-            <p:dataTable id="dt-products" widgetVar="dt-products" var="user" value="#{crudUserView.users}"
-                         reflow="true" styleClass="products-table" selection="#{crudUserView.selectedUsers}"
-                         rowKey="#{user.username}" paginator="true" rows="10" scrollable="true" scrollHeight="550"
+            <p:dataTable id="dt-products" widgetVar="dt-products" var="room" value="#{crudRoomView.rooms}"
+                         reflow="true" styleClass="products-table" selection="#{crudRoomView.selectedRooms}"
+                         rowKey="#{room.id}" paginator="true" rows="10" scrollable="true" scrollHeight="90%"
                          rowSelectMode="add" paginatorPosition="bottom">
 
                 <f:facet name="header">
@@ -58,31 +58,22 @@
 
                 <p:column selectionMode="multiple" exportable="true"/>
 
-                <p:column headerText="Username" sortBy="#{user.username}" filterBy="#{user.username}">
-                    <h:outputText value="#{user.username}"/>
+                <p:column headerText="Room ID" sortBy="#{room.id}" filterBy="#{room.id}">
+                    <h:outputText value="#{room.id}"/>
                 </p:column>
-                <p:column headerText="Mail" sortBy="#{user.email}" filterBy="#{user.email}">
-                    <h:outputText value="#{user.email}"/>
+                <p:column headerText="Capacity" sortBy="#{room.capacity}">
+                    <h:outputText value="#{room.capacity}"/>
                 </p:column>
-                <p:column headerText="enabled" filterBy="#{user.enabled}">
-                    <h:outputText value="#{user.enabled ? 'Yes' : 'No' }"/>
-                </p:column>
-                <p:column headerText="Role" filterBy="#{user.roles}">
-                    <h:outputText value="#{user.roles}"/>
-                </p:column>
-                <p:column headerText="Firstname" sortBy="#{user.firstName}" filterBy="#{user.firstName}">
-                    <h:outputText value="#{user.firstName}"/>
-                </p:column>
-                <p:column headerText="Lastname" sortBy="#{user.lastName}" filterBy="#{user.lastName}">
-                    <h:outputText value="#{user.lastName}"/>
+                <p:column headerText="Has Computers" sortBy="#{room.computersAvailable}">
+                    <h:outputText value="#{room.computersAvailable ? 'Yes' : 'No' }"/>
                 </p:column>
 
                 <p:column exportable="false">
-                    <p:commandButton icon="pi pi-pencil" update=":dialogs:userCreationDialog"
-                                     oncomplete="PF('userCreationDialog').show()"
+                    <p:commandButton icon="pi pi-pencil" update=":dialogs:roomCreationDialog"
+                                     oncomplete="PF('roomCreationDialog').show()"
                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
-                        <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}"/>
-                        <p:resetInput target=":dialogs:userCreationDialog"/>
+                        <f:setPropertyActionListener value="#{room}" target="#{crudRoomView.selectedRoom}"/>
+                        <p:resetInput target=":dialogs:roomCreationDialog"/>
                     </p:commandButton>
 
                     <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash"
@@ -90,7 +81,7 @@
                                      oncomplete="PF('deleteProductDialog').show()"
                                      style="margin-left: 5px; color: #f4f4f4;
                                      background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
-                        <f:setPropertyActionListener value="#{user}" target="#{crudUserView.selectedUser}"/>
+                        <f:setPropertyActionListener value="#{room}" target="#{crudRoomView.selectedRoom}"/>
                     </p:commandButton>
                 </p:column>
             </p:dataTable>
@@ -100,8 +91,8 @@
 
         <h:form id="dialogs">
             <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
-                             message="Are you sure to delete the user?" header="Confirm" severity="warn">
-                <p:commandButton value="Yes" icon="pi pi-check" actionListener="#{crudUserView.doDeleteUser}"
+                             message="Are you sure to delete the room?" header="Confirm" severity="warn">
+                <p:commandButton value="Yes" icon="pi pi-check" actionListener="#{crudRoomView.doDeleteRoom}"
                                  process="@this" update=":form:dt-products"
                                  oncomplete="PF('deleteProductDialog').hide()"/>
                 <p:commandButton value="No" type="button" styleClass="ui-button-secondary" icon="pi pi-times"
@@ -114,42 +105,37 @@
                                  icon="pi pi-times"/>
             </p:confirmDialog>
 
-            <p:dialog header="Create New User" id="userCreationDialog" widgetVar="userCreationDialog" modal="true"
+            <p:dialog header="Create new Room" id="roomCreationDialog" widgetVar="roomCreationDialog" modal="true"
                       showEffect="fade" hideEffect="fade" resizable="false">
-                <p:outputPanel id="userCreation">
+                <p:outputPanel id="roomCreation">
                     <h:panelGrid columns="2">
-                        <p:outputLabel for="firstNameCreation" value="Vorname:"/>
-                        <p:inputText id="firstNameCreation" name="firstNameCreation" type="text"/>
+                        <p:outputLabel for="idCreation" value="ID (Room Name):" styleClass="columnMargin"/>
+                        <p:inputText id="idCreation" name="idCreation" type="text" styleClass="columnMargin"
+                                     requiredMessage="ID is not allowed to be empty" required="true"
+                                     value="#{crudRoomView.selectedRoom.id}"/>
 
-                        <p:outputLabel for="lastNameCreation" value="Nachname:"/>
-                        <p:inputText id="lastNameCreation" name="lastNameCreation" type="text"/>
+                        <p:outputLabel for="capacityCreation" value="Capacity (Number):" styleClass="columnMargin"/>
+                        <p:inputNumber id="capacityCreation" name="capacityCreation" minValue="1" decimalPlaces="0"
+                                       requiredMessage="number of Seats must be defined" required="true"
+                                       value="#{crudRoomView.selectedRoom.capacity}"
+                                       styleClass="columnMargin"/>
 
-                        <p:outputLabel for="mailCreation" value="Mail:"/>
-                        <p:inputText id="mailCreation" name="mailCreation" type="text@text.at"
-                                     required="true" requiredMessage="Email is not allowed to be empty"/>
-
-                        <p:outputLabel for="usernameCreation" value="Username:"/>
-                        <p:inputText id="usernameCreation" name="usernameCreation" type="text"
-                                     required="true" requiredMessage="Username must be set"/>
-
-                        <p:outputLabel for="passwordCreation" value="Password:"/>
-                        <p:inputText id="passwordCreation" name="passwordCreation" type="password"
-                                     required="true" requiredMessage="Password is required"/>
-
-                        <p:selectManyCheckbox id="rolesCreation" value="#{crudUserView.selectedRoles}">
-                            <f:selectItem itemLabel="ADMIN" itemValue="ADMIN"/>
-                            <f:selectItem itemLabel="USER" itemValue="USER"/>
-                        </p:selectManyCheckbox>
+                        <p:outputLabel value="Computers available:"
+                                       styleClass="columnMargin"/>
+                        <p:toggleSwitch value="#{crudRoomView.selectedRoom.computersAvailable}"
+                                        id="availabilityCreation"
+                                        onIcon="pi pi-check" offIcon="pi pi-times" required="true"
+                                        style="margin: 1rem 1rem 0 0"/>
 
                     </h:panelGrid>
 
                     <h:panelGrid columns="2">
-                        <p:commandButton value="Save" action="#{crudUserView.createUser}"
-                                         oncomplete="PF('userCreationDialog').hide()"
-                                         update=":dialogs:userCreationDialog"/>
+                        <p:commandButton value="Save" action="#{crudRoomView.createRoom}"
+                                         oncomplete="PF('roomCreationDialog').hide()"
+                                         update=":dialogs:roomCreationDialog, :form:dt-products"/>
                         <p:commandButton styleClass="ui-button-secondary" value="Abort"
-                                         oncomplete="PF('userCreationDialog').hide()"
-                                         update=":dialogs:userCreationDialog"/>
+                                         oncomplete="PF('roomCreationDialog').hide()"
+                                         update=":dialogs:roomCreationDialog"/>
                     </h:panelGrid>
                 </p:outputPanel>
             </p:dialog>

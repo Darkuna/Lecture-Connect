@@ -21,37 +21,51 @@ public class Room implements Persistable<String>, Serializable {
     private List<TimeTable> timeTables;
 
     // CONSTRUCTOR
-    public Room(){}
+    public Room() {
+    }
+
+    public Room(String id, int capacity, boolean computersAvailable) {
+        this.id = id;
+        this.capacity = capacity;
+        this.computersAvailable = computersAvailable;
+    }
 
     // GETTERS AND SETTERS
     public int getCapacity() {
         return capacity;
     }
+
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
+
     public boolean isComputersAvailable() {
         return computersAvailable;
     }
+
     public void setComputersAvailable(boolean computersAvailable) {
         this.computersAvailable = computersAvailable;
     }
+
     @Override
-    public String getId(){
+    public String getId() {
         return id;
     }
+
     public void setId(String id) {
         this.id = id;
     }
+
     public void setTimingConstraints(List<Timing> timingConstraints) {
         this.timingConstraints = timingConstraints;
     }
+
     public List<Timing> getTimingConstraints() {
         return timingConstraints;
     }
 
     //OTHER METHODS
-    public boolean isNew(){
+    public boolean isNew() {
         return true;
     }
 }
