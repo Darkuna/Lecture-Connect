@@ -31,6 +31,10 @@ public class Course implements Persistable<String>, Serializable{
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")
     private List<Timing> timingConstraints;
+
+    @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
+    private List<TimeTable> timeTables;
+
     @Override
     public String getId() {
         return id;

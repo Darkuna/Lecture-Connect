@@ -17,6 +17,9 @@ public class Room implements Persistable<String>, Serializable {
     @JoinColumn(name = "room_id")
     private List<Timing> timingConstraints;
 
+    @ManyToMany(mappedBy="rooms", fetch = FetchType.LAZY)
+    private List<TimeTable> timeTables;
+
     // CONSTRUCTOR
     public Room() {
     }
