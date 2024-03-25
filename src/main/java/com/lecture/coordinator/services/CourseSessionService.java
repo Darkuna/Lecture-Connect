@@ -40,7 +40,7 @@ public class CourseSessionService {
             }
 
             if(course.isTimingFixed()){
-                Tuple<Timing> splitTimes = course.getFixedTimings();
+                TimingTuple splitTimes = course.getFixedTimings();
                 courseSession.setTiming(i == 0 ? splitTimes.getL() : splitTimes.getR());
                 courseSession.setAssigned(true);
             } else{
@@ -84,5 +84,9 @@ public class CourseSessionService {
 
     public List<CourseSession> loadAllUnassignedCourseSessionsFor(TimeTable timeTable){
         return courseSessionRepository.findAllByIsAssignedFalseAndTimeTable(timeTable);
+    }
+
+    public List<CourseSession> loadAllFromTimeTableAndCourse(TimeTable timeTable, Course course){
+        return courseSessionRepository.findAllByTimeTableAndCourse(timeTable,course);
     }
 }

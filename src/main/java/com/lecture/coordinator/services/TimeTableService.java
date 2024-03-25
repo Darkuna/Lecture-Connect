@@ -4,8 +4,10 @@ import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.repositories.TimeTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ public class TimeTableService {
     @Autowired
     private CourseSessionService courseSessionService;
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable createTimeTable(Semester semester, int year, List<Room> rooms, List<Course> courses){
         TimeTable timeTable = new TimeTable();
         timeTable.setSemester(semester);
@@ -29,16 +32,20 @@ public class TimeTableService {
         return timeTableRepository.save(timeTable);
     }
 
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void createRoomTables(TimeTable timeTable){
         List<RoomTable> roomTables = new ArrayList<>();
         for(Room room : timeTable.getRooms()){
-            RoomTable roomTable = roomTableService.createRoomTableFromRoom(room);
+            RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
             roomTable.setTimeTable(timeTable);
             roomTables.add(roomTable);
         }
         timeTable.setRoomTables(roomTables);
     }
 
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void createCourseSessions(TimeTable timeTable){
         List<CourseSession> combinedCourseSessions = new ArrayList<>();
         List<CourseSession> courseSessions;
@@ -53,23 +60,47 @@ public class TimeTableService {
         timeTable.setCourseSessions(combinedCourseSessions);
     }
 
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void addRoom(TimeTable timeTable, Room room){
-        //TODO: Add room to timeTable.rooms and create RoomTable
+        List<Room> rooms = timeTable.getRooms();
+        rooms.add(room);
+        List<RoomTable> roomTables = timeTable.getRoomTables();
+        RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
+        roomTables.add(roomTable);
+        timeTableRepository.save(timeTable);
     }
 
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void addCourse(TimeTable timeTable, Course course){
-        //TODO: Add course to timeTable.courses and add the added course's course sessions to
-        // timeTable.courseSessions
+        List<Course> courses = timeTable.getCourses();
+        courses.add(course);
+        List<CourseSession> courseSessions = timeTable.getCourseSessions();
+        List<CourseSession> courseSessionsToAdd = courseSessionService.createCourseSessionsFromCourse(course);
+        courseSessions.addAll(courseSessionsToAdd);
+        timeTableRepository.save(timeTable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void removeRoom(TimeTable timeTable, Room room){
-        //TODO: Remove room from timeTable, also deleting its roomTable
+        List<Room> rooms = timeTable.getRooms();
+        rooms.remove(room);
+        List<RoomTable> roomTables = timeTable.getRoomTables();
+        roomTables.remove(roomTableService.loadRoomTableByRoom(room));
+        timeTableRepository.save(timeTable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void removeCourse(TimeTable timeTable, Course course){
-        //TODO: Remove a course from timeTable, also deleting the corresponding generated courseSessions
+        List<CourseSession> courseSessions = timeTable.getCourseSessions();
+        courseSessions.removeAll(courseSessionService.loadAllFromTimeTableAndCourse(timeTable,course));
+        List<Course> courses = timeTable.getCourses();
+        courses.remove(course);
+        timeTableRepository.save(timeTable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void assignCourseSessionsToRooms(TimeTable timeTable){
         //TODO: This is the place where our ALGORITHM will be executed
     }
