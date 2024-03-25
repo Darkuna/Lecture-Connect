@@ -17,7 +17,15 @@ public class RoomTable implements Persistable<Long>, Serializable {
     private TimeTable timeTable;
     @Transient
     private Set<CourseSession> assignedCourses;
+    @Transient
+    private AvailabilityMatrix availabilityMatrix;
 
+    public AvailabilityMatrix getAvailabilityMatrix() {
+        return availabilityMatrix;
+    }
+    public void setAvailabilityMatrix(AvailabilityMatrix availabilityMatrix) {
+        this.availabilityMatrix = availabilityMatrix;
+    }
     public Set<CourseSession> getAssignedCourses() {
         return assignedCourses;
     }

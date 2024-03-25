@@ -102,4 +102,5 @@ public class TimeTable implements Persistable<Long>, Serializable{
     public void setCourseSessions(List<CourseSession> courseSessions) {
         this.courseSessions = courseSessions;
     }
+
 }

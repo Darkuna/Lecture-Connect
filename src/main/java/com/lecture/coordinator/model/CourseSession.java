@@ -23,6 +23,9 @@ public class CourseSession implements Persistable<String>, Serializable {
     @ManyToOne
     private Room room;
 
+    //Static object BLOCKED for availability matrix
+    public static final CourseSession BLOCKED = new CourseSession();
+
     public Timing getTiming() {
         return timing;
     }
@@ -91,5 +94,9 @@ public class CourseSession implements Persistable<String>, Serializable {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public boolean isBlocked() {
+        return this == BLOCKED;
     }
 }
