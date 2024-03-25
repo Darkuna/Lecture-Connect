@@ -33,6 +33,11 @@ public class RoomService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Room createRoom(Room room) {
+        return roomRepository.save(room);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Room updateRoom(Room room, int capacity, boolean computersAvailable, List<Timing> timingConstraints){
         room.setCapacity(capacity);
         room.setComputersAvailable(computersAvailable);
@@ -66,5 +71,11 @@ public class RoomService {
             room.setTimingConstraints(timingService.loadTimingConstraintsOfRoom(room));
         }
         return room;
+    }
+
+    public void deleteMultipleRooms(List<Room> selectedRooms) {
+        for(Room room : selectedRooms){
+            deleteRoom(room);
+        }
     }
 }
