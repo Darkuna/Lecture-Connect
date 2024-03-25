@@ -68,6 +68,16 @@ public class CourseSessionService {
         return courseSessionRepository.save(courseSession);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<CourseSession> unassignCourseSessions(List<CourseSession> courseSessions){
+        for (CourseSession courseSession : courseSessions) {
+            courseSession.setRoom(null);
+            courseSession.setTiming(null);
+            courseSession.setAssigned(false);
+        }
+        return courseSessionRepository.saveAll(courseSessions);
+    }
+
     public List<CourseSession> loadAllAssignedToRoom(Room room){
         return courseSessionRepository.findAllByRoom(room);
     }

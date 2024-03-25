@@ -1,5 +1,6 @@
 package com.lecture.coordinator.services;
 
+import com.lecture.coordinator.model.CourseSession;
 import com.lecture.coordinator.model.Room;
 import com.lecture.coordinator.model.Timing;
 import com.lecture.coordinator.repositories.RoomRepository;
@@ -9,12 +10,18 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Scope("session")
 public class RoomService {
     @Autowired
     private RoomRepository roomRepository;
+    @Autowired
+    private CourseSessionService courseSessionService;
+    @Autowired
+    private TimingService timingService;
+
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Room createRoom(String id, int capacity, boolean computersAvailable, List<Timing> timingConstraints){
         Room newRoom = new Room();
@@ -35,6 +42,29 @@ public class RoomService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteRoom(Room room){
-        //TODO: delete Room and unassign all courseSessions that are assigned to this room
+        List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoom(room);
+        courseSessionService.unassignCourseSessions(courseSessions);
+        roomRepository.delete(room);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Room> loadAllRooms(){
+        List<Room> rooms = roomRepository.findAll();
+        for(Room room : rooms){
+            //TODO: Are the timing constraints necessary for room list?
+            room.setTimingConstraints(timingService.loadTimingConstraintsOfRoom(room));
+        }
+        return rooms;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Room loadRoomByID(String id){
+        Optional<Room> optionalRoom = roomRepository.findById(id);
+        Room room = null;
+        if(optionalRoom.isPresent()){
+            room = optionalRoom.get();
+            room.setTimingConstraints(timingService.loadTimingConstraintsOfRoom(room));
+        }
+        return room;
     }
 }
