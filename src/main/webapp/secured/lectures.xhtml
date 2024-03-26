@@ -121,23 +121,11 @@
                       showEffect="fade" hideEffect="fade" resizable="false">
                 <p:outputPanel id="roomCreation">
                     <h:panelGrid columns="2">
-                        <p:outputLabel for="idCreation" value="ID (Course Name):" styleClass="columnMargin"/>
-                        <p:inputText id="idCreation" name="idCreation" type="text" styleClass="columnMargin"
-                                     requiredMessage="ID is not allowed to be empty" required="true"
-                                     value="#{crudLectureView.selectedCourse.id}"/>
-
                         <p:outputLabel for="nameCreation" value="Name:" styleClass="columnMargin"/>
-                        <p:inputText id="capacityCreation" name="capacityCreation"
+                        <p:inputText id="nameCreation" name="capacityCreation"
                                      requiredMessage="number of Seats must be defined" required="true"
                                      value="#{crudLectureView.selectedCourse.name}"
                                      styleClass="columnMargin"/>
-
-                        <p:outputLabel for="nameCreation" value="Name:" styleClass="columnMargin"/>
-                        <p:inputText id="semensterCreation" name="capacityCreation"
-                                     requiredMessage="number of Seats must be defined" required="true"
-                                     value="#{crudLectureView.selectedCourse.name}"
-                                     styleClass="columnMargin"/>
-
 
                         <p:outputLabel value="Computers available:"
                                        styleClass="columnMargin"/>
