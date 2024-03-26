@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,8 +18,6 @@ import java.util.Optional;
 public class RoomService {
     @Autowired
     private RoomRepository roomRepository;
-    @Autowired
-    private CourseSessionService courseSessionService;
     @Autowired
     private TimingService timingService;
 
@@ -37,6 +36,7 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Room updateRoom(Room room, int capacity, boolean computersAvailable, List<Timing> timingConstraints){
         room.setCapacity(capacity);
@@ -45,10 +45,9 @@ public class RoomService {
         return roomRepository.save(room);
     }
 
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteRoom(Room room){
-        List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoom(room);
-        courseSessionService.unassignCourseSessions(courseSessions);
         roomRepository.delete(room);
     }
 

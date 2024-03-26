@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -60,5 +61,10 @@ public class CourseService {
         course.setTimingConstraints(timingConstraints);
 
         return courseRepository.save(course);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Course loadCourseById(String id){
+        return courseRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Course not found for ID: " + id));
     }
 }

@@ -1,46 +1,89 @@
 package com.lecture.coordinator.tests.service;
 
+import com.lecture.coordinator.model.*;
+import com.lecture.coordinator.services.CourseService;
+import com.lecture.coordinator.services.RoomService;
 import com.lecture.coordinator.services.TimeTableService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
+import java.util.ArrayList;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @WebAppConfiguration
+@ActiveProfiles("dev")
 public class TimeTableServiceTest {
     @Autowired
     private TimeTableService timeTableService;
+    @Autowired
+    private RoomService roomService;
+    @Autowired
+    private CourseService courseService;
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testCreateTimeTable(){
-        //TODO: create a test for creating a timetable
-    }
+    public void testCreateTimeTableWithOneRoomAndOneCourseWithoutGroups(){
+        List<Room> rooms = List.of(roomService.loadRoomByID("HS A"));
+        List<Course> courses = List.of(courseService.loadCourseById("703003"));
+        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024, rooms, courses);
 
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testCreateRoomTablesOfTimeTable(){
-        //TODO: create a test for creating roomTables of a given timeTable
-    }
+        assertEquals(rooms, timeTable.getRooms());
+        assertEquals(courses, timeTable.getCourses());
+        assertEquals(Semester.SS, timeTable.getSemester());
+        assertEquals(2024, timeTable.getYear());
 
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testCreateCourseSessions(){
-        //TODO: create a test for creating courseSessions for all courses of the timetable
+        //Tests for created roomTables
+        List<RoomTable> roomTables = timeTable.getRoomTables();
+
+        assertEquals(rooms.size(), roomTables.size());
+
+        //Tests for created courseSessions
+        List<CourseSession> courseSessions = timeTable.getCourseSessions();
+
+        assertEquals(1, courseSessions.size());
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testAddRoom(){
-        //TODO: create a test for adding a room to the timeTable
+        int numberOfRooms = 1;
+        List<Room> rooms = new ArrayList<>(List.of(roomService.loadRoomByID("HS A")));
+        List<Course> courses = new ArrayList<>(List.of(courseService.loadCourseById("703003")));
+        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024, rooms, courses);
+
+        assertEquals(numberOfRooms, timeTable.getRooms().size());
+        assertEquals(rooms.size(), timeTable.getRoomTables().size());
+
+        Room roomToAdd = roomService.loadRoomByID("Rechnerraum 22");
+        timeTableService.addRoom(timeTable, roomToAdd);
+
+        assertEquals(numberOfRooms+1, timeTable.getRooms().size());
+        assertEquals(numberOfRooms+1, timeTable.getRoomTables().size());
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testAddCourse(){
-        //TODO: create a test for adding a course to the timeTable
+        int numberOfCourseSessions = 6;
+        List<Room> rooms = new ArrayList<>(List.of(roomService.loadRoomByID("HS A")));
+        List<Course> courses = new ArrayList<>(List.of(courseService.loadCourseById("703004")));
+        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024, rooms, courses);
+
+        assertEquals(1, timeTable.getCourses().size());
+        assertEquals(numberOfCourseSessions, timeTable.getCourseSessions().size());
+
+        Course courseToAdd = courseService.loadCourseById("703003");
+        timeTableService.addCourse(timeTable, courseToAdd);
+
+        assertEquals(2, timeTable.getCourses().size());
+        assertEquals(numberOfCourseSessions+1, timeTable.getCourseSessions().size());
     }
 
     @Test
