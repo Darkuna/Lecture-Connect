@@ -40,7 +40,7 @@ public class CourseSessionService {
             }
 
             if(course.isTimingFixed()){
-                Tuple<Timing> splitTimes = course.getFixedTimings();
+                TimingTuple splitTimes = course.getFixedTimings();
                 courseSession.setTiming(i == 0 ? splitTimes.getL() : splitTimes.getR());
                 courseSession.setAssigned(true);
             } else{
@@ -68,11 +68,25 @@ public class CourseSessionService {
         return courseSessionRepository.save(courseSession);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<CourseSession> unassignCourseSessions(List<CourseSession> courseSessions){
+        for (CourseSession courseSession : courseSessions) {
+            courseSession.setRoom(null);
+            courseSession.setTiming(null);
+            courseSession.setAssigned(false);
+        }
+        return courseSessionRepository.saveAll(courseSessions);
+    }
+
     public List<CourseSession> loadAllAssignedToRoom(Room room){
         return courseSessionRepository.findAllByRoom(room);
     }
 
     public List<CourseSession> loadAllUnassignedCourseSessionsFor(TimeTable timeTable){
         return courseSessionRepository.findAllByIsAssignedFalseAndTimeTable(timeTable);
+    }
+
+    public List<CourseSession> loadAllFromTimeTableAndCourse(TimeTable timeTable, Course course){
+        return courseSessionRepository.findAllByTimeTableAndCourse(timeTable,course);
     }
 }

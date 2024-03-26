@@ -14,15 +14,26 @@ public class TimeTable implements Persistable<Long>, Serializable{
     private Semester semester;
     @Column(name = "academic_year")
     private int year;
-    @OneToMany(fetch = FetchType.LAZY)
-    private List<Room> rooms;
-    @OneToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "time_table_courses",
+            joinColumns = @JoinColumn(name = "time_table_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id")
+    )
     private List<Course> courses;
 
-    @OneToMany(mappedBy = "timeTable", fetch= FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "time_table_rooms",
+            joinColumns = @JoinColumn(name = "time_table_id"),
+            inverseJoinColumns = @JoinColumn(name = "room_id")
+    )
+    private List<Room> rooms;
+
+    @OneToMany(mappedBy = "timeTable", fetch= FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RoomTable> roomTables;
 
-    @Transient
+    @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CourseSession> courseSessions;
 
     //CONSTRUCTOR
@@ -91,4 +102,5 @@ public class TimeTable implements Persistable<Long>, Serializable{
     public void setCourseSessions(List<CourseSession> courseSessions) {
         this.courseSessions = courseSessions;
     }
+
 }

@@ -34,7 +34,7 @@ public class CrudRoomView implements Serializable {
 
     @PostConstruct
     private void init() {
-        this.rooms = roomService.getAllRooms();
+        this.rooms = roomService.loadAllRooms();
         this.selectedRooms = new ArrayList<>();
         this.selectedRoom = null;
     }

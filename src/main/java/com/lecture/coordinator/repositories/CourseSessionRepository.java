@@ -1,5 +1,6 @@
 package com.lecture.coordinator.repositories;
 
+import com.lecture.coordinator.model.Course;
 import com.lecture.coordinator.model.CourseSession;
 import com.lecture.coordinator.model.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,4 +15,8 @@ public interface CourseSessionRepository extends JpaRepository<CourseSession, St
 
     @Query("SELECT cs FROM CourseSession cs WHERE cs.isAssigned = false AND cs.timeTable = :timeTable")
     List<CourseSession> findAllByIsAssignedFalseAndTimeTable(@Param("timeTable") TimeTable timeTable);
+
+    @Query("SELECT cs FROM CourseSession cs WHERE cs.course = :course and cs.timeTable = :timeTable")
+    List<CourseSession> findAllByTimeTableAndCourse(@Param("timeTable") TimeTable timeTable,
+                                                    @Param("course") Course course);
 }
