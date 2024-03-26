@@ -87,7 +87,7 @@ public class Course implements Persistable<String>, Serializable{
 
     @Override
     public boolean isNew() {
-        return true;
+        return id == null;
     }
 
     public boolean isSplit() {

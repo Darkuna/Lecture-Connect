@@ -4,10 +4,12 @@ import com.lecture.coordinator.model.Day;
 import com.lecture.coordinator.model.Room;
 import com.lecture.coordinator.model.Timing;
 import com.lecture.coordinator.services.RoomService;
+import com.lecture.coordinator.services.TimingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -22,34 +24,50 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RoomServiceTest {
     @Autowired
     private RoomService roomService;
-
+    @Autowired
+    private TimingService timingService;
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateRoom(){
-        Timing constraint = new Timing();
-        constraint.setDay(Day.MONDAY);
-        constraint.setStartTime(LocalTime.of(12,0));
-        constraint.setEndTime(LocalTime.of(14,30));
+        Day day = Day.MONDAY;
+        LocalTime start = LocalTime.of(12,0);
+        LocalTime end = LocalTime.of(14,0);
+        Timing constraint = timingService.createTiming(start, end, day);
+
         List<Timing> timingConstraints = List.of(constraint);
         Room newRoom = roomService.createRoom("RR24", 25, true, timingConstraints);
 
         assertEquals("RR24", newRoom.getId());
         assertEquals(25, newRoom.getCapacity());
         assertTrue(newRoom.isComputersAvailable());
-        assertEquals(timingConstraints, newRoom.getTimingConstraints());
+        assertEquals(constraint.getDay(), newRoom.getTimingConstraints().get(0).getDay());
+        assertEquals(constraint.getStartTime(), newRoom.getTimingConstraints().get(0).getStartTime());
+        assertEquals(constraint.getEndTime(), newRoom.getTimingConstraints().get(0).getEndTime());
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testUpdateRoom(){
-        //TODO: create test for updating a room
+        String id = "HSB 3";
+        Room room = roomService.loadRoomByID(id);
+        room = roomService.updateRoom(room, 40, true, room.getTimingConstraints());
+
+        assertEquals(40, room.getCapacity());
+        assertEquals(true, room.isComputersAvailable());
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
+    @DirtiesContext
     public void testDeleteRoom(){
-        //TODO: create test for deleting a room
+        String id = "HSB 3";
+        Room room = roomService.loadRoomByID(id);
+
+        roomService.deleteRoom(room);
+
+        room = roomService.loadRoomByID(id);
+        assertNull(room);
     }
 
     @Test
@@ -71,5 +89,22 @@ public class RoomServiceTest {
         List<Room> rooms = roomService.loadAllRooms();
 
         assertEquals(numberOfRooms, rooms.size());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    @DirtiesContext
+    public void testDeleteMultipleRooms() {
+        Room room1 = roomService.loadRoomByID("Rechnerraum 20");
+        Room room2 = roomService.loadRoomByID("Rechnerraum 21");
+        List<Room> toBeDeleted = List.of(room1, room2);
+
+        roomService.deleteMultipleRooms(toBeDeleted);
+
+        room1 = roomService.loadRoomByID("Rechnerraum 20");
+        room2 = roomService.loadRoomByID("Rechnerraum 21");
+
+        assertNull(room1);
+        assertNull(room2);
     }
 }

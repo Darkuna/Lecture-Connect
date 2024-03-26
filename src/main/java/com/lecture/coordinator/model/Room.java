@@ -66,6 +66,6 @@ public class Room implements Persistable<String>, Serializable {
 
     //OTHER METHODS
     public boolean isNew() {
-        return true;
+        return id == null;
     }
 }

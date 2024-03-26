@@ -51,6 +51,6 @@ public class Timing implements Persistable<Long>, Serializable{
     //OTHER METHODS
     @Override
     public boolean isNew(){
-        return true;
+        return id == null;
     }
 }
