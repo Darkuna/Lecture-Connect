@@ -89,4 +89,8 @@ public class CourseSessionService {
     public List<CourseSession> loadAllFromTimeTableAndCourse(TimeTable timeTable, Course course){
         return courseSessionRepository.findAllByTimeTableAndCourse(timeTable,course);
     }
+
+    public List<CourseSession> loadAllFromTimeTable(TimeTable timeTable){
+        return courseSessionRepository.findAllByTimeTable(timeTable);
+    }
 }

@@ -103,4 +103,15 @@ public class TimeTable implements Persistable<Long>, Serializable{
         this.courseSessions = courseSessions;
     }
 
+    public void addRoom(Room room){
+        if(room != null){
+            rooms.add(room);
+        }
+    }
+
+    public void addRoomTable(RoomTable roomTable){
+        if(roomTable != null){
+            roomTables.add(roomTable);
+        }
+    }
 }

@@ -4,7 +4,6 @@ import com.lecture.coordinator.model.Course;
 import com.lecture.coordinator.model.CourseSession;
 import com.lecture.coordinator.services.CourseService;
 import com.lecture.coordinator.services.CourseSessionService;
-import com.lecture.coordinator.services.RoomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +91,7 @@ public class CourseSessionServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testLoadAllUnassignedCourseSessions(){
+    public void testLoadAllUnassignedCourseSessionsOfTimeTable(){
         //TODO: create a test for loading all unassigned course sessions for a specific timeTable
     }
 }

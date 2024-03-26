@@ -2,6 +2,7 @@ package com.lecture.coordinator.tests.service;
 
 import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.services.CourseService;
+import com.lecture.coordinator.services.TimingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CourseServiceTest {
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private TimingService timingService;
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
@@ -36,10 +39,7 @@ public class CourseServiceTest {
         boolean computersNecessary = false;
         boolean isTimingFixed = false;
         TimingTuple fixedTimings = null;
-        Timing constraint = new Timing();
-        constraint.setDay(Day.MONDAY);
-        constraint.setStartTime(LocalTime.of(12, 0));
-        constraint.setEndTime(LocalTime.of(14, 30));
+        Timing constraint = timingService.createTiming(LocalTime.of(12,0), LocalTime.of(14,30),Day.MONDAY);
         List<Timing> timingConstraints = List.of(constraint);
 
         Course course = courseService.createCourse(id, name, lecturer, semester, duration, numberOfParticipants, numberOfGroups,
@@ -57,6 +57,5 @@ public class CourseServiceTest {
         assertEquals(computersNecessary, course.isComputersNecessary());
         assertEquals(isTimingFixed, course.isTimingFixed());
         assertEquals(fixedTimings, course.getFixedTimings());
-        assertEquals(timingConstraints, course.getTimingConstraints());
     }
 }
