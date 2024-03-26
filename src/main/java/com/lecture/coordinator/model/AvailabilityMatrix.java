@@ -59,6 +59,18 @@ public class AvailabilityMatrix {
     public Optional<CourseSession> getCourseSession(int day, int slot) {
         return Optional.ofNullable(matrix[day][slot]);
     }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Mo Di Mi Do Fr");
+        for(int i = 0; i < SLOTS_PER_DAY; i++){
+            for(int j = 0; j < DAYS_IN_WEEK; j++){
+                sb.append(String.format("| %c ", matrix[i][j].equals(CourseSession.BLOCKED) ? 'X' : ' '));
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 }
 
 
