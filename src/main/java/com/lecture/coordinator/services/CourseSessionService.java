@@ -53,8 +53,8 @@ public class CourseSessionService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public CourseSession assignCourseSession(CourseSession courseSession, Room room, Timing timing){
-        courseSession.setRoom(room);
+    public CourseSession assignCourseSessionToRoom(CourseSession courseSession, RoomTable roomTable, Timing timing){
+        courseSession.setRoomTable(roomTable);
         courseSession.setTiming(timing);
         courseSession.setAssigned(true);
         return courseSessionRepository.save(courseSession);
@@ -62,7 +62,7 @@ public class CourseSessionService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public CourseSession unassignCourseSession(CourseSession courseSession){
-        courseSession.setRoom(null);
+        courseSession.setRoomTable(null);
         courseSession.setTiming(null);
         courseSession.setAssigned(false);
         return courseSessionRepository.save(courseSession);
@@ -71,15 +71,15 @@ public class CourseSessionService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> unassignCourseSessions(List<CourseSession> courseSessions){
         for (CourseSession courseSession : courseSessions) {
-            courseSession.setRoom(null);
+            courseSession.setRoomTable(null);
             courseSession.setTiming(null);
             courseSession.setAssigned(false);
         }
         return courseSessionRepository.saveAll(courseSessions);
     }
 
-    public List<CourseSession> loadAllAssignedToRoom(Room room){
-        return courseSessionRepository.findAllByRoom(room);
+    public List<CourseSession> loadAllAssignedToRoomTableInTimeTable(TimeTable timeTable, RoomTable roomTable){
+        return courseSessionRepository.findAllByTimeTableAndRoomTable(timeTable, roomTable);
     }
 
     public List<CourseSession> loadAllUnassignedCourseSessionsFor(TimeTable timeTable){
