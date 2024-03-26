@@ -5,19 +5,18 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 public class RoomTable implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @OneToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Room room;
     @ManyToOne
     private TimeTable timeTable;
     @OneToMany(mappedBy="roomTable", fetch = FetchType.LAZY)
-    private List<CourseSession> assignedCourses;
+    private List<CourseSession> assignedCourseSessions;
     @Transient
     private AvailabilityMatrix availabilityMatrix;
 
@@ -27,12 +26,12 @@ public class RoomTable implements Persistable<Long>, Serializable {
     public void setAvailabilityMatrix(AvailabilityMatrix availabilityMatrix) {
         this.availabilityMatrix = availabilityMatrix;
     }
-    public List<CourseSession> getAssignedCourses() {
-        return assignedCourses;
+    public List<CourseSession> getAssignedCourseSessions() {
+        return assignedCourseSessions;
     }
 
-    public void setAssignedCourses(List<CourseSession> assignedCourses) {
-        this.assignedCourses = assignedCourses;
+    public void setAssignedCourseSessions(List<CourseSession> assignedCourseSessions) {
+        this.assignedCourseSessions = assignedCourseSessions;
     }
 
     public void setId(Long id) {

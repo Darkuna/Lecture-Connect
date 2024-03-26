@@ -13,12 +13,15 @@ public class Room implements Persistable<String>, Serializable {
     private int capacity;
     private boolean computersAvailable;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private List<Timing> timingConstraints;
 
     @ManyToMany(mappedBy="rooms", fetch = FetchType.LAZY)
     private List<TimeTable> timeTables;
+
+    @OneToMany(mappedBy="room", fetch = FetchType.LAZY)
+    private List<RoomTable> roomTables;
 
     // CONSTRUCTOR
     public Room() {
@@ -62,6 +65,22 @@ public class Room implements Persistable<String>, Serializable {
 
     public List<Timing> getTimingConstraints() {
         return timingConstraints;
+    }
+
+    public List<RoomTable> getRoomTables() {
+        return roomTables;
+    }
+
+    public void setRoomTables(List<RoomTable> roomTables) {
+        this.roomTables = roomTables;
+    }
+
+    public List<TimeTable> getTimeTables() {
+        return timeTables;
+    }
+
+    public void setTimeTables(List<TimeTable> timeTables) {
+        this.timeTables = timeTables;
     }
 
     //OTHER METHODS

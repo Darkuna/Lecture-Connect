@@ -19,8 +19,6 @@ public class RoomService {
     @Autowired
     private RoomRepository roomRepository;
     @Autowired
-    private CourseSessionService courseSessionService;
-    @Autowired
     private TimingService timingService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
@@ -50,8 +48,6 @@ public class RoomService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteRoom(Room room){
-        List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoom(room);
-        courseSessionService.unassignCourseSessions(courseSessions);
         roomRepository.delete(room);
     }
 

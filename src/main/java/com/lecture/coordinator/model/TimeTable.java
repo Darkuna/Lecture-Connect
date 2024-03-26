@@ -14,7 +14,7 @@ public class TimeTable implements Persistable<Long>, Serializable{
     private Semester semester;
     @Column(name = "academic_year")
     private int year;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "time_table_courses",
             joinColumns = @JoinColumn(name = "time_table_id"),
@@ -22,7 +22,7 @@ public class TimeTable implements Persistable<Long>, Serializable{
     )
     private List<Course> courses;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "time_table_rooms",
             joinColumns = @JoinColumn(name = "time_table_id"),

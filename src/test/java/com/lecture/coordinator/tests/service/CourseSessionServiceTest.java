@@ -25,8 +25,6 @@ public class CourseSessionServiceTest {
     private CourseSessionService courseSessionService;
     @Autowired
     private CourseService courseService;
-    @Autowired
-    private RoomService roomService;
 
     @Test
     @DisplayName("Tests the creation of a courseSessions for a course without group, that is not split and" +
@@ -76,7 +74,7 @@ public class CourseSessionServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testAssignCourseSessionToRoom(){
+    public void testAssignCourseSessionToRoomTable(){
         //TODO: create test for assigning a courseSession to a specific roomTable at a specific timing
     }
 
