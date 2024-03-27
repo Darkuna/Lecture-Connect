@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class RoomTable implements Persistable<Long>, Serializable {
@@ -63,4 +64,18 @@ public class RoomTable implements Persistable<Long>, Serializable {
     public void setTimeTable(TimeTable timeTable) {
         this.timeTable = timeTable;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoomTable roomTable = (RoomTable) o;
+        return id != null && id.equals(roomTable.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
 }

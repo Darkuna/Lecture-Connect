@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class TimeTableServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testAddRoom(){
+    public void testAddRoomToTimeTable(){
         int numberOfRooms = 1;
         List<Room> rooms = new ArrayList<>(List.of(roomService.loadRoomByID("HS A")));
         List<Course> courses = new ArrayList<>(List.of(courseService.loadCourseById("703003")));
@@ -70,7 +71,7 @@ public class TimeTableServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testAddCourse(){
+    public void testAddCourseToTimeTable(){
         int numberOfCourseSessions = 6;
         List<Room> rooms = new ArrayList<>(List.of(roomService.loadRoomByID("HS A")));
         List<Course> courses = new ArrayList<>(List.of(courseService.loadCourseById("703004")));
@@ -88,13 +89,13 @@ public class TimeTableServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testRemoveRoom(){
+    public void testRemoveRoomFromTimeTable(){
         //TODO: create a test for removing a room to the timeTable
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testRemoveCourse(){
+    public void testRemoveCourseFromTimeTable(){
         //TODO: create a test for removing a course to the timeTable
     }
 
@@ -107,6 +108,7 @@ public class TimeTableServiceTest {
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadTimeTable(){
         TimeTable timeTable = timeTableService.loadTimeTable(-1);

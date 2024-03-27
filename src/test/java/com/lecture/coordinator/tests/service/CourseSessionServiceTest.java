@@ -1,17 +1,20 @@
 package com.lecture.coordinator.tests.service;
 
-import com.lecture.coordinator.model.Course;
-import com.lecture.coordinator.model.CourseSession;
+import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.services.CourseService;
 import com.lecture.coordinator.services.CourseSessionService;
+import com.lecture.coordinator.services.RoomTableService;
+import com.lecture.coordinator.services.TimingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,6 +27,10 @@ public class CourseSessionServiceTest {
     private CourseSessionService courseSessionService;
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private RoomTableService roomTableService;
+    @Autowired
+    private TimingService timingService;
 
     @Test
     @DisplayName("Tests the creation of courseSessions for a course without groups that is not split")
@@ -81,24 +88,41 @@ public class CourseSessionServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testAssignCourseSessionToRoomTable(){
-        //TODO: create test for assigning a courseSession to a specific roomTable at a specific timing
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-2);
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+        Timing timing = timingService.createTiming(LocalTime.of(8,0), LocalTime.of(10,0),
+                Day.TUESDAY);
+        courseSessionService.assignCourseSessionToRoomTable(courseSession, roomTable, timing);
+
+        assertEquals(Day.TUESDAY, courseSession.getTiming().getDay());
+        assertEquals(LocalTime.of(8,0), courseSession.getTiming().getStartTime());
+        assertEquals(LocalTime.of(10,0), courseSession.getTiming().getEndTime());
+        assertEquals(roomTable, courseSession.getRoomTable());
+        assertTrue(courseSession.isAssigned());
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testUnassignCourse(){
-        //TODO: create a test for unassigning a courseSession
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
+        assertTrue(courseSession.isAssigned());
+
+        courseSessionService.unassignCourseSession(courseSession);
+
+        assertFalse(courseSession.isAssigned());
+        assertNull(courseSession.getRoomTable());
+        assertNull(courseSession.getTiming());
+
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllAssignedToRoomTable(){
-        //TODO: create a test for loading all courseSessions assigned to a specific room
-    }
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+        List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
 
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testLoadAllUnassignedCourseSessionsOfTimeTable(){
-        //TODO: create a test for loading all unassigned course sessions for a specific timeTable
+        assertNotNull(courseSessions);
+        assertEquals(1, courseSessions.size());
     }
 }

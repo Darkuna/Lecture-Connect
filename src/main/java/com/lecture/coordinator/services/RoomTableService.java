@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -32,10 +33,14 @@ public class RoomTableService {
         return roomTableRepository.findRoomTableByRoom(room);
     }
 
+    public RoomTable loadRoomTableByID(long id){
+        return roomTableRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("RoomTable not found for ID: " + id));
+    }
+
     public List<RoomTable> loadRoomTablesOfTimeTable(TimeTable timeTable){
         List<RoomTable> roomTables = roomTableRepository.findAllByTimeTable(timeTable);
         for(RoomTable roomTable : roomTables){
-            List<CourseSession> assignedCourseSessions = courseSessionService.loadAllAssignedToRoomTableInTimeTable(timeTable, roomTable);
+            List<CourseSession> assignedCourseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
             roomTable.setAssignedCourseSessions(assignedCourseSessions);
             List<Timing> timingConstraints = timingService.loadTimingConstraintsOfRoom(roomTable.getRoom());
             roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(timingConstraints));
