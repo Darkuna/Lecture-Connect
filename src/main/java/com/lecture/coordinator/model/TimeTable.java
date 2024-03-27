@@ -4,6 +4,7 @@ import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -113,5 +114,15 @@ public class TimeTable implements Persistable<Long>, Serializable{
         if(roomTable != null){
             roomTables.add(roomTable);
         }
+    }
+
+    public List<CourseSession> getUnassignedCourseSessions(){
+        List<CourseSession> unassignedCourseSessions = new ArrayList<>();
+        for(CourseSession courseSession : courseSessions){
+            if(!courseSession.isAssigned()){
+                unassignedCourseSessions.add(courseSession);
+            }
+        }
+        return unassignedCourseSessions;
     }
 }
