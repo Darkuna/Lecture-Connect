@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface CourseSessionRepository extends JpaRepository<CourseSession, String> {
+public interface CourseSessionRepository extends JpaRepository<CourseSession, Long> {
 
     @Query("SELECT cs FROM CourseSession cs WHERE cs.isAssigned = false AND cs.timeTable = :timeTable")
     List<CourseSession> findAllByIsAssignedFalseAndTimeTable(@Param("timeTable") TimeTable timeTable);

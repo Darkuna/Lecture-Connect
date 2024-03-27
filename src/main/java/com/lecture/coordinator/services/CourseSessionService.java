@@ -29,7 +29,6 @@ public class CourseSessionService {
         for(int i = 0; i < numberOfCourseSessionsToCreate; i++){
             CourseSession courseSession = new CourseSession();
             courseSession.setCourse(course);
-            courseSession.setId(String.format("%s-%d",course.getId(), i));
             courseSession.setAssigned(false);
             courseSession.setTimingConstraints(course.getTimingConstraints());
 

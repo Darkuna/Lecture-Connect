@@ -26,7 +26,7 @@ public class CourseSessionServiceTest {
     private CourseService courseService;
 
     @Test
-    @DisplayName("Tests the creation of a courseSessions for a course without group, that is not split and")
+    @DisplayName("Tests the creation of courseSessions for a course without groups that is not split")
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfNormalCourse(){
         Course normalCourse = courseService.loadCourseById("703003");
@@ -42,13 +42,28 @@ public class CourseSessionServiceTest {
     }
 
     @Test
+    @DisplayName("Tests the creation of courseSessions for a course without groups that is split")
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfSplitCourse(){
-        //TODO: create test for a split course
+        Course splitCourse = courseService.loadCourseById("703013");
+        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(splitCourse);
+
+        assertEquals(2, courseSessions.size());
+
+        CourseSession courseSession1 = courseSessions.get(0);
+        CourseSession courseSession2 = courseSessions.get(1);
+
+        assertEquals(splitCourse, courseSession1.getCourse());
+        assertEquals(120, courseSession1.getDuration());
+        assertEquals(splitCourse.getTimingConstraints(), courseSession1.getTimingConstraints());
+
+        assertEquals(splitCourse, courseSession2.getCourse());
+        assertEquals(60, courseSession2.getDuration());
+        assertEquals(splitCourse.getTimingConstraints(), courseSession2.getTimingConstraints());
     }
 
     @Test
-    @DisplayName("Tests the creation of a courseSessions for a course with groups, that is not split and")
+    @DisplayName("Tests the creation of courseSessions for a course with groups that is not split")
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfCourseWithGroups(){
         Course groupCourse = courseService.loadCourseById("703004");
