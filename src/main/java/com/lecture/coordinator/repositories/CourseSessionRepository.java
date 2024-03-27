@@ -16,9 +16,8 @@ public interface CourseSessionRepository extends JpaRepository<CourseSession, Lo
     List<CourseSession> findAllByTimeTableAndCourse(@Param("timeTable") TimeTable timeTable,
                                                     @Param("course") Course course);
 
-    @Query("SELECT cs FROM CourseSession cs WHERE cs.timeTable = :timeTable AND cs.roomTable = :roomTable")
-    List<CourseSession> findAllByTimeTableAndRoomTable(@Param("timeTable") TimeTable timeTable,
-                                                       @Param("roomTable") RoomTable roomTable);
+    @Query("SELECT cs FROM CourseSession cs WHERE cs.roomTable = :roomTable")
+    List<CourseSession> findAllByRoomTable(@Param("roomTable") RoomTable roomTable);
 
     List<CourseSession> findAllByTimeTable(@Param("timeTable") TimeTable timeTable);
 }

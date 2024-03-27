@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +43,7 @@ public class CourseSessionService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public CourseSession assignCourseSessionToRoom(CourseSession courseSession, RoomTable roomTable, Timing timing){
+    public CourseSession assignCourseSessionToRoomTable(CourseSession courseSession, RoomTable roomTable, Timing timing){
         courseSession.setRoomTable(roomTable);
         courseSession.setTiming(timing);
         courseSession.setAssigned(true);
@@ -67,12 +68,8 @@ public class CourseSessionService {
         return courseSessionRepository.saveAll(courseSessions);
     }
 
-    public List<CourseSession> loadAllAssignedToRoomTableInTimeTable(TimeTable timeTable, RoomTable roomTable){
-        return courseSessionRepository.findAllByTimeTableAndRoomTable(timeTable, roomTable);
-    }
-
-    public List<CourseSession> loadAllUnassignedCourseSessionsFor(TimeTable timeTable){
-        return courseSessionRepository.findAllByIsAssignedFalseAndTimeTable(timeTable);
+    public List<CourseSession> loadAllAssignedToRoomTable(RoomTable roomTable){
+        return courseSessionRepository.findAllByRoomTable(roomTable);
     }
 
     public List<CourseSession> loadAllFromTimeTableAndCourse(TimeTable timeTable, Course course){
@@ -81,5 +78,9 @@ public class CourseSessionService {
 
     public List<CourseSession> loadAllFromTimeTable(TimeTable timeTable){
         return courseSessionRepository.findAllByTimeTable(timeTable);
+    }
+
+    public CourseSession loadCourseSessionByID(long id){
+        return courseSessionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("CourseSession not found for ID: " + id));
     }
 }
