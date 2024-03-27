@@ -98,7 +98,23 @@ public class TimeTableServiceTest {
         //TODO: create a test for removing a course to the timeTable
     }
 
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadTimeTables(){
+        List<TimeTable> timeTables = timeTableService.loadAllTimeTables();
 
+        assertEquals(1, timeTables.size());
+    }
 
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadTimeTable(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+
+        assertEquals(Semester.SS, timeTable.getSemester());
+        assertEquals(2023, timeTable.getYear());
+        assertNotNull(timeTable.getRoomTables());
+        assertNotNull(timeTable.getCourseSessions());
+    }
 
 }
