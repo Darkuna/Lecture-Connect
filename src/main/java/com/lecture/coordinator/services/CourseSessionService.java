@@ -38,15 +38,6 @@ public class CourseSessionService {
             } else{
                 courseSession.setDuration(course.getDuration());
             }
-
-            if(course.isTimingFixed()){
-                TimingTuple splitTimes = course.getFixedTimings();
-                courseSession.setTiming(i == 0 ? splitTimes.getL() : splitTimes.getR());
-                courseSession.setAssigned(true);
-            } else{
-                courseSession.setTiming(timingService.createTiming(LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, null));
-            }
-
             courseSessions.add(courseSession);
         }
         return courseSessions;

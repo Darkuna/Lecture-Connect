@@ -19,7 +19,7 @@ public class CourseService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course createCourse(String id, String name, String lecturer, int semester, int duration, int numberOfParticipants,
                                int numberOfGroups, boolean isSplit, List<Integer> splitTimes, boolean computersNecessary,
-                               boolean isTimingFixed, TimingTuple fixedTimings, List<Timing> timingConstraints){
+                               List<Timing> timingConstraints){
         Course course = new Course();
         course.setId(id);
         course.setName(name);
@@ -31,8 +31,6 @@ public class CourseService {
         course.setSplit(isSplit);
         course.setSplitTimes(splitTimes);
         course.setComputersNecessary(computersNecessary);
-        course.setTimingFixed(isTimingFixed);
-        course.setFixedTimings(fixedTimings);
         course.setTimingConstraints(timingConstraints);
 
         return courseRepository.save(course);
@@ -46,7 +44,7 @@ public class CourseService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course updateCourse(Course course, String name, String lecturer, int semester, int duration, int numberOfParticipants,
                                int numberOfGroups, boolean isSplit, List<Integer> splitTimes, boolean computersNecessary,
-                               boolean isTimingFixed, TimingTuple fixedTimings, List<Timing> timingConstraints){
+                               List<Timing> timingConstraints){
         course.setName(name);
         course.setLecturer(lecturer);
         course.setSemester(semester);
@@ -56,8 +54,6 @@ public class CourseService {
         course.setSplit(isSplit);
         course.setSplitTimes(splitTimes);
         course.setComputersNecessary(computersNecessary);
-        course.setTimingFixed(isTimingFixed);
-        course.setFixedTimings(fixedTimings);
         course.setTimingConstraints(timingConstraints);
 
         return courseRepository.save(course);

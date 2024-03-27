@@ -26,8 +26,7 @@ public class CourseSessionServiceTest {
     private CourseService courseService;
 
     @Test
-    @DisplayName("Tests the creation of a courseSessions for a course without group, that is not split and" +
-            " does not have fixed timings")
+    @DisplayName("Tests the creation of a courseSessions for a course without group, that is not split and")
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfNormalCourse(){
         Course normalCourse = courseService.loadCourseById("703003");
@@ -49,8 +48,7 @@ public class CourseSessionServiceTest {
     }
 
     @Test
-    @DisplayName("Tests the creation of a courseSessions for a course with groups, that is not split and" +
-            " does not have fixed timings")
+    @DisplayName("Tests the creation of a courseSessions for a course with groups, that is not split and")
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfCourseWithGroups(){
         Course groupCourse = courseService.loadCourseById("703004");
@@ -63,12 +61,6 @@ public class CourseSessionServiceTest {
         assertEquals(groupCourse, courseSession.getCourse());
         assertEquals(groupCourse.getDuration(), courseSession.getDuration());
         assertEquals(groupCourse.getTimingConstraints(), courseSession.getTimingConstraints());
-    }
-
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testCreateCourseSessionOfCourseWithFixedTiming(){
-        //TODO: create test for a course with fixed timing
     }
 
     @Test
