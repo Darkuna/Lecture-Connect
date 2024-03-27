@@ -1,0 +1,63 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{ngerman}
+\usepackage{geometry}
+\graphicspath{ {./images/} }
+\title{Neuen TimeTable erstellen}
+\author{Johannes Karrer \& Elias Walder}
+
+\geometry{
+	top=2cm,
+	bottom=2.5cm,
+	left=3.0cm,
+	right=3.0cm,
+}
+
+
+\begin{document}
+	\maketitle
+	\section{Einleitung}
+	Dieses Dokument beschreibt, wie das Erstellen eines neuen TimeTable-Objekts abläuft.
+	
+	\section{Voraussetzungen}
+	\begin{itemize}
+		\item Die für den TimeTable benötigten Kurse und Räume wurden bereits in die Datenbank aufgenommen (über die Ansichten Courses bzw. Rooms)
+	\end{itemize}
+	
+	\section{Ablauf}
+	\begin{enumerate}
+		\item Semester und Jahr werden ausgewählt.
+		\item Kurse können über Auswahlfelder hinzugefügt werden.
+		\item Räume können über Auswahlfelder hinzugefügt werden.
+		\item Button \textbf{TimeTable erstellen}
+		\begin{itemize}
+			\item Für jeden Raum wird ein RoomTable erstellt.
+			\item Für jeden Kurs werden CourseSessions erstellt:
+			\begin{itemize}
+				\item Eine CourseSession für normale Kurse.
+				\item n CourseSessions für Kurse mit n Gruppen.
+				\item n CourseSessions für Kurse, deren Gesamtdauer auf mehrere Subzeiten aufgeteilt werden sollen. 
+			\end{itemize}
+		\end{itemize}
+		\item Der User sieht eine Kalenderansicht aller RoomTables ohne zugewiesene Kurse. In einem eigenständigen Seitenpanel werden alle erstellten CourseSessions angezeigt. In diesem Stadium ist noch keine der CourseSessions einem RoomTable zugewiesen.
+		\item Der User hat nun die Möglichkeit, den RoomTables eine beliebige Anzahl von CourseSessions manuell zuzuweisen (Drag\&Drop).
+		\item Weitere User-Optionen zu diesem Zeitpunkt:
+		\begin{itemize}
+			\item Weitere Räume hinzufügen $->$ erstellt für die hinzugefügten Räume RoomTables.
+			\item Weitere Kurse hinzufügen $->$ erstellt für die hinzugefügten Kurse CourseSessions.
+			\item CourseSessions bearbeiten:
+			\begin{itemize}
+				\item CourseSessions entfernen
+				\item CourseSessions splitten
+				\item CourseSession für zusätzliche Gruppe hinzufügen
+				\item Dauer der CourseSession anpassen
+			\end{itemize}
+		\end{itemize}
+		\item Button \textbf{Automatische Zuordnung}
+		\begin{itemize}
+			\item Alle nicht manuell zugeordneten Kurse werden auf Basis eines Algorithmus auf die RoomTables verteilt.
+		\end{itemize}
+		\item Nach der automatischen Zuordnung hat der User noch die Möglichkeit, die RoomTables per Drag\&Drop manuell nachzubearbeiten. Sollte es bei einer manuellen Zuordnung Konflikte geben, bekommt der User eine entsprechende Meldung.
+	\end{enumerate}
+\end{document}
