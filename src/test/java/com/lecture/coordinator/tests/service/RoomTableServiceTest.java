@@ -30,7 +30,7 @@ public class RoomTableServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateRoomTablesFromRoom(){
-        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024, List.of(), List.of());
+        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024);
         Room room = roomService.loadRoomByID("HS A");
         RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
 
@@ -61,7 +61,7 @@ public class RoomTableServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadRoomTablesOfTimeTable(){
         TimeTable timeTable = timeTableService.loadAllTimeTables().get(0);
-        List<RoomTable> roomTables = roomTableService.loadRoomTablesOfTimeTable(timeTable);
+        List<RoomTable> roomTables = roomTableService.loadAllOfTimeTable(timeTable);
 
         assertNotNull(roomTables);
         assertEquals(5, roomTables.size());

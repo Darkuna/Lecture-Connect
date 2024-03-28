@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Scope("session")
@@ -37,7 +38,7 @@ public class RoomTableService {
         return roomTableRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("RoomTable not found for ID: " + id));
     }
 
-    public List<RoomTable> loadRoomTablesOfTimeTable(TimeTable timeTable){
+    public List<RoomTable> loadAllOfTimeTable(TimeTable timeTable){
         List<RoomTable> roomTables = roomTableRepository.findAllByTimeTable(timeTable);
         for(RoomTable roomTable : roomTables){
             List<CourseSession> assignedCourseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
@@ -49,9 +50,6 @@ public class RoomTableService {
     }
 
     private AvailabilityMatrix initializeAvailabilityMatrix(List<Timing> timingConstraints){
-        if(timingConstraints != null){
-            return new AvailabilityMatrix(timingConstraints);
-        }
-        return new AvailabilityMatrix(List.of());
+        return new AvailabilityMatrix(Objects.requireNonNullElseGet(timingConstraints, List::of));
     }
 }

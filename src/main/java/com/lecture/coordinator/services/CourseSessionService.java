@@ -30,6 +30,7 @@ public class CourseSessionService {
             CourseSession courseSession = new CourseSession();
             courseSession.setCourse(course);
             courseSession.setAssigned(false);
+            courseSession.setFixed(false);
             courseSession.setTimingConstraints(course.getTimingConstraints());
 
             if(isSplitCourse){

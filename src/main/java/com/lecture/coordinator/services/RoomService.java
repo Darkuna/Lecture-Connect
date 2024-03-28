@@ -22,12 +22,11 @@ public class RoomService {
     private TimingService timingService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Room createRoom(String id, int capacity, boolean computersAvailable, List<Timing> timingConstraints){
+    public Room createRoom(String id, int capacity, boolean computersAvailable){
         Room newRoom = new Room();
         newRoom.setId(id);
         newRoom.setCapacity(capacity);
         newRoom.setComputersAvailable(computersAvailable);
-        newRoom.setTimingConstraints(timingConstraints);
         return roomRepository.save(newRoom);
     }
 
@@ -38,10 +37,9 @@ public class RoomService {
 
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Room updateRoom(Room room, int capacity, boolean computersAvailable, List<Timing> timingConstraints){
+    public Room updateRoom(Room room, int capacity, boolean computersAvailable){
         room.setCapacity(capacity);
         room.setComputersAvailable(computersAvailable);
-        room.setTimingConstraints(timingConstraints);
         return roomRepository.save(room);
     }
 

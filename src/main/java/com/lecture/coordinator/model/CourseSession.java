@@ -16,6 +16,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     @OneToMany
     private List<Timing> timingConstraints;
     private boolean isAssigned;
+    private boolean isFixed;
     private int duration;
     @ManyToOne
     private Course course;
@@ -99,5 +100,13 @@ public class CourseSession implements Persistable<Long>, Serializable {
 
     public boolean isBlocked() {
         return this == BLOCKED;
+    }
+
+    public boolean isFixed() {
+        return isFixed;
+    }
+
+    public void setFixed(boolean fixed) {
+        isFixed = fixed;
     }
 }

@@ -37,6 +37,10 @@ public class CourseSessionServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfNormalCourse(){
         Course normalCourse = courseService.loadCourseById("703003");
+        normalCourse.setNumberOfGroups(1);
+        normalCourse.setSplit(false);
+        normalCourse.setSplitTimes(null);
+
         List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(normalCourse);
 
         assertEquals(1, courseSessions.size());
@@ -53,6 +57,10 @@ public class CourseSessionServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfSplitCourse(){
         Course splitCourse = courseService.loadCourseById("703013");
+        splitCourse.setNumberOfGroups(1);
+        splitCourse.setSplit(true);
+        splitCourse.setSplitTimes(List.of(120,60));
+
         List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(splitCourse);
 
         assertEquals(2, courseSessions.size());
@@ -74,6 +82,10 @@ public class CourseSessionServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfCourseWithGroups(){
         Course groupCourse = courseService.loadCourseById("703004");
+        groupCourse.setNumberOfGroups(6);
+        groupCourse.setSplit(false);
+        groupCourse.setSplitTimes(null);
+
         List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(groupCourse);
 
         assertEquals(6, courseSessions.size());
@@ -89,7 +101,7 @@ public class CourseSessionServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testAssignCourseSessionToRoomTable(){
         CourseSession courseSession = courseSessionService.loadCourseSessionByID(-2);
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-2);
         Timing timing = timingService.createTiming(LocalTime.of(8,0), LocalTime.of(10,0),
                 Day.TUESDAY);
         courseSessionService.assignCourseSessionToRoomTable(courseSession, roomTable, timing);
@@ -102,6 +114,7 @@ public class CourseSessionServiceTest {
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testUnassignCourse(){
         CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
@@ -116,12 +129,11 @@ public class CourseSessionServiceTest {
     }
 
     @Test
-    @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllAssignedToRoomTable(){
         RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
         List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
-
+        System.out.println(courseSessions);
         assertNotNull(courseSessions);
         assertEquals(1, courseSessions.size());
     }

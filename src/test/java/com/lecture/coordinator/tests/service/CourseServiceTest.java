@@ -29,19 +29,17 @@ public class CourseServiceTest {
     public void testCreateCourse() {
         String id = "lv232325";
         String name = "TestCourse";
+        CourseType courseType = CourseType.VO;
         String lecturer = "Johannes Karrer";
         int duration = 2;
         int semester = 1;
         int numberOfParticipants = 35;
-        int numberOfGroups = 6;
-        boolean isSplit = false;
-        List<Integer> splitTimes = null;
         boolean computersNecessary = false;
         Timing constraint = timingService.createTiming(LocalTime.of(12,0), LocalTime.of(14,30),Day.MONDAY);
         List<Timing> timingConstraints = List.of(constraint);
 
-        Course course = courseService.createCourse(id, name, lecturer, semester, duration, numberOfParticipants, numberOfGroups,
-                isSplit, splitTimes, computersNecessary, timingConstraints);
+        Course course = courseService.createCourse(id, name, courseType, lecturer, semester, duration, numberOfParticipants,
+                computersNecessary, timingConstraints);
 
         assertEquals(id, course.getId());
         assertEquals(name, course.getName());
@@ -49,9 +47,6 @@ public class CourseServiceTest {
         assertEquals(semester, course.getSemester());
         assertEquals(duration, course.getDuration());
         assertEquals(numberOfParticipants, course.getNumberOfParticipants());
-        assertEquals(numberOfGroups, course.getNumberOfGroups());
-        assertEquals(isSplit, course.isSplit());
-        assertEquals(splitTimes, course.getSplitTimes());
         assertEquals(computersNecessary, course.isComputersNecessary());
     }
 }

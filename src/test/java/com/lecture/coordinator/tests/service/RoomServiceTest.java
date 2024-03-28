@@ -25,26 +25,15 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RoomServiceTest {
     @Autowired
     private RoomService roomService;
-    @Autowired
-    private TimingService timingService;
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateRoom(){
-        Day day = Day.MONDAY;
-        LocalTime start = LocalTime.of(12,0);
-        LocalTime end = LocalTime.of(14,0);
-        Timing constraint = timingService.createTiming(start, end, day);
-
-        List<Timing> timingConstraints = List.of(constraint);
-        Room newRoom = roomService.createRoom("RR24", 25, true, timingConstraints);
+        Room newRoom = roomService.createRoom("RR24", 25, true);
 
         assertEquals("RR24", newRoom.getId());
         assertEquals(25, newRoom.getCapacity());
         assertTrue(newRoom.isComputersAvailable());
-        assertEquals(constraint.getDay(), newRoom.getTimingConstraints().get(0).getDay());
-        assertEquals(constraint.getStartTime(), newRoom.getTimingConstraints().get(0).getStartTime());
-        assertEquals(constraint.getEndTime(), newRoom.getTimingConstraints().get(0).getEndTime());
     }
 
     @Test
@@ -52,7 +41,7 @@ public class RoomServiceTest {
     public void testUpdateRoom(){
         String id = "HSB 3";
         Room room = roomService.loadRoomByID(id);
-        room = roomService.updateRoom(room, 40, true, room.getTimingConstraints());
+        room = roomService.updateRoom(room, 40, true);
 
         assertEquals(40, room.getCapacity());
         assertEquals(true, room.isComputersAvailable());

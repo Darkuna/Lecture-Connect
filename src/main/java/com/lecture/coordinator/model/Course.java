@@ -10,26 +10,24 @@ import java.util.List;
 public class Course implements Persistable<String>, Serializable {
     @Id
     private String id;
+    private CourseType courseType;
     private String name;
     private String lecturer;
     private int semester;
     private int duration;
     private int numberOfParticipants;
-    private int numberOfGroups; //sollte in course session verschoben werden.
-    // je nach Semester gibt es unterschiedlich viele gruppen
-    private boolean isSplit;
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<Integer> splitTimes;
     private boolean computersNecessary;
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     private List<CourseSession> courseSessions;
-
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")
     private List<Timing> timingConstraints;
-
-    @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
-    private List<TimeTable> timeTables;
+    @Transient
+    private int numberOfGroups;
+    @Transient
+    private boolean isSplit;
+    @Transient
+    private List<Integer> splitTimes;
 
     @Override
     public String getId() {
@@ -64,34 +62,12 @@ public class Course implements Persistable<String>, Serializable {
         this.numberOfParticipants = numberOfParticipants;
     }
 
-    public int getNumberOfGroups() {
-        return numberOfGroups;
-    }
-
-    public void setNumberOfGroups(int numberOfGroups) {
-        this.numberOfGroups = numberOfGroups;
-    }
-
     public boolean isComputersNecessary() {
         return computersNecessary;
     }
 
     public void setComputersNecessary(boolean computersNecessary) {
         this.computersNecessary = computersNecessary;
-    }
-
-
-    @Override
-    public boolean isNew() {
-        return id == null;
-    }
-
-    public boolean isSplit() {
-        return isSplit;
-    }
-
-    public void setSplit(boolean split) {
-        isSplit = split;
     }
 
     public int getDuration() {
@@ -118,6 +94,38 @@ public class Course implements Persistable<String>, Serializable {
         this.courseSessions = courseSessions;
     }
 
+    public int getSemester() {
+        return semester;
+    }
+
+    public void setSemester(int semester) {
+        this.semester = semester;
+    }
+
+    public CourseType getCourseType() {
+        return courseType;
+    }
+
+    public void setCourseType(CourseType type) {
+        this.courseType = type;
+    }
+
+    public int getNumberOfGroups() {
+        return numberOfGroups;
+    }
+
+    public void setNumberOfGroups(int numberOfGroups) {
+        this.numberOfGroups = numberOfGroups;
+    }
+
+    public boolean isSplit() {
+        return isSplit;
+    }
+
+    public void setSplit(boolean split) {
+        isSplit = split;
+    }
+
     public List<Integer> getSplitTimes() {
         return splitTimes;
     }
@@ -126,11 +134,8 @@ public class Course implements Persistable<String>, Serializable {
         this.splitTimes = splitTimes;
     }
 
-    public int getSemester() {
-        return semester;
-    }
-
-    public void setSemester(int semester) {
-        this.semester = semester;
+    @Override
+    public boolean isNew() {
+        return id == null;
     }
 }

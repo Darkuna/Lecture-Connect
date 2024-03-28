@@ -28,19 +28,16 @@ public class CourseService {
 
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Course createCourse(String id, String name, String lecturer, int semester, int duration, int numberOfParticipants,
-                               int numberOfGroups, boolean isSplit, List<Integer> splitTimes, boolean computersNecessary,
-                               List<Timing> timingConstraints){
+    public Course createCourse(String id, String name, CourseType courseType, String lecturer, int semester, int duration,
+                               int numberOfParticipants, boolean computersNecessary, List<Timing> timingConstraints){
         Course course = new Course();
         course.setId(id);
         course.setName(name);
+        course.setCourseType(courseType);
         course.setLecturer(lecturer);
         course.setSemester(semester);
         course.setDuration(duration);
         course.setNumberOfParticipants(numberOfParticipants);
-        course.setNumberOfGroups(numberOfGroups);
-        course.setSplit(isSplit);
-        course.setSplitTimes(splitTimes);
         course.setComputersNecessary(computersNecessary);
         course.setTimingConstraints(timingConstraints);
 
@@ -58,17 +55,14 @@ public class CourseService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Course updateCourse(Course course, String name, String lecturer, int semester, int duration, int numberOfParticipants,
-                               int numberOfGroups, boolean isSplit, List<Integer> splitTimes, boolean computersNecessary,
-                               List<Timing> timingConstraints){
+    public Course updateCourse(Course course, String name, CourseType courseType, String lecturer, int semester, int duration,
+                               int numberOfParticipants, boolean computersNecessary, List<Timing> timingConstraints){
         course.setName(name);
+        course.setCourseType(courseType);
         course.setLecturer(lecturer);
         course.setSemester(semester);
         course.setDuration(duration);
         course.setNumberOfParticipants(numberOfParticipants);
-        course.setNumberOfGroups(numberOfGroups);
-        course.setSplit(isSplit);
-        course.setSplitTimes(splitTimes);
         course.setComputersNecessary(computersNecessary);
         course.setTimingConstraints(timingConstraints);
 

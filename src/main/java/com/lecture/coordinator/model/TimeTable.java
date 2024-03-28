@@ -15,30 +15,16 @@ public class TimeTable implements Persistable<Long>, Serializable{
     private Semester semester;
     @Column(name = "academic_year")
     private int year;
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "time_table_courses",
-            joinColumns = @JoinColumn(name = "time_table_id"),
-            inverseJoinColumns = @JoinColumn(name = "course_id")
-    )
-    private List<Course> courses;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "time_table_rooms",
-            joinColumns = @JoinColumn(name = "time_table_id"),
-            inverseJoinColumns = @JoinColumn(name = "room_id")
-    )
-    private List<Room> rooms;
-
     @OneToMany(mappedBy = "timeTable", fetch= FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RoomTable> roomTables;
-
     @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CourseSession> courseSessions;
 
     //CONSTRUCTOR
-    public TimeTable(){}
+    public TimeTable(){
+        this.roomTables = new ArrayList<>();
+        this.courseSessions = new ArrayList<>();
+    }
 
     //GETTERS AND SETTERS
     @Override
@@ -66,28 +52,6 @@ public class TimeTable implements Persistable<Long>, Serializable{
         this.semester = semester;
     }
 
-    //OTHER METHODS
-    @Override
-    public boolean isNew() {
-        return id == null;
-    }
-
-    public List<Room> getRooms() {
-        return rooms;
-    }
-
-    public void setRooms(List<Room> rooms) {
-        this.rooms = rooms;
-    }
-
-    public List<Course> getCourses() {
-        return courses;
-    }
-
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
-    }
-
     public List<RoomTable> getRoomTables() {
         return roomTables;
     }
@@ -104,15 +68,22 @@ public class TimeTable implements Persistable<Long>, Serializable{
         this.courseSessions = courseSessions;
     }
 
-    public void addRoom(Room room){
-        if(room != null){
-            rooms.add(room);
-        }
+
+    //OTHER METHODS
+    @Override
+    public boolean isNew() {
+        return id == null;
     }
 
     public void addRoomTable(RoomTable roomTable){
         if(roomTable != null){
             roomTables.add(roomTable);
+        }
+    }
+
+    public void addCourseSessions(List<CourseSession> courseSessions){
+        if(courseSessions != null){
+            this.courseSessions.addAll(courseSessions);
         }
     }
 
