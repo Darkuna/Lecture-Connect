@@ -18,7 +18,7 @@ import java.util.List;
 @Scope("view")
 public class CrudRoomView implements Serializable {
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 1L;
 
     private List<Room> rooms;
 

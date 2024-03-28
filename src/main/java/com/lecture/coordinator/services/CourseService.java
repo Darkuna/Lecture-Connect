@@ -17,6 +17,17 @@ public class CourseService {
     private CourseRepository courseRepository;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Course> getAllCourses() {
+        return courseRepository.findAll();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Course createCourse(Course course) {
+        return courseRepository.save(course);
+    }
+
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course createCourse(String id, String name, String lecturer, int semester, int duration, int numberOfParticipants,
                                int numberOfGroups, boolean isSplit, List<Integer> splitTimes, boolean computersNecessary,
                                List<Timing> timingConstraints){
@@ -39,6 +50,11 @@ public class CourseService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourse(Course course){
         courseRepository.delete(course);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void deleteMultipleCourses(List<Course> courses) {
+        courseRepository.deleteAll(courses);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
