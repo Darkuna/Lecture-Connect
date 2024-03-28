@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
-public class Course implements Persistable<String>, Serializable{
+public class Course implements Persistable<String>, Serializable {
     @Id
     private String id;
     private String name;
@@ -15,16 +15,12 @@ public class Course implements Persistable<String>, Serializable{
     private int semester;
     private int duration;
     private int numberOfParticipants;
-    private int numberOfGroups;
+    private int numberOfGroups; //sollte in course session verschoben werden.
+    // je nach Semester gibt es unterschiedlich viele gruppen
     private boolean isSplit;
-    @ElementCollection(fetch=FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Integer> splitTimes;
     private boolean computersNecessary;
-    private boolean isTimingFixed;
-
-    @Transient
-    private TimingTuple fixedTimings;
-
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     private List<CourseSession> courseSessions;
 
@@ -87,7 +83,7 @@ public class Course implements Persistable<String>, Serializable{
 
     @Override
     public boolean isNew() {
-        return true;
+        return id == null;
     }
 
     public boolean isSplit() {
@@ -120,21 +116,6 @@ public class Course implements Persistable<String>, Serializable{
 
     public void setCourseSessions(List<CourseSession> courseSessions) {
         this.courseSessions = courseSessions;
-    }
-
-    public boolean isTimingFixed() {
-        return isTimingFixed;
-    }
-
-    public void setTimingFixed(boolean timingFixed) {
-        isTimingFixed = timingFixed;
-    }
-
-    public TimingTuple getFixedTimings() {
-        return fixedTimings;
-    }
-    public void setFixedTimings(TimingTuple fixedTimings) {
-        this.fixedTimings = fixedTimings;
     }
 
     public List<Integer> getSplitTimes() {

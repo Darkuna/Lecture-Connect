@@ -1,15 +1,13 @@
 package com.lecture.coordinator.services;
 
-import com.lecture.coordinator.model.CourseSession;
-import com.lecture.coordinator.model.Room;
-import com.lecture.coordinator.model.RoomTable;
-import com.lecture.coordinator.model.TimeTable;
+import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.repositories.RoomTableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -19,23 +17,41 @@ public class RoomTableService {
     private RoomTableRepository roomTableRepository;
     @Autowired
     private CourseSessionService courseSessionService;
+    @Autowired
+    private TimingService timingService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public RoomTable createRoomTableFromRoom(TimeTable timeTable, Room room){
         RoomTable roomTable = new RoomTable();
         roomTable.setRoom(room);
         roomTable.setTimeTable(timeTable);
-
-        //TODO: Think of a way to use a room's timingConstraints to create the available time in a RoomTable object
+        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(room.getTimingConstraints()));
 
         return roomTableRepository.save(roomTable);
     }
-
-    public List<CourseSession> loadAssignedCourses(RoomTable roomTable){
-        return courseSessionService.loadAllAssignedToRoom(roomTable.getRoom());
-    }
-
     public RoomTable loadRoomTableByRoom(Room room){
         return roomTableRepository.findRoomTableByRoom(room);
+    }
+
+    public RoomTable loadRoomTableByID(long id){
+        return roomTableRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("RoomTable not found for ID: " + id));
+    }
+
+    public List<RoomTable> loadRoomTablesOfTimeTable(TimeTable timeTable){
+        List<RoomTable> roomTables = roomTableRepository.findAllByTimeTable(timeTable);
+        for(RoomTable roomTable : roomTables){
+            List<CourseSession> assignedCourseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
+            roomTable.setAssignedCourseSessions(assignedCourseSessions);
+            List<Timing> timingConstraints = timingService.loadTimingConstraintsOfRoom(roomTable.getRoom());
+            roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(timingConstraints));
+        }
+        return roomTables;
+    }
+
+    private AvailabilityMatrix initializeAvailabilityMatrix(List<Timing> timingConstraints){
+        if(timingConstraints != null){
+            return new AvailabilityMatrix(timingConstraints);
+        }
+        return new AvailabilityMatrix(List.of());
     }
 }
