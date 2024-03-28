@@ -11,9 +11,10 @@
             <p:toolbar>
                 <p:toolbarGroup>
                     <p:commandButton value="New" icon="pi pi-plus" actionListener="#{crudLectureView.openNew}"
-                                     update=":dialogs:roomCreationDialog" oncomplete="PF('roomCreationDialog').show()"
+                                     update=":dialogs:lectureCreationDialog"
+                                     oncomplete="PF('lectureCreationDialog').show()"
                                      styleClass="ui-button-success" style="margin-right: .5rem">
-                        <p:resetInput target=":dialogs:roomCreationDialog"/>
+                        <p:resetInput target=":dialogs:lectureCreationDialog"/>
                     </p:commandButton>
                     <p:commandButton id="delete-products-button" value="#{crudLectureView.deleteButtonMessage}"
                                      icon="pi pi-trash" actionListener="#{crudLectureView.deleteSelectedCourses()}"
@@ -58,7 +59,7 @@
 
                 <p:column selectionMode="multiple" exportable="true"/>
 
-                <p:column headerText="Course ID" sortBy="#{course.id}" filterBy="#{course.id}">
+                <p:column headerText="Kurs Nummer" sortBy="#{course.id}" filterBy="#{course.id}">
                     <h:outputText value="#{course.id}"/>
                 </p:column>
                 <p:column headerText="Name" sortBy="#{course.name}" filterBy="#{course.name}">
@@ -67,25 +68,25 @@
                 <p:column headerText="Semester" sortBy="#{course.semester}" filterBy="#{course.semester}">
                     <h:outputText value="#{course.semester}"/>
                 </p:column>
-                <p:column headerText="Duration" sortBy="#{course.duration}" filterBy="#{course.duration}">
+                <p:column headerText="Dauer" sortBy="#{course.duration}" filterBy="#{course.duration}">
                     <h:outputText value="#{course.duration}"/>
                 </p:column>
-                <p:column headerText="Nr of Participants" sortBy="#{course.numberOfParticipants}">
+                <p:column headerText="Teilnehmer Anzahl (max)" sortBy="#{course.numberOfParticipants}">
                     <h:outputText value="#{course.numberOfParticipants}"/>
                 </p:column>
-                <p:column headerText="Lectured in a Row" sortBy="#{course.split}">
-                    <h:outputText value="#{course.split ? 'Yes' : 'No'}"/>
+                <p:column headerText="In einer Wurst" sortBy="#{course.split}">
+                    <h:outputText value="#{course.split ? 'Ja' : 'Nein'}"/>
                 </p:column>
-                <p:column headerText="Computers necessary" sortBy="#{course.computersNecessary}">
-                    <h:outputText value="#{course.computersNecessary ? 'Yes' : 'No'}"/>
+                <p:column headerText="Computer werden benötigt" sortBy="#{course.computersNecessary}">
+                    <h:outputText value="#{course.computersNecessary ? 'Ja' : 'Nein'}"/>
                 </p:column>
 
                 <p:column exportable="false">
-                    <p:commandButton icon="pi pi-pencil" update=":dialogs:roomCreationDialog"
-                                     oncomplete="PF('roomCreationDialog').show()"
+                    <p:commandButton icon="pi pi-pencil" update=":dialogs:lectureCreationDialog"
+                                     oncomplete="PF('lectureCreationDialog').show()"
                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
                         <f:setPropertyActionListener value="#{course}" target="#{crudLectureView.selectedCourse}"/>
-                        <p:resetInput target=":dialogs:roomCreationDialog"/>
+                        <p:resetInput target=":dialogs:lectureCreationDialog"/>
                     </p:commandButton>
 
                     <p:commandButton class="ui-button-warning rounded-button" icon="pi pi-trash"
@@ -117,38 +118,57 @@
                                  icon="pi pi-times"/>
             </p:confirmDialog>
 
-            <p:dialog header="Create new Room" id="roomCreationDialog" widgetVar="roomCreationDialog" modal="true"
+            <p:dialog header="Neuen Kurs anlegen" id="lectureCreationDialog" widgetVar="lectureCreationDialog"
+                      modal="true"
                       showEffect="fade" hideEffect="fade" resizable="false">
                 <p:outputPanel id="roomCreation">
                     <h:panelGrid columns="2">
-                        <p:outputLabel for="nameCreation" value="Name:" styleClass="columnMargin"/>
-                        <p:inputText id="nameCreation" name="capacityCreation"
-                                     requiredMessage="number of Seats must be defined" required="true"
-                                     value="#{crudLectureView.selectedCourse.name}"
-                                     styleClass="columnMargin"/>
+                        <p:selectOneMenu id="country" value="#{crudLectureView.courseType}">
+                            <f:selectItem itemLabel="VO" itemValue="VO "/>
+                            <f:selectItem itemLabel="VU" itemValue="VU "/>
+                            <f:selectItem itemLabel="PS" itemValue="PS "/>
+                            <f:selectItem itemLabel="SL" itemValue="SL "/>
+                        </p:selectOneMenu>
+                        <p:inputText id="nameCreation" name="nameCreation" required="true" placeholder="Name"
+                                     value="#{crudLectureView.tmpName}" style="width: 200px"/>
 
-                        <p:outputLabel value="Computers available:"
-                                       styleClass="columnMargin"/>
-                        <p:toggleSwitch value="#{crudLectureView.selectedCourse.computersNecessary}"
-                                        id="availabilityCreation"
-                                        onIcon="pi pi-check" offIcon="pi pi-times" required="true"
-                                        style="margin: 1rem 1rem 0 0"/>
 
-                        <p:outputLabel value="Course is split:"
+                        <p:inputText id="idCreation" name="idCreation" required="true" placeholder="ID"
+                                     style="width: 200px"
+                                     value="#{crudLectureView.selectedCourse.id}" styleClass="columnMargin"/>
+                        <p:outputLabel for=""/>
+
+                        <p:outputLabel for="durationCreation" value="Dauer in Stunden" styleClass="columnMargin"/>
+                        <p:inputNumber id="durationCreation" name="durationCreation"
+                                       value="#{crudLectureView.selectedCourse.duration}"
                                        styleClass="columnMargin"/>
-                        <p:toggleSwitch value="#{crudLectureView.selectedCourse.split}"
-                                        id="computersCreation"
-                                        onIcon="pi pi-check" offIcon="pi pi-times" required="true"
-                                        style="margin: 1rem 1rem 0 0"/>
+
+                        <p:outputLabel for="nrParCreation" value="Teilnehmer Anzahl" styleClass="columnMargin"/>
+                        <p:inputNumber id="nrParCreation" name="nrParCreation"
+                                       value="#{crudLectureView.selectedCourse.numberOfParticipants}"
+                                       styleClass="columnMargin"/>
+
+                        <br/>
+                        <br/>
+
+                        <p:outputLabel value="Werden Computer benötigt?" styleClass="columnMargin"/>
+                        <p:selectBooleanButton onLabel="Ja" offLabel="Nein" style="width: 120px;"
+                                               value="#{crudLectureView.selectedCourse.computersNecessary}"
+                                               onIcon="pi pi-check" offIcon="pi pi-times"/>
+
+                        <p:outputLabel value="Ist der Kurs aufgeteilt?" styleClass="columnMargin"/>
+                        <p:selectBooleanButton onLabel="Ja" offLabel="Nein" style="width: 120px;"
+                                               value="#{crudLectureView.selectedCourse.split}"
+                                               onIcon="pi pi-check" offIcon="pi pi-times"/>
                     </h:panelGrid>
 
                     <h:panelGrid columns="2">
-                        <p:commandButton value="Save" action="#{crudLectureView.createRoom}"
-                                         oncomplete="PF('roomCreationDialog').hide()"
-                                         update=":dialogs:roomCreationDialog, :form:dt-products"/>
+                        <p:commandButton value="Save" action="#{crudLectureView.createLecture}"
+                                         oncomplete="PF('lectureCreationDialog').hide()"
+                                         update=":dialogs:lectureCreationDialog, :form:dt-products"/>
                         <p:commandButton styleClass="ui-button-secondary" value="Abort"
-                                         oncomplete="PF('roomCreationDialog').hide()"
-                                         update=":dialogs:roomCreationDialog"/>
+                                         oncomplete="PF('lectureCreationDialog').hide()"
+                                         update=":dialogs:lectureCreationDialog"/>
                     </h:panelGrid>
                 </p:outputPanel>
             </p:dialog>

@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
-public class Course implements Persistable<String>, Serializable{
+public class Course implements Persistable<String>, Serializable {
     @Id
     private String id;
     private String name;
@@ -15,9 +15,10 @@ public class Course implements Persistable<String>, Serializable{
     private int semester;
     private int duration;
     private int numberOfParticipants;
-    private int numberOfGroups;
+    private int numberOfGroups; //sollte in course session verschoben werden.
+    // je nach Semester gibt es unterschiedlich viele gruppen
     private boolean isSplit;
-    @ElementCollection(fetch=FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Integer> splitTimes;
     private boolean computersNecessary;
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)

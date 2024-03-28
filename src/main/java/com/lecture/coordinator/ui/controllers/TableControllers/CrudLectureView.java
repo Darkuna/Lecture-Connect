@@ -28,6 +28,10 @@ public class CrudLectureView implements Serializable {
 
     private final CourseService courseService;
 
+    private String courseType = "VO";
+    private String tmpName = "";
+
+
     public CrudLectureView(CourseService courseService) {
         this.courseService = courseService;
     }
@@ -43,12 +47,13 @@ public class CrudLectureView implements Serializable {
         this.selectedCourse = new Course();
     }
 
-    public void createCourse() {
+    public void createLecture() {
         //parameter werden in rooms.xhtml :dialogs:roomCreationDialog gesetzt
+        nameCourse();
         try {
             selectedCourse = this.courseService.createCourse(selectedCourse);
             this.courses.add(selectedCourse);
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Course created"));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Kurs erstellt"));
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
         } finally {
@@ -125,5 +130,25 @@ public class CrudLectureView implements Serializable {
 
     public void setSelectedCourses(List<Course> selectedCourses) {
         this.selectedCourses = selectedCourses;
+    }
+
+    public String getCourseType() {
+        return courseType;
+    }
+
+    public void setCourseType(String courseType) {
+        this.courseType = courseType;
+    }
+
+    public String getTmpName() {
+        return tmpName;
+    }
+
+    public void setTmpName(String tmpName) {
+        this.tmpName = tmpName;
+    }
+
+    public void nameCourse() {
+        this.selectedCourse.setName(courseType + tmpName);
     }
 }
