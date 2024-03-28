@@ -106,6 +106,7 @@ body .ui-card .ui-card-content {
     transition: all 0.25s ease;
 }
 
+
 .container .headerButton:hover {
     border-color: #003361;
     background: #003361;
