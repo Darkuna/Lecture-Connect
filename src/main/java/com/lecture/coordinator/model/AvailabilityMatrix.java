@@ -9,7 +9,7 @@ public class AvailabilityMatrix {
     private static final int DAYS_IN_WEEK = 5;
     private static final LocalTime START_TIME = LocalTime.of(8,0);
     private static final LocalTime END_TIME = LocalTime.of(20,0);
-    private static final int SLOTS_PER_DAY = (int) Duration.between(END_TIME, START_TIME).toMinutes() / 60 * 4;
+    private static final int SLOTS_PER_DAY = (int) Duration.between(START_TIME, END_TIME).toMinutes() / 60 * 4;
 
     private final CourseSession[][] matrix;
 
@@ -17,13 +17,15 @@ public class AvailabilityMatrix {
         this.matrix = new CourseSession[DAYS_IN_WEEK][SLOTS_PER_DAY];
 
         // mark all time slots with timingConstraints as BLOCKED
-        for (Timing timing : timingConstraints) {
-            int dayIndex = timing.getDay().ordinal();
-            int startSlot = timeToSlotIndex(timing.getStartTime());
-            int endSlot = timeToSlotIndex(timing.getEndTime());
+        if(timingConstraints != null){
+            for (Timing timing : timingConstraints) {
+                int dayIndex = timing.getDay().ordinal();
+                int startSlot = timeToSlotIndex(timing.getStartTime());
+                int endSlot = timeToSlotIndex(timing.getEndTime());
 
-            for (int slot = startSlot; slot < endSlot; slot++) {
-                matrix[dayIndex][slot] = CourseSession.BLOCKED;
+                for (int slot = startSlot; slot < endSlot; slot++) {
+                    matrix[dayIndex][slot] = CourseSession.BLOCKED;
+                }
             }
         }
     }
@@ -58,6 +60,18 @@ public class AvailabilityMatrix {
 
     public Optional<CourseSession> getCourseSession(int day, int slot) {
         return Optional.ofNullable(matrix[day][slot]);
+    }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < SLOTS_PER_DAY; i++){
+            for(int j = 0; j < DAYS_IN_WEEK; j++){
+                char mark = (matrix[j][i] != null && matrix[j][i].equals(CourseSession.BLOCKED)) ? 'X' : ' ';
+                sb.append(String.format("| %c ", mark));
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }
 

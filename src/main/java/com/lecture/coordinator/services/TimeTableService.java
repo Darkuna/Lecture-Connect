@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +30,16 @@ public class TimeTableService {
         timeTable.setRooms(rooms);
         timeTable.setCourses(courses);
 
-        return timeTableRepository.save(timeTable);
+        timeTableRepository.save(timeTable);
+
+        createRoomTables(timeTable);
+        createCourseSessions(timeTable);
+
+        return timeTable;
     }
 
-    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public void createRoomTables(TimeTable timeTable){
+    private void createRoomTables(TimeTable timeTable){
         List<RoomTable> roomTables = new ArrayList<>();
         for(Room room : timeTable.getRooms()){
             RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
@@ -44,9 +49,8 @@ public class TimeTableService {
         timeTable.setRoomTables(roomTables);
     }
 
-    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public void createCourseSessions(TimeTable timeTable){
+    private void createCourseSessions(TimeTable timeTable){
         List<CourseSession> combinedCourseSessions = new ArrayList<>();
         List<CourseSession> courseSessions;
 
@@ -63,11 +67,8 @@ public class TimeTableService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void addRoom(TimeTable timeTable, Room room){
-        List<Room> rooms = timeTable.getRooms();
-        rooms.add(room);
-        List<RoomTable> roomTables = timeTable.getRoomTables();
-        RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
-        roomTables.add(roomTable);
+        timeTable.addRoom(room);
+        timeTable.addRoomTable(roomTableService.createRoomTableFromRoom(timeTable, room));
         timeTableRepository.save(timeTable);
     }
 
@@ -98,6 +99,21 @@ public class TimeTableService {
         List<Course> courses = timeTable.getCourses();
         courses.remove(course);
         timeTableRepository.save(timeTable);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<TimeTable> loadAllTimeTables(){
+        return timeTableRepository.findAll();
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public TimeTable loadTimeTable(long id){
+        TimeTable timeTable = timeTableRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("TimeTable not found for ID: " + id));
+        List<RoomTable> roomTables = roomTableService.loadRoomTablesOfTimeTable(timeTable);
+        List<CourseSession> courseSessions = courseSessionService.loadAllFromTimeTable(timeTable);
+        timeTable.setRoomTables(roomTables);
+        timeTable.setCourseSessions(courseSessions);
+        return timeTable;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")

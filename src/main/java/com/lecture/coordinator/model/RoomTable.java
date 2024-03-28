@@ -4,19 +4,20 @@ import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class RoomTable implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @OneToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Room room;
     @ManyToOne
     private TimeTable timeTable;
-    @Transient
-    private Set<CourseSession> assignedCourses;
+    @OneToMany(mappedBy="roomTable", fetch = FetchType.LAZY)
+    private List<CourseSession> assignedCourseSessions;
     @Transient
     private AvailabilityMatrix availabilityMatrix;
 
@@ -26,12 +27,12 @@ public class RoomTable implements Persistable<Long>, Serializable {
     public void setAvailabilityMatrix(AvailabilityMatrix availabilityMatrix) {
         this.availabilityMatrix = availabilityMatrix;
     }
-    public Set<CourseSession> getAssignedCourses() {
-        return assignedCourses;
+    public List<CourseSession> getAssignedCourseSessions() {
+        return assignedCourseSessions;
     }
 
-    public void setAssignedCourses(Set<CourseSession> assignedCourses) {
-        this.assignedCourses = assignedCourses;
+    public void setAssignedCourseSessions(List<CourseSession> assignedCourseSessions) {
+        this.assignedCourseSessions = assignedCourseSessions;
     }
 
     public void setId(Long id) {
@@ -63,4 +64,18 @@ public class RoomTable implements Persistable<Long>, Serializable {
     public void setTimeTable(TimeTable timeTable) {
         this.timeTable = timeTable;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoomTable roomTable = (RoomTable) o;
+        return id != null && id.equals(roomTable.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
 }

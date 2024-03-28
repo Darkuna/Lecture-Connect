@@ -4,6 +4,7 @@ import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,7 +15,7 @@ public class TimeTable implements Persistable<Long>, Serializable{
     private Semester semester;
     @Column(name = "academic_year")
     private int year;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "time_table_courses",
             joinColumns = @JoinColumn(name = "time_table_id"),
@@ -22,7 +23,7 @@ public class TimeTable implements Persistable<Long>, Serializable{
     )
     private List<Course> courses;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "time_table_rooms",
             joinColumns = @JoinColumn(name = "time_table_id"),
@@ -103,4 +104,25 @@ public class TimeTable implements Persistable<Long>, Serializable{
         this.courseSessions = courseSessions;
     }
 
+    public void addRoom(Room room){
+        if(room != null){
+            rooms.add(room);
+        }
+    }
+
+    public void addRoomTable(RoomTable roomTable){
+        if(roomTable != null){
+            roomTables.add(roomTable);
+        }
+    }
+
+    public List<CourseSession> getUnassignedCourseSessions(){
+        List<CourseSession> unassignedCourseSessions = new ArrayList<>();
+        for(CourseSession courseSession : courseSessions){
+            if(!courseSession.isAssigned()){
+                unassignedCourseSessions.add(courseSession);
+            }
+        }
+        return unassignedCourseSessions;
+    }
 }

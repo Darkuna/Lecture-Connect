@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/property")
 public class PropertyController {
 
-    @Value("${enviroment.name}")
-    private String enviromentName;
+    @Value("${environment.name}")
+    private String environmentName;
 
     @GetMapping
-    public String getEnviromentName(){
-        return enviromentName;
+    public String getEnvironmentName(){
+        return environmentName;
     }
 }

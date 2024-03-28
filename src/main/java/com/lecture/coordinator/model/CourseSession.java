@@ -7,9 +7,10 @@ import java.io.Serializable;
 import java.util.List;
 
 @Entity
-public class CourseSession implements Persistable<String>, Serializable {
+public class CourseSession implements Persistable<Long>, Serializable {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     @OneToOne
     private Timing timing;
     @OneToMany
@@ -21,7 +22,7 @@ public class CourseSession implements Persistable<String>, Serializable {
     @ManyToOne
     private TimeTable timeTable;
     @ManyToOne
-    private Room room;
+    private RoomTable roomTable;
 
     //Static object BLOCKED for availability matrix
     public static final CourseSession BLOCKED = new CourseSession();
@@ -59,11 +60,11 @@ public class CourseSession implements Persistable<String>, Serializable {
     }
 
     @Override
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -88,12 +89,12 @@ public class CourseSession implements Persistable<String>, Serializable {
         this.timeTable = timeTable;
     }
 
-    public Room getRoom() {
-        return room;
+    public RoomTable getRoomTable() {
+        return roomTable;
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+    public void setRoomTable(RoomTable roomTable) {
+        this.roomTable = roomTable;
     }
 
     public boolean isBlocked() {

@@ -16,9 +16,9 @@ public class Timing implements Persistable<Long>, Serializable{
     @Column(name = "day_of_the_week")
     private Day day;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Course course;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     private Room room;
 
     //CONSTRUCTOR
@@ -51,6 +51,6 @@ public class Timing implements Persistable<Long>, Serializable{
     //OTHER METHODS
     @Override
     public boolean isNew(){
-        return true;
+        return id == null;
     }
 }

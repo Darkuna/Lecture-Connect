@@ -20,11 +20,6 @@ public class Course implements Persistable<String>, Serializable{
     @ElementCollection(fetch=FetchType.EAGER)
     private List<Integer> splitTimes;
     private boolean computersNecessary;
-    private boolean isTimingFixed;
-
-    @Transient
-    private TimingTuple fixedTimings;
-
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     private List<CourseSession> courseSessions;
 
@@ -87,7 +82,7 @@ public class Course implements Persistable<String>, Serializable{
 
     @Override
     public boolean isNew() {
-        return true;
+        return id == null;
     }
 
     public boolean isSplit() {
@@ -120,21 +115,6 @@ public class Course implements Persistable<String>, Serializable{
 
     public void setCourseSessions(List<CourseSession> courseSessions) {
         this.courseSessions = courseSessions;
-    }
-
-    public boolean isTimingFixed() {
-        return isTimingFixed;
-    }
-
-    public void setTimingFixed(boolean timingFixed) {
-        isTimingFixed = timingFixed;
-    }
-
-    public TimingTuple getFixedTimings() {
-        return fixedTimings;
-    }
-    public void setFixedTimings(TimingTuple fixedTimings) {
-        this.fixedTimings = fixedTimings;
     }
 
     public List<Integer> getSplitTimes() {
