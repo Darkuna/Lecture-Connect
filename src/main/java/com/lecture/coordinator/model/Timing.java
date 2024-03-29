@@ -1,5 +1,6 @@
 package com.lecture.coordinator.model;
 
+import com.lecture.coordinator.model.enums.Day;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;
@@ -15,11 +16,10 @@ public class Timing implements Persistable<Long>, Serializable{
     private LocalTime endTime;
     @Column(name = "day_of_the_week")
     private Day day;
-
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Course course;
-    @OneToOne(fetch = FetchType.LAZY)
-    private Room room;
+    @ManyToOne
+    private RoomTable roomTable;
 
     //CONSTRUCTOR
     public Timing(){}
@@ -52,5 +52,9 @@ public class Timing implements Persistable<Long>, Serializable{
     @Override
     public boolean isNew(){
         return id == null;
+    }
+
+    public String toString(){
+        return String.format("%s, %s - %s Uhr", day, startTime, endTime);
     }
 }

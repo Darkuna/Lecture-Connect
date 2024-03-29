@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Room implements Persistable<String>, Serializable {
@@ -12,14 +13,8 @@ public class Room implements Persistable<String>, Serializable {
     private String id;
     private int capacity;
     private boolean computersAvailable;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "room_id")
+    @Transient
     private List<Timing> timingConstraints;
-
-    @ManyToMany(mappedBy="rooms", fetch = FetchType.LAZY)
-    private List<TimeTable> timeTables;
-
     @OneToMany(mappedBy="room", fetch = FetchType.LAZY)
     private List<RoomTable> roomTables;
 
@@ -75,16 +70,21 @@ public class Room implements Persistable<String>, Serializable {
         this.roomTables = roomTables;
     }
 
-    public List<TimeTable> getTimeTables() {
-        return timeTables;
-    }
-
-    public void setTimeTables(List<TimeTable> timeTables) {
-        this.timeTables = timeTables;
-    }
-
     //OTHER METHODS
     public boolean isNew() {
         return id == null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Room room = (Room) o;
+        return id != null && id.equals(room.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

@@ -11,12 +11,13 @@ public class CourseSession implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @OneToOne
-    private Timing timing;
-    @OneToMany
+    @Transient
     private List<Timing> timingConstraints;
     private boolean isAssigned;
+    private boolean isFixed;
     private int duration;
+    @OneToOne(fetch = FetchType.EAGER)
+    private Timing timing;
     @ManyToOne
     private Course course;
     @ManyToOne
@@ -99,5 +100,13 @@ public class CourseSession implements Persistable<Long>, Serializable {
 
     public boolean isBlocked() {
         return this == BLOCKED;
+    }
+
+    public boolean isFixed() {
+        return isFixed;
+    }
+
+    public void setFixed(boolean fixed) {
+        isFixed = fixed;
     }
 }

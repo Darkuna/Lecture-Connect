@@ -1,11 +1,7 @@
 package com.lecture.coordinator.tests.service;
 
-import com.lecture.coordinator.model.Day;
 import com.lecture.coordinator.model.Room;
-import com.lecture.coordinator.model.Timing;
 import com.lecture.coordinator.services.RoomService;
-import com.lecture.coordinator.services.TimingService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +10,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.time.LocalTime;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,50 +21,39 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RoomServiceTest {
     @Autowired
     private RoomService roomService;
-    @Autowired
-    private TimingService timingService;
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateRoom(){
-        Day day = Day.MONDAY;
-        LocalTime start = LocalTime.of(12,0);
-        LocalTime end = LocalTime.of(14,0);
-        Timing constraint = timingService.createTiming(start, end, day);
-
-        List<Timing> timingConstraints = List.of(constraint);
-        Room newRoom = roomService.createRoom("RR24", 25, true, timingConstraints);
+        Room newRoom = roomService.createRoom("RR24", 25, true);
 
         assertEquals("RR24", newRoom.getId());
         assertEquals(25, newRoom.getCapacity());
         assertTrue(newRoom.isComputersAvailable());
-        assertEquals(constraint.getDay(), newRoom.getTimingConstraints().get(0).getDay());
-        assertEquals(constraint.getStartTime(), newRoom.getTimingConstraints().get(0).getStartTime());
-        assertEquals(constraint.getEndTime(), newRoom.getTimingConstraints().get(0).getEndTime());
-    }
-
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testUpdateRoom(){
-        String id = "HSB 3";
-        Room room = roomService.loadRoomByID(id);
-        room = roomService.updateRoom(room, 40, true, room.getTimingConstraints());
-
-        assertEquals(40, room.getCapacity());
-        assertEquals(true, room.isComputersAvailable());
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     @DirtiesContext
+    public void testUpdateRoom(){
+        String id = "HSB 3";
+        Room room = roomService.loadRoomByID(id);
+        room = roomService.updateRoom(room, 40, true);
+
+        assertEquals(40, room.getCapacity());
+        assertTrue(room.isComputersAvailable());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
     public void testDeleteRoom(){
         String id = "HSB 3";
         Room room = roomService.loadRoomByID(id);
 
         roomService.deleteRoom(room);
 
-        room = roomService.loadRoomByID(id);
-        assertNull(room);
+        assertThrows(EntityNotFoundException.class, ()->roomService.loadRoomByID(id));
     }
 
     @Test
@@ -93,7 +78,6 @@ public class RoomServiceTest {
     }
 
     @Test
-    @Disabled
     @WithMockUser(username = "user1", authorities = {"USER"})
     @DirtiesContext
     public void testDeleteMultipleRooms() {
@@ -101,14 +85,9 @@ public class RoomServiceTest {
         Room room2 = roomService.loadRoomByID("Rechnerraum 21");
         List<Room> toBeDeleted = List.of(room1, room2);
 
-        //TODO: Deleting rooms that are assigned to a timeTable is currently not possible. Think of a strategy for that.
-        //data tables associated to that: ROOM_TABLE and TIME_TABLE_ROOMS
         roomService.deleteMultipleRooms(toBeDeleted);
 
-        room1 = roomService.loadRoomByID("Rechnerraum 20");
-        room2 = roomService.loadRoomByID("Rechnerraum 21");
-
-        assertNull(room1);
-        assertNull(room2);
+        assertThrows(EntityNotFoundException.class, () -> roomService.loadRoomByID("Rechnerraum 20"));
+        assertThrows(EntityNotFoundException.class, () -> roomService.loadRoomByID("Rechnerraum 21"));
     }
 }

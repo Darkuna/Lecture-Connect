@@ -1,6 +1,7 @@
 package com.lecture.coordinator.services;
 
 import com.lecture.coordinator.model.*;
+import com.lecture.coordinator.model.enums.CourseType;
 import com.lecture.coordinator.repositories.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -15,6 +16,10 @@ import java.util.List;
 public class CourseService {
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private TimingService timingService;
+    @Autowired
+    private CourseSessionService courseSessionService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Course> getAllCourses() {
@@ -28,19 +33,16 @@ public class CourseService {
 
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Course createCourse(String id, String name, String lecturer, int semester, int duration, int numberOfParticipants,
-                               int numberOfGroups, boolean isSplit, List<Integer> splitTimes, boolean computersNecessary,
-                               List<Timing> timingConstraints){
+    public Course createCourse(String id, String name, CourseType courseType, String lecturer, int semester, int duration,
+                               int numberOfParticipants, boolean computersNecessary, List<Timing> timingConstraints){
         Course course = new Course();
         course.setId(id);
         course.setName(name);
+        course.setCourseType(courseType);
         course.setLecturer(lecturer);
         course.setSemester(semester);
         course.setDuration(duration);
         course.setNumberOfParticipants(numberOfParticipants);
-        course.setNumberOfGroups(numberOfGroups);
-        course.setSplit(isSplit);
-        course.setSplitTimes(splitTimes);
         course.setComputersNecessary(computersNecessary);
         course.setTimingConstraints(timingConstraints);
 
@@ -49,26 +51,29 @@ public class CourseService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourse(Course course){
+        List<CourseSession> courseSessions = courseSessionService.loadAllFromCourse(course);
+        for(CourseSession courseSession : courseSessions){
+            courseSessionService.deleteCourseSession(courseSession);
+        }
         courseRepository.delete(course);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteMultipleCourses(List<Course> courses) {
-        courseRepository.deleteAll(courses);
+        for(Course course : courses){
+            deleteCourse(course);
+        }
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Course updateCourse(Course course, String name, String lecturer, int semester, int duration, int numberOfParticipants,
-                               int numberOfGroups, boolean isSplit, List<Integer> splitTimes, boolean computersNecessary,
-                               List<Timing> timingConstraints){
+    public Course updateCourse(Course course, String name, CourseType courseType, String lecturer, int semester, int duration,
+                               int numberOfParticipants, boolean computersNecessary, List<Timing> timingConstraints){
         course.setName(name);
+        course.setCourseType(courseType);
         course.setLecturer(lecturer);
         course.setSemester(semester);
         course.setDuration(duration);
         course.setNumberOfParticipants(numberOfParticipants);
-        course.setNumberOfGroups(numberOfGroups);
-        course.setSplit(isSplit);
-        course.setSplitTimes(splitTimes);
         course.setComputersNecessary(computersNecessary);
         course.setTimingConstraints(timingConstraints);
 
@@ -77,6 +82,14 @@ public class CourseService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course loadCourseById(String id){
-        return courseRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Course not found for ID: " + id));
+        Course course = courseRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Course not found for ID: " + id));
+        course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course));
+        return course;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Course> loadAllCourses(){
+        return courseRepository.findAll();
     }
 }

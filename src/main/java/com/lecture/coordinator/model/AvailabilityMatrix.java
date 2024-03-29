@@ -8,7 +8,7 @@ import java.util.Optional;
 public class AvailabilityMatrix {
     private static final int DAYS_IN_WEEK = 5;
     private static final LocalTime START_TIME = LocalTime.of(8,0);
-    private static final LocalTime END_TIME = LocalTime.of(20,0);
+    private static final LocalTime END_TIME = LocalTime.of(22,0);
     private static final int SLOTS_PER_DAY = (int) Duration.between(START_TIME, END_TIME).toMinutes() / 60 * 4;
 
     private final CourseSession[][] matrix;
