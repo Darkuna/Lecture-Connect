@@ -1,10 +1,7 @@
 package com.lecture.coordinator.tests.service;
 
-import com.lecture.coordinator.model.Day;
 import com.lecture.coordinator.model.Room;
-import com.lecture.coordinator.model.Timing;
 import com.lecture.coordinator.services.RoomService;
-import com.lecture.coordinator.services.TimingService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +11,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.time.LocalTime;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,6 +35,7 @@ public class RoomServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
+    @DirtiesContext
     public void testUpdateRoom(){
         String id = "HSB 3";
         Room room = roomService.loadRoomByID(id);
@@ -48,16 +46,15 @@ public class RoomServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
     @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
     public void testDeleteRoom(){
         String id = "HSB 3";
         Room room = roomService.loadRoomByID(id);
 
         roomService.deleteRoom(room);
 
-        room = roomService.loadRoomByID(id);
-        assertNull(room);
+        assertThrows(EntityNotFoundException.class, ()->roomService.loadRoomByID(id));
     }
 
     @Test

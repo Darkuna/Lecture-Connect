@@ -1,6 +1,8 @@
 package com.lecture.coordinator.tests.service;
 
 import com.lecture.coordinator.model.*;
+import com.lecture.coordinator.model.enums.Day;
+import com.lecture.coordinator.model.enums.Semester;
 import com.lecture.coordinator.services.RoomService;
 import com.lecture.coordinator.services.RoomTableService;
 import com.lecture.coordinator.services.TimeTableService;

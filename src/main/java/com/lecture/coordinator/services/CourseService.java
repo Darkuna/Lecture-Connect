@@ -1,6 +1,7 @@
 package com.lecture.coordinator.services;
 
 import com.lecture.coordinator.model.*;
+import com.lecture.coordinator.model.enums.CourseType;
 import com.lecture.coordinator.repositories.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;

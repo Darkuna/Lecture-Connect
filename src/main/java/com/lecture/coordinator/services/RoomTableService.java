@@ -43,7 +43,7 @@ public class RoomTableService {
         for(RoomTable roomTable : roomTables){
             List<CourseSession> assignedCourseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
             roomTable.setAssignedCourseSessions(assignedCourseSessions);
-            List<Timing> timingConstraints = timingService.loadTimingConstraintsOfRoom(roomTable.getRoom());
+            List<Timing> timingConstraints = timingService.loadTimingConstraintsOfRoomTable(roomTable);
             roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(timingConstraints));
         }
         return roomTables;

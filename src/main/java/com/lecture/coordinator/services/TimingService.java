@@ -1,7 +1,8 @@
 package com.lecture.coordinator.services;
 
 import com.lecture.coordinator.model.Course;
-import com.lecture.coordinator.model.Day;
+import com.lecture.coordinator.model.RoomTable;
+import com.lecture.coordinator.model.enums.Day;
 import java.util.List;
 
 import com.lecture.coordinator.model.Room;
@@ -47,8 +48,8 @@ public class TimingService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<Timing> loadTimingConstraintsOfRoom(Room room){
-        return timingRepository.findAllByRoom(room);
+    public List<Timing> loadTimingConstraintsOfRoomTable(RoomTable roomTable){
+        return timingRepository.findAllByRoomTable(roomTable);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")

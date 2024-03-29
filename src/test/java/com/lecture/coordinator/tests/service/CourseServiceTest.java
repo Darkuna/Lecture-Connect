@@ -1,6 +1,8 @@
 package com.lecture.coordinator.tests.service;
 
 import com.lecture.coordinator.model.*;
+import com.lecture.coordinator.model.enums.CourseType;
+import com.lecture.coordinator.model.enums.Day;
 import com.lecture.coordinator.services.CourseService;
 import com.lecture.coordinator.services.TimingService;
 import org.junit.jupiter.api.Test;
@@ -35,7 +37,7 @@ public class CourseServiceTest {
         int semester = 1;
         int numberOfParticipants = 35;
         boolean computersNecessary = false;
-        Timing constraint = timingService.createTiming(LocalTime.of(12,0), LocalTime.of(14,30),Day.MONDAY);
+        Timing constraint = timingService.createTiming(LocalTime.of(12,0), LocalTime.of(14,30), Day.MONDAY);
         List<Timing> timingConstraints = List.of(constraint);
 
         Course course = courseService.createCourse(id, name, courseType, lecturer, semester, duration, numberOfParticipants,

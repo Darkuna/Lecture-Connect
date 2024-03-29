@@ -1,5 +1,6 @@
 package com.lecture.coordinator.model;
 
+import com.lecture.coordinator.model.enums.Semester;
 import org.springframework.data.domain.Persistable;
 
 import javax.persistence.*;

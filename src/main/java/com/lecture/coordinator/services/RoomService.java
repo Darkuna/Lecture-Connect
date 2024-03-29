@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -51,25 +52,15 @@ public class RoomService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Room> loadAllRooms(){
-        List<Room> rooms = roomRepository.findAll();
-        for(Room room : rooms){
-            //TODO: Are the timing constraints necessary for room list?
-            room.setTimingConstraints(timingService.loadTimingConstraintsOfRoom(room));
-        }
-        return rooms;
+        return roomRepository.findAll();
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Room loadRoomByID(String id){
-        Optional<Room> optionalRoom = roomRepository.findById(id);
-        Room room = null;
-        if(optionalRoom.isPresent()){
-            room = optionalRoom.get();
-            room.setTimingConstraints(timingService.loadTimingConstraintsOfRoom(room));
-        }
-        return room;
+    public Room loadRoomByID(String id) {
+        return roomRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Room not found for ID: " + id));
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteMultipleRooms(List<Room> selectedRooms) {
         for(Room room : selectedRooms){
             deleteRoom(room);

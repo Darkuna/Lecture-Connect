@@ -1,11 +1,13 @@
 package com.lecture.coordinator.tests.service;
 
 import com.lecture.coordinator.model.Course;
-import com.lecture.coordinator.model.Day;
+import com.lecture.coordinator.model.RoomTable;
+import com.lecture.coordinator.model.enums.Day;
 import com.lecture.coordinator.model.Room;
 import com.lecture.coordinator.model.Timing;
 import com.lecture.coordinator.services.CourseService;
 import com.lecture.coordinator.services.RoomService;
+import com.lecture.coordinator.services.RoomTableService;
 import com.lecture.coordinator.services.TimingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,7 @@ public class TimingServiceTest {
     @Autowired
     private TimingService timingService;
     @Autowired
-    private RoomService roomService;
+    private RoomTableService roomTableService;
     @Autowired
     private CourseService courseService;
 
@@ -81,10 +83,10 @@ public class TimingServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testLoadTimingConstraintsOfRoom(){
-        int numberOfConstraints = 6;
-        Room room = roomService.loadRoomByID("HS A");
-        List<Timing> timingConstraints = timingService.loadTimingConstraintsOfRoom(room);
+    public void testLoadTimingConstraintsOfRoomTable(){
+        int numberOfConstraints = 5;
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+        List<Timing> timingConstraints = timingService.loadTimingConstraintsOfRoomTable(roomTable);
 
         assertEquals(numberOfConstraints, timingConstraints.size());
     }
