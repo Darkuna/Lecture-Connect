@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class TimeTable implements Persistable<Long>, Serializable{
@@ -85,6 +86,19 @@ public class TimeTable implements Persistable<Long>, Serializable{
         if(courseSessions != null){
             this.courseSessions.addAll(courseSessions);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimeTable timeTable = (TimeTable) o;
+        return id != null && id.equals(timeTable.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     public List<CourseSession> getUnassignedCourseSessions(){
