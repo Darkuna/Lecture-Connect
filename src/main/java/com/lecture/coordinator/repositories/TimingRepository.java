@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TimingRepository extends JpaRepository<Timing, Long> {
-    public List<Timing> findAllByRoomTable(RoomTable roomTable);
-    public List<Timing> findAllByCourse(Course course);
+    List<Timing> findAllByRoomTable(RoomTable roomTable);
+    List<Timing> findAllByCourse(Course course);
 }

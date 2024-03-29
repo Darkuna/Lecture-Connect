@@ -2,7 +2,6 @@ package com.lecture.coordinator.tests.service;
 
 import com.lecture.coordinator.model.Room;
 import com.lecture.coordinator.services.RoomService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

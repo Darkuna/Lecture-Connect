@@ -16,6 +16,10 @@ import java.util.List;
 public class CourseService {
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private TimingService timingService;
+    @Autowired
+    private CourseSessionService courseSessionService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Course> getAllCourses() {
@@ -47,12 +51,18 @@ public class CourseService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourse(Course course){
+        List<CourseSession> courseSessions = courseSessionService.loadAllFromCourse(course);
+        for(CourseSession courseSession : courseSessions){
+            courseSessionService.deleteCourseSession(courseSession);
+        }
         courseRepository.delete(course);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteMultipleCourses(List<Course> courses) {
-        courseRepository.deleteAll(courses);
+        for(Course course : courses){
+            deleteCourse(course);
+        }
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
@@ -72,6 +82,14 @@ public class CourseService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course loadCourseById(String id){
-        return courseRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Course not found for ID: " + id));
+        Course course = courseRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Course not found for ID: " + id));
+        course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course));
+        return course;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Course> loadAllCourses(){
+        return courseRepository.findAll();
     }
 }

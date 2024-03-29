@@ -9,13 +9,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @WebAppConfiguration
@@ -27,6 +29,7 @@ public class CourseServiceTest {
     private TimingService timingService;
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourse() {
         String id = "lv232325";
@@ -50,5 +53,62 @@ public class CourseServiceTest {
         assertEquals(duration, course.getDuration());
         assertEquals(numberOfParticipants, course.getNumberOfParticipants());
         assertEquals(computersNecessary, course.isComputersNecessary());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteCourseWithCourseSession() {
+        Course course = courseService.loadCourseById("703003");
+
+        courseService.deleteCourse(course);
+
+        assertThrows(EntityNotFoundException.class, () -> courseService.loadCourseById("703003"));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteMultipleCourses() {
+        Course course1 = courseService.loadCourseById("703003");
+        Course course2 = courseService.loadCourseById("703004");
+
+        courseService.deleteMultipleCourses(List.of(course1, course2));
+
+        assertThrows(EntityNotFoundException.class, () -> courseService.loadCourseById("703003"));
+        assertThrows(EntityNotFoundException.class, () -> courseService.loadCourseById("703004"));
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testUpdateCourse() {
+        Course course = courseService.loadCourseById("703063");
+        String newLecturer = "Peter Gruber";
+        courseService.updateCourse(course, course.getName(), course.getCourseType(), newLecturer,
+                course.getSemester(), course.getDuration(), course.getNumberOfParticipants(), course.isComputersNecessary(),
+                course.getTimingConstraints());
+
+        assertEquals("Peter Gruber", course.getLecturer());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadCourseById() {
+        Course course = courseService.loadCourseById("703010");
+
+        assertEquals(2, course.getTimingConstraints().size());
+        assertEquals(CourseType.VO, course.getCourseType());
+        assertEquals("Algorithmen und Datenstrukturen", course.getName());
+        assertEquals("Justus Piater", course.getLecturer());
+        assertEquals(180, course.getDuration());
+        assertEquals(300, course.getNumberOfParticipants());
+        assertEquals(2, course.getSemester());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadAllCourses() {
+        List<Course> courses = courseService.loadAllCourses();
+        assertEquals(18, courses.size());
     }
 }

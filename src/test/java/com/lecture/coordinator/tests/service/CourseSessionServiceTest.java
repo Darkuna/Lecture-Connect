@@ -180,7 +180,7 @@ public class CourseSessionServiceTest {
     @Test
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testFixUnassignedCourseSession() throws CourseSessionNotAssignedException {
+    public void testFixUnassignedCourseSession() {
         CourseSession courseSession = courseSessionService.loadCourseSessionByID(-1);
         assertFalse(courseSession.isAssigned());
 

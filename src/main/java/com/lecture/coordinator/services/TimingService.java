@@ -1,7 +1,6 @@
 package com.lecture.coordinator.services;
 
 import com.lecture.coordinator.model.Course;
-import com.lecture.coordinator.model.CourseSession;
 import com.lecture.coordinator.model.RoomTable;
 import com.lecture.coordinator.model.enums.Day;
 import java.util.List;

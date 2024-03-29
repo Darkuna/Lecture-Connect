@@ -47,7 +47,7 @@ public class RoomTableServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateAvailabilityMatrixWithEmptyConstraints(){
         AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(null);
-        System.out.println(availabilityMatrix);
+        assertNotNull(availabilityMatrix);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class RoomTableServiceTest {
         timingConstraint.setStartTime(LocalTime.of(8,0));
         timingConstraint.setEndTime(LocalTime.of(18,0));
         AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(List.of(timingConstraint));
-        System.out.println(availabilityMatrix);
+        assertNotNull(availabilityMatrix);
     }
 
     @Test
