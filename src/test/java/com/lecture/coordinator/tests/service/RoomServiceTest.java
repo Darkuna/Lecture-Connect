@@ -42,7 +42,7 @@ public class RoomServiceTest {
         room = roomService.updateRoom(room, 40, true);
 
         assertEquals(40, room.getCapacity());
-        assertEquals(true, room.isComputersAvailable());
+        assertTrue(room.isComputersAvailable());
     }
 
     @Test
@@ -79,7 +79,6 @@ public class RoomServiceTest {
     }
 
     @Test
-    @Disabled
     @WithMockUser(username = "user1", authorities = {"USER"})
     @DirtiesContext
     public void testDeleteMultipleRooms() {

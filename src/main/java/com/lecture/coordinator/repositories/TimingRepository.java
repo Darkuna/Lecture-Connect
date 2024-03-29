@@ -1,7 +1,6 @@
 package com.lecture.coordinator.repositories;
 
 import com.lecture.coordinator.model.Course;
-import com.lecture.coordinator.model.Room;
 import com.lecture.coordinator.model.RoomTable;
 import com.lecture.coordinator.model.Timing;
 import org.springframework.data.jpa.repository.JpaRepository;

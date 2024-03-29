@@ -1,5 +1,6 @@
 package com.lecture.coordinator.services;
 
+import com.lecture.coordinator.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.repositories.CourseSessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,27 @@ public class CourseSessionService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public CourseSession fixCourseSession(CourseSession courseSession) throws CourseSessionNotAssignedException {
+        if(courseSession.isAssigned()){
+            courseSession.setFixed(true);
+            return courseSessionRepository.save(courseSession);
+        }
+        else{
+            throw new CourseSessionNotAssignedException("Course session must be assigned to be fixed");
+        }
+
+    }
+
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void deleteCourseSession(CourseSession courseSession){
+        if(courseSession.isAssigned()){
+            this.unassignCourseSession(courseSession);
+        }
+        courseSessionRepository.delete(courseSession);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public CourseSession assignCourseSessionToRoomTable(CourseSession courseSession, RoomTable roomTable, Timing timing){
         courseSession.setRoomTable(roomTable);
         courseSession.setTiming(timing);
@@ -82,6 +104,8 @@ public class CourseSessionService {
     }
 
     public CourseSession loadCourseSessionByID(long id){
-        return courseSessionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("CourseSession not found for ID: " + id));
+        return courseSessionRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("CourseSession not found for ID: " + id));
+
     }
 }

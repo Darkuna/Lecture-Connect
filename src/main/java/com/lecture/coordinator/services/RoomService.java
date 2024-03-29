@@ -1,8 +1,6 @@
 package com.lecture.coordinator.services;
 
-import com.lecture.coordinator.model.CourseSession;
 import com.lecture.coordinator.model.Room;
-import com.lecture.coordinator.model.Timing;
 import com.lecture.coordinator.repositories.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Scope("session")

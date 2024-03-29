@@ -1,5 +1,6 @@
 package com.lecture.coordinator.tests.service;
 
+import com.lecture.coordinator.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.model.enums.Day;
 import com.lecture.coordinator.services.CourseService;
@@ -15,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -137,5 +139,51 @@ public class CourseSessionServiceTest {
         System.out.println(courseSessions);
         assertNotNull(courseSessions);
         assertEquals(1, courseSessions.size());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteAssignedCourseSession(){
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
+        assertTrue(courseSession.isAssigned());
+
+        courseSessionService.deleteCourseSession(courseSession);
+
+        assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-6));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteUnassignedCourseSession(){
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-1);
+        assertFalse(courseSession.isAssigned());
+
+        courseSessionService.deleteCourseSession(courseSession);
+
+        assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-1));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testFixAssignedCourseSession() throws CourseSessionNotAssignedException {
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
+        assertTrue(courseSession.isAssigned());
+
+        courseSessionService.fixCourseSession(courseSession);
+
+        assertTrue(courseSession.isFixed());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testFixUnassignedCourseSession() throws CourseSessionNotAssignedException {
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-1);
+        assertFalse(courseSession.isAssigned());
+
+        assertThrows(CourseSessionNotAssignedException.class, () -> courseSessionService.fixCourseSession(courseSession));
     }
 }
