@@ -61,4 +61,8 @@ public class TimingService {
     public Timing loadTimingByID(long id){
         return timingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Timing not found for ID: " + id));
     }
+
+    public void deleteTimingConstraints(List<Timing> timingConstraints){
+        timingRepository.deleteAll(timingConstraints);
+    }
 }

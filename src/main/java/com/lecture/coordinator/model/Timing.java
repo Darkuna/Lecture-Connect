@@ -53,4 +53,8 @@ public class Timing implements Persistable<Long>, Serializable{
     public boolean isNew(){
         return id == null;
     }
+
+    public String toString(){
+        return String.format("%s, %s - %s Uhr", day, startTime, endTime);
+    }
 }

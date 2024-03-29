@@ -81,4 +81,11 @@ public class RoomTable implements Persistable<Long>, Serializable {
         return Objects.hash(id);
     }
 
+    public List<Timing> getTimingConstraints() {
+        return timingConstraints;
+    }
+
+    public void setTimingConstraints(List<Timing> timingConstraints) {
+        this.timingConstraints = timingConstraints;
+    }
 }

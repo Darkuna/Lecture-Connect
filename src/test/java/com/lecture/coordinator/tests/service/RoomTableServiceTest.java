@@ -10,9 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -67,5 +69,31 @@ public class RoomTableServiceTest {
 
         assertNotNull(roomTables);
         assertEquals(5, roomTables.size());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteRoomTableWithAssignedCoursesAndTimingConstraints(){
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+        assertNotEquals(0, roomTable.getAssignedCourseSessions().size());
+        assertNotEquals(0, roomTable.getTimingConstraints().size());
+
+        roomTableService.deleteRoomTable(roomTable);
+
+        assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(-1));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteRoomTableWithOutAssignedCourses(){
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-2);
+        assertEquals(0, roomTable.getAssignedCourseSessions().size());
+        assertNotEquals(0, roomTable.getTimingConstraints().size());
+
+        roomTableService.deleteRoomTable(roomTable);
+
+        assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(-2));
     }
 }
