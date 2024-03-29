@@ -1,6 +1,8 @@
 package com.lecture.coordinator.tests.service;
 
+import com.lecture.coordinator.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.lecture.coordinator.model.*;
+import com.lecture.coordinator.model.enums.Day;
 import com.lecture.coordinator.services.CourseService;
 import com.lecture.coordinator.services.CourseSessionService;
 import com.lecture.coordinator.services.RoomTableService;
@@ -14,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -37,6 +40,10 @@ public class CourseSessionServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfNormalCourse(){
         Course normalCourse = courseService.loadCourseById("703003");
+        normalCourse.setNumberOfGroups(1);
+        normalCourse.setSplit(false);
+        normalCourse.setSplitTimes(null);
+
         List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(normalCourse);
 
         assertEquals(1, courseSessions.size());
@@ -53,6 +60,10 @@ public class CourseSessionServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfSplitCourse(){
         Course splitCourse = courseService.loadCourseById("703013");
+        splitCourse.setNumberOfGroups(1);
+        splitCourse.setSplit(true);
+        splitCourse.setSplitTimes(List.of(120,60));
+
         List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(splitCourse);
 
         assertEquals(2, courseSessions.size());
@@ -74,6 +85,10 @@ public class CourseSessionServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateCourseSessionOfCourseWithGroups(){
         Course groupCourse = courseService.loadCourseById("703004");
+        groupCourse.setNumberOfGroups(6);
+        groupCourse.setSplit(false);
+        groupCourse.setSplitTimes(null);
+
         List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(groupCourse);
 
         assertEquals(6, courseSessions.size());
@@ -89,7 +104,7 @@ public class CourseSessionServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testAssignCourseSessionToRoomTable(){
         CourseSession courseSession = courseSessionService.loadCourseSessionByID(-2);
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-2);
         Timing timing = timingService.createTiming(LocalTime.of(8,0), LocalTime.of(10,0),
                 Day.TUESDAY);
         courseSessionService.assignCourseSessionToRoomTable(courseSession, roomTable, timing);
@@ -102,6 +117,7 @@ public class CourseSessionServiceTest {
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testUnassignCourse(){
         CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
@@ -116,13 +132,58 @@ public class CourseSessionServiceTest {
     }
 
     @Test
-    @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllAssignedToRoomTable(){
         RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
         List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
-
+        System.out.println(courseSessions);
         assertNotNull(courseSessions);
         assertEquals(1, courseSessions.size());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteAssignedCourseSession(){
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
+        assertTrue(courseSession.isAssigned());
+
+        courseSessionService.deleteCourseSession(courseSession);
+
+        assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-6));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteUnassignedCourseSession(){
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-1);
+        assertFalse(courseSession.isAssigned());
+
+        courseSessionService.deleteCourseSession(courseSession);
+
+        assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-1));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testFixAssignedCourseSession() throws CourseSessionNotAssignedException {
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
+        assertTrue(courseSession.isAssigned());
+
+        courseSessionService.fixCourseSession(courseSession);
+
+        assertTrue(courseSession.isFixed());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testFixUnassignedCourseSession() {
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-1);
+        assertFalse(courseSession.isAssigned());
+
+        assertThrows(CourseSessionNotAssignedException.class, () -> courseSessionService.fixCourseSession(courseSession));
     }
 }

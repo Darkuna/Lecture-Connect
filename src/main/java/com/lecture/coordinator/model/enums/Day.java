@@ -1,4 +1,4 @@
-package com.lecture.coordinator.model;
+package com.lecture.coordinator.model.enums;
 
 public enum Day {
     MONDAY,

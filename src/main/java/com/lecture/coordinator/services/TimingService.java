@@ -1,10 +1,10 @@
 package com.lecture.coordinator.services;
 
 import com.lecture.coordinator.model.Course;
-import com.lecture.coordinator.model.Day;
+import com.lecture.coordinator.model.RoomTable;
+import com.lecture.coordinator.model.enums.Day;
 import java.util.List;
 
-import com.lecture.coordinator.model.Room;
 import com.lecture.coordinator.model.Timing;
 import com.lecture.coordinator.repositories.TimingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +47,8 @@ public class TimingService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<Timing> loadTimingConstraintsOfRoom(Room room){
-        return timingRepository.findAllByRoom(room);
+    public List<Timing> loadTimingConstraintsOfRoomTable(RoomTable roomTable){
+        return timingRepository.findAllByRoomTable(roomTable);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
@@ -59,5 +59,9 @@ public class TimingService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Timing loadTimingByID(long id){
         return timingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Timing not found for ID: " + id));
+    }
+
+    public void deleteTimingConstraints(List<Timing> timingConstraints){
+        timingRepository.deleteAll(timingConstraints);
     }
 }

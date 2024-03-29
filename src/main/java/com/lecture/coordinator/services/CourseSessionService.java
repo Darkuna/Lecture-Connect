@@ -1,5 +1,6 @@
 package com.lecture.coordinator.services;
 
+import com.lecture.coordinator.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.repositories.CourseSessionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ public class CourseSessionService {
             CourseSession courseSession = new CourseSession();
             courseSession.setCourse(course);
             courseSession.setAssigned(false);
+            courseSession.setFixed(false);
             courseSession.setTimingConstraints(course.getTimingConstraints());
 
             if(isSplitCourse){
@@ -40,6 +42,27 @@ public class CourseSessionService {
             courseSessions.add(courseSession);
         }
         return courseSessions;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public CourseSession fixCourseSession(CourseSession courseSession) throws CourseSessionNotAssignedException {
+        if(courseSession.isAssigned()){
+            courseSession.setFixed(true);
+            return courseSessionRepository.save(courseSession);
+        }
+        else{
+            throw new CourseSessionNotAssignedException("Course session must be assigned to be fixed");
+        }
+
+    }
+
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void deleteCourseSession(CourseSession courseSession){
+        if(courseSession.isAssigned()){
+            this.unassignCourseSession(courseSession);
+        }
+        courseSessionRepository.delete(courseSession);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
@@ -76,11 +99,17 @@ public class CourseSessionService {
         return courseSessionRepository.findAllByTimeTableAndCourse(timeTable,course);
     }
 
+    public List<CourseSession> loadAllFromCourse(Course course){
+        return courseSessionRepository.findAllByCourse(course);
+    }
+
     public List<CourseSession> loadAllFromTimeTable(TimeTable timeTable){
         return courseSessionRepository.findAllByTimeTable(timeTable);
     }
 
     public CourseSession loadCourseSessionByID(long id){
-        return courseSessionRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("CourseSession not found for ID: " + id));
+        return courseSessionRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("CourseSession not found for ID: " + id));
+
     }
 }
