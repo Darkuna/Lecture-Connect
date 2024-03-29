@@ -86,14 +86,9 @@ public class RoomServiceTest {
         Room room2 = roomService.loadRoomByID("Rechnerraum 21");
         List<Room> toBeDeleted = List.of(room1, room2);
 
-        //TODO: Deleting rooms that are assigned to a timeTable is currently not possible. Think of a strategy for that.
-        //data tables associated to that: ROOM_TABLE and TIME_TABLE_ROOMS
         roomService.deleteMultipleRooms(toBeDeleted);
 
-        room1 = roomService.loadRoomByID("Rechnerraum 20");
-        room2 = roomService.loadRoomByID("Rechnerraum 21");
-
-        assertNull(room1);
-        assertNull(room2);
+        assertThrows(EntityNotFoundException.class, () -> roomService.loadRoomByID("Rechnerraum 20"));
+        assertThrows(EntityNotFoundException.class, () -> roomService.loadRoomByID("Rechnerraum 21"));
     }
 }

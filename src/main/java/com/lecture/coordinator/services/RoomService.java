@@ -1,6 +1,7 @@
 package com.lecture.coordinator.services;
 
 import com.lecture.coordinator.model.Room;
+import com.lecture.coordinator.model.RoomTable;
 import com.lecture.coordinator.repositories.RoomRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -18,6 +19,8 @@ public class RoomService {
     private RoomRepository roomRepository;
     @Autowired
     private TimingService timingService;
+    @Autowired
+    private RoomTableService roomTableService;
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Room createRoom(String id, int capacity, boolean computersAvailable){
@@ -44,6 +47,10 @@ public class RoomService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteRoom(Room room){
+        List<RoomTable> roomTables = roomTableService.loadRoomTableByRoom(room);
+        for(RoomTable roomTable : roomTables){
+            roomTableService.deleteRoomTable(roomTable);
+        }
         roomRepository.delete(room);
     }
 

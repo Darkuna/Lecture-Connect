@@ -33,7 +33,6 @@ public class RoomTableService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteRoomTable(RoomTable roomTable){
-        System.out.println(roomTable.getTimingConstraints());
         courseSessionService.unassignCourseSessions(roomTable.getAssignedCourseSessions());
         timingService.deleteTimingConstraints(roomTable.getTimingConstraints());
         roomTable.setTimingConstraints(null);
@@ -47,6 +46,15 @@ public class RoomTableService {
         roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
         roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable.getTimingConstraints()));
         return roomTable;
+    }
+
+    public List<RoomTable> loadRoomTableByRoom(Room room){
+        List<RoomTable> roomTables = roomTableRepository.findAllyByRoom(room);
+        for(RoomTable roomTable : roomTables){
+            roomTable.setAssignedCourseSessions(courseSessionService.loadAllAssignedToRoomTable(roomTable));
+            roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
+        }
+        return roomTables;
     }
 
     public List<RoomTable> loadAllOfTimeTable(TimeTable timeTable){
