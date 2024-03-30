@@ -22,17 +22,13 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * Service for accessing and manipulating user data.
- * <p>
- * This class is part of the skeleton project provided for students of the
- * course "Software Architecture" offered by Innsbruck University.
+ * Service class for managing users within the application.
+ * Handles user registration, deletion, and retrieval, including administrative operations.
  */
 @Component
 @Scope("application")
 public class UserService {
-
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
@@ -40,26 +36,56 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Converts an Iterable of Userx objects to a List.
+     *
+     * @param userStream The iterable of Userx to be converted.
+     * @return A list of Userx objects.
+     */
     private List<Userx> streamToList(Iterable<Userx> userStream){
         return  StreamSupport.stream(userStream.spliterator(), false)
                 .collect(Collectors.toList());
     }
 
-
+    /**
+     * Retrieves all users in the system. Restricted to ADMIN users only.
+     *
+     * @return A list of all Userx entities.
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public List<Userx> getAllUsers() {
         return streamToList(userRepository.findAll());
     }
 
+    /**
+     * Loads a single user by username. Access is restricted to ADMIN users or the user themselves.
+     *
+     * @param username The username of the user to load.
+     * @return An Optional containing the Userx if found, or empty otherwise.
+     */
     @PreAuthorize("hasAuthority('ADMIN') or principal.username eq #username")
     public Optional<Userx> loadUser(String username) {
         return userRepository.findById(username);
     }
 
+    /**
+     * Checks if a user exists by their username.
+     *
+     * @param username The username to check for existence.
+     * @return true if the user exists, false otherwise.
+     */
     public boolean existsUser(String username) {
         return userRepository.findById(username).isPresent();
     }
 
+    /**
+     * Checks the provided Userx object for necessary requirements.
+     *
+     * @param user The Userx object to check.
+     * @throws UserRequiredFieldEmptyException if a required field is empty.
+     * @throws UserAlreadyExistsException if the user already exists.
+     * @throws UserInvalidEmailException if the email provided is invalid.
+     */
     private void checkUserRequirements(Userx user)
             throws UserRequiredFieldEmptyException, UserAlreadyExistsException, UserInvalidEmailException {
 
@@ -84,6 +110,15 @@ public class UserService {
         }
     }
 
+    /**
+     * Registers a new user in the system.
+     *
+     * @param user The Userx object representing the new user.
+     * @return The saved Userx entity.
+     * @throws UserAlreadyExistsException if the user already exists.
+     * @throws UserRequiredFieldEmptyException if a required field is empty.
+     * @throws UserInvalidEmailException if the email provided is invalid.
+     */
     public Userx registerUser(Userx user)
             throws UserAlreadyExistsException, UserRequiredFieldEmptyException, UserInvalidEmailException {
         checkUserRequirements(user);
@@ -98,6 +133,16 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Saves a user in the system. If the user is new, registers them; otherwise updates the existing user.
+     * Restricted to ADMIN users only.
+     *
+     * @param user The Userx object to save.
+     * @return The saved Userx entity.
+     * @throws UserAlreadyExistsException if the user already exists (for new user registrations).
+     * @throws UserRequiredFieldEmptyException if a required field is empty.
+     * @throws UserInvalidEmailException if the email provided is invalid.
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public Userx saveUser(Userx user)
             throws UserAlreadyExistsException, UserRequiredFieldEmptyException, UserInvalidEmailException {
@@ -115,11 +160,21 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Deletes a specified user from the system. Restricted to ADMIN users only.
+     *
+     * @param user The Userx entity to delete.
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteUser(Userx user) {
         userRepository.delete(user);
     }
 
+    /**
+     * Deletes multiple users from the system. Restricted to ADMIN users only.
+     *
+     * @param users The list of Userx entities to delete.
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     public void deleteMultipleUser(List<Userx> users) {
         for(Userx u : users) {
@@ -127,6 +182,11 @@ public class UserService {
         }
     }
 
+    /**
+     * Retrieves the currently authenticated user.
+     *
+     * @return The currently authenticated Userx entity, or null if not found.
+     */
     public Userx getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Optional<Userx> user = userRepository.findById(auth.getName());
