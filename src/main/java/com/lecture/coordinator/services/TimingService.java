@@ -126,4 +126,13 @@ public class TimingService {
     public void deleteTimingConstraints(List<Timing> timingConstraints){
         timingRepository.deleteAll(timingConstraints);
     }
+
+    /**
+     * Deletes a timing from the database.
+     *
+     * @param timing The Timing object to be deleted.
+     */
+    public void deleteTiming(Timing timing){
+        timingRepository.delete(timing);
+    }
 }

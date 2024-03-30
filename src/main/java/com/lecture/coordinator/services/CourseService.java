@@ -1,6 +1,5 @@
 package com.lecture.coordinator.services;
 
-import com.lecture.coordinator.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.model.enums.CourseType;
 import com.lecture.coordinator.repositories.CourseRepository;

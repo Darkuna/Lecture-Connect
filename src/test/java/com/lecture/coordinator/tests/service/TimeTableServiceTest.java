@@ -2,9 +2,8 @@ package com.lecture.coordinator.tests.service;
 
 import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.model.enums.Semester;
-import com.lecture.coordinator.services.CourseService;
-import com.lecture.coordinator.services.RoomService;
-import com.lecture.coordinator.services.TimeTableService;
+import com.lecture.coordinator.services.*;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +12,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,6 +27,10 @@ public class TimeTableServiceTest {
     private RoomService roomService;
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private RoomTableService roomTableService;
+    @Autowired
+    private CourseSessionService courseSessionService;
 
     @Test
     @DirtiesContext
@@ -63,15 +67,67 @@ public class TimeTableServiceTest {
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testRemoveRoomTableFromTimeTable(){
-        //TODO: create a test for removing a roomTable from a timeTable
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+        int numberOfRoomTables = timeTable.getRoomTables().size();
+        RoomTable roomTable = timeTable.getRoomTables().get(0);
+        Long roomTableID = roomTable.getId();
+
+        timeTableService.removeRoomTable(timeTable, roomTable);
+
+        assertEquals(numberOfRoomTables-1, timeTable.getRoomTables().size());
+        assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(roomTableID));
     }
 
     @Test
+    @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testRemoveCourseSessionFromTimeTable(){
-        //TODO: create a test for removing a courseSession from a timeTable
+    public void testRemoveUnassignedCourseSessionFromTimeTable(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+        int numberOfCourseSessions = timeTable.getCourseSessions().size();
+        CourseSession courseSession = timeTable.getCourseSessions().get(0);
+        Long courseSessionId = courseSession.getId();
+
+        timeTableService.removeCourseSession(timeTable, courseSession);
+
+        assertEquals(numberOfCourseSessions-1, timeTable.getCourseSessions().size());
+        assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(courseSessionId));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testRemoveAssignedCourseSessionFromTimeTable(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
+        int numberOfCourseSessions = timeTable.getCourseSessions().size();
+
+        timeTableService.removeCourseSession(timeTable, courseSession);
+
+        assertEquals(numberOfCourseSessions-1, timeTable.getCourseSessions().size());
+        assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-6));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testDeleteTimeTable(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+        List<Long> roomTableIDs = timeTable.getRoomTables().stream().map(RoomTable::getId).toList();
+        List<Long> courseSessionIDs = timeTable.getCourseSessions().stream().map(CourseSession::getId).toList();
+
+        timeTableService.deleteTimeTable(timeTable);
+
+        assertThrows(EntityNotFoundException.class, () -> timeTableService.loadTimeTable(-1));
+
+        for(Long roomTableId : roomTableIDs){
+            assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(roomTableId));
+        }
+        for(Long courseSessionId : courseSessionIDs){
+            assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(courseSessionId));
+        }
     }
 
     @Test

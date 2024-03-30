@@ -82,9 +82,6 @@ public class CourseSessionService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourseSession(CourseSession courseSession){
-        if(courseSession.isAssigned()){
-            this.unassignCourseSession(courseSession);
-        }
         courseSessionRepository.delete(courseSession);
     }
 
@@ -110,10 +107,13 @@ public class CourseSessionService {
      * @param courseSession The course session to unassign.
      * @return The unassigned course session.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public CourseSession unassignCourseSession(CourseSession courseSession){
         courseSession.setRoomTable(null);
+        Timing timing = courseSession.getTiming();
         courseSession.setTiming(null);
+        timingService.deleteTiming(timing);
         courseSession.setAssigned(false);
         return courseSessionRepository.save(courseSession);
     }
@@ -124,11 +124,14 @@ public class CourseSessionService {
      * @param courseSessions List of course sessions to unassign.
      * @return The list of unassigned course sessions.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> unassignCourseSessions(List<CourseSession> courseSessions){
         for (CourseSession courseSession : courseSessions) {
             courseSession.setRoomTable(null);
+            Timing timing = courseSession.getTiming();
             courseSession.setTiming(null);
+            timingService.deleteTiming(timing);
             courseSession.setAssigned(false);
         }
         return courseSessionRepository.saveAll(courseSessions);

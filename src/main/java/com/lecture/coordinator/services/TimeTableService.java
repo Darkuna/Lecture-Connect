@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.List;
 
 /**
@@ -80,9 +81,11 @@ public class TimeTableService {
      * @param timeTable The timetable from which the room table will be removed.
      * @param roomTable The room table to be removed.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void removeRoomTable(TimeTable timeTable, RoomTable roomTable){
-        //TODO: delete the roomTable, unassigning all associated course sessions
+        timeTable.removeRoomTable(roomTable);
+        roomTableService.deleteRoomTable(roomTable);
     }
 
     /**
@@ -91,9 +94,11 @@ public class TimeTableService {
      * @param timeTable The timetable from which the course session will be removed.
      * @param courseSession The course session to be removed.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void removeCourseSession(TimeTable timeTable, CourseSession courseSession){
-        //TODO: implement
+        timeTable.removeCourseSession(courseSession);
+        courseSessionService.deleteCourseSession(courseSession);
     }
 
     /**
@@ -121,6 +126,27 @@ public class TimeTableService {
         timeTable.setRoomTables(roomTables);
         timeTable.setCourseSessions(courseSessions);
         return timeTable;
+    }
+
+    /**
+     * Deletes a timetable, also deleting all associated course sessions and room tables.
+     *
+     * @param timeTable Timetable to be deleted.
+     */
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void deleteTimeTable(TimeTable timeTable){
+        for(CourseSession courseSession : List.copyOf(timeTable.getCourseSessions())){
+            removeCourseSession(timeTable, courseSession);
+        }
+
+        for(RoomTable roomTable : List.copyOf(timeTable.getRoomTables())){
+            removeRoomTable(timeTable, roomTable);
+        }
+        //TODO: fix why is there a new courseSession with ID 1 associated with timetable
+        courseSessionService.deleteCourseSession(courseSessionService.loadCourseSessionByID(1));
+
+        timeTableRepository.delete(timeTable);
     }
 
     /**

@@ -17,9 +17,9 @@ public class TimeTable implements Persistable<Long>, Serializable{
     private Semester semester;
     @Column(name = "academic_year")
     private int year;
-    @OneToMany(mappedBy = "timeTable", fetch= FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "timeTable", fetch= FetchType.LAZY)
     private List<RoomTable> roomTables;
-    @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY)
     private List<CourseSession> courseSessions;
 
     //CONSTRUCTOR
@@ -83,9 +83,21 @@ public class TimeTable implements Persistable<Long>, Serializable{
         }
     }
 
+    public void removeRoomTable(RoomTable roomTable){
+        if(roomTable != null){
+            roomTables.remove(roomTable);
+        }
+    }
+
     public void addCourseSessions(List<CourseSession> courseSessions){
         if(courseSessions != null){
             this.courseSessions.addAll(courseSessions);
+        }
+    }
+
+    public void removeCourseSession(CourseSession courseSession){
+        if(courseSessions != null){
+            this.courseSessions.remove(courseSession);
         }
     }
 
