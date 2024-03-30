@@ -1,5 +1,6 @@
 package com.lecture.coordinator.services;
 
+import com.lecture.coordinator.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.lecture.coordinator.model.*;
 import com.lecture.coordinator.model.enums.CourseType;
 import com.lecture.coordinator.repositories.CourseRepository;
@@ -127,6 +128,7 @@ public class CourseService {
      *
      * @param id ID of the course to be loaded.
      * @return The course including its timing constraints.
+     * @throws EntityNotFoundException if the course could not be found in the database.
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course loadCourseById(String id){
