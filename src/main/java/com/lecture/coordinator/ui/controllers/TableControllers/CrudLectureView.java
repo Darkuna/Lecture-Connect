@@ -38,7 +38,7 @@ public class CrudLectureView implements Serializable {
 
     @PostConstruct
     private void init() {
-        this.courses = courseService.getAllCourses();
+        this.courses = courseService.loadAllCourses();
         this.selectedCourses = new ArrayList<>();
         this.selectedCourse = null;
     }
