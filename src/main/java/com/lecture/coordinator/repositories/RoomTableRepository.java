@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface RoomTableRepository extends JpaRepository<RoomTable, Long> {
-    List<RoomTable> findAllyByRoom(@Param("room") Room room);
+    List<RoomTable> findAllByRoom(@Param("room") Room room);
 
     List<RoomTable> findAllByTimeTable(@Param("timeTable")TimeTable timeTable);
 }

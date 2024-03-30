@@ -112,6 +112,7 @@ public class RoomService {
      *
      * @param selectedRooms A list of Room objects to be deleted.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteMultipleRooms(List<Room> selectedRooms) {
         for(Room room : selectedRooms){

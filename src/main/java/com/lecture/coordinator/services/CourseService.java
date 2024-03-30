@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import javax.transaction.Transactional;
 import java.util.List;
 
 /**
@@ -73,6 +74,7 @@ public class CourseService {
      *
      * @param course The course to be deleted.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourse(Course course){
         List<CourseSession> courseSessions = courseSessionService.loadAllFromCourse(course);
@@ -87,6 +89,7 @@ public class CourseService {
      *
      * @param courses A list of courses to be deleted.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteMultipleCourses(List<Course> courses) {
         for(Course course : courses){
@@ -108,6 +111,7 @@ public class CourseService {
      * @param timingConstraints New list of timing constraints for the course.
      * @return The updated course.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course updateCourse(Course course, String name, CourseType courseType, String lecturer, int semester, int duration,
                                int numberOfParticipants, boolean computersNecessary, List<Timing> timingConstraints){
