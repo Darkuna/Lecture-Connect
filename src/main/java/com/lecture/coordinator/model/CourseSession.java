@@ -5,6 +5,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class CourseSession implements Persistable<Long>, Serializable {
@@ -109,4 +110,18 @@ public class CourseSession implements Persistable<Long>, Serializable {
     public void setFixed(boolean fixed) {
         isFixed = fixed;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CourseSession courseSession = (CourseSession) o;
+        return id != null && id.equals(courseSession.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
 }

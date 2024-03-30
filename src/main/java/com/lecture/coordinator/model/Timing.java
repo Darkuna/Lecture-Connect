@@ -6,6 +6,7 @@ import org.springframework.data.domain.Persistable;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Entity
 public class Timing implements Persistable<Long>, Serializable{
@@ -56,5 +57,18 @@ public class Timing implements Persistable<Long>, Serializable{
 
     public String toString(){
         return String.format("%s, %s - %s Uhr", day, startTime, endTime);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Timing timing = (Timing) o;
+        return id != null && id.equals(timing.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

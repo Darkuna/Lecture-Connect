@@ -84,7 +84,7 @@ public class CourseServiceTest {
     public void testUpdateCourse() {
         Course course = courseService.loadCourseById("703063");
         String newLecturer = "Peter Gruber";
-        courseService.updateCourse(course, course.getName(), course.getCourseType(), newLecturer,
+        course = courseService.updateCourse(course, course.getName(), course.getCourseType(), newLecturer,
                 course.getSemester(), course.getDuration(), course.getNumberOfParticipants(), course.isComputersNecessary(),
                 course.getTimingConstraints());
 
