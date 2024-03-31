@@ -60,30 +60,30 @@
                 <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button"/>
                 <p:ajax event="toggleSelect" update=":form:delete-products-button"/>
 
-                <p:column selectionMode="multiple" exportable="true" width="3%"/>
+                <p:column selectionMode="multiple" exportable="false" width="3%"/>
 
-                <p:column headerText="Kurs ID" sortBy="#{course.id}" filterBy="#{course.id}" width="10%">
+                <p:column headerText="Kurs ID" sortBy="#{course.id}" filterBy="#{course.id}" width="10%" exportable="true">
                     <h:outputText value="#{course.id}"/>
                 </p:column>
-                <p:column headerText="Typ" sortBy="#{course.courseType}" filterBy="#{course.courseType}" width="7%">
+                <p:column headerText="Typ" sortBy="#{course.courseType}" filterBy="#{course.courseType}" width="7%" exportable="true">
                     <h:outputText value="#{course.courseType}"/>
                 </p:column>
-                <p:column headerText="Name" sortBy="#{course.name}" filterBy="#{course.name}" width="30%">
+                <p:column headerText="Name" sortBy="#{course.name}" filterBy="#{course.name}" width="30%" exportable="true">
                     <h:outputText value="#{course.name}"/>
                 </p:column>
-                <p:column headerText="Semester" sortBy="#{course.semester}" filterBy="#{course.semester}" width="10%">
+                <p:column headerText="Semester" sortBy="#{course.semester}" filterBy="#{course.semester}" width="10%" exportable="true">
                     <h:outputText value="#{course.semester}"/>
                 </p:column>
-                <p:column headerText="Dauer" sortBy="#{course.duration}" filterBy="#{course.duration}" width="7%">
+                <p:column headerText="Dauer" sortBy="#{course.duration}" filterBy="#{course.duration}" width="7%" exportable="true">
                     <h:outputText value="#{course.duration}"/>
                 </p:column>
-                <p:column headerText="Teilnehmer (max)" sortBy="#{course.numberOfParticipants}" width="7%">
+                <p:column headerText="Teilnehmer (max)" sortBy="#{course.numberOfParticipants}" width="7%" exportable="true">
                     <h:outputText value="#{course.numberOfParticipants}"/>
                 </p:column>
-                <p:column headerText="Aufgeteilter Kurs" sortBy="#{course.split}" width="10%">
+                <p:column headerText="Aufgeteilter Kurs" sortBy="#{course.split}" width="10%" exportable="true">
                     <h:outputText value="#{course.split ? 'Nein' : 'Ja'}"/>
                 </p:column>
-                <p:column headerText="Benötigt PCs" sortBy="#{course.computersNecessary}" width="6%">
+                <p:column headerText="Benötigt PCs" sortBy="#{course.computersNecessary}" width="6%" exportable="true">
                     <h:outputText value="#{course.computersNecessary ? 'Ja' : 'Nein'}"/>
                 </p:column>
 
