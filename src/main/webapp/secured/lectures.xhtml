@@ -10,18 +10,20 @@
 
             <p:toolbar>
                 <p:toolbarGroup>
-                    <p:commandButton value="New" icon="pi pi-plus" actionListener="#{crudLectureView.openNew}"
+                    <p:commandButton value="Neu" icon="pi pi-plus" actionListener="#{crudLectureView.openNew}"
                                      update=":dialogs:lectureCreationDialog"
                                      oncomplete="PF('lectureCreationDialog').show()"
-                                     styleClass="ui-button-success" style="margin-right: .5rem">
+                                     styleClass="ui-button-success" style="margin-right: .4rem; color: #f4f4f4;
+                                     background-color: #9EC252; border-color: #9EC252">
                         <p:resetInput target=":dialogs:lectureCreationDialog"/>
                     </p:commandButton>
                     <p:commandButton id="delete-products-button" value="#{crudLectureView.deleteButtonMessage}"
-                                     icon="pi pi-trash" actionListener="#{crudLectureView.deleteSelectedCourses()}"
+                                     icon="pi pi-trash" actionListener="#{crudLectureView.deleteSelectedCourses}"
                                      styleClass="ui-button-danger" disabled="#{!crudLectureView.hasSelectedCourses()}"
-                                     update=":form:dt-products, form:delete-products-button" style="margin-left: 5px; color: #f4f4f4;
-                                     background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
-                        <p:confirm header="Confirmation" message="Delete the selected Rooms?"
+                                     update=":form:dt-products, form:delete-products-button"
+                                     style="margin-left: 5px; color: #f4f4f4;
+                                     background-color: #AD5353; border-color: #AD5353">
+                        <p:confirm header="Confirmation" message="Ausgewählten Kurs löschen?"
                                    icon="pi pi-exclamation-triangle"/>
                     </p:commandButton>
                 </p:toolbarGroup>
@@ -31,7 +33,8 @@
                     <p:fileUpload mode="simple" skinSimple="true" label="Import" chooseIcon="pi pi-download"
                                   style="color: #f4f4f4"/>
                     <p:commandButton value="Export" icon="pi pi-upload" styleClass="ui-button-help" ajax="false"
-                                     style="background-color: rgba(0,51,97,0.71); border-color: rgba(0,51,97,0.71); color: #f4f4f4">
+                                     style="background-color: rgba(0,51,97,0.71); border-color: rgba(0,51,97,0.71);
+                                     color: #f4f4f4">
                         <p:dataExporter type="pdf" target="dt-products" fileName="products"/>
                     </p:commandButton>
                 </p:toolbarGroup>
@@ -45,7 +48,7 @@
 
                 <f:facet name="header">
                     <div class="products-table-header" style="align-content: end; margin-right: 1rem">
-                            <span class="filter-container ui-input-icon-left"> <i class="pi pi-search"></i>
+                            <span class="filter-container ui-input-icon-left"> <i class="pi pi-search"/>
                         <p:inputText id="globalFilter" onkeyup="PF('dt-products').filter()" placeholder="Search"/>
                     </span>
                     </div>
@@ -57,33 +60,38 @@
                 <p:ajax event="rowUnselectCheckbox" update=":form:delete-products-button"/>
                 <p:ajax event="toggleSelect" update=":form:delete-products-button"/>
 
-                <p:column selectionMode="multiple" exportable="true"/>
+                <p:column selectionMode="multiple" exportable="true" width="3%"/>
 
-                <p:column headerText="Kurs Nummer" sortBy="#{course.id}" filterBy="#{course.id}">
+                <p:column headerText="Kurs ID" sortBy="#{course.id}" filterBy="#{course.id}" width="10%">
                     <h:outputText value="#{course.id}"/>
                 </p:column>
-                <p:column headerText="Name" sortBy="#{course.name}" filterBy="#{course.name}">
+                <p:column headerText="Typ" sortBy="#{course.courseType}" filterBy="#{course.courseType}" width="7%">
+                    <h:outputText value="#{course.courseType}"/>
+                </p:column>
+                <p:column headerText="Name" sortBy="#{course.name}" filterBy="#{course.name}" width="30%">
                     <h:outputText value="#{course.name}"/>
                 </p:column>
-                <p:column headerText="Semester" sortBy="#{course.semester}" filterBy="#{course.semester}">
+                <p:column headerText="Semester" sortBy="#{course.semester}" filterBy="#{course.semester}" width="10%">
                     <h:outputText value="#{course.semester}"/>
                 </p:column>
-                <p:column headerText="Dauer" sortBy="#{course.duration}" filterBy="#{course.duration}">
+                <p:column headerText="Dauer" sortBy="#{course.duration}" filterBy="#{course.duration}" width="7%">
                     <h:outputText value="#{course.duration}"/>
                 </p:column>
-                <p:column headerText="Teilnehmer Anzahl (max)" sortBy="#{course.numberOfParticipants}">
+                <p:column headerText="Teilnehmer (max)" sortBy="#{course.numberOfParticipants}" width="7%">
                     <h:outputText value="#{course.numberOfParticipants}"/>
                 </p:column>
-                <p:column headerText="In einer Wurst" sortBy="#{course.split}">
-                    <h:outputText value="#{course.split ? 'Ja' : 'Nein'}"/>
+                <p:column headerText="Aufgeteilter Kurs" sortBy="#{course.split}" width="10%">
+                    <h:outputText value="#{course.split ? 'Nein' : 'Ja'}"/>
                 </p:column>
-                <p:column headerText="Computer werden benötigt" sortBy="#{course.computersNecessary}">
+                <p:column headerText="Benötigt PCs" sortBy="#{course.computersNecessary}" width="6%">
                     <h:outputText value="#{course.computersNecessary ? 'Ja' : 'Nein'}"/>
                 </p:column>
 
-                <p:column exportable="false">
+                <p:column exportable="false" width="10%">
                     <p:commandButton icon="pi pi-pencil" update=":dialogs:lectureCreationDialog"
                                      oncomplete="PF('lectureCreationDialog').show()"
+                                     style="margin-left: 5px; color: #f4f4f4;
+                                     background-color: #9EC252; border-color: #9EC252"
                                      styleClass="edit-button rounded-button ui-button-success" process="@this">
                         <f:setPropertyActionListener value="#{course}" target="#{crudLectureView.selectedCourse}"/>
                         <p:resetInput target=":dialogs:lectureCreationDialog"/>
@@ -93,7 +101,7 @@
                                      process="@this" update=":form:dt-products"
                                      oncomplete="PF('deleteProductDialog').show()"
                                      style="margin-left: 5px; color: #f4f4f4;
-                                     background-color: rgba(221,11,19,0.9); border-color: rgba(221,11,19,0.9)">
+                                     background-color: #AD5353; border-color: #AD5353">
                         <f:setPropertyActionListener value="#{course}" target="#{crudLectureView.selectedCourse}"/>
                     </p:commandButton>
                 </p:column>
@@ -104,7 +112,8 @@
 
         <h:form id="dialogs">
             <p:confirmDialog widgetVar="deleteProductDialog" showEffect="fade" width="300"
-                             message="Are you sure to delete the course?" header="Confirm" severity="warn">
+                             message="Bist du dir sicher, dass du diesen Kurs löschen möchtest?"
+                             header="Confirm" severity="warn">
                 <p:commandButton value="Yes" icon="pi pi-check" actionListener="#{crudLectureView.doDeleteCourse}"
                                  process="@this" update=":form:dt-products"
                                  oncomplete="PF('deleteProductDialog').hide()"/>
@@ -119,26 +128,25 @@
             </p:confirmDialog>
 
             <p:dialog header="Neuen Kurs anlegen" id="lectureCreationDialog" widgetVar="lectureCreationDialog"
-                      modal="true"
-                      showEffect="fade" hideEffect="fade" resizable="false">
-                <p:outputPanel id="roomCreation">
+                      modal="true" showEffect="fade" hideEffect="fade" resizable="false">
+                <p:outputPanel id="lectureCreation">
                     <h:panelGrid columns="2">
-                        <p:selectOneMenu id="country" value="#{crudLectureView.courseType}">
-                            <f:selectItem itemLabel="VO" itemValue="VO "/>
-                            <f:selectItem itemLabel="VU" itemValue="VU "/>
-                            <f:selectItem itemLabel="PS" itemValue="PS "/>
-                            <f:selectItem itemLabel="SL" itemValue="SL "/>
-                        </p:selectOneMenu>
                         <p:inputText id="nameCreation" name="nameCreation" required="true" placeholder="Name"
-                                     value="#{crudLectureView.tmpName}" style="width: 200px"/>
+                                     value="#{crudLectureView.selectedCourse.name}" style="width: 200px"/>
 
+                        <p:selectOneMenu id="type" value="#{courseTypeBean.selectedCourseType}">
+                            <f:selectItems value="#{courseTypeBean.availableCourseTypes}"/>
+                        </p:selectOneMenu>
 
                         <p:inputText id="idCreation" name="idCreation" required="true" placeholder="ID"
                                      style="width: 200px"
                                      value="#{crudLectureView.selectedCourse.id}" styleClass="columnMargin"/>
                         <p:outputLabel for=""/>
 
-                        <p:outputLabel for="durationCreation" value="Dauer in Stunden" styleClass="columnMargin"/>
+                        <br/>
+                        <br/>
+
+                        <p:outputLabel for="durationCreation" value="Dauer" styleClass="columnMargin"/>
                         <p:inputNumber id="durationCreation" name="durationCreation"
                                        value="#{crudLectureView.selectedCourse.duration}"
                                        styleClass="columnMargin"/>

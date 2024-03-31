@@ -2,7 +2,9 @@ package com.lecture.coordinator.ui.controllers.TableControllers;
 
 import com.lecture.coordinator.model.Course;
 import com.lecture.coordinator.services.CourseService;
+import com.lecture.coordinator.ui.beans.CourseTypeBean;
 import org.primefaces.PrimeFaces;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -28,12 +30,11 @@ public class CrudLectureView implements Serializable {
 
     private final CourseService courseService;
 
-    private String courseType = "VO";
-    private String tmpName = "";
+    private final CourseTypeBean bean;
 
-
-    public CrudLectureView(CourseService courseService) {
+    public CrudLectureView(CourseService courseService, CourseTypeBean bean) {
         this.courseService = courseService;
+        this.bean = bean;
     }
 
     @PostConstruct
@@ -48,9 +49,9 @@ public class CrudLectureView implements Serializable {
     }
 
     public void createLecture() {
-        //parameter werden in rooms.xhtml :dialogs:roomCreationDialog gesetzt
-        nameCourse();
+        //parameter werden in lectures.xhtml :dialogs:roomCreationDialog gesetzt
         try {
+            this.selectedCourse.setCourseType(bean.getSelectedCourseType());
             selectedCourse = this.courseService.createCourse(selectedCourse);
             this.courses.add(selectedCourse);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Kurs erstellt"));
@@ -130,25 +131,5 @@ public class CrudLectureView implements Serializable {
 
     public void setSelectedCourses(List<Course> selectedCourses) {
         this.selectedCourses = selectedCourses;
-    }
-
-    public String getCourseType() {
-        return courseType;
-    }
-
-    public void setCourseType(String courseType) {
-        this.courseType = courseType;
-    }
-
-    public String getTmpName() {
-        return tmpName;
-    }
-
-    public void setTmpName(String tmpName) {
-        this.tmpName = tmpName;
-    }
-
-    public void nameCourse() {
-        this.selectedCourse.setName(courseType + tmpName);
     }
 }
