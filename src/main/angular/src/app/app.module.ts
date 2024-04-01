@@ -5,19 +5,30 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HeaderSelfComponent } from './header-self/header-self.component';
 
-import {AccordionModule} from 'primeng/accordion';     //accordion and accordion tab
-import {MenuItem} from 'primeng/api';                  //api
+import {ButtonModule} from 'primeng/button';
+import { LoginScreenSelfComponent } from './login-screen-self/login-screen-self.component';
+import { CardModule } from "primeng/card";
+import { InputTextModule } from 'primeng/inputtext';
+import {PasswordModule} from "primeng/password";
+import {FormsModule} from "@angular/forms";
+
 
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderSelfComponent
+    HeaderSelfComponent,
+    LoginScreenSelfComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ButtonModule,
+    CardModule,
+    InputTextModule,
+    PasswordModule,
+    FormsModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent, HeaderSelfComponent]
 })
 export class AppModule { }

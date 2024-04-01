@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrl: './header-self.component.css'
 })
 export class HeaderSelfComponent {
-
+  pageTitle = "Lecture Connect"
 }
