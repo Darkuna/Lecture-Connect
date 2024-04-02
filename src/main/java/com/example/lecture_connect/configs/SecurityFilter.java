@@ -22,15 +22,7 @@ public class SecurityFilter {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(antMatcher("/h2-console/**")).permitAll()
-                        .requestMatchers(antMatcher("/api/**")).permitAll()
-                        .requestMatchers(antMatcher("/v2/**")).permitAll()
-                        .requestMatchers(antMatcher("/configuration/ui")).permitAll()
-                        .requestMatchers(antMatcher("/swagger-resources/**")).permitAll()
-                        .requestMatchers(antMatcher("/configuration/security")).permitAll()
-                        .requestMatchers(antMatcher("/swagger-ui.html")).permitAll()
-                        .requestMatchers(antMatcher("/swagger-ui/*")).permitAll()
-                        .requestMatchers(antMatcher("/webjars/**")).permitAll()
+                        .requestMatchers(antMatcher("**")).permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
