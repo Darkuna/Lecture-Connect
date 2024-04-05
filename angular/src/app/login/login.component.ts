@@ -1,34 +1,26 @@
 import {HttpClient} from '@angular/common/http';
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
+import {error} from "@angular/compiler-cli/src/transformers/util";
+import {AppService} from "../app-service.service";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  loginObj: any = {
-    name: "",
-    password: ""
-  }
 
-  constructor(
-    private router: Router,
-    private http: HttpClient,
-  ) {
+  credentials = {username: '', password: ''};
+
+  constructor(private app: AppService, private http: HttpClient, private router: Router) {
   }
 
   login() {
-    this.http.post('http://localhost:8080/api/login', this.loginObj)
-      .subscribe((res: any) => {
-        if (res.result) {
-          alert('login was successful')
-          //localStorage.setItem('loginToken', res.data.token)
-          this.router.navigateByUrl('/home');
-        } else {
-          alert(res.result)
-        }
-      })
+    this.app.authenticate(this.credentials, () => {
+      this.router.navigateByUrl('/');
+    });
+    return false;
   }
+
 }

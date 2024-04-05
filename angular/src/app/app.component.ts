@@ -16,9 +16,9 @@ export class AppComponent {
   }
 
   logout() {
-    this.http.post('logout', {}).finally(() => {
+    this.http.post('logout', {}).subscribe(() => {
       this.app.authenticated = false;
       this.router.navigateByUrl('/login');
-    }).subscribe();
+    });
   }
 }
