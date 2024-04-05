@@ -18,6 +18,7 @@ import {LecturesViewComponent} from './lectures-view/lectures-view.component';
 import {UsersViewComponent} from './users-view/users-view.component';
 import {NgxWebstorageModule} from 'ngx-webstorage';
 import {PageNotFoundComponentComponent} from './page-not-found-component/page-not-found-component.component';
+import {AppService} from "./app-service.service";
 
 @NgModule({
   declarations: [
@@ -39,8 +40,8 @@ import {PageNotFoundComponentComponent} from './page-not-found-component/page-no
     PasswordModule,
     FormsModule,
     HttpClientModule,
-    NgxWebstorageModule.forRoot()],
-  providers: [],
+    ],
+  providers: [AppService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

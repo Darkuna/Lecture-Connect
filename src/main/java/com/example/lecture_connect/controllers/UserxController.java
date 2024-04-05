@@ -1,37 +1,18 @@
 package com.example.lecture_connect.controllers;
+import org.springframework.web.bind.annotation.*;
 
-import com.example.lecture_connect.LoginMessage;
-import com.example.lecture_connect.dto.LoginDTO;
-import com.example.lecture_connect.dto.UserxDTO;
-import com.example.lecture_connect.services.UserxService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class UserxController {
-    private final UserxService userxService;
 
-    public UserxController(UserxService employeeService) {
-        this.userxService = employeeService;
-    }
-
-
-    @PostMapping(path = "/api/save")
-    public ResponseEntity<String> saveUser(@RequestBody UserxDTO userxDTO) {
-        return ResponseEntity.ok().body(userxService.adduserx(userxDTO));
-    }
-
-    @PostMapping(path = "/api/login")
-    public ResponseEntity<LoginMessage> loginUser(@RequestBody LoginDTO loginDTO) {
-        LoginMessage loginResponse = userxService.loginuserx(loginDTO);
-        return ResponseEntity.ok(loginResponse);
-    }
-
-    @GetMapping("/api/allGet")
-    public ResponseEntity<String> getAllUsers() {
-        return ResponseEntity.ok(userxService.getAllUsers().toString());
+    @RequestMapping("/resource")
+    public Map<String,Object> home() {
+        Map<String,Object> model = new HashMap<String,Object>();
+        model.put("id", UUID.randomUUID().toString());
+        model.put("content", "Hello World");
+        return model;
     }
 }
