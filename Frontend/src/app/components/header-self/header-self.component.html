@@ -1,0 +1,31 @@
+<div class="container">
+  <div id="wrapperLeftButtons">
+    <div class="item" *ngIf="isLoggedIn()">
+      <button pButton type="button" label="Connector" class="headerButton"
+              (click)="redirectToPage('/home')"></button>
+    </div>
+    <div class="item" *ngIf="isLoggedIn()">
+      <button pButton type="button" label="Lectures" class="headerButton"
+              (click)="redirectToPage('/lectures')"></button>
+    </div>
+    <div class="item" *ngIf="isLoggedIn()">
+      <button pButton type="button" label="Rooms" class="headerButton"
+              (click)="redirectToPage('/rooms')"></button>
+    </div>
+  </div>
+
+  <h1>{{ pageTitle }}</h1>
+
+  <div id="wrapperRightButtons">
+    <div class="itemRight" *ngIf="hasAdminRole() && isLoggedIn()">
+      <button pButton type="button" label="Users" class="headerButton"></button>
+    </div>
+    <div class="itemRight">
+      <button pButton type="button" label="logout" class="headerButton"
+              (click)="logout()"></button>
+    </div>
+    <div class="itemRight">
+      <img src="assets/universitaet-innsbruck-logo-cmyk-graustufen.jpg" alt="Uibk Logo"/>
+    </div>
+  </div>
+</div>

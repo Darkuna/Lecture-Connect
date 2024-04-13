@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3c.org/1999/xhtml" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:h="http://java.sun.com/jsf/html" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui"
+                template="/jsf%20template/WEB-INF/main.xhtml">
+    <ui:define name="content">
+        <div class="card">
+            <h:form>
+                <p:growl id="messages" showDetail="true"/>
+
+                <p:schedule id="schedule" value="#{ScheduleJava8View.eventModel}" widgetVar="myschedule"
+                            timeZone="#{ScheduleJava8View.serverTimeZone}" clientTimeZone="#{ScheduleJava8View.serverTimeZone}">
+                    <p:ajax event="dateSelect" listener="#{ScheduleJava8View.onDateSelect}" update="eventDetails"
+                            oncomplete="PF('eventDialog').show();"/>
+                    <p:ajax event="eventSelect" listener="#{ScheduleJava8View.onEventSelect}" update="eventDetails"
+                            oncomplete="PF('eventDialog').show();"/>
+                    <p:ajax event="eventMove" listener="#{ScheduleJava8View.onEventMove}" update="messages"/>
+                    <p:ajax event="eventResize" listener="#{ScheduleJava8View.onEventResize}" update="messages"/>
+                </p:schedule>
+
+                <p:dialog widgetVar="eventDialog" header="Event Details" showEffect="fade" hideEffect="fade">
+                    <h:panelGrid id="eventDetails" columns="2" cellpadding="7">
+                        <p:outputLabel for="title" value="Titles" styleClass="font-bold"/>
+                        <p:inputText id="title" value="#{ScheduleJava8View.event.title}" required="true"/>
+
+                        <p:outputLabel for="from" value="From" styleClass="font-bold"/>
+                        <p:datePicker id="from" value="#{ScheduleJava8View.event.startDate}" pattern="dd/MM/yyyy"
+                                      showTime="true" appendTo="@(body)"/>
+
+                        <p:outputLabel for="to" value="To" styleClass="font-bold"/>
+                        <p:datePicker id="to" value="#{ScheduleJava8View.event.endDate}" pattern="dd/MM/yyyy"
+                                      showTime="true" appendTo="@(body)"/>
+
+                        <p:outputLabel for="allDay" value="All Day" styleClass="font-bold"/>
+                        <h:selectBooleanCheckbox id="allDay" value="#{ScheduleJava8View.event.allDay}"/>
+                    </h:panelGrid>
+
+                    <div class="flex justify-content-between mt-3">
+                        <p:commandButton type="reset" value="Reset" styleClass="font-bold ui-button-outlined"/>
+                        <p:commandButton id="addButton" value="Save" action="#{ScheduleJava8View.addEvent}"
+                                         oncomplete="PF('myschedule').update();PF('eventDialog').hide();"/>
+                    </div>
+                </p:dialog>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>
