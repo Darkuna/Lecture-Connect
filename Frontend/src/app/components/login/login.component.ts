@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {LocalStorageService} from "ngx-webstorage";
 import * as jwt_decode from 'jwt-decode';
 import {MessageService} from "primeng/api";
+import {ReloadService} from "../../services/reload.service";
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,8 @@ export class LoginComponent {
     private router: Router,
     private http: HttpClient,
     private storage: LocalStorageService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private reloadService: ReloadService
   ) { }
 
   login() {
@@ -33,8 +35,10 @@ export class LoginComponent {
           this.storage.store('roles', decodedToken['role']);
           this.storage.store('jwtToken', token['token']);
 
+          this.reloadService.notify({isRefresh : true});
+
           this.messageService.add({severity:'success', summary :`Willkommen zurück ${ decodedToken['username'] }`});
-          this.reloadComponent(false, '/home');
+          this.router.navigate(['/home'])
         } else {
           this.messageService.add({severity:'error', summary:'Login Error', detail:'Falscher Username oder Passwort'});
 
@@ -42,13 +46,4 @@ export class LoginComponent {
       })
   }
 
-  reloadComponent(self:boolean,urlToNavigateTo ?:string){
-    console.log("Current route I am on:",this.router.url);
-    const url=self ? this.router.url :urlToNavigateTo;
-    this.router.navigateByUrl('/',{skipLocationChange:true}).then(()=>{
-      this.router.navigate([`/${url}`]).then(()=>{
-        console.log(`After navigation I am on:${this.router.url}`)
-      })
-    })
-  }
 }

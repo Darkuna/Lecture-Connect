@@ -16,12 +16,13 @@ import {HttpClientModule} from '@angular/common/http';
 import {RoomsViewComponent} from './views/rooms-view/rooms-view.component';
 import {LecturesViewComponent} from './views/lectures-view/lectures-view.component';
 import {UsersViewComponent} from './views/users-view/users-view.component';
-import {NgxWebstorageModule} from 'ngx-webstorage';
+import {LocalStorageService, NgxWebstorageModule} from 'ngx-webstorage';
 import {PageNotFoundComponentComponent} from './components/page-not-found-component/page-not-found-component.component';
 import { ToastModule } from 'primeng/toast';
 import {RippleModule} from "primeng/ripple";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MessageService} from "primeng/api";
+import {ReloadService} from "./services/reload.service";
 @NgModule({
   declarations: [
     AppComponent,
@@ -47,7 +48,7 @@ import {MessageService} from "primeng/api";
     NgxWebstorageModule.forRoot(),
     RippleModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, ReloadService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -1,14 +1,14 @@
 <div class="container">
-  <div id="wrapperLeftButtons">
-    <div class="item" *ngIf="isLoggedIn()">
+  <div id="wrapperLeftButtons" >
+    <div class="item" *ngIf="isLoggedIn()" >
       <button pButton type="button" label="Connector" class="headerButton"
               (click)="redirectToPage('/home')"></button>
     </div>
-    <div class="item" *ngIf="isLoggedIn()">
+    <div class="item" *ngIf="isLoggedIn()" >
       <button pButton type="button" label="Lectures" class="headerButton"
               (click)="redirectToPage('/lectures')"></button>
     </div>
-    <div class="item" *ngIf="isLoggedIn()">
+    <div class="item" *ngIf="isLoggedIn()" >
       <button pButton type="button" label="Rooms" class="headerButton"
               (click)="redirectToPage('/rooms')"></button>
     </div>
@@ -20,7 +20,7 @@
     <div class="itemRight" *ngIf="hasAdminRole() && isLoggedIn()">
       <button pButton type="button" label="Users" class="headerButton"></button>
     </div>
-    <div class="itemRight">
+    <div class="itemRight" *ngIf="isLoggedIn()">
       <button pButton type="button" label="logout" class="headerButton"
               (click)="logout()"></button>
     </div>
