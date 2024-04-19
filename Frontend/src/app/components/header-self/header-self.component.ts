@@ -8,26 +8,14 @@ import {ReloadService} from "../../services/reload.service";
   templateUrl: './header-self.component.html',
   styleUrl: './header-self.component.css'
 })
-export class HeaderSelfComponent implements OnInit {
+export class HeaderSelfComponent {
   pageTitle = "Lecture Connect"
-  loginStatus = false;
-  adminStatus = false;
 
 
   constructor(
     private router: Router,
     private storage: LocalStorageService,
-    private reloadService: ReloadService
   ) { }
-
-  ngOnInit(): void {
-    this.reloadService.currentMessageSubscriber.subscribe((data : any)=>{
-      if( data.isRefresh ) {
-        this.loginStatus = this.isLoggedIn();
-        this.adminStatus = this.hasAdminRole();
-      }
-    })
-  }
 
 
   isLoggedIn(): boolean {
@@ -36,7 +24,6 @@ export class HeaderSelfComponent implements OnInit {
   hasAdminRole(): boolean {
     return this.storage.retrieve('roles') === 'ADMIN';
   }
-
 
   redirectToPage(page: string): void {
       this.router.navigate([page])
