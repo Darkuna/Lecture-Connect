@@ -1,5 +1,15 @@
 {
   "dependencies": {
-    "@angular/cli": "^17.3.3"
+    "@angular/cli": "^17.3.3",
+    "@angular/router": "^17.3.4",
+    "jwt-decode": "^4.0.0",
+    "ngx-webstorage": "^13.0.1",
+    "primeicons": "^7.0.0",
+    "primeng": "^17.13.0"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^17.3.4",
+    "@angular/platform-browser-dynamic": "^17.3.4",
+    "ts-time": "^0.2.1"
   }
 }

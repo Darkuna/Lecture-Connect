@@ -15,14 +15,22 @@ import {HomeComponent} from './components/home/home.component';
 import {HttpClientModule} from '@angular/common/http';
 import {NgxWebstorageModule} from 'ngx-webstorage';
 import {PageNotFoundComponentComponent} from './components/page-not-found-component/page-not-found-component.component';
-import { ToastModule } from 'primeng/toast';
+import {ToastModule} from 'primeng/toast';
 import {RippleModule} from "primeng/ripple";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {MessageService} from "primeng/api";
-import { TableModule } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
-import { FileUploadModule } from 'primeng/fileupload';
+import {TableModule} from 'primeng/table';
+import {ToolbarModule} from 'primeng/toolbar';
+import {FileUploadModule} from 'primeng/fileupload';
 import {TableViewComponent} from "./components/TableView/tableView.component";
+import {MultiSelectModule} from "primeng/multiselect";
+import {DialogModule} from "primeng/dialog";
+import {DropdownModule} from "primeng/dropdown";
+import {TagModule} from "primeng/tag";
+import {RadioButtonModule} from "primeng/radiobutton";
+import {InputNumberModule} from "primeng/inputnumber";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {InputTextareaModule} from "primeng/inputtextarea";
 
 @NgModule({
   declarations: [
@@ -48,7 +56,15 @@ import {TableViewComponent} from "./components/TableView/tableView.component";
     RippleModule,
     TableModule,
     FileUploadModule,
-    ToolbarModule
+    ToolbarModule,
+    MultiSelectModule,
+    DialogModule,
+    DropdownModule,
+    TagModule,
+    RadioButtonModule,
+    InputNumberModule,
+    ConfirmDialogModule,
+    InputTextareaModule
   ],
   providers: [MessageService],
   bootstrap: [AppComponent]
