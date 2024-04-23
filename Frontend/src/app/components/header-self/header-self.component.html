@@ -18,7 +18,8 @@
 
   <div id="wrapperRightButtons">
     <div class="itemRight" *ngIf="hasAdminRole() && isLoggedIn()">
-      <button pButton type="button" label="Users" class="headerButton"></button>
+      <button pButton type="button" label="Users" class="headerButton"
+              (click)="redirectToPage('/users')"></button>
     </div>
     <div class="itemRight" *ngIf="isLoggedIn()">
       <button pButton type="button" label="logout" class="headerButton"

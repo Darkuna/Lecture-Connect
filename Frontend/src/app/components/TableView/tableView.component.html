@@ -1,0 +1,62 @@
+<p-toolbar styleClass="mb-4 gap-2">
+  <ng-template pTemplate="left">
+    <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
+    <button pButton pRipple label = "Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedProducts()" [disabled]="!selectedItems || !selectedItems.length"></button>
+  </ng-template>
+
+  <ng-template pTemplate="right">
+    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" chooseLabel="Import" class="mr-2 inline-block"></p-fileUpload>
+    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"></button>
+  </ng-template>
+</p-toolbar>
+
+<p-table
+  #dt
+  [value]="items"
+  [rows]="headers?.length"
+  [paginator]="true"
+  [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
+  [tableStyle]="{ 'min-width': '75rem' }"
+  [(selection)]="selectedItems"
+  [rowHover]="true"
+  dataKey="id"
+  currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+  [showCurrentPageReport]="true"
+>
+  <ng-template pTemplate="caption">
+    <div class="flex align-items-center justify-content-between">
+      <span class="p-input-icon-left">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" placeholder="Search..." />
+            </span>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 4rem">
+        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+      </th>
+      <th class="flex-header" *ngFor="let col of headers" [pSortableColumn]="col.field" pResizableColumn pReorderableColumn>
+        <span>
+          <p-sortIcon [field]="col.field"></p-sortIcon>
+          {{col.header}}
+        </span>
+        <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu" [field]="col.field"></p-columnFilter>
+      </th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-product>
+    <tr [pSelectableRow]="items">
+      <ng-container *ngFor="let col of headers">
+        <td>
+          <ng-container>
+            {{ items ? items : [col.field]}}
+          </ng-container>
+        </td>
+      </ng-container>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="summary">
+    <div class="flex align-items-center justify-content-between">In total there are {{ items ? items.length : 0 }} products.</div>
+  </ng-template>
+</p-table>
