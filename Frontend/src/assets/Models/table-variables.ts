@@ -19,6 +19,7 @@ export class tableVariables {
 
   //rooms
   idRoom?: string;
+  roomName?: string;
   capacity?: number;
   computersAvailable?: boolean;
   timingConstraintsRoom?: Timing[];
@@ -38,4 +39,9 @@ export class tableVariables {
   numberOfGroups?: number;
   isSplit?: boolean;
   splitTimes?: number[];
+
+  stateOptions: any[] = [
+    { label: 'Yes', value: true },
+    { label: 'No', value: false }
+  ];
 }

@@ -17,3 +17,16 @@
   background-color: #AD5353;
   border-color: #AD5353;
 }
+
+.parent {
+  display: flex;
+  flex-direction: column;
+}
+
+.div-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.rand { margin: .4rem .4rem .4rem .4rem; }
+

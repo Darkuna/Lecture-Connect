@@ -64,19 +64,25 @@
   </p-table>
 </div>
 
-<p-dialog [(visible)]="itemDialog === '/rooms' && itemDialogVisible" [style]="{ width: '450px', height: '750px'}"
+<p-dialog [(visible)]="itemDialog === '/rooms' && itemDialogVisible"
           header="Room Creation" [modal]="true" styleClass="p-fluid">
-  <ng-template pTemplate="content">
-    <div class="field">
-      <label for="capacity">Capacity</label>
-      <input type="number" pInputText id="capacity" [(ngModel)]="allVariables.capacity" required autofocus/>
-      <small class="p-error" *ngIf="!type">We need to know the room size.</small>
+  <ng-template pTemplate="content" class="parent">
+    <div class="rand">
+      <label for="nameRoom">Name of room</label>
+      <input type="text" pInputText id="nameRoom" [(ngModel)]="allVariables.roomName" required autofocus/>
+      <small class="p-error" *ngIf="!allVariables.roomName">Name is needed!</small>
     </div>
+    <div class="div-container">
+      <div class="rand">
+        <label for="capacity">Capacity</label>
+        <input type="number" pInputText id="capacity" [(ngModel)]="allVariables.capacity" required autofocus/>
+        <small class="p-error" *ngIf="!allVariables.capacity">We need to know the room size.</small>
+      </div>
 
-    <div class="field">
-      <label for="avail">Computers available?</label>
-      <input type="text" pInputText id="avail" [(ngModel)]="allVariables.computersAvailable" required autofocus/>
-      <small class="p-error" *ngIf="!type">Details are needed!</small>
+      <div class="rand">
+        <label for="op1">Computers available?</label>
+        <p-selectButton id="op1" [options]="allVariables.stateOptions" [(ngModel)]="allVariables.computersAvailable" optionLabel="label" optionValue="value" ></p-selectButton>
+      </div>
     </div>
   </ng-template>
 
@@ -86,51 +92,64 @@
   </ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="itemDialog === '/lectures' && itemDialogVisible" [style]="{ width: '450px', height: '750px'}"
+<p-dialog [(visible)]="itemDialog === '/lectures' && itemDialogVisible"
           header="Lecture Creation" [modal]="true" styleClass="p-fluid">
-  <ng-template pTemplate="content">
-    <div class="field">
-      <label for="id">Course ID</label>
-      <input type="text" pInputText id="id" [(ngModel)]="allVariables.idCourse" required autofocus/>
-      <small class="p-error" *ngIf="!type">ID is required.</small>
+  <ng-template pTemplate="content" class="parent">
+    <div class="div-container">
+
+      <div class="rand">
+        <label for="type">Type</label>
+        <p-dropdown id = "type" [options]="getCourseOptions()" [(ngModel)]="allVariables.courseType"
+                    placeholder="select a Type" />
+      </div>
+
+      <div class="rand">
+        <label for="id">Course ID</label>
+        <input type="number" pInputText id="id" [(ngModel)]="allVariables.idCourse" required autofocus/>
+        <small class="p-error" *ngIf="!allVariables.idCourse">ID is required.</small>
+      </div>
+
+      <div class="rand">
+        <label for="name">Name</label>
+        <input type="text" pInputText id="name" [(ngModel)]="allVariables.name" required autofocus/>
+        <small class="p-error" *ngIf="!allVariables.name">Name  is required </small>
+      </div>
     </div>
 
-    <div class="field">
-      <label for="name">Name</label>
-      <input type="text" pInputText id="name" [(ngModel)]="allVariables.name" required autofocus/>
-      <small class="p-error" *ngIf="!type">Name  is required </small>
-    </div>
-
-    <div class="field">
+    <div class="rand">
       <label for="lecturer">Lecturer</label>
       <input type="text" pInputText id="lecturer" [(ngModel)]="allVariables.lecturer" autofocus/>
     </div>
 
-    <div class="formgrid grid">
-      <div class="field col">
-        <label for="duration">duration</label>
-        <input type="text" pInputText id="duration" [(ngModel)]="allVariables.duration" autofocus/>
+    <div class="rand">
+        <label for="duration">Duration in Hours</label>
+        <input type="number" pInputText id="duration" [(ngModel)]="allVariables.duration" autofocus/>
+    </div>
+
+    <div class="rand">
+      <label for="allowed">Allowed number of participants</label>
+      <input type="number" pInputText id="allowed" [(ngModel)]="allVariables.numberOfParticipants" autofocus/>
+    </div>
+
+    <div class="div-container">
+      <div class="rand">
+        <label for="op2">computers needed?</label>
+        <p-selectButton id="op2" [options]="allVariables.stateOptions" [(ngModel)]="allVariables.computersNecessary"
+                        optionLabel="label" optionValue="value" ></p-selectButton>
       </div>
 
-      <div class="field col">
-        <label for="allowed">Allowed Members</label>
-        <input type="text" pInputText id="allowed" [(ngModel)]="allVariables.numberOfParticipants" autofocus/>
+      <div class="rand">
+        <label for="op3">Course split?</label>
+        <p-selectButton id="op3" optionLabel="label" optionValue="value"
+                        [options]="allVariables.stateOptions" [(ngModel)]="allVariables.isSplit" />
       </div>
     </div>
 
-    <div class="field">
-      <label for="nes">computers needed?</label>
-      <input type="text" pInputText id="nes" [(ngModel)]="allVariables.computersNecessary" autofocus/>
-    </div>
 
-    <div class="field">
-      <label for="split">Course split?</label>
-      <input type="text" pInputText id="split" [(ngModel)]="allVariables.isSplit" autofocus/>
-    </div>
-
-    <div class="field">
+    <div class="rand" >
       <label for="times">Number of splits</label>
-      <input type="text" pInputText id="times" [(ngModel)]="allVariables.splitTimes" autofocus/>
+      <input type="number" pInputText id="times" autofocus
+             [(ngModel)]="allVariables.splitTimes" [disabled]="!allVariables.isSplit" />
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
@@ -139,42 +158,45 @@
   </ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="itemDialog === '/users' && itemDialogVisible" [style]="{ width: '450px', height: '750px'}"
-          header="Lecture Creation" [modal]="true" styleClass="p-fluid">
-  <ng-template pTemplate="content">
-    <div class="field">
-      <label for="Username">Username</label>
-      <input type="text" pInputText id="Username" [(ngModel)]="allVariables.username" required autofocus/>
-      <small class="p-error" *ngIf="!type">Username is required </small>
-    </div>
-
-    <div class="field">
-      <label for="pwd">Password</label>
-      <input type="password" pInputText id="pwd" [(ngModel)]="allVariables.password" required autofocus/>
-      <small class="p-error" *ngIf="!type">Password is required </small>
-    </div>
-
-    <div class="field">
-      <label for="fname">First Name</label>
-      <input type="text" pInputText id="fname" [(ngModel)]="allVariables.firstName" autofocus/>
-    </div>
-
-    <div class="field">
-      <label for="lname">Last Name</label>
-      <input type="text" pInputText id="lname" [(ngModel)]="allVariables.lastName" autofocus/>
-    </div>
-
-    <div class="formgrid grid">
-      <div class="field col">
-        <label for="mail">E-Mail</label>
-        <input type="text" pInputText id="mail" [(ngModel)]="allVariables.email" autofocus/>
+<p-dialog [(visible)]="itemDialog === '/users' && itemDialogVisible"
+          header="User Creation" [modal]="true" styleClass="p-fluid" >
+  <ng-template pTemplate="content" class="parent">
+    <div class="div-container">
+      <div class="rand">
+        <label for="Username">Username</label>
+        <input type="text" pInputText id="Username" [(ngModel)]="allVariables.username" required autofocus/>
+        <small class="p-error" *ngIf="!allVariables.username">Username is required </small>
       </div>
 
-      <div class="field col">
-        <label for="role">Roles</label>
-        <input type="text" pInputText id="role" [(ngModel)]="allVariables.role" autofocus/>
+      <div class="rand">
+        <label for="pwd">Password</label>
+        <input type="password" pInputText id="pwd" [(ngModel)]="allVariables.password" required autofocus/>
+        <small class="p-error" *ngIf="!allVariables.password">Password is required </small>
       </div>
     </div>
+    <div class="div-container">
+      <div class="rand">
+        <label for="fname">First Name</label>
+        <input type="text" pInputText id="fname" [(ngModel)]="allVariables.firstName" autofocus/>
+      </div>
+
+      <div class="rand">
+        <label for="lname">Last Name</label>
+        <input type="text" pInputText id="lname" [(ngModel)]="allVariables.lastName" autofocus/>
+      </div>
+    </div>
+
+    <div class="rand">
+      <label for="role">Roles</label>
+      <p-dropdown id = "role" [options]="getRoleOptions()" [(ngModel)]="allVariables.role"
+                  placeholder="select a Type" [editable]="true" />
+    </div>
+
+    <div class="rand">
+      <label for="mail">E-Mail</label>
+      <input type="text" pInputText id="mail" [(ngModel)]="allVariables.email" autofocus/>
+    </div>
+    <br>
   </ng-template>
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
