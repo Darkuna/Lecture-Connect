@@ -3,14 +3,11 @@ import {RoomTable} from "./room-table";
 import {TableData} from "./interfaces/TableData";
 
 export class Room implements TableData {
-
-  constructor(
-    private id?: string,
-    private capacity?: number,
-    private computersAvailable?: Boolean,
-    private timingConstraints?: Timing[],
-    private roomTables?: RoomTable[]
-  ) { }
+  id?: string;
+  private capacity?: number;
+  private computersAvailable?: boolean;
+  private timingConstraints?: Timing[];
+  private roomTables?: RoomTable[];
 
   getTableColumns(): any[] {
     return [
@@ -19,5 +16,23 @@ export class Room implements TableData {
       {field: 'computersAvailable', header: 'Room has PCs' }
     ]
   }
+
+  deleteMultipleItems(val: any[]): void {
+  }
+
+  deleteSingleItem(val: any): void {
+  }
+
+  editItem(val: any): any {
+  }
+
+  getData(): any[] {
+    return [];
+  }
+
+  saveItem(val: any): any {
+  }
+
+
 
 }

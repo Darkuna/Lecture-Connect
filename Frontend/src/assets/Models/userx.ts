@@ -2,18 +2,16 @@ import {Role} from "./enums/role";
 import {TableData} from "./interfaces/TableData";
 
 export class Userx implements TableData {
-  constructor(
-    private serialVersionUID?: number,
-    private username?: string,
-    private createDate?: Date,
-    private updateDate?: Date,
-    private password?: string,
-    private firstName?: string,
-    private lastName?: string,
-    private email?: string,
-    private enabled?: boolean,
-    private role?: Role
-  ) { }
+  serialVersionUID?: number;
+  username?: string;
+  createDate?: Date;
+  updateDate?: Date;
+  password?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  enabled?: boolean;
+  role?: Role
 
   public getTableColumns(): any[] {
     return [
@@ -27,6 +25,23 @@ export class Userx implements TableData {
       {field: 'roles', header: 'Roles' }
     ]
   }
+
+  deleteMultipleItems(val: any[]): void {
+  }
+
+  deleteSingleItem(val: any): void {
+  }
+
+  editItem(val: any): any {
+  }
+
+  getData(): any[] {
+    return [];
+  }
+
+  saveItem(val: any): any {
+  }
+
 
 }
 

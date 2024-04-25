@@ -4,22 +4,19 @@ import {CourseType} from "./enums/course-type";
 import {TableData} from "./interfaces/TableData";
 
 export class Course implements TableData {
-  constructor(
-    id?: string,
-    courseType?: CourseType,
-    name?: string,
-    lecturer?: string,
-    semester?: number,
-    duration?: number,
-    numberOfParticipants?: number,
-    computersNecessary?: boolean,
-    courseSessions?: CourseSession[],
-    timingConstraints?: Timing[],
-    numberOfGroups?: number,
-    isSplit?: boolean,
-    splitTimes?: number[]
-  ) {
-  }
+  id?: string;
+  courseType?: CourseType;
+  name?: string;
+  lecturer?: string;
+  semester?: number;
+  duration?: number;
+  numberOfParticipants?: number;
+  computersNecessary?: boolean;
+  courseSessions?: CourseSession[];
+  timingConstraints?: Timing[];
+  numberOfGroups?: number;
+  isSplit?: boolean;
+  splitTimes?: number[];
 
   getTableColumns(): any[] {
     return [
@@ -33,5 +30,23 @@ export class Course implements TableData {
       {field: 'computersNecessary', header: 'computer needed' },
     ]
   }
+
+  deleteMultipleItems(val: any[]): void {
+  }
+
+  deleteSingleItem(val: any): void {
+  }
+
+  editItem(val: any): any {
+  }
+
+  getData(): any[] {
+    return [];
+  }
+
+  saveItem(val: any): any {
+  }
+
+
 
 }

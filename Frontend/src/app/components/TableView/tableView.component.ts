@@ -1,11 +1,12 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
 import {Userx} from "../../../assets/Models/userx";
 import {Room} from "../../../assets/Models/room";
 import {Course} from "../../../assets/Models/course";
 import {Router} from "@angular/router";
-import {CourseType} from "../../../assets/Models/enums/course-type";
 import {ConfirmationService, MessageService} from "primeng/api";
+import {Role} from "../../../assets/Models/enums/role";
+import {tableVariables} from "../../../assets/Models/table-variables";
+import {CourseType} from "../../../assets/Models/enums/course-type";
 
 @Component({
   selector: 'app-table-view',
@@ -17,39 +18,41 @@ import {ConfirmationService, MessageService} from "primeng/api";
 export class TableViewComponent implements OnInit {
   itemDialog: string = "";
   itemDialogVisible: boolean = false;
-  private type?: Userx | Room | Course;
+  type: Userx | Room | Course;
   items: any[];
-  item: any;
+  selectedItem?: any;
   selectedItems?: any;
   selectedHeaders: any;
   headers?: any[];
+  allVariables: tableVariables;
 
   constructor(
-    private http: HttpClient,
     private router: Router,
     private cd: ChangeDetectorRef,
     private confirmationService: ConfirmationService
   ) {
+    this.allVariables = new tableVariables();
     this.items = [];
-  }
-
-  ngOnInit(): void {
     let url: string = this.router.url;
     switch (url) {
       case ("/users"):
         this.type = new Userx();
+
         break;
       case ("/rooms"):
         this.type = new Room();
         break;
+
       default:
-        console.log(url);
         this.type = new Course();
         break;
     }
-    this.itemDialog = url;
+  }
 
+  ngOnInit(): void {
+    this.itemDialog = this.router.url;
     this.headers = this.type.getTableColumns();
+    this.items = this.type.getData();
     this.selectedHeaders = this.headers;
     this.cd.markForCheck();
   }
@@ -58,27 +61,32 @@ export class TableViewComponent implements OnInit {
     this.itemDialogVisible = true;
   }
 
-  deleteSelectedItem() {
-
-  }
-
-  editItem(item: any) {
-
-  }
-
-  deleteItem(item: any) {
-
-  }
-
   hideDialog() {
     this.itemDialogVisible = false;
   }
 
-  saveItem() {
-
+  deleteSingleItem() {
+    this.type.deleteSingleItem(this.selectedItem);
   }
 
-  getOptions() {
+  deleteMultipleItems() {
+    this.type.deleteMultipleItems(this.selectedItems);
+  }
+
+  editItem() {
+    this.type.editItem(this.selectedItem);
+  }
+
+  saveItem() {
+    this.type.saveItem(this.selectedItem);
+  }
+
+  getRoleOptions() {
+    return Object.keys(Role).filter(k => isNaN(Number(k)));
+  }
+
+  getCourseOptions() {
     return Object.keys(CourseType).filter(k => isNaN(Number(k)));
   }
+
 }

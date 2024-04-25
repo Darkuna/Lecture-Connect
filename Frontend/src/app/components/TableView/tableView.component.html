@@ -1,114 +1,82 @@
-<p-toolbar styleClass="mb-4 gap-2">
-  <ng-template pTemplate="left" style="top: 10%">
-    <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="openNew()"></button>
-    <button pButton pRipple label="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedItem()"
-            [disabled]="!selectedItems || !selectedItems.length"></button>
-  </ng-template>
+<div class="moveDownHeader">
+  <p-toolbar styleClass="mb-4 gap-2">
+    <ng-template pTemplate="left">
 
-  <ng-template pTemplate="right">
-    <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" chooseLabel="Import"
-                  class="mr-2 inline-block"></p-fileUpload>
-    <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"></button>
-  </ng-template>
-</p-toolbar>
+    </ng-template>
 
-<p-table
-  #dt
-  [value]="items"
-  [rows]="selectedItems?.length"
-  [columns]="selectedHeaders"
-  [paginator]="true"
-  [tableStyle]="{ 'min-width': '75rem' }"
-  [(selection)]="selectedItems"
-  [rowHover]="true"
-  dataKey="id"
->
-  <ng-template pTemplate="caption">
-    <div class="flex align-items-center justify-content-between">
+    <ng-template pTemplate="left" >
+      <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
+                     selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
+                     placeholder="Choose Columns"></p-multiSelect>
       <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input pInputText type="text" placeholder="Search..."/>
-            </span>
-    </div>
-  </ng-template>
-  <ng-template pTemplate="caption" class="flex align-items-right justify-content-between">
-    <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
-                   selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px'}"
-                   placeholder="Choose Columns"></p-multiSelect>
-  </ng-template>
-  <ng-template pTemplate="header">
-    <tr>
-      <th style="width: 4rem">
-        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-      </th>
-      <th class="flex-header" *ngFor="let col of selectedHeaders" [pSortableColumn]="col.field" pResizableColumn
-          pReorderableColumn>
-        <span>
-          <p-sortIcon [field]="col.field"></p-sortIcon>
-          {{ col.header }}
-        </span>
-        <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
-                        [field]="col.field"></p-columnFilter>
-      </th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-product>
-    <tr [pSelectableRow]="items">
-      <ng-container *ngFor="let col of selectedHeaders">
-        <td>
-          <ng-container>
-            {{ items ? items : [col.field] }}
-          </ng-container>
-        </td>
-      </ng-container>
-    </tr>
-  </ng-template>
-</p-table>
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" placeholder="Search..."/>
+      </span>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <button pButton pRipple label="New" class="customButton" (click)="openNew()"></button>
+      <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
+              [disabled]="!selectedItems || !selectedItems.length"></button>
+      <button pButton pRipple label="Import" class="customButton"></button>
+      <button pButton pRipple label="Export" icon="pi pi-upload" class="customButton"></button>
+    </ng-template>
+  </p-toolbar>
 
-
-<p-dialog [(visible)]="itemDialog === '/users' && itemDialogVisible" [style]="{ width: '450px', height: '750px'}"
-          header="User Creation"
-          [modal]="true"
-          styleClass="p-fluid">
-  <ng-template pTemplate="content">
-    <div class="field">
-      <label for="name">Name</label>
-      <input type="text" pInputText id="name" [(ngModel)]="item" required autofocus/>
-      <small class="p-error" *ngIf="!item.name">Name is required.</small>
-    </div>
-
-    <div class="field">
-      <label>Inventory Status</label>
-      <p-dropdown [(ngModel)]="item" inputId="inventoryStatus" [options]="getOptions()">
-        <ng-template pTemplate="selectedItem">
-        </ng-template>
-      </p-dropdown>
-    </div>
-  </ng-template>
-
-  <ng-template pTemplate="footer">
-    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveItem()"></button>
-  </ng-template>
-</p-dialog>
+  <p-table
+    #dt
+    [value]="items"
+    [rows]="selectedItems?.length"
+    [columns]="selectedHeaders"
+    [paginator]="true"
+    [tableStyle]="{ 'min-width': '75rem' }"
+    [(selection)]="selectedItems"
+    [rowHover]="true"
+    dataKey="id"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th id="check" style="width: 4rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th id="" class="flex-header"
+            *ngFor="let col of selectedHeaders" [pSortableColumn]="col.field"
+            pResizableColumn pReorderableColumn>
+          <span>
+            <p-sortIcon [field]="col.field"></p-sortIcon>
+            {{ col.header }}
+          </span>
+          <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
+                          [field]="col.field"></p-columnFilter>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr [pSelectableRow]="items">
+        <ng-container *ngFor="let col of selectedHeaders">
+          <td>
+            <ng-container>
+              {{ items ? items : [col.field] }}
+            </ng-container>
+          </td>
+        </ng-container>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
 
 <p-dialog [(visible)]="itemDialog === '/rooms' && itemDialogVisible" [style]="{ width: '450px', height: '750px'}"
-          header="Room Creation"
-          [modal]="true"
-          styleClass="p-fluid">
+          header="Room Creation" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content">
     <div class="field">
-      <label for="name">Name</label>
-      <input type="text" pInputText id="tst" [(ngModel)]="item" required autofocus/>
-      <small class="p-error" *ngIf="!item.name">Name is required.</small>
+      <label for="capacity">Capacity</label>
+      <input type="number" pInputText id="capacity" [(ngModel)]="allVariables.capacity" required autofocus/>
+      <small class="p-error" *ngIf="!type">We need to know the room size.</small>
     </div>
 
     <div class="field">
-      <label>Inventory Status</label>
-      <p-dropdown [(ngModel)]="item" inputId="inventoryStatus" [options]="getOptions()">
-        <ng-template pTemplate="selectedItem">
-        </ng-template>
-      </p-dropdown>
+      <label for="avail">Computers available?</label>
+      <input type="text" pInputText id="avail" [(ngModel)]="allVariables.computersAvailable" required autofocus/>
+      <small class="p-error" *ngIf="!type">Details are needed!</small>
     </div>
   </ng-template>
 
@@ -119,25 +87,95 @@
 </p-dialog>
 
 <p-dialog [(visible)]="itemDialog === '/lectures' && itemDialogVisible" [style]="{ width: '450px', height: '750px'}"
-          header="Course Creation"
-          [modal]="true"
-          styleClass="p-fluid">
+          header="Lecture Creation" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content">
     <div class="field">
-      <label for="name">Name</label>
-      <input type="text" pInputText id="as" [(ngModel)]="item" required autofocus/>
-      <small class="p-error" *ngIf="!item.name">Name is required.</small>
+      <label for="id">Course ID</label>
+      <input type="text" pInputText id="id" [(ngModel)]="allVariables.idCourse" required autofocus/>
+      <small class="p-error" *ngIf="!type">ID is required.</small>
     </div>
 
     <div class="field">
-      <label>Inventory Status</label>
-      <p-dropdown [(ngModel)]="item" inputId="inventoryStatus" [options]="getOptions()">
-        <ng-template pTemplate="selectedItem">
-        </ng-template>
-      </p-dropdown>
+      <label for="name">Name</label>
+      <input type="text" pInputText id="name" [(ngModel)]="allVariables.name" required autofocus/>
+      <small class="p-error" *ngIf="!type">Name  is required </small>
+    </div>
+
+    <div class="field">
+      <label for="lecturer">Lecturer</label>
+      <input type="text" pInputText id="lecturer" [(ngModel)]="allVariables.lecturer" autofocus/>
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col">
+        <label for="duration">duration</label>
+        <input type="text" pInputText id="duration" [(ngModel)]="allVariables.duration" autofocus/>
+      </div>
+
+      <div class="field col">
+        <label for="allowed">Allowed Members</label>
+        <input type="text" pInputText id="allowed" [(ngModel)]="allVariables.numberOfParticipants" autofocus/>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="nes">computers needed?</label>
+      <input type="text" pInputText id="nes" [(ngModel)]="allVariables.computersNecessary" autofocus/>
+    </div>
+
+    <div class="field">
+      <label for="split">Course split?</label>
+      <input type="text" pInputText id="split" [(ngModel)]="allVariables.isSplit" autofocus/>
+    </div>
+
+    <div class="field">
+      <label for="times">Number of splits</label>
+      <input type="text" pInputText id="times" [(ngModel)]="allVariables.splitTimes" autofocus/>
     </div>
   </ng-template>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveItem()"></button>
+  </ng-template>
+</p-dialog>
 
+<p-dialog [(visible)]="itemDialog === '/users' && itemDialogVisible" [style]="{ width: '450px', height: '750px'}"
+          header="Lecture Creation" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <div class="field">
+      <label for="Username">Username</label>
+      <input type="text" pInputText id="Username" [(ngModel)]="allVariables.username" required autofocus/>
+      <small class="p-error" *ngIf="!type">Username is required </small>
+    </div>
+
+    <div class="field">
+      <label for="pwd">Password</label>
+      <input type="password" pInputText id="pwd" [(ngModel)]="allVariables.password" required autofocus/>
+      <small class="p-error" *ngIf="!type">Password is required </small>
+    </div>
+
+    <div class="field">
+      <label for="fname">First Name</label>
+      <input type="text" pInputText id="fname" [(ngModel)]="allVariables.firstName" autofocus/>
+    </div>
+
+    <div class="field">
+      <label for="lname">Last Name</label>
+      <input type="text" pInputText id="lname" [(ngModel)]="allVariables.lastName" autofocus/>
+    </div>
+
+    <div class="formgrid grid">
+      <div class="field col">
+        <label for="mail">E-Mail</label>
+        <input type="text" pInputText id="mail" [(ngModel)]="allVariables.email" autofocus/>
+      </div>
+
+      <div class="field col">
+        <label for="role">Roles</label>
+        <input type="text" pInputText id="role" [(ngModel)]="allVariables.role" autofocus/>
+      </div>
+    </div>
+  </ng-template>
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
     <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveItem()"></button>

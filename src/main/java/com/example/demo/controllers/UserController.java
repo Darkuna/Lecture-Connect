@@ -3,12 +3,10 @@ package com.example.demo.controllers;
 import com.example.demo.dto.AuthRequest;
 import com.example.demo.models.TokenResponse;
 import com.example.demo.models.UserInfo;
-import com.example.demo.models.Userx;
 import com.example.demo.services.JwtService;
 import com.example.demo.services.UserInfoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 @CrossOrigin
 @RestController
@@ -20,12 +18,6 @@ public class UserController {
     public UserController(UserInfoService service, JwtService jwtService) {
         this.jwtService = jwtService;
         this.service = service;
-    }
-
-
-    @GetMapping("/welcome")
-    public String welcome() {
-        return "Welcome this endpoint is not secure";
     }
 
     @PostMapping("/addNewUser")
@@ -42,17 +34,5 @@ public class UserController {
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.ok(new TokenResponse("null"));
-    }
-
-    @GetMapping("/user/userProfile")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    public String userProfile() {
-        return "Welcome to User Profile";
-    }
-
-    @GetMapping("/admin/adminProfile")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public String adminProfile() {
-        return "Welcome to Admin Profile";
     }
 }
