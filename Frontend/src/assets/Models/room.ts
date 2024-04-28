@@ -33,6 +33,9 @@ export class Room implements TableData {
   saveItem(val: any): any {
   }
 
+  uploadItemToBackend(val: any): void {
+  }
+
 
 
 }

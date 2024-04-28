@@ -28,5 +28,7 @@
   flex-direction: row;
 }
 
-.rand { margin: .4rem .4rem .4rem .4rem; }
+.rand {
+  margin: .4rem .4rem .4rem .4rem;
+}
 

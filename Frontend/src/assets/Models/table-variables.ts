@@ -4,7 +4,7 @@ import {RoomTable} from "./room-table";
 import {CourseType} from "./enums/course-type";
 import {CourseSession} from "./course-session";
 
-export class tableVariables {
+export class TableVariables {
   //userx variables
   serialVersionUID?: number;
   username?: string;

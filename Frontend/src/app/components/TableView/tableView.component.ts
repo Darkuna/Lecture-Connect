@@ -5,7 +5,7 @@ import {Course} from "../../../assets/Models/course";
 import {Router} from "@angular/router";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {Role} from "../../../assets/Models/enums/role";
-import {tableVariables} from "../../../assets/Models/table-variables";
+import {TableVariables} from "../../../assets/Models/table-variables";
 import {CourseType} from "../../../assets/Models/enums/course-type";
 
 @Component({
@@ -20,18 +20,18 @@ export class TableViewComponent implements OnInit {
   itemDialogVisible: boolean = false;
   type: Userx | Room | Course;
   items: any[];
-  selectedItem?: any;
   selectedItems?: any;
   selectedHeaders: any;
   headers?: any[];
-  allVariables: tableVariables;
+  allVariables: TableVariables;
 
   constructor(
     private router: Router,
     private cd: ChangeDetectorRef,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService
   ) {
-    this.allVariables = new tableVariables();
+    this.allVariables = new TableVariables();
     this.items = [];
     let url: string = this.router.url;
     switch (url) {
@@ -65,20 +65,34 @@ export class TableViewComponent implements OnInit {
     this.itemDialogVisible = false;
   }
 
-  deleteSingleItem() {
-    this.type.deleteSingleItem(this.selectedItem);
+  editItem(selectedItem: Userx | Room | Course) {
+    this.type.editItem(selectedItem);
+  }
+
+  saveNewItem() {
+    let mode = 'error';
+    let header = 'Failure';
+    let text = 'Element already in List';
+
+    let newItem = this.type.saveItem(this.allVariables);
+    if(this.items.indexOf(newItem) < -1){
+      this.items.push(newItem);
+
+      mode = 'success';
+      header = 'Upload';
+      text = 'Element saved to DB';
+    }
+
+    this.messageService.add({severity:mode, summary:header, detail:text});
+    this.hideDialog();
+  }
+
+  deleteSingleItem(selectedItem: Userx | Room | Course) {
+    this.type.deleteSingleItem(selectedItem);
   }
 
   deleteMultipleItems() {
     this.type.deleteMultipleItems(this.selectedItems);
-  }
-
-  editItem() {
-    this.type.editItem(this.selectedItem);
-  }
-
-  saveItem() {
-    this.type.saveItem(this.selectedItem);
   }
 
   getRoleOptions() {

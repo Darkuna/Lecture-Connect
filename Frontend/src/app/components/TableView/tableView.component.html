@@ -23,7 +23,6 @@
   </p-toolbar>
 
   <p-table
-    #dt
     [value]="items"
     [rows]="selectedItems?.length"
     [columns]="selectedHeaders"
@@ -48,15 +47,29 @@
           <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
                           [field]="col.field"></p-columnFilter>
         </th>
+        <th>
+          <span>
+            Edit
+          </span>
+        </th>
+        <th>
+          <span>
+            Delete
+          </span>
+        </th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-product>
+    <ng-template pTemplate="body" let-item>
       <tr [pSelectableRow]="items">
         <ng-container *ngFor="let col of selectedHeaders">
           <td>
             <ng-container>
-              {{ items ? items : [col.field] }}
+              {{ item ? items : [col.field] }}
             </ng-container>
+          </td>
+          <td>
+            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editItem(item)"></button>
+            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteSingleItem(item)"></button>
           </td>
         </ng-container>
       </tr>
@@ -88,7 +101,7 @@
 
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveItem()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveNewItem()"></button>
   </ng-template>
 </p-dialog>
 
@@ -97,19 +110,19 @@
   <ng-template pTemplate="content" class="parent">
     <div class="div-container">
 
-      <div class="rand">
+      <div class="rand" style="width: 10%">
         <label for="type">Type</label>
         <p-dropdown id = "type" [options]="getCourseOptions()" [(ngModel)]="allVariables.courseType"
                     placeholder="select a Type" />
       </div>
 
-      <div class="rand">
+      <div class="rand" style="width: 40%">
         <label for="id">Course ID</label>
         <input type="number" pInputText id="id" [(ngModel)]="allVariables.idCourse" required autofocus/>
         <small class="p-error" *ngIf="!allVariables.idCourse">ID is required.</small>
       </div>
 
-      <div class="rand">
+      <div class="rand" style="width: 50%">
         <label for="name">Name</label>
         <input type="text" pInputText id="name" [(ngModel)]="allVariables.name" required autofocus/>
         <small class="p-error" *ngIf="!allVariables.name">Name  is required </small>
@@ -154,7 +167,7 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveItem()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveNewItem()"></button>
   </ng-template>
 </p-dialog>
 
@@ -200,6 +213,6 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveItem()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveNewItem()"></button>
   </ng-template>
 </p-dialog>

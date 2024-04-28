@@ -42,5 +42,8 @@ export class Userx implements TableData {
   saveItem(val: any): any {
   }
 
+  uploadItemToBackend(val: any): void {
+  }
+
 }
 

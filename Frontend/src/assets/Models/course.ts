@@ -27,7 +27,7 @@ export class Course implements TableData {
       {field: 'semester', header: 'Semester' },
       {field: 'duration', header: 'Duration' },
       {field: 'numberOfParticipants', header: '#Participants' },
-      {field: 'computersNecessary', header: 'computer needed' },
+      {field: 'computersNecessary', header: 'computer needed' }
     ]
   }
 
@@ -45,6 +45,9 @@ export class Course implements TableData {
   }
 
   saveItem(val: any): any {
+  }
+
+  uploadItemToBackend(val: any): void {
   }
 
 
