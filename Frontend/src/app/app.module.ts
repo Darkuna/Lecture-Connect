@@ -33,6 +33,8 @@ import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {InputTextareaModule} from "primeng/inputtextarea";
 import {InputSwitchModule} from "primeng/inputswitch";
 import {SelectButtonModule} from "primeng/selectbutton";
+import {FullCalendarModule} from "@fullcalendar/angular";
+import {CalendarComponent} from './components/calendar/calendar.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +43,8 @@ import {SelectButtonModule} from "primeng/selectbutton";
     LoginComponent,
     HomeComponent,
     PageNotFoundComponentComponent,
-    TableViewComponent
+    TableViewComponent,
+    CalendarComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -68,7 +71,8 @@ import {SelectButtonModule} from "primeng/selectbutton";
     ConfirmDialogModule,
     InputTextareaModule,
     InputSwitchModule,
-    SelectButtonModule
+    SelectButtonModule,
+    FullCalendarModule
   ],
   providers: [MessageService],
   bootstrap: [AppComponent]

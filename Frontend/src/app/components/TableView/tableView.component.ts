@@ -7,6 +7,7 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {Role} from "../../../assets/Models/enums/role";
 import {TableVariables} from "../../../assets/Models/table-variables";
 import {CourseType} from "../../../assets/Models/enums/course-type";
+import {EventService} from "../../services/event.service";
 
 @Component({
   selector: 'app-table-view',
@@ -19,7 +20,7 @@ export class TableViewComponent implements OnInit {
   itemDialog: string = "";
   itemDialogVisible: boolean = false;
   type: Userx | Room | Course;
-  items: any[];
+  items: Userx[] | Room[] | Course[];
   selectedItems?: any;
   selectedHeaders: any;
   headers?: any[];
@@ -28,12 +29,13 @@ export class TableViewComponent implements OnInit {
   constructor(
     private router: Router,
     private cd: ChangeDetectorRef,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private eventService: EventService
   ) {
     this.allVariables = new TableVariables();
-    this.items = [];
     let url: string = this.router.url;
+    this.items = [];
+
     switch (url) {
       case ("/users"):
         this.type = new Userx();
@@ -75,16 +77,17 @@ export class TableViewComponent implements OnInit {
     let text = 'Element already in List';
 
     let newItem = this.type.saveItem(this.allVariables);
-    if(this.items.indexOf(newItem) < -1){
-      this.items.push(newItem);
 
+    if (this.items.indexOf(newItem) <= -1) {
+      this.items.push(newItem);
       mode = 'success';
       header = 'Upload';
       text = 'Element saved to DB';
     }
-
-    this.messageService.add({severity:mode, summary:header, detail:text});
+    console.log(this.items);
+    this.messageService.add({severity: mode, summary: header, detail: text});
     this.hideDialog();
+    this.cd.markForCheck();
   }
 
   deleteSingleItem(selectedItem: Userx | Room | Course) {

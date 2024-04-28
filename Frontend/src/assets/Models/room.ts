@@ -1,6 +1,7 @@
 import {Timing} from "./timing";
 import {RoomTable} from "./room-table";
 import {TableData} from "./interfaces/TableData";
+import {TableVariables} from "./table-variables";
 
 export class Room implements TableData {
   id?: string;
@@ -11,9 +12,9 @@ export class Room implements TableData {
 
   getTableColumns(): any[] {
     return [
-      {field: 'id', header: 'Id' },
-      {field: 'capacity', header: 'Capacity' },
-      {field: 'computersAvailable', header: 'Room has PCs' }
+      {field: 'id', header: 'Id'},
+      {field: 'capacity', header: 'Capacity'},
+      {field: 'computersAvailable', header: 'Room has PCs'}
     ]
   }
 
@@ -30,12 +31,18 @@ export class Room implements TableData {
     return [];
   }
 
-  saveItem(val: any): any {
+  saveItem(val: TableVariables): any {
+    let tmp = new Room();
+    tmp.timingConstraints = val.timingConstraintsRoom;
+    tmp.computersAvailable = val.computersAvailable;
+    tmp.roomTables = val.roomTables;
+    tmp.capacity = val.capacity;
+    tmp.id = val.idRoom;
+    return tmp;
   }
 
   uploadItemToBackend(val: any): void {
   }
-
 
 
 }

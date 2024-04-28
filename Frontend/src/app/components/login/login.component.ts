@@ -23,9 +23,11 @@ export class LoginComponent {
     private storage: LocalStorageService,
     private messageService: MessageService,
     private reloadService: ReloadService
-  ) { }
+  ) {
+  }
 
   login() {
+
     this.http.post('/api/auth/login', this.loginObj)
       .subscribe((token: any) => {
         if (token['token'] != 'null') {
@@ -35,12 +37,16 @@ export class LoginComponent {
           this.storage.store('roles', decodedToken['role']);
           this.storage.store('jwtToken', token['token']);
 
-          this.reloadService.notify({isRefresh : true});
+          this.reloadService.notify({isRefresh: true});
 
-          this.messageService.add({severity:'success', summary :`Willkommen zurück ${ decodedToken['username'] }`});
+          this.messageService.add({severity: 'success', summary: `Willkommen zurück ${decodedToken['username']}`});
           this.router.navigate(['/home'])
         } else {
-          this.messageService.add({severity:'error', summary:'Login Error', detail:'Falscher Username oder Passwort'});
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Login Error',
+            detail: 'Falscher Username oder Passwort'
+          });
 
         }
       })

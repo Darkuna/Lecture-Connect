@@ -1,10 +1,10 @@
 .moveDownHeader {
+  width: 100%;
   position: absolute;
-  bottom: 70%;
-  width: 100%
+  top: 4%;
 }
 
-.customButton{
+.customButton {
   background-color: #003361;
   border-color: #003361;
   color: #f4f4f4;

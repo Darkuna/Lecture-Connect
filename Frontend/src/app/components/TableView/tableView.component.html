@@ -4,7 +4,7 @@
 
     </ng-template>
 
-    <ng-template pTemplate="left" >
+    <ng-template pTemplate="left">
       <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
                      selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
                      placeholder="Choose Columns"></p-multiSelect>
@@ -30,8 +30,7 @@
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedItems"
     [rowHover]="true"
-    dataKey="id"
-  >
+    dataKey="id">
     <ng-template pTemplate="header">
       <tr>
         <th id="check" style="width: 4rem">
@@ -68,8 +67,10 @@
             </ng-container>
           </td>
           <td>
-            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2" (click)="editItem(item)"></button>
-            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteSingleItem(item)"></button>
+            <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
+                    (click)="editItem(item)"></button>
+            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
+                    (click)="deleteSingleItem(item)"></button>
           </td>
         </ng-container>
       </tr>
@@ -82,8 +83,8 @@
   <ng-template pTemplate="content" class="parent">
     <div class="rand">
       <label for="nameRoom">Name of room</label>
-      <input type="text" pInputText id="nameRoom" [(ngModel)]="allVariables.roomName" required autofocus/>
-      <small class="p-error" *ngIf="!allVariables.roomName">Name is needed!</small>
+      <input type="text" pInputText id="nameRoom" [(ngModel)]="allVariables.idRoom" required autofocus/>
+      <small class="p-error" *ngIf="!allVariables.idRoom">Name is needed!</small>
     </div>
     <div class="div-container">
       <div class="rand">
@@ -94,7 +95,8 @@
 
       <div class="rand">
         <label for="op1">Computers available?</label>
-        <p-selectButton id="op1" [options]="allVariables.stateOptions" [(ngModel)]="allVariables.computersAvailable" optionLabel="label" optionValue="value" ></p-selectButton>
+        <p-selectButton id="op1" [options]="allVariables.stateOptions" [(ngModel)]="allVariables.computersAvailable"
+                        optionLabel="label" optionValue="value"></p-selectButton>
       </div>
     </div>
   </ng-template>
@@ -111,9 +113,9 @@
     <div class="div-container">
 
       <div class="rand" style="width: 10%">
-        <label for="type">Type</label>
-        <p-dropdown id = "type" [options]="getCourseOptions()" [(ngModel)]="allVariables.courseType"
-                    placeholder="select a Type" />
+        <label for="type">Type</label>1
+        <p-dropdown id="type" [options]="getCourseOptions()" [(ngModel)]="allVariables.courseType"
+                    placeholder="select a Type"/>
       </div>
 
       <div class="rand" style="width: 40%">
@@ -125,7 +127,7 @@
       <div class="rand" style="width: 50%">
         <label for="name">Name</label>
         <input type="text" pInputText id="name" [(ngModel)]="allVariables.name" required autofocus/>
-        <small class="p-error" *ngIf="!allVariables.name">Name  is required </small>
+        <small class="p-error" *ngIf="!allVariables.name">Name is required </small>
       </div>
     </div>
 
@@ -135,8 +137,8 @@
     </div>
 
     <div class="rand">
-        <label for="duration">Duration in Hours</label>
-        <input type="number" pInputText id="duration" [(ngModel)]="allVariables.duration" autofocus/>
+      <label for="duration">Duration in Hours</label>
+      <input type="number" pInputText id="duration" [(ngModel)]="allVariables.duration" autofocus/>
     </div>
 
     <div class="rand">
@@ -148,21 +150,21 @@
       <div class="rand">
         <label for="op2">computers needed?</label>
         <p-selectButton id="op2" [options]="allVariables.stateOptions" [(ngModel)]="allVariables.computersNecessary"
-                        optionLabel="label" optionValue="value" ></p-selectButton>
+                        optionLabel="label" optionValue="value"></p-selectButton>
       </div>
 
       <div class="rand">
         <label for="op3">Course split?</label>
         <p-selectButton id="op3" optionLabel="label" optionValue="value"
-                        [options]="allVariables.stateOptions" [(ngModel)]="allVariables.isSplit" />
+                        [options]="allVariables.stateOptions" [(ngModel)]="allVariables.isSplit"/>
       </div>
     </div>
 
 
-    <div class="rand" >
+    <div class="rand">
       <label for="times">Number of splits</label>
       <input type="number" pInputText id="times" autofocus
-             [(ngModel)]="allVariables.splitTimes" [disabled]="!allVariables.isSplit" />
+             [(ngModel)]="allVariables.splitTimes" [disabled]="!allVariables.isSplit"/>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
@@ -172,7 +174,7 @@
 </p-dialog>
 
 <p-dialog [(visible)]="itemDialog === '/users' && itemDialogVisible"
-          header="User Creation" [modal]="true" styleClass="p-fluid" >
+          header="User Creation" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content" class="parent">
     <div class="div-container">
       <div class="rand">
@@ -201,8 +203,8 @@
 
     <div class="rand">
       <label for="role">Roles</label>
-      <p-dropdown id = "role" [options]="getRoleOptions()" [(ngModel)]="allVariables.role"
-                  placeholder="select a Type" [editable]="true" />
+      <p-dropdown id="role" [options]="getRoleOptions()" [(ngModel)]="allVariables.role"
+                  placeholder="select a Type" [editable]="true"/>
     </div>
 
     <div class="rand">
