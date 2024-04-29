@@ -21,17 +21,23 @@ export class CalendarComponent {
       listPlugin,
     ],
     headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+      left: '',
+      start: 'Timing Constraints',
+      right: 'timeGridWeek,timeGridDay,listWeek'
     },
-    initialView: 'dayGridMonth',
-    initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
-    weekends: true,
+    initialView: 'timeGridWeek',
+    initialEvents: INITIAL_EVENTS,
     editable: true,
+    weekends: false,
+    slotDuration: '00:30:00',
+    slotMinTime: '07:00:00',
+    slotLabelInterval: {hours: 1},
+    dayHeaders: true,
+    dayHeaderFormat: {weekday: 'long'},
     selectable: true,
+    allDaySlot: false,
     selectMirror: true,
-    dayMaxEvents: true,
+    dayMaxEvents: false,
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
     eventsSet: this.handleEvents.bind(this)
@@ -67,7 +73,6 @@ export class CalendarComponent {
       calendarApi.addEvent({
         id: createEventId(),
         title,
-        start: selectInfo.startStr,
         end: selectInfo.endStr,
         allDay: selectInfo.allDay
       });
