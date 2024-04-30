@@ -1,11 +1,11 @@
-package com.lecture.coordinator.tests.service;
+package com.example.demo.service;
 
-import com.lecture.coordinator.model.Userx;
-import com.lecture.coordinator.exceptions.user.UserAlreadyExistsException;
-import com.lecture.coordinator.exceptions.user.UserInvalidEmailException;
-import com.lecture.coordinator.exceptions.user.UserRequiredFieldEmptyException;
-import com.lecture.coordinator.model.UserxRole;
-import com.lecture.coordinator.services.UserService;
+import com.example.demo.exceptions.user.UserAlreadyExistsException;
+import com.example.demo.exceptions.user.UserInvalidEmailException;
+import com.example.demo.exceptions.user.UserRequiredFieldEmptyException;
+import com.example.demo.models.Userx;
+import com.example.demo.models.UserxRole;
+import com.example.demo.services.UserService;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

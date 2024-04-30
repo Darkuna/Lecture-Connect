@@ -1,7 +1,7 @@
-package com.lecture.coordinator.tests.service;
+package com.example.demo.service;
 
-import com.lecture.coordinator.model.Room;
-import com.lecture.coordinator.services.RoomService;
+import com.example.demo.models.Room;
+import com.example.demo.services.RoomService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,7 +10,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

@@ -1,10 +1,10 @@
-package com.lecture.coordinator.tests.service;
+package com.example.demo.service;
 
-import com.lecture.coordinator.model.*;
-import com.lecture.coordinator.model.enums.Semester;
-import com.lecture.coordinator.services.CourseService;
-import com.lecture.coordinator.services.RoomService;
-import com.lecture.coordinator.services.TimeTableService;
+import com.example.demo.models.*;
+import com.example.demo.models.enums.Semester;
+import com.example.demo.services.CourseService;
+import com.example.demo.services.RoomService;
+import com.example.demo.services.TimeTableService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

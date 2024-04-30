@@ -1,12 +1,15 @@
-package com.lecture.coordinator.tests.service;
+package com.example.demo.service;
 
-import com.lecture.coordinator.exceptions.courseSession.CourseSessionNotAssignedException;
-import com.lecture.coordinator.model.*;
-import com.lecture.coordinator.model.enums.Day;
-import com.lecture.coordinator.services.CourseService;
-import com.lecture.coordinator.services.CourseSessionService;
-import com.lecture.coordinator.services.RoomTableService;
-import com.lecture.coordinator.services.TimingService;
+import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
+import com.example.demo.models.Course;
+import com.example.demo.models.CourseSession;
+import com.example.demo.models.RoomTable;
+import com.example.demo.models.Timing;
+import com.example.demo.models.enums.Day;
+import com.example.demo.services.CourseService;
+import com.example.demo.services.CourseSessionService;
+import com.example.demo.services.RoomTableService;
+import com.example.demo.services.TimingService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +19,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.util.List;
 

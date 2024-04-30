@@ -1,11 +1,11 @@
-package com.lecture.coordinator.tests.service;
+package com.example.demo.service;
 
-import com.lecture.coordinator.model.*;
-import com.lecture.coordinator.model.enums.Day;
-import com.lecture.coordinator.model.enums.Semester;
-import com.lecture.coordinator.services.RoomService;
-import com.lecture.coordinator.services.RoomTableService;
-import com.lecture.coordinator.services.TimeTableService;
+import com.example.demo.models.*;
+import com.example.demo.models.enums.Day;
+import com.example.demo.models.enums.Semester;
+import com.example.demo.services.RoomService;
+import com.example.demo.services.RoomTableService;
+import com.example.demo.services.TimeTableService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,7 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalTime;
 import java.util.List;
 
