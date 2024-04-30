@@ -21,13 +21,15 @@ import java.util.List;
 @Service
 @Scope("session")
 public class CourseService {
+    private final CourseRepository courseRepository;
+    private final TimingService timingService;
+    private final CourseSessionService courseSessionService;
     @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private TimingService timingService;
-    @Autowired
-    private CourseSessionService courseSessionService;
-
+    public CourseService(CourseRepository courseRepository, TimingService timingService, CourseSessionService courseSessionService){
+        this.courseRepository = courseRepository;
+        this.timingService = timingService;
+        this.courseSessionService = courseSessionService;
+    }
     /**
      * Creates a new course and saves it to the database.
      *
@@ -125,6 +127,18 @@ public class CourseService {
         course.setComputersNecessary(computersNecessary);
         course.setTimingConstraints(timingConstraints);
 
+        return courseRepository.save(course);
+    }
+
+    /**
+     * Updates an existing course with new details.
+     *
+     * @param course The updated course to be saved.
+     * @return The updated course.
+     */
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Course updateCourse(Course course){
         return courseRepository.save(course);
     }
 
