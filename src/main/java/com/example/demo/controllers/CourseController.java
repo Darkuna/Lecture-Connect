@@ -7,6 +7,7 @@ import com.example.demo.models.Timing;
 import com.example.demo.models.enums.Day;
 import com.example.demo.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
+@Scope("session")
 @RequestMapping("/api/courses")
 public class CourseController {
 

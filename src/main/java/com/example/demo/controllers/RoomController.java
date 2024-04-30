@@ -4,6 +4,7 @@ import com.example.demo.dto.RoomDTO;
 import com.example.demo.models.Room;
 import com.example.demo.services.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/rooms")
+@Scope("session")
 public class RoomController {
 
     private final RoomService roomService;
