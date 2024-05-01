@@ -1,5 +1,7 @@
 import {Role} from "./enums/role";
 import {TableData} from "./interfaces/TableData";
+import {Room} from "./room";
+import {Course} from "./course";
 
 export class Userx implements TableData {
   serialVersionUID?: number;
@@ -15,14 +17,14 @@ export class Userx implements TableData {
 
   public getTableColumns(): any[] {
     return [
-      {field: 'serialVersionUID', header: 'Id' },
-      {field: 'username', header: 'Username' },
-      {field: 'firstName', header: 'First Name' },
-      {field: 'lastName', header: 'Last Name' },
-      {field: 'email', header: 'E-Mail' },
-      {field: 'password', header: 'Password' },
-      {field: 'enabled', header: 'Enabled' },
-      {field: 'roles', header: 'Roles' }
+      {field: 'serialVersionUID', header: 'Id'},
+      {field: 'username', header: 'Username'},
+      {field: 'firstName', header: 'First Name'},
+      {field: 'lastName', header: 'Last Name'},
+      {field: 'email', header: 'E-Mail'},
+      {field: 'password', header: 'Password'},
+      {field: 'enabled', header: 'Enabled'},
+      {field: 'roles', header: 'Roles'}
     ]
   }
 
@@ -43,6 +45,10 @@ export class Userx implements TableData {
   }
 
   uploadItemToBackend(val: any): void {
+  }
+
+  isInList(item: Userx | Room | Course, items: (Userx | Room | Course)[]): boolean {
+    return false;
   }
 
 }

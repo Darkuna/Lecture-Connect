@@ -35,6 +35,9 @@ import {InputSwitchModule} from "primeng/inputswitch";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {FullCalendarModule} from "@fullcalendar/angular";
 import {CalendarComponent} from './components/calendar/calendar.component';
+import { RoomViewComponent } from './components/TableView/room-view/room-view.component';
+import { CourseViewComponent } from './components/TableView/course-view/course-view.component';
+import { UsersViewComponent } from './components/TableView/users-view/users-view.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +47,10 @@ import {CalendarComponent} from './components/calendar/calendar.component';
     HomeComponent,
     PageNotFoundComponentComponent,
     TableViewComponent,
-    CalendarComponent
+    CalendarComponent,
+    RoomViewComponent,
+    CourseViewComponent,
+    UsersViewComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -74,7 +80,7 @@ import {CalendarComponent} from './components/calendar/calendar.component';
     SelectButtonModule,
     FullCalendarModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, CalendarComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {

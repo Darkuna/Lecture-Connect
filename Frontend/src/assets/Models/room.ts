@@ -44,5 +44,24 @@ export class Room implements TableData {
   uploadItemToBackend(val: any): void {
   }
 
+  equals(other: Room): boolean {
+    return this.id !== other.id;
+  }
+
+  isInList(item: Room, items: Room[]): boolean {
+    for (const listItem of items) {
+      // Check if items are of the same type
+      if (item.constructor !== listItem.constructor) {
+        continue;
+      }
+
+      // Check if the item exists in the list based on its id
+      if (item.id && listItem.id && item.id === listItem.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 
 }

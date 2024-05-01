@@ -21,25 +21,23 @@ export class CalendarComponent {
       listPlugin,
     ],
     headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+      right: 'timeGridWeek,timeGridDay,listWeek'
     },
-    initialView: 'dayGridMonth',
-    initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
-    weekends: true,
+    initialView: 'timeGridWeek',
+    initialEvents: INITIAL_EVENTS,
+    weekends: false,
     editable: true,
     selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
-    eventsSet: this.handleEvents.bind(this)
-    /* you can update a remote database when these fire:
-    eventAdd:
-    eventChange:
-    eventRemove:
-    */
+    eventsSet: this.handleEvents.bind(this),
+    allDaySlot: false,
+    slotMinTime: '08:00:00',
+    slotMaxTime: '23:00:00',
+    slotDuration: '00:30:00',
+    slotLabelInterval: '00:30:00',
   });
   currentEvents = signal<EventApi[]>([]);
 

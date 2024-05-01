@@ -7,7 +7,7 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {Role} from "../../../assets/Models/enums/role";
 import {TableVariables} from "../../../assets/Models/table-variables";
 import {CourseType} from "../../../assets/Models/enums/course-type";
-import {EventService} from "../../services/event.service";
+import {CalendarComponent} from "../calendar/calendar.component";
 
 @Component({
   selector: 'app-table-view',
@@ -20,17 +20,21 @@ export class TableViewComponent implements OnInit {
   itemDialog: string = "";
   itemDialogVisible: boolean = false;
   type: Userx | Room | Course;
-  items: Userx[] | Room[] | Course[];
+  items: any[];
   selectedItems?: any;
   selectedHeaders: any;
   headers?: any[];
   allVariables: TableVariables;
 
+  private mode = 'error';
+  private header = 'Failure';
+  private text = 'Element already in List';
+
   constructor(
     private router: Router,
     private cd: ChangeDetectorRef,
     private messageService: MessageService,
-    private eventService: EventService
+    private calendarComponent: CalendarComponent
   ) {
     this.allVariables = new TableVariables();
     let url: string = this.router.url;
@@ -57,6 +61,7 @@ export class TableViewComponent implements OnInit {
     this.items = this.type.getData();
     this.selectedHeaders = this.headers;
     this.cd.markForCheck();
+    console.log("lolollool");
   }
 
   openNew() {
@@ -72,22 +77,19 @@ export class TableViewComponent implements OnInit {
   }
 
   saveNewItem() {
-    let mode = 'error';
-    let header = 'Failure';
-    let text = 'Element already in List';
-
     let newItem = this.type.saveItem(this.allVariables);
+    console.log(newItem);
 
-    if (this.items.indexOf(newItem) <= -1) {
+    if (this.type.isInList(newItem, this.items)) {
+      this.setToastMessage('error', 'Failure', 'Element already in List');
+    } else {
+      this.setToastMessage('success', 'Upload', 'Element saved to DB');
       this.items.push(newItem);
-      mode = 'success';
-      header = 'Upload';
-      text = 'Element saved to DB';
+      this.hideDialog();
+      this.cd.markForCheck();
     }
+    this.messageService.add({severity: this.mode, summary: this.header, detail: this.text});
     console.log(this.items);
-    this.messageService.add({severity: mode, summary: header, detail: text});
-    this.hideDialog();
-    this.cd.markForCheck();
   }
 
   deleteSingleItem(selectedItem: Userx | Room | Course) {
@@ -106,4 +108,9 @@ export class TableViewComponent implements OnInit {
     return Object.keys(CourseType).filter(k => isNaN(Number(k)));
   }
 
+  setToastMessage(mode: string, message: string, text: string) {
+    this.mode = mode;
+    this.header = message;
+    this.text = text;
+  }
 }
