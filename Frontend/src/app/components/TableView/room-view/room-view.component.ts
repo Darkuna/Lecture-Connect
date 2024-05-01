@@ -5,7 +5,7 @@ import {ConfirmationService, MessageService} from "primeng/api";
 @Component({
   selector: 'app-room-view',
   templateUrl: './room-view.component.html',
-  styleUrl: './room-view.component.css'
+  styleUrl: '../tables.css'
 })
 export class RoomViewComponent {
   itemDialogVisible: boolean = false;
