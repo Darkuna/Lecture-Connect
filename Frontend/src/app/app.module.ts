@@ -18,11 +18,10 @@ import {PageNotFoundComponentComponent} from './components/page-not-found-compon
 import {ToastModule} from 'primeng/toast';
 import {RippleModule} from "primeng/ripple";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MessageService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {TableModule} from 'primeng/table';
 import {ToolbarModule} from 'primeng/toolbar';
 import {FileUploadModule} from 'primeng/fileupload';
-import {TableViewComponent} from "./components/TableView/tableView.component";
 import {MultiSelectModule} from "primeng/multiselect";
 import {DialogModule} from "primeng/dialog";
 import {DropdownModule} from "primeng/dropdown";
@@ -35,9 +34,9 @@ import {InputSwitchModule} from "primeng/inputswitch";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {FullCalendarModule} from "@fullcalendar/angular";
 import {CalendarComponent} from './components/calendar/calendar.component';
-import { RoomViewComponent } from './components/TableView/room-view/room-view.component';
-import { CourseViewComponent } from './components/TableView/course-view/course-view.component';
-import { UsersViewComponent } from './components/TableView/users-view/users-view.component';
+import {RoomViewComponent} from './components/TableView/room-view/room-view.component';
+import {CourseViewComponent} from './components/TableView/course-view/course-view.component';
+import {UsersViewComponent} from './components/TableView/users-view/users-view.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +45,6 @@ import { UsersViewComponent } from './components/TableView/users-view/users-view
     LoginComponent,
     HomeComponent,
     PageNotFoundComponentComponent,
-    TableViewComponent,
     CalendarComponent,
     RoomViewComponent,
     CourseViewComponent,
@@ -80,7 +78,7 @@ import { UsersViewComponent } from './components/TableView/users-view/users-view
     SelectButtonModule,
     FullCalendarModule
   ],
-  providers: [MessageService, CalendarComponent],
+  providers: [ConfirmationService, MessageService, CalendarComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {

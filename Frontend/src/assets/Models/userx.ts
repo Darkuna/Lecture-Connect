@@ -1,9 +1,6 @@
 import {Role} from "./enums/role";
-import {TableData} from "./interfaces/TableData";
-import {Room} from "./room";
-import {Course} from "./course";
 
-export class Userx implements TableData {
+export class Userx {
   serialVersionUID?: number;
   username?: string;
   createDate?: Date;
@@ -26,29 +23,6 @@ export class Userx implements TableData {
       {field: 'enabled', header: 'Enabled'},
       {field: 'roles', header: 'Roles'}
     ]
-  }
-
-  deleteMultipleItems(val: any[]): void {
-  }
-
-  deleteSingleItem(val: any): void {
-  }
-
-  editItem(val: any): any {
-  }
-
-  getData(): any[] {
-    return [];
-  }
-
-  saveItem(val: any): any {
-  }
-
-  uploadItemToBackend(val: any): void {
-  }
-
-  isInList(item: Userx | Room | Course, items: (Userx | Room | Course)[]): boolean {
-    return false;
   }
 
 }

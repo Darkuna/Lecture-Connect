@@ -1,7 +1,3 @@
-import {Userx} from "../userx";
-import {Room} from "../room";
-import {Course} from "../course";
-
 export interface TableData {
   getTableColumns(): any[];
 
@@ -16,6 +12,4 @@ export interface TableData {
   deleteSingleItem(val: any): void;
 
   deleteMultipleItems(val: any[]): void;
-
-  isInList(item: Userx | Room | Course, items: Userx[] | Room[] | Course[]): boolean;
 }
