@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import com.example.demo.models.enums.Day;
 import jakarta.persistence.*;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
@@ -10,6 +11,7 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 @Setter
+@Getter
 @Entity
 public class Timing implements Persistable<Long>, Serializable{
     @Id
@@ -54,25 +56,4 @@ public class Timing implements Persistable<Long>, Serializable{
     public int hashCode() {
         return Objects.hash(id);
     }
-
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    public Day getDay() {
-        return day;
-    }
-
-    public Course getCourse() {
-        return course;
-    }
-
-    public RoomTable getRoomTable() {
-        return roomTable;
-    }
-
 }

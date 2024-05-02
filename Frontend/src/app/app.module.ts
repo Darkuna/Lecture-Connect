@@ -13,25 +13,42 @@ import {FormsModule} from "@angular/forms";
 import {LoginComponent} from './components/login/login.component';
 import {HomeComponent} from './components/home/home.component';
 import {HttpClientModule} from '@angular/common/http';
-import {RoomsViewComponent} from './views/rooms-view/rooms-view.component';
-import {LecturesViewComponent} from './views/lectures-view/lectures-view.component';
-import {UsersViewComponent} from './views/users-view/users-view.component';
 import {NgxWebstorageModule} from 'ngx-webstorage';
 import {PageNotFoundComponentComponent} from './components/page-not-found-component/page-not-found-component.component';
-import { ToastModule } from 'primeng/toast';
+import {ToastModule} from 'primeng/toast';
 import {RippleModule} from "primeng/ripple";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MessageService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
+import {TableModule} from 'primeng/table';
+import {ToolbarModule} from 'primeng/toolbar';
+import {FileUploadModule} from 'primeng/fileupload';
+import {MultiSelectModule} from "primeng/multiselect";
+import {DialogModule} from "primeng/dialog";
+import {DropdownModule} from "primeng/dropdown";
+import {TagModule} from "primeng/tag";
+import {RadioButtonModule} from "primeng/radiobutton";
+import {InputNumberModule} from "primeng/inputnumber";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {InputTextareaModule} from "primeng/inputtextarea";
+import {InputSwitchModule} from "primeng/inputswitch";
+import {SelectButtonModule} from "primeng/selectbutton";
+import {FullCalendarModule} from "@fullcalendar/angular";
+import {CalendarComponent} from './components/calendar/calendar.component';
+import {RoomViewComponent} from './components/TableView/room-view/room-view.component';
+import {CourseViewComponent} from './components/TableView/course-view/course-view.component';
+import {UsersViewComponent} from './components/TableView/users-view/users-view.component';
+
 @NgModule({
   declarations: [
     AppComponent,
     HeaderSelfComponent,
     LoginComponent,
     HomeComponent,
-    RoomsViewComponent,
-    LecturesViewComponent,
-    UsersViewComponent,
     PageNotFoundComponentComponent,
+    CalendarComponent,
+    RoomViewComponent,
+    CourseViewComponent,
+    UsersViewComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -45,9 +62,23 @@ import {MessageService} from "primeng/api";
     FormsModule,
     HttpClientModule,
     NgxWebstorageModule.forRoot(),
-    RippleModule
+    RippleModule,
+    TableModule,
+    FileUploadModule,
+    ToolbarModule,
+    MultiSelectModule,
+    DialogModule,
+    DropdownModule,
+    TagModule,
+    RadioButtonModule,
+    InputNumberModule,
+    ConfirmDialogModule,
+    InputTextareaModule,
+    InputSwitchModule,
+    SelectButtonModule,
+    FullCalendarModule
   ],
-  providers: [MessageService],
+  providers: [ConfirmationService, MessageService, CalendarComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {

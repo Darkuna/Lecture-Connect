@@ -12,27 +12,25 @@ export class HeaderSelfComponent {
 
   constructor(
     private router: Router,
-    private storage: LocalStorageService
+    private storage: LocalStorageService,
   ) {
   }
 
   isLoggedIn(): boolean {
-    return 'username' in localStorage;
+    return this.storage.retrieve('username') !== null;
   }
 
   hasAdminRole(): boolean {
     return this.storage.retrieve('roles') === 'ADMIN';
   }
 
-
   redirectToPage(page: string): void {
-      this.router.navigate([page])
+    this.router.navigate([page])
   }
 
   logout(): void {
-    this.storage.clear('username')
-    this.storage.clear('roles')
-    this.storage.clear('jwtToken')
+    this.storage.clear()
     this.redirectToPage('/login')
   }
+
 }

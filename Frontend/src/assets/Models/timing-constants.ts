@@ -1,4 +1,4 @@
-import LocalTime from "ts-time/LocalTime";
+import LocalTime from 'ts-time/LocalTime';
 
 export class TimingConstants {
   public static START_TIME: LocalTime = LocalTime.of(8, 0);
