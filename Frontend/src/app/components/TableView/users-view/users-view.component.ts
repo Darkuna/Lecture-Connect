@@ -64,28 +64,26 @@ export class UsersViewComponent {
 
       this.hideDialog();
       this.setToastMessage('success', 'Change', 'Element was updated');
+    } else if (this.isInList(this.singleUserx)) {
+      this.setToastMessage('error', 'Failure', 'Element already in List');
     } else {
-      if (this.isInList(this.singleUserx)) {
-        this.setToastMessage('error', 'Failure', 'Element already in List');
-      } else {
-        this.singleUserx.serialVersionUID = Math.floor(Math.random() * 1000000);
-        this.singleUserx.createDate = new Date();
-        this.singleUserx.updateDate = this.singleUserx.createDate;
+      this.singleUserx.serialVersionUID = Math.floor(Math.random() * 1000000);
+      this.singleUserx.createDate = new Date();
+      this.singleUserx.updateDate = this.singleUserx.createDate;
 
-        this.users.push(this.singleUserx);
-        this.singleUserx = new Userx();
+      this.users.push(this.singleUserx);
+      this.singleUserx = new Userx();
 
-        this.hideDialog();
-        this.setToastMessage('success', 'Upload', 'Element saved to DB');
-      }
+      this.hideDialog();
+      this.setToastMessage('success', 'Upload', 'Element saved to DB');
     }
     this.messageService.add({severity: this.mode, summary: this.header, detail: this.text});
   }
 
-  deleteSingleItem(Userx: Userx) {
-    if (this.isInList(Userx)) {
+  deleteSingleItem(userx: Userx) {
+    if (this.isInList(userx)) {
       this.users.forEach((item, index) => {
-        if (item === Userx) this.users.splice(index, 1);
+        if (item === userx) this.users.splice(index, 1);
       });
     }
   }

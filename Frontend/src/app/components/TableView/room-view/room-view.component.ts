@@ -51,6 +51,7 @@ export class RoomViewComponent {
   editItem(item: Room) {
     this.itemIsEdited = true;
     this.singleRoom = item;
+    this.singleRoom.updateDate = new Date();
     this.openNew();
   }
 
@@ -62,16 +63,16 @@ export class RoomViewComponent {
 
       this.hideDialog();
       this.setToastMessage('success', 'Change', 'Element was updated');
+    } else if (this.isInList(this.singleRoom)) {
+      this.setToastMessage('error', 'Failure', 'Element already in List');
     } else {
-      if (this.isInList(this.singleRoom)) {
-        this.setToastMessage('error', 'Failure', 'Element already in List');
-      } else {
-        this.rooms.push(this.singleRoom);
-        this.singleRoom = new Room();
+      this.singleRoom.createDate = new Date();
+      this.singleRoom.updateDate = this.singleRoom.createDate;
+      this.rooms.push(this.singleRoom);
+      this.singleRoom = new Room();
 
-        this.hideDialog();
-        this.setToastMessage('success', 'Upload', 'Element saved to DB');
-      }
+      this.hideDialog();
+      this.setToastMessage('success', 'Upload', 'Element saved to DB');
     }
     this.messageService.add({severity: this.mode, summary: this.header, detail: this.text});
   }
@@ -91,12 +92,7 @@ export class RoomViewComponent {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.selectedRooms.forEach(room => this.deleteSingleItem(room));
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Rooms deleted permanently',
-          life: 3000
-        });
+        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Rooms deleted permanently' });
       }
     });
   }

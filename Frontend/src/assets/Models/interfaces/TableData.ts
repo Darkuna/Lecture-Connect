@@ -12,4 +12,5 @@ export interface TableData {
   deleteSingleItem(val: any): void;
 
   deleteMultipleItems(val: any[]): void;
+  checkForFilledElements(): boolean;
 }
