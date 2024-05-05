@@ -27,8 +27,7 @@ export class LoginComponent {
   }
 
   login() {
-
-    this.http.post('/api/auth/login', this.loginObj)
+    this.http.post('/proxy/auth/login', this.loginObj)
       .subscribe((token: any) => {
         if (token['token'] != 'null') {
           const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: any };
