@@ -10,6 +10,7 @@ import {MessageService} from "primeng/api";
 })
 export class RoomService {
   roomsApiPath = "/proxy/api/rooms";
+  coursesApiPath = "/proxy/api/courses";
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -33,15 +34,15 @@ export class RoomService {
     this.http.post(this.roomsApiPath, room, this.httpOptions);
   }
 
-  getSingleRoom(roomId: String): Observable<any> {
-    let newUrl = `${this.roomsApiPath}/${roomId}`;
+  getSingleRoom(roomID: String): Observable<any> {
+    let newUrl = `${this.roomsApiPath}/${roomID}`;
     return this.http.get(newUrl, this.httpOptions);
   }
 
   updateSingleRoom(room: Room): Observable<any> {
     let roomID = room.id;
     let newUrl = `${this.roomsApiPath}/${roomID}`;
-    return this.http.put(newUrl, this.httpOptions);
+    return this.http.put(newUrl, room, this.httpOptions);
   }
 
   deleteSingleRoom(roomId: String) {

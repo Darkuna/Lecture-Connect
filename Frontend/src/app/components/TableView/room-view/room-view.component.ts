@@ -12,7 +12,6 @@ export class RoomViewComponent {
   itemDialogVisible: boolean = false;
   singleRoom: Room;
   rooms: Room[];
-  selectedRoom!: Room;
   selectedRooms!: Room[];
   selectedHeaders: any;
   headers: any[];
@@ -55,18 +54,22 @@ export class RoomViewComponent {
 
   editItem(item: Room) {
     this.itemIsEdited = true;
-    this.selectedRoom = item;
+    this.singleRoom = item;
     this.openNew();
   }
 
   saveNewItem(): void {
     if (this.itemIsEdited) {
-      this.selectedRoom.updateDate = new Date();
-      console.log(this.roomService.updateSingleRoom(this.selectedRoom));
-      this.rooms[this.findIndexById(this.selectedRoom.id)] = this.selectedRoom;
+      let tmpID = this.singleRoom.id;
+
+      this.singleRoom.updateDate = new Date();
+      this.roomService.updateSingleRoom(this.singleRoom).subscribe(
+        res => this.singleRoom = res
+      );
+      this.rooms[this.findIndexById(tmpID)] = this.singleRoom;
 
       this.itemIsEdited = false;
-      this.selectedRoom = new Room();
+      this.singleRoom = new Room();
 
       this.hideDialog();
       this.setToastMessage('success', 'Change', 'Element was updated');
@@ -75,6 +78,7 @@ export class RoomViewComponent {
     } else {
       this.singleRoom.createDate = new Date();
       this.singleRoom.updateDate = this.singleRoom.createDate;
+
       this.rooms.push(this.singleRoom);
       this.roomService.createSingleRoom(this.singleRoom);
       this.singleRoom = new Room();
