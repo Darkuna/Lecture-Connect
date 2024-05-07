@@ -24,7 +24,7 @@ export class RoomViewComponent {
   private mode = 'error';
   private header = 'Failure';
   private text = 'Element already in List';
-  private itemIsEdited = false;
+  itemIsEdited = false;
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -40,7 +40,7 @@ export class RoomViewComponent {
   }
 
   ngOnInit(): void {
-    this.roomService.getAllRooms().subscribe(rooms => this.rooms = rooms);
+    this.roomService.getAllRooms().subscribe(data => this.rooms = data);
     this.cd.markForCheck();
   }
 
@@ -62,11 +62,8 @@ export class RoomViewComponent {
     if (this.itemIsEdited) {
       let tmpID = this.singleRoom.id;
 
-      this.singleRoom.updateDate = new Date();
-      this.roomService.updateSingleRoom(this.singleRoom).subscribe(
-        res => this.singleRoom = res
-      );
-      this.rooms[this.findIndexById(tmpID)] = this.singleRoom;
+      this.rooms[this.findIndexById(tmpID)] =
+        this.roomService.updateSingleRoom(this.singleRoom);
 
       this.itemIsEdited = false;
       this.singleRoom = new Room();
@@ -76,11 +73,7 @@ export class RoomViewComponent {
     } else if (this.isInList(this.singleRoom)) {
       this.setToastMessage('error', 'Failure', 'Element already in List');
     } else {
-      this.singleRoom.createDate = new Date();
-      this.singleRoom.updateDate = this.singleRoom.createDate;
-
-      this.rooms.push(this.singleRoom);
-      this.roomService.createSingleRoom(this.singleRoom);
+      this.rooms.push(this.roomService.createSingleRoom(this.singleRoom));
       this.singleRoom = new Room();
 
       this.hideDialog();

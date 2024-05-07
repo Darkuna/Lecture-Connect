@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
-import {Observable} from "rxjs";
+import {Observable, retry} from "rxjs";
 import {Room} from "../../assets/Models/room";
 import {MessageService} from "primeng/api";
 
@@ -10,7 +10,6 @@ import {MessageService} from "primeng/api";
 })
 export class RoomService {
   roomsApiPath = "/proxy/api/rooms";
-  coursesApiPath = "/proxy/api/courses";
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -31,21 +30,27 @@ export class RoomService {
   }
 
   createSingleRoom(room: Room) {
-    this.http.post(this.roomsApiPath, room, this.httpOptions);
+    this.http.post<Room>(this.roomsApiPath, room, this.httpOptions)
+      .subscribe(newRoom => {
+        room = newRoom;
+      });
+    return room;
   }
 
-  getSingleRoom(roomID: String): Observable<any> {
+  getSingleRoom(roomID: string): Observable<any> {
     let newUrl = `${this.roomsApiPath}/${roomID}`;
     return this.http.get(newUrl, this.httpOptions);
   }
 
-  updateSingleRoom(room: Room): Observable<any> {
-    let roomID = room.id;
-    let newUrl = `${this.roomsApiPath}/${roomID}`;
-    return this.http.put(newUrl, room, this.httpOptions);
+  updateSingleRoom(room: Room): Room {
+    let newUrl = `${this.roomsApiPath}/${room.id}`;
+    this.http.put<Room>(newUrl, room, this.httpOptions)
+      .subscribe(data => {room = data
+        console.log(data)});
+    return room;
   }
 
-  deleteSingleRoom(roomId: String) {
+  deleteSingleRoom(roomId: string) {
     let newUrl = `${this.roomsApiPath}/${roomId}`;
     this.http.delete(newUrl, this.httpOptions).subscribe({
       error: error => {

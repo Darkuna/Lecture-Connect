@@ -85,7 +85,8 @@
   <ng-template pTemplate="content" class="parent">
     <div class="rand">
       <label for="nameRoom">Name of room</label>
-      <input type="text" pInputText id="nameRoom" [(ngModel)]="singleRoom.id" required autofocus/>
+      <input type="text" pInputText id="nameRoom" required autofocus
+             [(ngModel)]="singleRoom.id" [disabled]="itemIsEdited"/>
       <small class="p-error" *ngIf="!singleRoom.id">Name is needed!</small>
     </div>
     <div class="div-container">

@@ -4,7 +4,7 @@ import {RoomInterface} from "./interfaces/roomInterface";
 
 export class Room implements RoomInterface {
   id!: string;
-  capacity?: number;
+  capacity!: number;
   computersAvailable?: boolean;
   timingConstraints?: Timing[];
   roomTables?: RoomTable[];

@@ -87,15 +87,17 @@
                     placeholder="select a Type"/>
       </div>
 
-      <div class="rand" style="width: 40%">
+      <div class="rand" style="width: 40%" >
         <label for="id">Course ID</label>
-        <input type="number" pInputText id="id" [(ngModel)]="singleCourse.id" required autofocus/>
+        <input type="number" pInputText id="id" required autofocus
+               [disabled]="itemIsEdited" [(ngModel)]="singleCourse.id" />
         <small class="p-error" *ngIf="!singleCourse.id">ID is required.</small>
       </div>
 
       <div class="rand" style="width: 50%">
         <label for="name">Name</label>
-        <input type="text" pInputText id="name" [(ngModel)]="singleCourse.name" required autofocus/>
+        <input type="text" pInputText id="name" required autofocus
+               [(ngModel)]="singleCourse.name" />
         <small class="p-error" *ngIf="!singleCourse.name">Name is required </small>
       </div>
     </div>

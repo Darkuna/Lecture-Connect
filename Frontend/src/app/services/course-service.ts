@@ -30,7 +30,9 @@ export class CourseService {
   }
 
   createSingleCourse(course: Course) {
-    this.http.post(this.courseApiPath, course, this.httpOptions);
+    this.http.post<Course>(this.courseApiPath, course, this.httpOptions)
+      .subscribe(data => {course = data});
+    return course;
   }
 
   getSingleCourse(courseID: String): Observable<any> {
@@ -38,10 +40,10 @@ export class CourseService {
     return this.http.get(newUrl, this.httpOptions);
   }
 
-  updateSingleCourse(course: Course): Observable<any> {
-    let courseID = course.id;
-    let newUrl = `${this.courseApiPath}/${courseID}`;
-    return this.http.put(newUrl, course, this.httpOptions);
+  updateSingleCourse(course: Course): Course {
+    let newUrl = `${this.courseApiPath}/${course.id}`;
+    this.http.put<Course>(newUrl, course, this.httpOptions).subscribe(res => course = res);
+    return course;
   }
 
   deleteSingleCourse(courseID: number) {

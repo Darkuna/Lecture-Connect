@@ -22,7 +22,7 @@ export class CourseViewComponent {
     {label: 'No', value: false}
   ];
 
-  private itemIsEdited = false;
+  itemIsEdited = false;
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -37,9 +37,7 @@ export class CourseViewComponent {
   }
 
   ngOnInit(): void {
-    this.courseService.getAllCourses().subscribe(
-      data => this.courses = data
-    )
+    this.courseService.getAllCourses().subscribe(data => this.courses = data)
     this.cd.markForCheck();
   }
 
@@ -59,13 +57,9 @@ export class CourseViewComponent {
 
   saveNewItem(): void {
     if (this.itemIsEdited) {
-      let tmpID = this.singleCourse.id;
-
       this.singleCourse.updateDate = new Date();
-      this.courseService.updateSingleCourse(this.singleCourse).subscribe(
-        res => this.singleCourse = res
-      );
-      this.courses[this.findIndexById(tmpID)] = this.singleCourse;
+      this.courses[this.findIndexById(this.singleCourse.id)] =
+        this.courseService.updateSingleCourse(this.singleCourse);
 
       this.itemIsEdited = false;
       this.singleCourse = new Course();
@@ -75,11 +69,7 @@ export class CourseViewComponent {
     } else if (this.isInList(this.singleCourse)) {
       this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
     } else {
-      this.singleCourse.createDate = new Date();
-      this.singleCourse.updateDate = this.singleCourse.createDate;
-
-      this.courses.push(this.singleCourse);
-      this.courseService.createSingleCourse(this.singleCourse);
+      this.courses.push(this.courseService.createSingleCourse(this.singleCourse));
       this.singleCourse = new Course();
 
       this.hideDialog();
@@ -90,8 +80,11 @@ export class CourseViewComponent {
   deleteSingleItem(course: Course) {
     if (this.isInList(course)) {
       this.courses.forEach((item, index) => {
-        this.courseService.deleteSingleCourse(course.id);
-        if (item === course) this.courses.splice(index, 1);
+        if (item === course) {
+          this.courseService.deleteSingleCourse(course.id);
+          this.courses.splice(index, 1);
+          return;
+        }
       });
     }
   }
@@ -103,12 +96,7 @@ export class CourseViewComponent {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.selectedCourses.forEach(Course => this.deleteSingleItem(Course));
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Successful',
-          detail: 'Courses deleted permanently',
-          life: 2000
-        });
+        this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Courses deleted permanently'});
       }
     });
   }
