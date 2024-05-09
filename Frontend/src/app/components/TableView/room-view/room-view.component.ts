@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component} from '@angular/core';
 import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
+import {RoomService} from "../../../services/room-service";
 
 @Component({
   selector: 'app-room-view',
@@ -23,20 +24,23 @@ export class RoomViewComponent {
   private mode = 'error';
   private header = 'Failure';
   private text = 'Element already in List';
-  private itemIsEdited = false;
+  itemIsEdited = false;
 
   constructor(
     private cd: ChangeDetectorRef,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private roomService: RoomService,
   ) {
     this.rooms = [];
     this.singleRoom = new Room();
+
     this.headers = this.singleRoom.getTableColumns();
     this.selectedHeaders = this.headers;
   }
 
   ngOnInit(): void {
+    this.roomService.getAllRooms().subscribe(data => this.rooms = data);
     this.cd.markForCheck();
   }
 
@@ -51,13 +55,16 @@ export class RoomViewComponent {
   editItem(item: Room) {
     this.itemIsEdited = true;
     this.singleRoom = item;
-    this.singleRoom.updateDate = new Date();
     this.openNew();
   }
 
   saveNewItem(): void {
     if (this.itemIsEdited) {
-      this.rooms[this.findIndexById(this.singleRoom.id)] = this.singleRoom;
+      let tmpID = this.singleRoom.id;
+
+      this.rooms[this.findIndexById(tmpID)] =
+        this.roomService.updateSingleRoom(this.singleRoom);
+
       this.itemIsEdited = false;
       this.singleRoom = new Room();
 
@@ -66,9 +73,7 @@ export class RoomViewComponent {
     } else if (this.isInList(this.singleRoom)) {
       this.setToastMessage('error', 'Failure', 'Element already in List');
     } else {
-      this.singleRoom.createDate = new Date();
-      this.singleRoom.updateDate = this.singleRoom.createDate;
-      this.rooms.push(this.singleRoom);
+      this.rooms.push(this.roomService.createSingleRoom(this.singleRoom));
       this.singleRoom = new Room();
 
       this.hideDialog();
@@ -80,7 +85,11 @@ export class RoomViewComponent {
   deleteSingleItem(room: Room) {
     if (this.isInList(room)) {
       this.rooms.forEach((item, index) => {
-        if (item === room) this.rooms.splice(index, 1);
+        if (item === room) {
+          this.roomService.deleteSingleRoom(room.id);
+          this.rooms.splice(index, 1);
+          return;
+        }
       });
     }
   }
@@ -92,7 +101,7 @@ export class RoomViewComponent {
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.selectedRooms.forEach(room => this.deleteSingleItem(room));
-        this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Rooms deleted permanently' });
+        this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Rooms deleted permanently'});
       }
     });
   }

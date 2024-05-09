@@ -29,7 +29,7 @@
     [rows]="courses.length"
     [columns]="selectedHeaders"
     [paginator]="true"
-    [globalFilterFields]="['id', 'room.capacity', 'room.computersAvailable']"
+    [globalFilterFields]="['id', 'lecturer', 'name']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedCourses"
     [rowHover]="true"
@@ -62,10 +62,14 @@
           </ng-container>
         </td>
         <td>
-          <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                  (click)="editItem(u)" value="edit"></button>
-          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-failure mr-2"
-                  (click)="deleteSingleItem(u)" value="delete"></button>
+          <p-button pButton pRipple
+                    icon="pi pi-pencil" class="mr-2"
+                    [rounded]="true" [outlined]="true" severity="success"
+                    (click)="editItem(u)"/>
+
+          <p-button pButton pRipple icon="pi pi-trash" severity="danger"
+                    [rounded]="true" [outlined]="true"
+                    (click)="deleteSingleItem(u)"/>
         </td>
       </tr>
     </ng-template>
@@ -83,15 +87,17 @@
                     placeholder="select a Type"/>
       </div>
 
-      <div class="rand" style="width: 40%">
+      <div class="rand" style="width: 40%" >
         <label for="id">Course ID</label>
-        <input type="number" pInputText id="id" [(ngModel)]="singleCourse.id" required autofocus/>
+        <input type="number" pInputText id="id" required autofocus
+               [disabled]="itemIsEdited" [(ngModel)]="singleCourse.id" />
         <small class="p-error" *ngIf="!singleCourse.id">ID is required.</small>
       </div>
 
       <div class="rand" style="width: 50%">
         <label for="name">Name</label>
-        <input type="text" pInputText id="name" [(ngModel)]="singleCourse.name" required autofocus/>
+        <input type="text" pInputText id="name" required autofocus
+               [(ngModel)]="singleCourse.name" />
         <small class="p-error" *ngIf="!singleCourse.name">Name is required </small>
       </div>
     </div>

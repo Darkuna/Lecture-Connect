@@ -26,12 +26,17 @@
   <p-table
     #dt
     [value]="rooms"
-    [rows]="rooms.length"
+    [rows]="10"
     [columns]="selectedHeaders"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
     [paginator]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     [globalFilterFields]="['id', 'room.capacity', 'room.computersAvailable']"
-    [tableStyle]="{ 'min-width': '75rem' }"
+    [tableStyle]="{ 'min-width': '75rem'}"
+    scrollHeight="100%"
     [(selection)]="selectedRooms"
+    [filterDelay]="0"
     [rowHover]="true"
     dataKey="id">
     <ng-template pTemplate="header">
@@ -60,10 +65,14 @@
           {{ r[col.field] }}
         </td>
         <td>
-          <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                  (click)="editItem(r)" value="edit"></button>
-          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-error mr-2"
-                  (click)="deleteSingleItem(r)" value="delete"></button>
+          <p-button pButton pRipple
+                    icon="pi pi-pencil" class="mr-2"
+                    [rounded]="true" [outlined]="true" severity="success"
+                    (click)="editItem(r)"/>
+
+          <p-button pButton pRipple icon="pi pi-trash" severity="danger"
+                    [rounded]="true" [outlined]="true"
+                    (click)="deleteSingleItem(r)"/>
         </td>
       </tr>
     </ng-template>
@@ -76,7 +85,8 @@
   <ng-template pTemplate="content" class="parent">
     <div class="rand">
       <label for="nameRoom">Name of room</label>
-      <input type="text" pInputText id="nameRoom" [(ngModel)]="singleRoom.id" required autofocus/>
+      <input type="text" pInputText id="nameRoom" required autofocus
+             [(ngModel)]="singleRoom.id" [disabled]="itemIsEdited"/>
       <small class="p-error" *ngIf="!singleRoom.id">Name is needed!</small>
     </div>
     <div class="div-container">
