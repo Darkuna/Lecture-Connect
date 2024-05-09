@@ -48,6 +48,12 @@ public class CourseController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteMultipleCourses(@RequestBody List<String> courseIds) {
+        courseService.deleteMultipleCourses(courseIds);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping
     public ResponseEntity<List<CourseDTO>> getAllCourses() {
         List<Course> courses = courseService.loadAllCourses();

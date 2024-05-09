@@ -5,6 +5,7 @@ import com.example.demo.models.Userx;
 import com.example.demo.repositories.UserInfoRepository;
 import com.example.demo.repositories.UserRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import java.util.Optional;
 public class UserInfoService {
     private final UserInfoRepository repository;
     private final PasswordEncoder encoder;
-
+    @Autowired
     public UserInfoService(UserInfoRepository repository, PasswordEncoder encoder) {
         this.repository = repository;
         this.encoder = encoder;

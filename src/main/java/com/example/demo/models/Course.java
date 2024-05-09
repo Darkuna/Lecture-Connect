@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,7 +29,7 @@ public class Course implements Persistable<String>, Serializable {
     private List<CourseSession> courseSessions;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")
-    private List<Timing> timingConstraints;
+    private List<Timing> timingConstraints = new ArrayList<>();
     @Transient
     private int numberOfGroups;
     @Transient
