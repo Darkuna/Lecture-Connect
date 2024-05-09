@@ -45,6 +45,12 @@ public class RoomController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> deleteMultipleRooms(@RequestBody List<String> roomIds) {
+        roomService.deleteMultipleRooms(roomIds);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping
     public ResponseEntity<List<RoomDTO>> getAllRooms() {
         List<Room> rooms = roomService.loadAllRooms();

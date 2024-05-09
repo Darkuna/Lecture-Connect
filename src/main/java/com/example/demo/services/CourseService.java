@@ -90,15 +90,17 @@ public class CourseService {
     /**
      * Deletes multiple courses from the database, also deleting all courseSessions that were created from these courses.
      *
-     * @param courses A list of courses to be deleted.
+     * @param courseIds A list of course ids of courses to be deleted.
      */
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public void deleteMultipleCourses(List<Course> courses) {
-        for(Course course : courses){
+    public void deleteMultipleCourses(List<String> courseIds) {
+        List<Course> coursesToDelete = courseRepository.findAllById(courseIds);
+        for(Course course : coursesToDelete){
             deleteCourse(course);
         }
     }
+
 
     /**
      * Updates an existing course with new details.

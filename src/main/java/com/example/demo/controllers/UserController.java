@@ -5,6 +5,7 @@ import com.example.demo.models.TokenResponse;
 import com.example.demo.models.UserInfo;
 import com.example.demo.services.JwtService;
 import com.example.demo.services.UserInfoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserInfoService service;
     private final JwtService jwtService;
-
+    @Autowired
     public UserController(UserInfoService service, JwtService jwtService) {
         this.jwtService = jwtService;
         this.service = service;
