@@ -4,6 +4,7 @@ import com.example.demo.models.enums.CourseType;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -17,5 +18,5 @@ public class CourseDTO {
     private int duration;
     private int numberOfParticipants;
     private boolean computersNecessary;
-    private List<TimingDTO> timingConstraints;
+    private List<TimingDTO> timingConstraints = new ArrayList<>();
 }

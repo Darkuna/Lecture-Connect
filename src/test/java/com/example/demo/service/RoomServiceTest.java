@@ -81,11 +81,9 @@ public class RoomServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     @DirtiesContext
     public void testDeleteMultipleRooms() {
-        Room room1 = roomService.loadRoomByID("Rechnerraum 20");
-        Room room2 = roomService.loadRoomByID("Rechnerraum 21");
-        List<Room> toBeDeleted = List.of(room1, room2);
+        List<String> roomsToBeDeleted = List.of("Rechnerraum 20","Rechnerraum 21");
 
-        roomService.deleteMultipleRooms(toBeDeleted);
+        roomService.deleteMultipleRooms(roomsToBeDeleted);
 
         assertThrows(EntityNotFoundException.class, () -> roomService.loadRoomByID("Rechnerraum 20"));
         assertThrows(EntityNotFoundException.class, () -> roomService.loadRoomByID("Rechnerraum 21"));
