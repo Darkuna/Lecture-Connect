@@ -69,6 +69,7 @@ export class CourseViewComponent {
     } else if (this.isInList(this.singleCourse)) {
       this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
     } else {
+      this.singleCourse.timingConstraints = [];
       this.courses.push(this.courseService.createSingleCourse(this.singleCourse));
       this.singleCourse = new Course();
 
@@ -83,7 +84,6 @@ export class CourseViewComponent {
         if (item === course) {
           this.courseService.deleteSingleCourse(course.id);
           this.courses.splice(index, 1);
-          return;
         }
       });
     }
