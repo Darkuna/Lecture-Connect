@@ -1,23 +1,22 @@
 .container {
   display: flex;
-  justify-content: space-between; /* Adjust if necessary, but it might help with initial layout */
+  justify-content: space-between;
   align-items: center;
   position: absolute;
   left: 0;
   right: 0;
   top: 0;
-  bottom: 96%;
+  height: 4%;
   background: #F39200;
   text-overflow: ellipsis;
   overflow: hidden;
-  transition: bottom 0.3s ease;
-
-  z-index: 2;
+  transition: height 0.3s ease;
+  z-index: 99;
 }
 
 
 .container:hover {
-  bottom: 92%;
+  height: 8%;
 }
 
 .container img {

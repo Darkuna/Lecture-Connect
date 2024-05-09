@@ -1,10 +1,11 @@
 .moveDownHeader {
+  width: 100%;
   position: absolute;
-  bottom: 70%;
-  width: 100%
+  top: 4%;
+  left: 0;
 }
 
-.customButton{
+.customButton {
   background-color: #003361;
   border-color: #003361;
   color: #f4f4f4;
@@ -17,3 +18,18 @@
   background-color: #AD5353;
   border-color: #AD5353;
 }
+
+.parent {
+  display: flex;
+  flex-direction: column;
+}
+
+.div-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.rand {
+  margin: .4rem .4rem .4rem .4rem;
+}
+

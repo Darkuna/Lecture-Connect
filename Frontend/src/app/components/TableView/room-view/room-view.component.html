@@ -1,0 +1,112 @@
+<div class="moveDownHeader">
+  <p-toolbar styleClass="mb-4 gap-2">
+    <ng-template pTemplate="left">
+
+    </ng-template>
+
+    <ng-template pTemplate="left">
+      <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
+                     selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
+                     placeholder="Choose Columns"></p-multiSelect>
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+               placeholder="Search..."/>
+      </span>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <button pButton pRipple label="New" class="customButton" (click)="openNew()"></button>
+      <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
+              [disabled]="!selectedRooms || !selectedRooms.length"></button>
+      <button pButton pRipple label="Import" class="customButton"></button>
+      <button pButton pRipple label="Export" icon="pi pi-upload" class="customButton"></button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    #dt
+    [value]="rooms"
+    [rows]="10"
+    [columns]="selectedHeaders"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [paginator]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [globalFilterFields]="['id', 'room.capacity', 'room.computersAvailable']"
+    [tableStyle]="{ 'min-width': '75rem'}"
+    scrollHeight="100%"
+    [(selection)]="selectedRooms"
+    [filterDelay]="0"
+    [rowHover]="true"
+    dataKey="id">
+    <ng-template pTemplate="header">
+      <tr>
+        <th id="check">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th id="" class="flex-header"
+            *ngFor="let col of selectedHeaders" [pSortableColumn]="col.field"
+            pResizableColumn pReorderableColumn>
+          <span>
+            <p-sortIcon [field]="col.field"></p-sortIcon>
+            {{ col.header }}
+          </span>
+          <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
+                          [field]="col.field"></p-columnFilter>
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-r>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="r"></p-tableCheckbox>
+        </td>
+        <td *ngFor="let col of selectedHeaders">
+          {{ r[col.field] }}
+        </td>
+        <td>
+          <p-button pButton pRipple
+                    icon="pi pi-pencil" class="mr-2"
+                    [rounded]="true" [outlined]="true" severity="success"
+                    (click)="editItem(r)"/>
+
+          <p-button pButton pRipple icon="pi pi-trash" severity="danger"
+                    [rounded]="true" [outlined]="true"
+                    (click)="deleteSingleItem(r)"/>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+
+<p-dialog [(visible)]="itemDialogVisible"
+          header="Room Creation" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content" class="parent">
+    <div class="rand">
+      <label for="nameRoom">Name of room</label>
+      <input type="text" pInputText id="nameRoom" required autofocus
+             [(ngModel)]="singleRoom.id" [disabled]="itemIsEdited"/>
+      <small class="p-error" *ngIf="!singleRoom.id">Name is needed!</small>
+    </div>
+    <div class="div-container">
+      <div class="rand">
+        <label for="capacity">Capacity</label>
+        <input type="number" pInputText id="capacity" [(ngModel)]="singleRoom.capacity" required autofocus/>
+        <small class="p-error" *ngIf="!singleRoom.capacity">We need to know the room size.</small>
+      </div>
+
+      <div class="rand">
+        <label for="op1">Computers available?</label>
+        <p-selectButton id="op1" [options]="stateOptions" [(ngModel)]="singleRoom.computersAvailable"
+                        optionLabel="label" optionValue="value"></p-selectButton>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveNewItem()"></button>
+  </ng-template>
+</p-dialog>
+

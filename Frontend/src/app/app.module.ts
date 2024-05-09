@@ -18,11 +18,10 @@ import {PageNotFoundComponentComponent} from './components/page-not-found-compon
 import {ToastModule} from 'primeng/toast';
 import {RippleModule} from "primeng/ripple";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {MessageService} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {TableModule} from 'primeng/table';
 import {ToolbarModule} from 'primeng/toolbar';
 import {FileUploadModule} from 'primeng/fileupload';
-import {TableViewComponent} from "./components/TableView/tableView.component";
 import {MultiSelectModule} from "primeng/multiselect";
 import {DialogModule} from "primeng/dialog";
 import {DropdownModule} from "primeng/dropdown";
@@ -31,6 +30,13 @@ import {RadioButtonModule} from "primeng/radiobutton";
 import {InputNumberModule} from "primeng/inputnumber";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {InputTextareaModule} from "primeng/inputtextarea";
+import {InputSwitchModule} from "primeng/inputswitch";
+import {SelectButtonModule} from "primeng/selectbutton";
+import {FullCalendarModule} from "@fullcalendar/angular";
+import {CalendarComponent} from './components/calendar/calendar.component';
+import {RoomViewComponent} from './components/TableView/room-view/room-view.component';
+import {CourseViewComponent} from './components/TableView/course-view/course-view.component';
+import {UsersViewComponent} from './components/TableView/users-view/users-view.component';
 
 @NgModule({
   declarations: [
@@ -39,7 +45,10 @@ import {InputTextareaModule} from "primeng/inputtextarea";
     LoginComponent,
     HomeComponent,
     PageNotFoundComponentComponent,
-    TableViewComponent
+    CalendarComponent,
+    RoomViewComponent,
+    CourseViewComponent,
+    UsersViewComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -64,9 +73,12 @@ import {InputTextareaModule} from "primeng/inputtextarea";
     RadioButtonModule,
     InputNumberModule,
     ConfirmDialogModule,
-    InputTextareaModule
+    InputTextareaModule,
+    InputSwitchModule,
+    SelectButtonModule,
+    FullCalendarModule
   ],
-  providers: [MessageService],
+  providers: [ConfirmationService, MessageService, CalendarComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {
