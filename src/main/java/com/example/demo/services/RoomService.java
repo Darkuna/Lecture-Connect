@@ -115,8 +115,9 @@ public class RoomService {
      */
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public void deleteMultipleRooms(List<Room> selectedRooms) {
-        for(Room room : selectedRooms){
+    public void deleteMultipleRooms(List<String> roomIds) {
+        List<Room> roomsToBeDeleted = roomRepository.findAllById(roomIds);
+        for(Room room : roomsToBeDeleted){
             deleteRoom(room);
         }
     }

@@ -71,10 +71,8 @@ public class CourseServiceTest {
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testDeleteMultipleCourses() {
-        Course course1 = courseService.loadCourseById("703003");
-        Course course2 = courseService.loadCourseById("703004");
-
-        courseService.deleteMultipleCourses(List.of(course1, course2));
+        List<String> coursesToBeDeleted = List.of("703003", "703004");
+        courseService.deleteMultipleCourses(coursesToBeDeleted);
 
         assertThrows(EntityNotFoundException.class, () -> courseService.loadCourseById("703003"));
         assertThrows(EntityNotFoundException.class, () -> courseService.loadCourseById("703004"));
