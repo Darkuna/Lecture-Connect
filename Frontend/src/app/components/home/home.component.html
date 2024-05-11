@@ -1,3 +1,16 @@
-<br>
-<br>
-<p>home works!</p>
+<p-menu [model]="items" class="menuPosition">
+  <ng-template pTemplate="start">
+    <span class="text"> Global Table View </span>
+  </ng-template>
+
+  <ng-template pTemplate="submenuheader" let-item>
+    <span class="text-primary font-bold">{{ item.label }}</span>
+  </ng-template>
+
+  <ng-template pTemplate="item" let-item>
+    <a pRipple class="flex align-items-center p-menuitem-link">
+      <span [class]="item.icon" style="margin-right: .8rem"></span>
+      <span class="ml-2">{{ item.label }}</span>
+    </a>
+  </ng-template>
+</p-menu>

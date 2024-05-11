@@ -37,6 +37,9 @@ import {CalendarComponent} from './components/calendar/calendar.component';
 import {RoomViewComponent} from './components/TableView/room-view/room-view.component';
 import {CourseViewComponent} from './components/TableView/course-view/course-view.component';
 import {UsersViewComponent} from './components/TableView/users-view/users-view.component';
+import {MenuModule} from "primeng/menu";
+import {BadgeModule} from "primeng/badge";
+import {AvatarModule} from "primeng/avatar";
 
 @NgModule({
   declarations: [
@@ -76,7 +79,10 @@ import {UsersViewComponent} from './components/TableView/users-view/users-view.c
     InputTextareaModule,
     InputSwitchModule,
     SelectButtonModule,
-    FullCalendarModule
+    FullCalendarModule,
+    MenuModule,
+    BadgeModule,
+    AvatarModule
   ],
   providers: [ConfirmationService, MessageService, CalendarComponent],
   bootstrap: [AppComponent]
