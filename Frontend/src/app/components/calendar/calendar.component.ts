@@ -36,13 +36,13 @@ export class CalendarComponent {
     eventClick: this.handleEventClick.bind(this),
     eventsSet: this.handleEvents.bind(this),
     allDaySlot: false,
-    slotMinTime: '08:00:00',
+    height: "auto",
+    
+    slotMinTime: '07:00:00',
     slotMaxTime: '23:00:00',
     slotDuration: '00:30:00',
     slotLabelInterval: '01:00:00',
-    height: 'auto',
-    contentHeight: 'auto',
-    dayHeaderFormat: { weekday: 'short' }
+    dayHeaderFormat: {weekday: 'long'},
   });
   currentEvents = signal<EventApi[]>([]);
 
