@@ -1,12 +1,37 @@
+<div class="header">
+  <p-carousel
+    [value]="availableTables"
+    [numVisible]="3"
+    [numScroll]="1"
+    [circular]="false">
+    [responsiveOptions]="responsiveOptions">
+    <ng-template let-product pTemplate="item">
+      <div class="border-1 surface-border border-round m-2 p-3">
+        <div class="mb-3">
+          <div class="relative mx-auto">
+            <p-tag
+              [value]="product.workStatus"
+              [severity]="getSeverity(product.workStatus)"
+              class="absolute"
+              [ngStyle]="{ 'left.px': 5, 'top.px': 5 }" />
+          </div>
+        </div>
+        <div class="mb-3 font-medium">
+          {{ product.name }}
+        </div>
+      </div>
+    </ng-template>
+  </p-carousel>
+</div>
 <div class="container">
   <app-calendar class="calendar"></app-calendar>
 
-  <p-menu [model]="items" class="menuPosition">
-    <ng-template pTemplate="start">
+  <p-menu [model]="items" class="menuPosition" styleClass="customMenu">
+    <ng-template pTemplate="start" class="customSubmenuHeader">
       <span class="text"> Global Table View </span>
     </ng-template>
 
-    <ng-template pTemplate="submenuheader" let-item>
+    <ng-template pTemplate="submenuheader" let-item class="customSubmenuHeader">
       <span class="text-primary font-bold">{{ item.label }}</span>
     </ng-template>
 
@@ -16,6 +41,5 @@
         <span class="ml-2">{{ item.label }}</span>
       </a>
     </ng-template>
-  </p-menu>>
+  </p-menu>
 </div>
-

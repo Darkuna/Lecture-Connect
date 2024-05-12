@@ -40,6 +40,7 @@ import {UsersViewComponent} from './components/TableView/users-view/users-view.c
 import {MenuModule} from "primeng/menu";
 import {BadgeModule} from "primeng/badge";
 import {AvatarModule} from "primeng/avatar";
+import {CarouselModule} from "primeng/carousel";
 
 @NgModule({
   declarations: [
@@ -53,37 +54,38 @@ import {AvatarModule} from "primeng/avatar";
     CourseViewComponent,
     UsersViewComponent
   ],
-  imports: [
-    BrowserAnimationsModule,
-    BrowserModule,
-    AppRoutingModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    PasswordModule,
-    ToastModule,
-    FormsModule,
-    HttpClientModule,
-    NgxWebstorageModule.forRoot(),
-    RippleModule,
-    TableModule,
-    FileUploadModule,
-    ToolbarModule,
-    MultiSelectModule,
-    DialogModule,
-    DropdownModule,
-    TagModule,
-    RadioButtonModule,
-    InputNumberModule,
-    ConfirmDialogModule,
-    InputTextareaModule,
-    InputSwitchModule,
-    SelectButtonModule,
-    FullCalendarModule,
-    MenuModule,
-    BadgeModule,
-    AvatarModule
-  ],
+    imports: [
+        BrowserAnimationsModule,
+        BrowserModule,
+        AppRoutingModule,
+        ButtonModule,
+        CardModule,
+        InputTextModule,
+        PasswordModule,
+        ToastModule,
+        FormsModule,
+        HttpClientModule,
+        NgxWebstorageModule.forRoot(),
+        RippleModule,
+        TableModule,
+        FileUploadModule,
+        ToolbarModule,
+        MultiSelectModule,
+        DialogModule,
+        DropdownModule,
+        TagModule,
+        RadioButtonModule,
+        InputNumberModule,
+        ConfirmDialogModule,
+        InputTextareaModule,
+        InputSwitchModule,
+        SelectButtonModule,
+        FullCalendarModule,
+        MenuModule,
+        BadgeModule,
+        AvatarModule,
+        CarouselModule
+    ],
   providers: [ConfirmationService, MessageService, CalendarComponent],
   bootstrap: [AppComponent]
 })

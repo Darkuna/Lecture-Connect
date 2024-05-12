@@ -1,6 +1,5 @@
 .menuPosition{
   position: relative;
-  top: 4%; /* Position menu 4% from the top */
   bottom: 0;
   width: fit-content; /* Menu takes up its content's width */
   margin-left: auto; /* Pushes menu to the right */
@@ -22,10 +21,26 @@
   overflow-y: auto; /* Enable scrolling if content exceeds 96% of the viewport height */
 }
 
+.customMenu .customSubmenuHeader {
+  margin: 0;
+  padding: 0.75rem 1.25rem;
+  color: #A4A4A4;
+  background: #003361;
+  font-weight: 700;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+
 .calendar {
   flex: 1;
-  top: 4%;
   margin-left: 1rem;
   margin-right: 1rem;
-  margin-top: .5rem;
+}
+
+.header {
+  position: relative;
+  width: 30%; /* Full width of the viewport */
+  top: 5%;
+  height: auto; /* Allow height to adjust based on content */
+  margin: auto;
 }

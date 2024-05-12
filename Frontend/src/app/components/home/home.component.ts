@@ -9,8 +9,33 @@ import {MenuItem} from "primeng/api";
 })
 export class HomeComponent implements OnInit {
   items: MenuItem[] | undefined;
+  availableTables!: any;
+  responsiveOptions: any[] | undefined;
 
   ngOnInit() {
+    this.responsiveOptions = [
+      {
+        breakpoint: '1199px',
+        numVisible: 1,
+        numScroll: 1
+      },
+      {
+        breakpoint: '991px',
+        numVisible: 2,
+        numScroll: 1
+      },
+      {
+        breakpoint: '767px',
+        numVisible: 1,
+        numScroll: 1
+      }
+    ];
+    this.availableTables = [
+      {name: 'WS 22/23', workStatus: 'FINISHED'},
+      {name: 'SS 23', workStatus: 'EDITED'},
+      {name: 'WS 23/24', workStatus: 'FINISHED'},
+      {name: 'SS 24', workStatus: 'IN WORK'},
+      {name: 'WS 24/25', workStatus: 'UNDEFINED'},];
     this.items = [
       { separator: true },
       {
@@ -62,7 +87,30 @@ export class HomeComponent implements OnInit {
           }
         ]
       },
-      { separator: true }
+      { separator: true },
+      {
+        label: 'Data',
+        items: [
+          {
+            label: 'Filter',
+            icon: 'pi pi-filter'
+          }
+        ]
+      }
     ];
+  }
+
+  getSeverity(status: string) {
+    switch (status) {
+      case 'FINISHED':
+        return 'success';
+        break;
+      case 'IN WORK':
+        return 'warning';
+      case 'EDITED':
+        return 'warning';
+      default:
+        return 'danger';
+    }
   }
 }
