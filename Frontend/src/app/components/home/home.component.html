@@ -1,54 +1,62 @@
-<br>
-<p-menubar>
-  <ng-template pTemplate="start">
-    <p-carousel
-      [value]="availableTables"
-      [numVisible]="3"
-      [numScroll]="1"
-      [circular]="false">
-      [responsiveOptions]="responsiveOptions">
-      <ng-template let-product pTemplate="item">
-        <div class="border-1 surface-border border-round m-2 p-3">
-          <div class="mb-3">
-            <div class="relative mx-auto">
-              <p-tag
-                [value]="product.workStatus"
-                [severity]="getSeverity(product.workStatus)"
-                class="absolute"
-                [ngStyle]="{ 'left.px': 5, 'top.px': 5 }" />
-            </div>
-          </div>
-          <div class="mb-3 font-medium">
-            {{ product.name }}
-          </div>
-        </div>
+<div id="grid">
+  <div id="div1">
+    <p-menu [model]="items">
+      <ng-template pTemplate="start">
+        <span class="text"> Global Table View </span>
       </ng-template>
-    </p-carousel>
-  </ng-template>
 
-  <ng-template pTemplate="end">
-    <div class="flex align-items-center gap-2">
-      <input type="text" pInputText placeholder="Search" class="w-8rem sm:w-auto" />
-    </div>
-  </ng-template>
-</p-menubar>
+      <ng-template pTemplate="submenuheader" let-item>
+        <span class="text-primary font-bold">{{ item.label }}</span>
+      </ng-template>
 
+      <ng-template pTemplate="item" let-item>
+        <a pRipple class="flex align-items-center p-menuitem-link">
+          <span [class]="item.icon" style="margin-right: .8rem"></span>
+          <span class="ml-2">{{ item.label }}</span>
+        </a>
+      </ng-template>
+    </p-menu>
+  </div>
 
-<app-calendar class="calendar"/>
+  <div id="div2">
+    <p-toolbar>
+      <div class="p-toolbar-group-start">
+        <p-button icon="pi pi-plus" class="mr-2"/>
+      </div>
+      <div class="p-toolbar-group-center">
+        <p-carousel
+          [value]="availableTables"
+          [numVisible]="3"
+          [numScroll]="1"
+          [circular]="false"
+          [showIndicators]="false"
+          [responsiveOptions]="responsiveOptions">
+          <ng-template let-product pTemplate="item">
+            <div class="border-1 surface-border border-round m-2 p-3">
+              <div class="mb-3">
+                <div class="relative mx-auto">
+                  <p-tag
+                    [value]="product.workStatus"
+                    [severity]="getSeverity(product.workStatus)"
+                    class="absolute"
+                    [ngStyle]="{ 'left.px': 5, 'top.px': 5 }"/>
+                </div>
+              </div>
+              <div class="mb-3 font-medium">
+                {{ product.name }}
+              </div>
+            </div>
+          </ng-template>
+        </p-carousel>
+      </div>
+      <div class="p-toolbar-group-end">
+        <input type="text" pInputText placeholder="Search" class="w-8rem sm:w-auto"/>
+      </div>
+    </p-toolbar>
+  </div>
 
-<p-menu [model]="items">
-  <ng-template pTemplate="start" >
-    <span class="text"> Global Table View </span>
-  </ng-template>
+  <div id="div3">
+    <app-calendar/>
+  </div>
 
-  <ng-template pTemplate="submenuheader" let-item >
-    <span class="text-primary font-bold">{{ item.label }}</span>
-  </ng-template>
-
-  <ng-template pTemplate="item" let-item>
-    <a pRipple class="flex align-items-center p-menuitem-link">
-      <span [class]="item.icon" style="margin-right: .8rem"></span>
-      <span class="ml-2">{{ item.label }}</span>
-    </a>
-  </ng-template>
-</p-menu>
+</div>

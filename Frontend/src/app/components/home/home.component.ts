@@ -11,19 +11,8 @@ export class HomeComponent implements OnInit {
   items: MenuItem[] | undefined;
   availableTables!: any;
   responsiveOptions: any[] | undefined;
-  itemsMenu: MenuItem[] | undefined;
 
   ngOnInit() {
-    this.itemsMenu = [
-      {
-        label: 'Import',
-        icon: 'pi pi-star'
-      },
-      {
-        label: 'Features',
-        icon: 'pi pi-star'
-      }
-    ];
     this.responsiveOptions = [
       {
         breakpoint: '1199px',
@@ -42,13 +31,13 @@ export class HomeComponent implements OnInit {
       }
     ];
     this.availableTables = [
-      {name: 'WS 22/23', workStatus: 'FINISHED'},
-      {name: 'SS 23', workStatus: 'EDITED'},
-      {name: 'WS 23/24', workStatus: 'FINISHED'},
-      {name: 'SS 24', workStatus: 'IN WORK'},
-      {name: 'WS 24/25', workStatus: 'UNDEFINED'},];
+      {name: 'Wintersemester 22/23', workStatus: 'FINISHED'},
+      {name: 'Sommersemester 23', workStatus: 'EDITED'},
+      {name: 'Wintersemester 23/24', workStatus: 'FINISHED'},
+      {name: 'Sommersemester 24', workStatus: 'IN WORK'},
+      {name: 'Wintersemester 24/25', workStatus: 'UNDEFINED'},];
     this.items = [
-      { separator: true },
+      {separator: true},
       {
         label: 'Editor',
         items: [
@@ -66,7 +55,7 @@ export class HomeComponent implements OnInit {
           }
         ]
       },
-      { separator: true },
+      {separator: true},
       {
         label: 'Print',
         items: [
@@ -80,7 +69,7 @@ export class HomeComponent implements OnInit {
           }
         ]
       },
-      { separator: true },
+      {separator: true},
       {
         label: 'Data',
         items: [
@@ -98,7 +87,7 @@ export class HomeComponent implements OnInit {
           }
         ]
       },
-      { separator: true },
+      {separator: true},
       {
         label: 'Data',
         items: [
