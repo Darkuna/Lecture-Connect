@@ -1,12 +1,9 @@
 .menuPosition{
-  display: flex;
-  position: absolute;
-
-  top: 4%;
-  height: 96%;
-
-  flex-direction: column;
-  align-items: flex-end; /* Align items to the right */
+  position: relative;
+  top: 4%; /* Position menu 4% from the top */
+  bottom: 0;
+  width: fit-content; /* Menu takes up its content's width */
+  margin-left: auto; /* Pushes menu to the right */
 }
 
 .userInfoColumn{
@@ -16,4 +13,19 @@
 .text{
   display: block;
   text-align: center;
+}
+
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  overflow-y: auto; /* Enable scrolling if content exceeds 96% of the viewport height */
+}
+
+.calendar {
+  flex: 1;
+  top: 4%;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  margin-top: .5rem;
 }

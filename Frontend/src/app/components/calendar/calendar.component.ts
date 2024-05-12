@@ -21,7 +21,9 @@ export class CalendarComponent {
       listPlugin,
     ],
     headerToolbar: {
-      right: 'timeGridWeek,timeGridDay,listWeek'
+      left: '',
+      center: '',
+      right: ''
     },
     initialView: 'timeGridWeek',
     initialEvents: INITIAL_EVENTS,
@@ -37,7 +39,10 @@ export class CalendarComponent {
     slotMinTime: '08:00:00',
     slotMaxTime: '23:00:00',
     slotDuration: '00:30:00',
-    slotLabelInterval: '00:30:00',
+    slotLabelInterval: '01:00:00',
+    height: '96%',
+    contentHeight: 'auto',
+    dayHeaderFormat: { weekday: 'short' }
   });
   currentEvents = signal<EventApi[]>([]);
 
