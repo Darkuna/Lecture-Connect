@@ -2,7 +2,13 @@
   position: relative;
   bottom: 0;
   width: fit-content; /* Menu takes up its content's width */
-  margin-left: auto; /* Pushes menu to the right */
+  margin: 0;
+  padding: 0.75rem 1.25rem;
+  color: #A4A4A4;
+  background: #003361;
+  font-weight: 700;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
 }
 
 .userInfoColumn{
@@ -21,7 +27,7 @@
   overflow-y: auto; /* Enable scrolling if content exceeds 96% of the viewport height */
 }
 
-.customMenu .customSubmenuHeader {
+::ng-deep .customMenu .customSubmenuHeader {
   margin: 0;
   padding: 0.75rem 1.25rem;
   color: #A4A4A4;

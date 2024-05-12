@@ -11,8 +11,19 @@ export class HomeComponent implements OnInit {
   items: MenuItem[] | undefined;
   availableTables!: any;
   responsiveOptions: any[] | undefined;
+  itemsMenu: MenuItem[] | undefined;
 
   ngOnInit() {
+    this.itemsMenu = [
+      {
+        label: 'Import',
+        icon: 'pi pi-star'
+      },
+      {
+        label: 'Features',
+        icon: 'pi pi-star'
+      }
+    ];
     this.responsiveOptions = [
       {
         breakpoint: '1199px',
