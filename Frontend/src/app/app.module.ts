@@ -33,7 +33,6 @@ import {InputTextareaModule} from "primeng/inputtextarea";
 import {InputSwitchModule} from "primeng/inputswitch";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {FullCalendarModule} from "@fullcalendar/angular";
-import {CalendarComponent} from './components/calendar/calendar.component';
 import {RoomViewComponent} from './components/TableView/room-view/room-view.component';
 import {CourseViewComponent} from './components/TableView/course-view/course-view.component';
 import {UsersViewComponent} from './components/TableView/users-view/users-view.component';
@@ -50,7 +49,6 @@ import {MenubarModule} from "primeng/menubar";
     LoginComponent,
     HomeComponent,
     PageNotFoundComponentComponent,
-    CalendarComponent,
     RoomViewComponent,
     CourseViewComponent,
     UsersViewComponent
@@ -88,7 +86,7 @@ import {MenubarModule} from "primeng/menubar";
     CarouselModule,
     MenubarModule
   ],
-  providers: [ConfirmationService, MessageService, CalendarComponent],
+  providers: [ConfirmationService, MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

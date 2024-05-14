@@ -1,4 +1,87 @@
 /* You can add global styles to this file, and also import other style files */
-@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/themes/mira/theme.css";
 @import "primeng/resources/primeng.css";
 @import "primeicons/primeicons.css";
+
+
+:root {
+  --fc-small-font-size: .85em;
+  --fc-page-bg-color: #003361;
+  --fc-neutral-bg-color: #F4F4F4;
+  --fc-neutral-text-color: #F4F4F4;
+  --fc-border-color: #F4F4F4;
+
+  --fc-button-text-color: #F4F4F;
+  --fc-button-bg-color: #F4F4F;
+  --fc-button-border-color: #F4F4F4;
+  --fc-button-hover-bg-color: #F4F4F;
+  --fc-button-hover-border-color: #F4F4F;
+  --fc-button-active-bg-color: #F4F4F;
+  --fc-button-active-border-color: #F4F4F;
+
+  --fc-more-link-bg-color: #d0d0d0;
+  --fc-more-link-text-color: inherit;
+
+  --fc-event-resizer-thickness: 8px;
+  --fc-event-resizer-dot-total-width: 18px;
+  --fc-event-resizer-dot-border-width: 11px;
+
+  --fc-today-bg-color: rgba(255, 0, 0, 0);
+}
+
+.fc .fc-timegrid-slot-minor {
+  border-top-style: dashed;
+  border-width: initial;
+}
+
+.fc {
+  width: 100%;
+  margin: 0 auto;
+  padding: 5px 10px;
+  background: #d9d9d9;
+  border-width: 40px;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  display: inline-block;
+  white-space: nowrap;
+  color: #003361;
+}
+
+.fc .fc-col-header-cell-cushion {
+  display: inline-block;
+  padding: 2px 4px;
+  color: #f4f4f4 !important;
+}
+
+.p-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  background: #e4e3e3;
+}
+
+.p-menu .p-menuitem > .p-menuitem-content .p-menuitem-link {
+  color: #4c566a;
+  padding: 0.75rem 1rem;
+  -webkit-user-select: none;
+  user-select: none;
+  background: #e4e3e3;
+}
+
+.p-menu .p-submenu-header {
+  margin: 0;
+  padding: 0.75rem 1.25rem;
+  color: #f4f4f4 !important;
+  background: #003361;
+  font-weight: 700;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border: 2px solid #003361;
+}
+
+
