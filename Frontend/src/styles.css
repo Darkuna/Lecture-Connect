@@ -31,7 +31,7 @@
 
 .fc .fc-timegrid-slot-minor {
   border-top-style: dashed;
-  border-width: initial;
+  border-width: .1rem;
 }
 
 .fc {
