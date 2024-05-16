@@ -5,7 +5,7 @@
         <span class="text"> Global Table View </span>
       </ng-template>
 
-      <ng-template pTemplate="submenuheader" let-item style="background: blueviolet">
+      <ng-template pTemplate="submenuheader" let-item>
         <span class="text-primary font-bold">{{ item.label }}</span>
       </ng-template>
 
@@ -27,30 +27,8 @@
                 class="headerButton" (click)="editTable()"></button>
       </div>
       <div class="p-toolbar-group-center">
-        <p-carousel
-          [value]="availableTables"
-          [numVisible]="3"
-          [numScroll]="1"
-          [circular]="false"
-          [showIndicators]="false"
-          [responsiveOptions]="responsiveOptions">
-          <ng-template let-product pTemplate="item">
-            <div class="border-1 surface-border border-round m-2 p-3">
-              <div class="mb-3">
-                <div class="relative mx-auto">
-                  <p-tag
-                    [value]="product.workStatus"
-                    [severity]="getSeverity(product.workStatus)"
-                    class="absolute"
-                    [ngStyle]="{ 'left.px': 5, 'top.px': 5 }"/>
-                </div>
-              </div>
-              <div class="mb-3 font-medium">
-                {{ product.name }}
-              </div>
-            </div>
-          </ng-template>
-        </p-carousel>
+        <p-dropdown id="all" [options]="availableTables" [(ngModel)]="timeTable"
+                    placeholder="Choose your Year..."/>
       </div>
       <div class="p-toolbar-group-end">
         <input type="text" pInputText placeholder="Search" class="w-8rem sm:w-auto"/>
@@ -63,21 +41,22 @@
   </div>
 </div>
 
-<p-dialog [(visible)]="showNewTableDialog"
+<p-dialog [(visible)]="showNewTableDialog" [style]="{ width: '15rem', height: '30rem' }"
           header="Lecture Creation" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content" class="parent">
-      <label for="type">Type</label>
-      <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="timeTable.semester"
-                  placeholder="select a Type"/>
+    <label for="type">Type</label>
+    <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="timeTable.semester"
+                placeholder="select a Type"/>
 
-      <label for="year">Year</label>
-      <p-calendar type="number" view="year" dateFormat="yy" id="year" required autofocus
-             [(ngModel)]="timeTable.year" />
-      <small class="p-error" *ngIf="!timeTable.year">for Simplification needed</small>
+    <label for="year">Semester Type</label>
+    <p-calendar type="number" view="year" dateFormat="yy" id="year" required autofocus
+                [(ngModel)]="timeTable.year"/>
+    <small class="p-error" *ngIf="!timeTable.year">for Simplification needed</small>
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideTableDialog()"></button>
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+            (click)="hideTableDialog()"></button>
     <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="createNewTable()"></button>
   </ng-template>
 </p-dialog>

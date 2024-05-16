@@ -21,24 +21,27 @@ export class HomeComponent implements OnInit {
   availableTables!: TimeTable[];
   responsiveOptions: any[] | undefined;
   timeTable!: TimeTable;
-
   showNewTableDialog = false;
 
-  showTableDialog(){
+  constructor(private cd: ChangeDetectorRef) {
+  }
+
+  showTableDialog() {
     this.timeTable = new TimeTable();
     this.showNewTableDialog = true;
   }
 
-  hideTableDialog(){
+  hideTableDialog() {
     this.showNewTableDialog = false;
   }
 
-  createNewTable(){
+  createNewTable() {
     this.timeTable.status = tableStatus.NEW;
+    this.availableTables.push(this.timeTable);
     this.hideTableDialog();
   }
 
-  editTable(){
+  editTable() {
     return true;
   }
 
@@ -84,10 +87,9 @@ export class HomeComponent implements OnInit {
     slotEventOverlap: false,
     nowIndicator: false,
   });
+
   currentEvents = signal<EventApi[]>([]);
 
-  constructor(private changeDetector: ChangeDetectorRef) {
-  }
 
   handleCalendarToggle() {
     this.calendarVisible.update((bool) => !bool);
@@ -125,7 +127,7 @@ export class HomeComponent implements OnInit {
 
   handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
-    this.changeDetector.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
+    this.cd.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
   }
 
   ngOnInit() {
