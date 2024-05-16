@@ -14,6 +14,8 @@ export class HeaderSelfComponent {
     private router: Router,
     private storage: LocalStorageService,
   ) {
+    this.storage.store('username','');
+    this.storage.store('roles','');
   }
 
   isLoggedIn(): boolean {

@@ -33,10 +33,15 @@ import {InputTextareaModule} from "primeng/inputtextarea";
 import {InputSwitchModule} from "primeng/inputswitch";
 import {SelectButtonModule} from "primeng/selectbutton";
 import {FullCalendarModule} from "@fullcalendar/angular";
-import {CalendarComponent} from './components/calendar/calendar.component';
 import {RoomViewComponent} from './components/TableView/room-view/room-view.component';
 import {CourseViewComponent} from './components/TableView/course-view/course-view.component';
 import {UsersViewComponent} from './components/TableView/users-view/users-view.component';
+import {MenuModule} from "primeng/menu";
+import {BadgeModule} from "primeng/badge";
+import {AvatarModule} from "primeng/avatar";
+import {CarouselModule} from "primeng/carousel";
+import {MenubarModule} from "primeng/menubar";
+import {CalendarModule} from "primeng/calendar";
 
 @NgModule({
   declarations: [
@@ -45,40 +50,45 @@ import {UsersViewComponent} from './components/TableView/users-view/users-view.c
     LoginComponent,
     HomeComponent,
     PageNotFoundComponentComponent,
-    CalendarComponent,
     RoomViewComponent,
     CourseViewComponent,
     UsersViewComponent
   ],
-  imports: [
-    BrowserAnimationsModule,
-    BrowserModule,
-    AppRoutingModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    PasswordModule,
-    ToastModule,
-    FormsModule,
-    HttpClientModule,
-    NgxWebstorageModule.forRoot(),
-    RippleModule,
-    TableModule,
-    FileUploadModule,
-    ToolbarModule,
-    MultiSelectModule,
-    DialogModule,
-    DropdownModule,
-    TagModule,
-    RadioButtonModule,
-    InputNumberModule,
-    ConfirmDialogModule,
-    InputTextareaModule,
-    InputSwitchModule,
-    SelectButtonModule,
-    FullCalendarModule
-  ],
-  providers: [ConfirmationService, MessageService, CalendarComponent],
+    imports: [
+        BrowserAnimationsModule,
+        BrowserModule,
+        AppRoutingModule,
+        ButtonModule,
+        CardModule,
+        InputTextModule,
+        PasswordModule,
+        ToastModule,
+        FormsModule,
+        HttpClientModule,
+        NgxWebstorageModule.forRoot(),
+        RippleModule,
+        TableModule,
+        FileUploadModule,
+        ToolbarModule,
+        MultiSelectModule,
+        DialogModule,
+        DropdownModule,
+        TagModule,
+        RadioButtonModule,
+        InputNumberModule,
+        ConfirmDialogModule,
+        InputTextareaModule,
+        InputSwitchModule,
+        SelectButtonModule,
+        FullCalendarModule,
+        MenuModule,
+        BadgeModule,
+        AvatarModule,
+        CarouselModule,
+        MenubarModule,
+        CalendarModule
+    ],
+  providers: [ConfirmationService, MessageService],
   bootstrap: [AppComponent]
 })
 export class AppModule {
