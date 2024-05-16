@@ -41,21 +41,11 @@ public class CourseSession implements Persistable<Long>, Serializable {
     public Long getId() {
         return id;
     }
-
     @Override
     public boolean isNew() {
         return id == null;
     }
-
     public boolean isBlocked() {
         return this == BLOCKED;
-    }
-
-    public boolean isFixed() {
-        return isFixed;
-    }
-
-    public void setFixed(boolean fixed) {
-        isFixed = fixed;
     }
 }

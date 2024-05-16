@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
@@ -9,6 +10,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Setter
+@Getter
 @Entity
 @EqualsAndHashCode
 public class RoomTable implements Persistable<Long>, Serializable {
@@ -27,14 +29,6 @@ public class RoomTable implements Persistable<Long>, Serializable {
     @Transient
     private AvailabilityMatrix availabilityMatrix;
 
-    public AvailabilityMatrix getAvailabilityMatrix() {
-        return availabilityMatrix;
-    }
-
-    public List<CourseSession> getAssignedCourseSessions() {
-        return assignedCourseSessions;
-    }
-
     @Override
     public Long getId() {
         return id;
@@ -44,17 +38,4 @@ public class RoomTable implements Persistable<Long>, Serializable {
     public boolean isNew() {
         return id == null;
     }
-
-    public Room getRoom() {
-        return room;
-    }
-
-    public TimeTable getTimeTable() {
-        return timeTable;
-    }
-
-    public List<Timing> getTimingConstraints() {
-        return timingConstraints;
-    }
-
 }
