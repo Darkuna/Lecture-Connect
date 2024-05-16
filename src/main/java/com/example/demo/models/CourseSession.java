@@ -10,8 +10,6 @@ import org.springframework.data.domain.Persistable;
 import java.io.Serializable;
 import java.util.List;
 
-
-
 @Entity
 @Getter
 @Setter
