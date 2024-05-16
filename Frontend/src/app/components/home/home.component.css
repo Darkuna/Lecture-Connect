@@ -46,3 +46,12 @@
   border-radius: 15px;
   transition: all 0.15s ease;
 }
+
+.div-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.rand {
+  margin: .4rem .4rem .4rem .4rem;
+}

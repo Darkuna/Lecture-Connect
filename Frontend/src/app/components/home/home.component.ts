@@ -6,6 +6,9 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import {createEventId, INITIAL_EVENTS} from "./event-utils";
+import {TimeTable} from "../../../assets/Models/time-table";
+import {Semester} from "../../../assets/Models/enums/semester";
+import {tableStatus} from "../../../assets/Models/enums/table-status";
 
 @Component({
   selector: 'app-home',
@@ -15,8 +18,33 @@ import {createEventId, INITIAL_EVENTS} from "./event-utils";
 })
 export class HomeComponent implements OnInit {
   items: MenuItem[] | undefined;
-  availableTables!: any;
+  availableTables!: TimeTable[];
   responsiveOptions: any[] | undefined;
+  timeTable!: TimeTable;
+
+  showNewTableDialog = false;
+
+  showTableDialog(){
+    this.timeTable = new TimeTable();
+    this.showNewTableDialog = true;
+  }
+
+  hideTableDialog(){
+    this.showNewTableDialog = false;
+  }
+
+  createNewTable(){
+    this.timeTable.status = tableStatus.NEW;
+    this.hideTableDialog();
+  }
+
+  editTable(){
+    return true;
+  }
+
+  getSemesterOptions() {
+    return Object.keys(Semester).filter(k => isNaN(Number(k)));
+  }
 
   calendarVisible = signal(true);
   calendarOptions = signal<CalendarOptions>({
@@ -118,12 +146,7 @@ export class HomeComponent implements OnInit {
         numScroll: 1
       }
     ];
-    this.availableTables = [
-      {name: 'Wintersemester 22/23', workStatus: 'FINISHED'},
-      {name: 'Sommersemester 23', workStatus: 'EDITED'},
-      {name: 'Wintersemester 23/24', workStatus: 'FINISHED'},
-      {name: 'Sommersemester 24', workStatus: 'IN WORK'},
-      {name: 'Wintersemester 24/25', workStatus: 'UNDEFINED'},];
+
     this.items = [
       {separator: true},
       {

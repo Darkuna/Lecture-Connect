@@ -21,7 +21,10 @@
   <div id="div2">
     <p-toolbar>
       <div class="p-toolbar-group-start">
-        <button pButton type="button" label="+" class="headerButton"></button>
+        <button pButton type="button" icon="pi pi-calendar-plus"
+                class="headerButton" (click)="showTableDialog()" style="margin-right: .5rem"></button>
+        <button pButton type="button" icon="pi pi-pen-to-square"
+                class="headerButton" (click)="editTable()"></button>
       </div>
       <div class="p-toolbar-group-center">
         <p-carousel
@@ -58,5 +61,23 @@
   <div id="div3">
     <full-calendar *ngIf='calendarVisible()' [options]='calendarOptions()'/>
   </div>
-
 </div>
+
+<p-dialog [(visible)]="showNewTableDialog"
+          header="Lecture Creation" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content" class="parent">
+      <label for="type">Type</label>
+      <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="timeTable.semester"
+                  placeholder="select a Type"/>
+
+      <label for="year">Year</label>
+      <p-calendar type="number" view="year" dateFormat="yy" id="year" required autofocus
+             [(ngModel)]="timeTable.year" />
+      <small class="p-error" *ngIf="!timeTable.year">for Simplification needed</small>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideTableDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="createNewTable()"></button>
+  </ng-template>
+</p-dialog>
