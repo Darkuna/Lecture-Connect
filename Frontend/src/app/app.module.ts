@@ -42,6 +42,11 @@ import {AvatarModule} from "primeng/avatar";
 import {CarouselModule} from "primeng/carousel";
 import {MenubarModule} from "primeng/menubar";
 import {CalendarModule} from "primeng/calendar";
+import {WizardComponent} from './components/wizzard/wizard.component';
+import {StepperModule} from "primeng/stepper";
+import {IconFieldModule} from "primeng/iconfield";
+import {InputIconModule} from "primeng/inputicon";
+import {ToggleButtonModule} from "primeng/togglebutton";
 
 @NgModule({
   declarations: [
@@ -52,42 +57,47 @@ import {CalendarModule} from "primeng/calendar";
     PageNotFoundComponentComponent,
     RoomViewComponent,
     CourseViewComponent,
-    UsersViewComponent
+    UsersViewComponent,
+    WizardComponent
   ],
-    imports: [
-        BrowserAnimationsModule,
-        BrowserModule,
-        AppRoutingModule,
-        ButtonModule,
-        CardModule,
-        InputTextModule,
-        PasswordModule,
-        ToastModule,
-        FormsModule,
-        HttpClientModule,
-        NgxWebstorageModule.forRoot(),
-        RippleModule,
-        TableModule,
-        FileUploadModule,
-        ToolbarModule,
-        MultiSelectModule,
-        DialogModule,
-        DropdownModule,
-        TagModule,
-        RadioButtonModule,
-        InputNumberModule,
-        ConfirmDialogModule,
-        InputTextareaModule,
-        InputSwitchModule,
-        SelectButtonModule,
-        FullCalendarModule,
-        MenuModule,
-        BadgeModule,
-        AvatarModule,
-        CarouselModule,
-        MenubarModule,
-        CalendarModule
-    ],
+  imports: [
+    BrowserAnimationsModule,
+    BrowserModule,
+    AppRoutingModule,
+    ButtonModule,
+    CardModule,
+    InputTextModule,
+    PasswordModule,
+    ToastModule,
+    FormsModule,
+    HttpClientModule,
+    NgxWebstorageModule.forRoot(),
+    RippleModule,
+    TableModule,
+    FileUploadModule,
+    ToolbarModule,
+    MultiSelectModule,
+    DialogModule,
+    DropdownModule,
+    TagModule,
+    RadioButtonModule,
+    InputNumberModule,
+    ConfirmDialogModule,
+    InputTextareaModule,
+    InputSwitchModule,
+    SelectButtonModule,
+    FullCalendarModule,
+    MenuModule,
+    BadgeModule,
+    AvatarModule,
+    CarouselModule,
+    MenubarModule,
+    CalendarModule,
+    StepperModule,
+    IconFieldModule,
+    InputIconModule,
+    ToggleButtonModule
+  ],
   providers: [ConfirmationService, MessageService],
   bootstrap: [AppComponent]
 })

@@ -5,6 +5,7 @@ import {HomeComponent} from "./components/home/home.component";
 import {RoomViewComponent} from "./components/TableView/room-view/room-view.component";
 import {CourseViewComponent} from "./components/TableView/course-view/course-view.component";
 import {UsersViewComponent} from "./components/TableView/users-view/users-view.component";
+import {WizardComponent} from "./components/wizzard/wizard.component";
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent},
@@ -12,6 +13,7 @@ const routes: Routes = [
   {path: 'rooms', component: RoomViewComponent},
   {path: 'lectures', component: CourseViewComponent},
   {path: 'users', component: UsersViewComponent},
+  {path: 'wizard', component: WizardComponent},
 ];
 
 @NgModule({

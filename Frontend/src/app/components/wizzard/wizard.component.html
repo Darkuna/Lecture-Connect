@@ -1,0 +1,82 @@
+<p-stepper [linear]="true" [(activeStep)]="active" class="stepper-settings">
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-onClick="onClick" let-index="index">
+      <div (click)="onClick.emit()" class="box" [ngClass]="{
+           'bg-primary border-primary': index <= active,
+           'surface-border': index > active }">
+        <div class="icon-box" style="background:#9EC252">
+          <i class="pi pi-briefcase" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text">Choose Courses</p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
+      page 1 works!
+
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="nextCallback.emit()" label="Next" icon="pi pi-arrow-right" iconPos="right"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-onClick="onClick" let-index="index">
+      <div (click)="onClick.emit()" class="box" [ngClass]="{
+           'bg-primary border-primary': index <= active,
+           'surface-border': index > active }">
+        <div class="icon-box" style="background: #75CF84">
+          <i class="pi pi-sitemap" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text">Define Details</p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
+      page 2 works!
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="prevCallback.emit()" label="Back" severity="secondary" icon="pi pi-arrow-left"/>
+        <p-button (onClick)="nextCallback.emit()" label="Next" icon="pi pi-arrow-right" iconPos="right"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-onClick="onClick" let-index="index">
+      <div (click)="onClick.emit()" class="box" [ngClass]="{
+           'bg-primary border-primary': index <= active,
+           'surface-border': index > active }">
+        <div class="icon-box" style="background: #74DCFF">
+          <i class="pi pi-building" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text">Choose Rooms</p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
+      page 3 works!
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="prevCallback.emit()" label="Back" severity="secondary" icon="pi pi-arrow-left"/>
+        <p-button (onClick)="nextCallback.emit()" label="Next" icon="pi pi-arrow-right" iconPos="right"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-onClick="onClick" let-index="index">
+      <div (click)="onClick.emit()" class="box" [ngClass]="{
+           'bg-primary border-primary': index <= active,
+           'surface-border': index > active }">
+        <div class="icon-box" style="background:#75A9CF">
+          <i class="pi pi-table" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text">blocked Slots</p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
+      page 4 works!
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="prevCallback.emit()" label="Back" severity="secondary" icon="pi pi-arrow-left"/>
+        <p-button (onClick)="nextCallback.emit()" label="Save" icon="pi pi-arrow-right" iconPos="right"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+</p-stepper>
+
