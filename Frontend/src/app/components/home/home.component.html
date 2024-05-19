@@ -5,7 +5,7 @@
         <span class="text"> Global Table View </span>
       </ng-template>
 
-      <ng-template pTemplate="submenuheader" let-item style="background: blueviolet">
+      <ng-template pTemplate="submenuheader" let-item>
         <span class="text-primary font-bold">{{ item.label }}</span>
       </ng-template>
 
@@ -26,34 +26,19 @@
         <button pButton type="button" icon="pi pi-pen-to-square"
                 class="headerButton" (click)="editTable()"></button>
       </div>
+
       <div class="p-toolbar-group-center">
-        <p-carousel
-          [value]="availableTables"
-          [numVisible]="3"
-          [numScroll]="1"
-          [circular]="false"
-          [showIndicators]="false"
-          [responsiveOptions]="responsiveOptions">
-          <ng-template let-product pTemplate="item">
-            <div class="border-1 surface-border border-round m-2 p-3">
-              <div class="mb-3">
-                <div class="relative mx-auto">
-                  <p-tag
-                    [value]="product.workStatus"
-                    [severity]="getSeverity(product.workStatus)"
-                    class="absolute"
-                    [ngStyle]="{ 'left.px': 5, 'top.px': 5 }"/>
-                </div>
-              </div>
-              <div class="mb-3 font-medium">
-                {{ product.name }}
-              </div>
+        <p-dropdown id="all" [options]="availableTables" [(ngModel)]="selectedTable" scrollHeight="300px"
+                    placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year">
+          <ng-template let-item pTemplate="item">
+            <div class="flex align-items-center gap-2">
+              <div>{{ item.semester }} {{ item.year }}</div>
             </div>
           </ng-template>
-        </p-carousel>
+        </p-dropdown>
       </div>
+
       <div class="p-toolbar-group-end">
-        <input type="text" pInputText placeholder="Search" class="w-8rem sm:w-auto"/>
       </div>
     </p-toolbar>
   </div>
@@ -63,21 +48,21 @@
   </div>
 </div>
 
-<p-dialog [(visible)]="showNewTableDialog"
-          header="Lecture Creation" [modal]="true" styleClass="p-fluid">
+<p-dialog [(visible)]="showNewTableDialog" [style]="{ width: '30rem', height: '20rem' }"
+          header="create new Table" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content" class="parent">
-      <label for="type">Type</label>
-      <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="timeTable.semester"
-                  placeholder="select a Type"/>
+    <label for="type">Type</label>
+    <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="timeTable.semester"
+                placeholder="select a Type"/>
 
-      <label for="year">Year</label>
-      <p-calendar type="number" view="year" dateFormat="yy" id="year" required autofocus
-             [(ngModel)]="timeTable.year" />
-      <small class="p-error" *ngIf="!timeTable.year">for Simplification needed</small>
+    <label for="year">Semester Type</label>
+    <p-inputNumber type="number" id="year" required autofocus [(ngModel)]="timeTable.year"/>
+    <small class="p-error" *ngIf="!timeTable.year">for Simplification needed</small>
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideTableDialog()"></button>
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+            (click)="hideTableDialog()"></button>
     <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="createNewTable()"></button>
   </ng-template>
 </p-dialog>

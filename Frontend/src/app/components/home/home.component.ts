@@ -9,6 +9,7 @@ import {createEventId, INITIAL_EVENTS} from "./event-utils";
 import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {tableStatus} from "../../../assets/Models/enums/table-status";
+import {DropdownFilterOptions} from "primeng/dropdown";
 
 @Component({
   selector: 'app-home',
@@ -21,25 +22,34 @@ export class HomeComponent implements OnInit {
   availableTables!: TimeTable[];
   responsiveOptions: any[] | undefined;
   timeTable!: TimeTable;
-
+  selectedTable!: TimeTable;
   showNewTableDialog = false;
 
-  showTableDialog(){
+  constructor(private cd: ChangeDetectorRef) {
+    this.availableTables = []
+  }
+
+  showTableDialog() {
     this.timeTable = new TimeTable();
     this.showNewTableDialog = true;
   }
 
-  hideTableDialog(){
+  hideTableDialog() {
     this.showNewTableDialog = false;
   }
 
-  createNewTable(){
+  createNewTable() {
     this.timeTable.status = tableStatus.NEW;
+    this.availableTables.push(this.timeTable);
     this.hideTableDialog();
   }
 
-  editTable(){
-    return true;
+  editTable() {
+    console.log(this.selectedTable);
+    if (this.selectedTable) {
+      this.timeTable = this.selectedTable;
+    }
+    this.showTableDialog();
   }
 
   getSemesterOptions() {
@@ -84,10 +94,9 @@ export class HomeComponent implements OnInit {
     slotEventOverlap: false,
     nowIndicator: false,
   });
+
   currentEvents = signal<EventApi[]>([]);
 
-  constructor(private changeDetector: ChangeDetectorRef) {
-  }
 
   handleCalendarToggle() {
     this.calendarVisible.update((bool) => !bool);
@@ -125,7 +134,13 @@ export class HomeComponent implements OnInit {
 
   handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
-    this.changeDetector.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
+    this.cd.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
+  }
+
+  customFilterFunction(event: KeyboardEvent, options: DropdownFilterOptions) {
+    if (options.filter) {
+      options.filter(event);
+    }
   }
 
   ngOnInit() {
@@ -210,18 +225,5 @@ export class HomeComponent implements OnInit {
         ]
       }
     ];
-  }
-
-  getSeverity(status: string) {
-    switch (status) {
-      case 'FINISHED':
-        return 'success';
-      case 'IN WORK':
-        return 'warning';
-      case 'EDITED':
-        return 'warning';
-      default:
-        return 'danger';
-    }
   }
 }
