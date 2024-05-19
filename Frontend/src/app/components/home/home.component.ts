@@ -9,6 +9,7 @@ import {createEventId, INITIAL_EVENTS} from "./event-utils";
 import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {tableStatus} from "../../../assets/Models/enums/table-status";
+import {DropdownFilterOptions} from "primeng/dropdown";
 
 @Component({
   selector: 'app-home',
@@ -21,9 +22,11 @@ export class HomeComponent implements OnInit {
   availableTables!: TimeTable[];
   responsiveOptions: any[] | undefined;
   timeTable!: TimeTable;
+  selectedTable!: TimeTable;
   showNewTableDialog = false;
 
   constructor(private cd: ChangeDetectorRef) {
+    this.availableTables = []
   }
 
   showTableDialog() {
@@ -42,7 +45,11 @@ export class HomeComponent implements OnInit {
   }
 
   editTable() {
-    return true;
+    console.log(this.selectedTable);
+    if (this.selectedTable) {
+      this.timeTable = this.selectedTable;
+    }
+    this.showTableDialog();
   }
 
   getSemesterOptions() {
@@ -130,6 +137,12 @@ export class HomeComponent implements OnInit {
     this.cd.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
   }
 
+  customFilterFunction(event: KeyboardEvent, options: DropdownFilterOptions) {
+    if (options.filter) {
+      options.filter(event);
+    }
+  }
+
   ngOnInit() {
     this.responsiveOptions = [
       {
@@ -212,18 +225,5 @@ export class HomeComponent implements OnInit {
         ]
       }
     ];
-  }
-
-  getSeverity(status: string) {
-    switch (status) {
-      case 'FINISHED':
-        return 'success';
-      case 'IN WORK':
-        return 'warning';
-      case 'EDITED':
-        return 'warning';
-      default:
-        return 'danger';
-    }
   }
 }
