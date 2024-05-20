@@ -128,6 +128,8 @@ public class RoomService {
         dto.setId(room.getId());
         dto.setCapacity(room.getCapacity());
         dto.setComputersAvailable(room.isComputersAvailable());
+        dto.setCreatedAt(room.getCreatedAt());
+        dto.setUpdatedAt(room.getUpdatedAt());
         return dto;
     }
 

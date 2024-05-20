@@ -191,6 +191,8 @@ public class CourseService {
         dto.setTimingConstraints(course.getTimingConstraints().stream()
                 .map(timingService::toDTO)
                 .collect(Collectors.toList()));
+        dto.setCreatedAt(course.getCreatedAt());
+        dto.setUpdatedAt(course.getUpdatedAt());
         return dto;
     }
 
