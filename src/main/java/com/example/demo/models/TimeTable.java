@@ -1,6 +1,7 @@
 package com.example.demo.models;
 
 import com.example.demo.models.enums.Semester;
+import com.example.demo.models.base.TimestampedEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.util.Objects;
 @Entity
 @Getter
 @Setter
-public class TimeTable implements Persistable<Long>, Serializable{
+public class TimeTable extends TimestampedEntity implements Persistable<Long>, Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -26,7 +27,6 @@ public class TimeTable implements Persistable<Long>, Serializable{
     @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY)
     private List<CourseSession> courseSessions;
 
-    //CONSTRUCTOR
     public TimeTable(){
         this.roomTables = new ArrayList<>();
         this.courseSessions = new ArrayList<>();

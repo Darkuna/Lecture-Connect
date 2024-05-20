@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.RoomDTO;
 import com.example.demo.models.Room;
 import com.example.demo.models.RoomTable;
 import com.example.demo.repositories.RoomRepository;
@@ -111,7 +112,7 @@ public class RoomService {
      * Deletes multiple rooms from the database based on a provided list of Room objects.
      * Each room in the list is individually deleted along with its associated room tables.
      *
-     * @param selectedRooms A list of Room objects to be deleted.
+     * @param roomIds A list of ids of Room objects to be deleted.
      */
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
@@ -120,5 +121,26 @@ public class RoomService {
         for(Room room : roomsToBeDeleted){
             deleteRoom(room);
         }
+    }
+
+    public RoomDTO toDTO(Room room){
+        RoomDTO dto = new RoomDTO();
+        dto.setId(room.getId());
+        dto.setCapacity(room.getCapacity());
+        dto.setComputersAvailable(room.isComputersAvailable());
+        return dto;
+    }
+
+    public Room fromDTO(RoomDTO dto){
+        Room room = new Room();
+        room.setId(dto.getId());
+        room.setCapacity(dto.getCapacity());
+        room.setComputersAvailable(dto.isComputersAvailable());
+        return room;
+    }
+
+    public void copyDtoToEntity(RoomDTO dto, Room entity) {
+        entity.setCapacity(dto.getCapacity());
+        entity.setComputersAvailable(dto.isComputersAvailable());
     }
 }

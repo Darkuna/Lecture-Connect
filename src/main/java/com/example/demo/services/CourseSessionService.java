@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.CourseSessionDTO;
 import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.example.demo.models.*;
 import com.example.demo.repositories.CourseSessionRepository;
@@ -177,6 +178,21 @@ public class CourseSessionService {
     public CourseSession loadCourseSessionByID(long id){
         return courseSessionRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("CourseSession not found for ID: " + id));
+    }
 
+    /**
+     * Converts a Course object into a CourseDTO object
+     *
+     * @param courseSession to be converted
+     * @return CourseSessionDTO object
+     */
+    public CourseSessionDTO toDTO(CourseSession courseSession){
+        CourseSessionDTO dto = new CourseSessionDTO();
+        dto.setId(courseSession.getId());
+        dto.setAssigned(courseSession.isAssigned());
+        dto.setFixed(courseSession.isFixed());
+        dto.setDuration(courseSession.getDuration());
+        dto.setTiming(timingService.toDTO(courseSession.getTiming()));
+        return dto;
     }
 }

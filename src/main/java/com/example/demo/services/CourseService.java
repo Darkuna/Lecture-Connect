@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.CourseDTO;
 import com.example.demo.models.Course;
 import com.example.demo.models.CourseSession;
 import com.example.demo.models.Timing;
@@ -13,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing courses.
@@ -167,5 +169,64 @@ public class CourseService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Course> loadAllCourses(){
         return courseRepository.findAll();
+    }
+
+
+    /**
+     * Converts a Course object into a CourseDTO object
+     *
+     * @param course to be converted
+     * @return CourseDTO object
+     */
+    public CourseDTO toDTO(Course course){
+        CourseDTO dto = new CourseDTO();
+        dto.setId(course.getId());
+        dto.setName(course.getName());
+        dto.setCourseType(course.getCourseType());
+        dto.setLecturer(course.getLecturer());
+        dto.setSemester(course.getSemester());
+        dto.setDuration(course.getDuration());
+        dto.setNumberOfParticipants(course.getNumberOfParticipants());
+        dto.setComputersNecessary(course.isComputersNecessary());
+        dto.setTimingConstraints(course.getTimingConstraints().stream()
+                .map(timingService::toDTO)
+                .collect(Collectors.toList()));
+        return dto;
+    }
+
+    /**
+     * Converts a CourseDTO object into a Course object
+     *
+     * @param dto to be converted
+     * @return Course object
+     */
+    public Course fromDTO(CourseDTO dto){
+        Course course = new Course();
+        course.setId(dto.getId());
+        course.setName(dto.getName());
+        course.setCourseType(dto.getCourseType());
+        course.setLecturer(dto.getLecturer());
+        course.setSemester(dto.getSemester());
+        course.setDuration(dto.getDuration());
+        course.setNumberOfParticipants(dto.getNumberOfParticipants());
+        course.setComputersNecessary(dto.isComputersNecessary());
+        course.setTimingConstraints(dto.getTimingConstraints().stream()
+                .map(timingService::fromDTO)
+                .collect(Collectors.toList()));
+        return course;
+    }
+
+    public void copyDtoToEntity(CourseDTO dto, Course entity) {
+        entity.setName(dto.getName());
+        entity.setCourseType(dto.getCourseType());
+        entity.setLecturer(dto.getLecturer());
+        entity.setSemester(dto.getSemester());
+        entity.setDuration(dto.getDuration());
+        entity.setNumberOfParticipants(dto.getNumberOfParticipants());
+        entity.setComputersNecessary(dto.isComputersNecessary());
+        List<Timing> timings = dto.getTimingConstraints().stream()
+                .map(timingService::fromDTO)
+                .collect(Collectors.toList());
+        entity.setTimingConstraints(timings);
     }
 }
