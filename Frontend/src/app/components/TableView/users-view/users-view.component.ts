@@ -1,19 +1,20 @@
-import {ChangeDetectorRef, Component} from '@angular/core';
-import {Userx} from "../../../../assets/Models/userx";
-import {ConfirmationService, MessageService} from "primeng/api";
-import {Role} from "../../../../assets/Models/enums/role";
+import { Component, ChangeDetectorRef } from '@angular/core';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { UserService } from '../../../services/user-service';
+import { Userx } from '../../../../assets/Models/userx';
+import { Role } from "../../../../assets/Models/enums/role";
 
 @Component({
   selector: 'app-users-view',
   templateUrl: './users-view.component.html',
-  styleUrl: '../tables.css'
+  styleUrls: ['../tables.css'],
 })
-export class UsersViewComponent {
+export class UsersViewComponent{
   itemDialogVisible: boolean = false;
-  singleUserx: Userx;
+  singleUserx: Userx = new Userx();
+  selectedUserxs: Userx[] = [];
+  selectedHeaders: any[];
   users: Userx[];
-  selectedUserxs!: Userx[];
-  selectedHeaders: any;
   headers: any[];
 
   stateOptions: any[] = [
@@ -27,17 +28,18 @@ export class UsersViewComponent {
   private itemIsEdited = false;
 
   constructor(
-    private cd: ChangeDetectorRef,
+    private userService: UserService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private cd: ChangeDetectorRef
   ) {
     this.users = [];
-    this.singleUserx = new Userx();
     this.headers = this.singleUserx.getTableColumns();
     this.selectedHeaders = this.headers;
   }
 
   ngOnInit(): void {
+    this.userService.getAllUsers().subscribe(data => this.users = data);
     this.cd.markForCheck();
   }
 

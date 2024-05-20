@@ -28,27 +28,36 @@ export class LoginComponent {
 
   login() {
     this.http.post('/proxy/auth/login', this.loginObj)
-      .subscribe((token: any) => {
-        if (token['token'] != 'null') {
-          const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: any };
+      .subscribe({
+        next: (token: any) => {
+          if (token && token['token']) {
+            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: any };
 
-          this.storage.store('username', decodedToken['username']);
-          this.storage.store('roles', decodedToken['role']);
-          this.storage.store('jwtToken', token['token']);
+            this.storage.store('username', decodedToken['username']);
+            this.storage.store('roles', decodedToken['role']);
+            this.storage.store('jwtToken', token['token']);
 
-          this.reloadService.notify({isRefresh: true});
+            this.reloadService.notify({isRefresh: true});
 
-          this.messageService.add({severity: 'success', summary: `Willkommen zurück ${decodedToken['username']}`});
-          this.router.navigate(['/home'])
-        } else {
+            this.messageService.add({severity: 'success', summary: `Welcome back ${decodedToken['username']}`});
+            this.router.navigate(['/home']);
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Login Error',
+              detail: 'Invalid credentials provided!'
+            });
+          }
+        },
+        error: (error) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Login Error',
-            detail: 'Falscher Username oder Passwort'
+            detail: 'Server error or network issue!'
           });
-
         }
-      })
+      });
   }
+
 
 }
