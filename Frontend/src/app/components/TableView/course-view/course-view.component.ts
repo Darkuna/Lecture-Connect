@@ -57,7 +57,7 @@ export class CourseViewComponent {
 
   saveNewItem(): void {
     if (this.itemIsEdited) {
-      this.singleCourse.updateDate = new Date();
+      this.singleCourse.updatedAt = new Date();
       this.courses[this.findIndexById(this.singleCourse.id)] =
         this.courseService.updateSingleCourse(this.singleCourse);
 

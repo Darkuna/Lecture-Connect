@@ -1,10 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.CourseDTO;
-import com.example.demo.dto.TimingDTO;
 import com.example.demo.models.Course;
-import com.example.demo.models.Timing;
-import com.example.demo.models.enums.Day;
 import com.example.demo.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
