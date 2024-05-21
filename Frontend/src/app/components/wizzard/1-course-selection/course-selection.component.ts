@@ -9,13 +9,22 @@ import {Subscription} from "rxjs";
   styleUrl: '../wizard.component.css'
 })
 export class CourseSelectionComponent implements OnInit, OnDestroy {
-  availableCourses!: Course[];
+  availableCourses: Course[];
   selectedCourses: Course[];
   draggedCourse: Course | undefined | null;
   private courseSub?: Subscription;
+  headers: any[];
 
   constructor(private courseService: CourseService) {
     this.selectedCourses = [];
+    this.availableCourses = [];
+    this.headers = [
+      {field: 'id', header: 'Id'},
+      {field: 'courseType', header: 'Type'},
+      {field: 'name', header: 'Name'},
+      {field: 'semester', header: 'Semester'}
+    ];
+
   }
 
   ngOnInit() {
@@ -29,13 +38,16 @@ export class CourseSelectionComponent implements OnInit, OnDestroy {
     this.courseSub?.unsubscribe();
   }
 
-  dragStart(product: Course) {
-    this.draggedCourse = product;
+  dragStart(item: Course) {
+    this.draggedCourse = item;
+  }
+
+  drag() {
   }
 
   drop() {
     if (this.draggedCourse) {
-      let draggedCourseIndex = this.findIndex(this.draggedCourse);
+      let draggedCourseIndex = this.findIndex(this.draggedCourse, this.availableCourses);
       this.selectedCourses = [...(this.selectedCourses as Course[]), this.draggedCourse];
       this.availableCourses = this.availableCourses?.filter((val, i) => i != draggedCourseIndex);
       this.draggedCourse = null;
@@ -46,14 +58,19 @@ export class CourseSelectionComponent implements OnInit, OnDestroy {
     this.draggedCourse = null;
   }
 
-  findIndex(product: Course) {
+  findIndex(product: Course, list: Course[]) {
     let index = -1;
-    for (let i = 0; i < (this.availableCourses as Course[]).length; i++) {
-      if (product.id === (this.availableCourses as Course[])[i].id) {
+    for (let i = 0; i < (list as Course[]).length; i++) {
+      if (product.id === (list as Course[])[i].id) {
         index = i;
         break;
       }
     }
     return index;
+  }
+
+  deleteSingleItem(course: Course) {
+    let draggedCourseIndex = this.findIndex(course, this.selectedCourses);
+    this.selectedCourses = this.selectedCourses?.filter((val, i) => i != draggedCourseIndex);
   }
 }

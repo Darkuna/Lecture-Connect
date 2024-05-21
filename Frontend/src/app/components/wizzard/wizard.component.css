@@ -61,4 +61,26 @@
   border-radius: 15px;
 }
 
+.col-left {
+  display: inline-block;
+  width: 50%;
+  height: 100%;
+  padding: .5rem;
+}
 
+.tableOnTop {
+
+}
+
+.float-container {
+  overflow: hidden; /* Clear floats within the container */
+}
+
+.float-item {
+  float: left; /* Float all items to the left by default */
+  margin-left: .5rem; /* Add some space between items if necessary */
+}
+
+.float-item:last-child {
+  float: right; /* Float the last item to the right */
+}
