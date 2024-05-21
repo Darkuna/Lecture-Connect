@@ -4,7 +4,6 @@ import {Router} from '@angular/router';
 import {LocalStorageService} from "ngx-webstorage";
 import * as jwt_decode from 'jwt-decode';
 import {MessageService} from "primeng/api";
-import {ReloadService} from "../../services/reload.service";
 
 @Component({
   selector: 'app-login',
@@ -22,7 +21,6 @@ export class LoginComponent {
     private http: HttpClient,
     private storage: LocalStorageService,
     private messageService: MessageService,
-    private reloadService: ReloadService
   ) {
   }
 
@@ -36,7 +34,6 @@ export class LoginComponent {
           this.storage.store('roles', decodedToken['role']);
           this.storage.store('jwtToken', token['token']);
 
-          this.reloadService.notify({isRefresh: true});
 
           this.messageService.add({severity: 'success', summary: `Willkommen zurück ${decodedToken['username']}`});
           this.router.navigate(['/home'])

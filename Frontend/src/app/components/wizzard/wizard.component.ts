@@ -8,28 +8,8 @@ import {Component} from '@angular/core';
 export class WizardComponent {
   active: number = 0;
 
-  option1: boolean | undefined = false;
 
-  option2: boolean | undefined = false;
-
-  option3: boolean | undefined = false;
-
-  option4: boolean | undefined = false;
-
-  option5: boolean | undefined = false;
-
-  option6: boolean | undefined = false;
-
-  option7: boolean | undefined = false;
-
-  option8: boolean | undefined = false;
-
-  option9: boolean | undefined = false;
-
-  option10: boolean | undefined = false;
-
-  getColorBasedOnIndex(type: string, index: number): string {
-    console.log(type + " : " + index);
+  public getColorBasedOnIndex(type: string, index: number): string {
     if (index > this.active) {
       return '#CDCDCC';
     }

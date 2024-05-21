@@ -9,15 +9,15 @@
         </div>
         <p class="box-around-text" style="color: {{getColorBasedOnIndex('t', index)}}">
           Choose Courses
-          </p>
+        </p>
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback">
-      page 1 works!
+      <app-course-selection></app-course-selection>
 
       <div class="flex pt-4 justify-content-between">
-        <p-button [disabled]="true" icon="pi pi-arrow-left"/>
-        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right"/>
+        <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right" class="NextButton"/>
 
       </div>
     </ng-template>
@@ -37,10 +37,11 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      page 2 works!
+      <app-detail-selection></app-detail-selection>
+
       <div class="flex pt-4 justify-content-between">
-        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left"/>
-        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right"/>
+        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right" class="NextButton"/>
       </div>
     </ng-template>
   </p-stepperPanel>
@@ -59,10 +60,11 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      page 3 works!
+      <app-room-selection></app-room-selection>
+
       <div class="flex pt-4 justify-content-between">
-        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left"/>
-        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right"/>
+        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right" class="NextButton"/>
       </div>
     </ng-template>
   </p-stepperPanel>
@@ -81,10 +83,10 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-prevCallback="prevCallback">
-      page 4 works!
+      <app-base-selection></app-base-selection>
       <div class="flex pt-4 justify-content-between">
-        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left"/>
-        <p-button [disabled]="true" icon="pi pi-arrow-right"/>
+        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button [disabled]="true" icon="pi pi-arrow-right" class="NextButton"/>
       </div>
     </ng-template>
   </p-stepperPanel>

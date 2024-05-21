@@ -47,6 +47,11 @@ import {StepperModule} from "primeng/stepper";
 import {IconFieldModule} from "primeng/iconfield";
 import {InputIconModule} from "primeng/inputicon";
 import {ToggleButtonModule} from "primeng/togglebutton";
+import {CourseSelectionComponent} from "./components/wizzard/1-course-selection/course-selection.component";
+import {DetailSelectionComponent} from "./components/wizzard/2-detail-selection/detail-selection.component";
+import {RoomSelectionComponent} from "./components/wizzard/3-room-selection/room-selection.component";
+import {BaseSelectionComponent} from "./components/wizzard/4-base-selection/base-selection.component";
+import {DragDropModule} from "primeng/dragdrop";
 
 @NgModule({
   declarations: [
@@ -58,7 +63,15 @@ import {ToggleButtonModule} from "primeng/togglebutton";
     RoomViewComponent,
     CourseViewComponent,
     UsersViewComponent,
-    WizardComponent
+    WizardComponent,
+    CourseSelectionComponent,
+    DetailSelectionComponent,
+    RoomSelectionComponent,
+    BaseSelectionComponent,
+    CourseSelectionComponent,
+    DetailSelectionComponent,
+    RoomSelectionComponent,
+    BaseSelectionComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -96,7 +109,8 @@ import {ToggleButtonModule} from "primeng/togglebutton";
     StepperModule,
     IconFieldModule,
     InputIconModule,
-    ToggleButtonModule
+    ToggleButtonModule,
+    DragDropModule
   ],
   providers: [ConfirmationService, MessageService],
   bootstrap: [AppComponent]

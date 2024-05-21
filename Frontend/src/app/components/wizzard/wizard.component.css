@@ -1,10 +1,11 @@
 .stepper-settings {
   width: 70%;
   position: absolute;
-  top: calc(4% + 5px); /* Adjust 10px to your preference */
-  display: block;
+  top: calc(5% + 5px);
+  left: 0;
+  right: 0;
   margin-left: auto;
-  margin-right: auto
+  margin-right: auto;
 }
 
 .p-stepper {
@@ -34,6 +35,30 @@
   justify-content: center;
 }
 
-.next-button {
-  background: #9EC252;
+.PrevButton {
+  position: absolute;
+  left: 0;
+  top: 6%;
 }
+
+.NextButton {
+  position: absolute;
+  right: 0;
+  top: 6%;
+}
+
+.Context {
+  position: fixed;
+
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+
+  width: 98%;
+  height: 95%;
+  background-color: #E2E1DF;
+  border-radius: 15px;
+}
+
+
