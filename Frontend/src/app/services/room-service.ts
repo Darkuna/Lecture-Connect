@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
-import {Observable, retry} from "rxjs";
+import {Observable} from "rxjs";
 import {Room} from "../../assets/Models/room";
 import {MessageService} from "primeng/api";
 
@@ -10,6 +10,7 @@ import {MessageService} from "primeng/api";
 })
 export class RoomService {
   roomsApiPath = "/proxy/api/rooms";
+  private obs: Observable<Room>[] = []
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -33,7 +34,7 @@ export class RoomService {
     this.http.post<Room>(this.roomsApiPath, room, this.httpOptions)
       .subscribe(newRoom => {
         room = newRoom;
-      });
+      }).unsubscribe();
     return room;
   }
 
@@ -45,8 +46,10 @@ export class RoomService {
   updateSingleRoom(room: Room): Room {
     let newUrl = `${this.roomsApiPath}/${room.id}`;
     this.http.put<Room>(newUrl, room, this.httpOptions)
-      .subscribe(data => {room = data
-        console.log(data)});
+      .subscribe(data => {
+        room = data
+        console.log(data)
+      }).unsubscribe();
     return room;
   }
 
@@ -56,6 +59,6 @@ export class RoomService {
       error: error => {
         this.messageService.add({severity: 'failure', summary: 'Failure', detail: error});
       }
-    })
+    }).unsubscribe();
   }
 }

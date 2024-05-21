@@ -26,15 +26,14 @@
   <p-table
     #dt
     [value]="rooms"
-    [rows]="10"
+    [rows]="rooms.length"
     [columns]="selectedHeaders"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     [showCurrentPageReport]="true"
     [rowsPerPageOptions]="[10, 25, 50]"
     [paginator]="true"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     [globalFilterFields]="['id']"
     [tableStyle]="{ 'min-width': '75rem'}"
-    scrollHeight="100%"
     [(selection)]="selectedRooms"
     [filterDelay]="0"
     [rowHover]="true"

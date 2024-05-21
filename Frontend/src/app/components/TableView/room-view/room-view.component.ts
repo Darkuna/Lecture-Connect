@@ -1,14 +1,15 @@
-import {ChangeDetectorRef, Component} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {RoomService} from "../../../services/room-service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-room-view',
   templateUrl: './room-view.component.html',
   styleUrl: '../tables.css'
 })
-export class RoomViewComponent {
+export class RoomViewComponent implements OnInit, OnDestroy {
   itemDialogVisible: boolean = false;
   singleRoom: Room;
   rooms: Room[];
@@ -16,14 +17,12 @@ export class RoomViewComponent {
   selectedHeaders: any;
   headers: any[];
 
+  private roomsSub?: Subscription;
   stateOptions: any[] = [
     {label: 'Yes', value: true},
     {label: 'No', value: false}
   ];
 
-  private mode = 'error';
-  private header = 'Failure';
-  private text = 'Element already in List';
   itemIsEdited = false;
 
   constructor(
@@ -40,8 +39,13 @@ export class RoomViewComponent {
   }
 
   ngOnInit(): void {
-    this.roomService.getAllRooms().subscribe(data => this.rooms = data);
+    this.roomsSub = this.roomService.getAllRooms().subscribe(data => this.rooms = data);
     this.cd.markForCheck();
+  }
+
+  ngOnDestroy() {
+    this.roomsSub?.unsubscribe();
+    this.cd.detach();
   }
 
   openNew() {
@@ -69,17 +73,17 @@ export class RoomViewComponent {
       this.singleRoom = new Room();
 
       this.hideDialog();
-      this.setToastMessage('success', 'Change', 'Element was updated');
+      this.messageService.add({severity: 'success', summary: 'Change', detail: 'Element was updated'});
     } else if (this.isInList(this.singleRoom)) {
-      this.setToastMessage('error', 'Failure', 'Element already in List');
+      this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
     } else {
       this.rooms.push(this.roomService.createSingleRoom(this.singleRoom));
       this.singleRoom = new Room();
 
       this.hideDialog();
-      this.setToastMessage('success', 'Upload', 'Element saved to DB');
+      this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
     }
-    this.messageService.add({severity: this.mode, summary: this.header, detail: this.text});
+    this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
   }
 
   deleteSingleItem(room: Room) {
@@ -104,12 +108,6 @@ export class RoomViewComponent {
         this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Rooms deleted permanently'});
       }
     });
-  }
-
-  setToastMessage(mode: string, message: string, text: string) {
-    this.mode = mode;
-    this.header = message;
-    this.text = text;
   }
 
   isInList(item: Room): boolean {

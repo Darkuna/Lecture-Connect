@@ -1,21 +1,24 @@
-import {ChangeDetectorRef, Component} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {ConfirmationService, MessageService} from "primeng/api";
 import {Course} from "../../../../assets/Models/course";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
 import {CourseService} from "../../../services/course-service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-course-view',
   templateUrl: './course-view.component.html',
   styleUrl: '../tables.css'
 })
-export class CourseViewComponent {
+export class CourseViewComponent implements OnInit, OnDestroy {
   itemDialogVisible: boolean = false;
   singleCourse: Course;
   courses: Course[];
   selectedCourses!: Course[];
   selectedHeaders: any;
   headers: any[];
+
+  private courseSub?: Subscription;
 
   stateOptions: any[] = [
     {label: 'Yes', value: true},
@@ -37,8 +40,13 @@ export class CourseViewComponent {
   }
 
   ngOnInit(): void {
-    this.courseService.getAllCourses().subscribe(data => this.courses = data)
+    this.courseSub = this.courseService.getAllCourses().subscribe(data => this.courses = data)
     this.cd.markForCheck();
+  }
+
+  ngOnDestroy() {
+    this.courseSub?.unsubscribe();
+    this.cd.detach();
   }
 
   openNew() {
@@ -57,7 +65,6 @@ export class CourseViewComponent {
 
   saveNewItem(): void {
     if (this.itemIsEdited) {
-      this.singleCourse.updateDate = new Date();
       this.courses[this.findIndexById(this.singleCourse.id)] =
         this.courseService.updateSingleCourse(this.singleCourse);
 

@@ -28,10 +28,14 @@
     [value]="courses"
     [rows]="courses.length"
     [columns]="selectedHeaders"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
     [paginator]="true"
     [globalFilterFields]="['id', 'lecturer', 'name']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedCourses"
+    [filterDelay]="0"
     [rowHover]="true"
     dataKey="id">
     <ng-template pTemplate="header">
@@ -76,7 +80,7 @@
   </p-table>
 </div>
 
-<p-dialog [(visible)]="itemDialogVisible" [style]="{ width: '60rem', height: '45rem' }"
+<p-dialog [(visible)]="itemDialogVisible"
           header="Lecture Creation" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content" class="parent">
     <div class="div-container">
@@ -108,7 +112,7 @@
     </div>
 
     <div class="rand">
-      <label for="duration">Duration in Hours</label>
+      <label for="duration">Duration in Minutes</label>
       <input type="number" pInputText id="duration" [(ngModel)]="singleCourse.duration" autofocus/>
     </div>
 
@@ -143,4 +147,3 @@
     <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveNewItem()"></button>
   </ng-template>
 </p-dialog>
-
