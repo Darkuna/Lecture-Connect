@@ -37,7 +37,7 @@ export class CourseService {
     return course;
   }
 
-  getSingleCourse(courseID: String): Observable<any> {
+  getSingleCourse(courseID: string): Observable<any> {
     let newUrl = `${this.courseApiPath}/${courseID}`;
     return this.http.get(newUrl, this.httpOptions);
   }
@@ -49,7 +49,7 @@ export class CourseService {
     return course;
   }
 
-  deleteSingleCourse(courseID: number) {
+  deleteSingleCourse(courseID: string) {
     let newUrl = `${this.courseApiPath}/${courseID}`;
     this.http.delete(newUrl, this.httpOptions).subscribe({
       error: error => {

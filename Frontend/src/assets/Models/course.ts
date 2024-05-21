@@ -3,7 +3,7 @@ import {Timing} from "./timing";
 import {CourseType} from "./enums/course-type";
 
 export class Course {
-  id!: number;
+  id!: string;
   courseType?: CourseType;
   name?: string;
   lecturer?: string;

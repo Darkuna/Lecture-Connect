@@ -121,7 +121,7 @@ export class CourseViewComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  findIndexById(id: number): number {
+  findIndexById(id: string): number {
     let index = -1;
     for (let i = 0; i < this.courses.length; i++) {
       if (this.courses[i].id === id) {
