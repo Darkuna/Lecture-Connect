@@ -1,5 +1,6 @@
 package com.example.demo.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
@@ -31,6 +32,7 @@ public class Userx implements Persistable<String>, Serializable, Comparable<User
     @Column(length = 100)
     private String username;
 
+    @JsonIgnore
     @ManyToOne(optional = false)
     private Userx createUser;
     @Column(nullable = false)
