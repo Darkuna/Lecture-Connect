@@ -1,6 +1,5 @@
 package com.example.demo.repositories;
 
-import com.example.demo.models.UserInfo;
 import com.example.demo.models.Userx;
 import com.example.demo.models.UserxRole;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,5 +1,6 @@
 package com.example.demo.models;
 
+import com.example.demo.models.base.TimestampedEntity;
 import com.example.demo.models.enums.CourseType;
 import jakarta.persistence.*;
 
@@ -15,7 +16,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
-public class Course implements Persistable<String>, Serializable {
+public class Course extends TimestampedEntity implements Persistable<String>, Serializable {
     @Id
     private String id;
     private CourseType courseType;

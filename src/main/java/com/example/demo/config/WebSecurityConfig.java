@@ -75,7 +75,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
         UserDetails user = User.withUsername("user")
-                .password(encoder().encode("userPass"))
+                .password(passwordEncoder().encode("userPass"))
                 .roles("USER")
                 .build();
         return new InMemoryUserDetailsManager(user);
@@ -98,11 +98,6 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-
-    @Bean
-    public PasswordEncoder encoder() {
-        return new BCryptPasswordEncoder();
     }
 }
 

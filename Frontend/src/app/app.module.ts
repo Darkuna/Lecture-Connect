@@ -86,7 +86,7 @@ import {CalendarModule} from "primeng/calendar";
         AvatarModule,
         CarouselModule,
         MenubarModule,
-        CalendarModule
+        CalendarModule,
     ],
   providers: [ConfirmationService, MessageService],
   bootstrap: [AppComponent]

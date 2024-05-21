@@ -174,7 +174,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "user", authorities = {"USER"})
+    @WithMockUser(username = "user1", authorities = {"USER"})
     public void testUnauthorizedLoadUsers() {
         Assertions.assertThrows(org.springframework.security.access.AccessDeniedException.class, () -> {
             for (Userx user : userService.getAllUsers()) {
