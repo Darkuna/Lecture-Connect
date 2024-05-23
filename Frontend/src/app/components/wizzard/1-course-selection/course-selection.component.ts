@@ -1,7 +1,7 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
-import {Subscription} from "rxjs";
+import {Observable, Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 
 @Component({
@@ -10,9 +10,8 @@ import {MessageService} from "primeng/api";
   styleUrl: '../wizard.component.css',
 })
 
-export class CourseSelectionComponent implements OnInit, OnDestroy {
-  availableCourses: Course[];
-
+export class CourseSelectionComponent {
+  availableCourses$: Observable<Course[]>;
   selectedCourses: Course[];
   tmpCourseSelection: Course[];
 
@@ -24,8 +23,9 @@ export class CourseSelectionComponent implements OnInit, OnDestroy {
     private courseService: CourseService,
     private messageService: MessageService,
   ) {
+    this.availableCourses$ = this.courseService.getAllCourses();
+
     this.selectedCourses = [];
-    this.availableCourses = [];
     this.tmpCourseSelection = [];
     this.headers = [
       {field: 'id', header: 'Id'},
@@ -34,16 +34,6 @@ export class CourseSelectionComponent implements OnInit, OnDestroy {
       {field: 'semester', header: 'Semester'}
     ];
 
-  }
-
-  ngOnInit() {
-    this.courseSub = this.courseService
-      .getAllCourses()
-      .subscribe(data => this.availableCourses = data)
-  }
-
-  ngOnDestroy() {
-    this.courseSub?.unsubscribe();
   }
 
   dragStart(item: Course) {

@@ -1,3 +1,9 @@
+<div id="buttonGrid">
+  <p-button icon="pi pi-info-circle" severity="info" id="div1" (onClick)="showDialog()"/>
+  <p-button icon="pi pi-save" label="Save" severity="success" id="div2"  [style]="{width: '6rem'}"/>
+  <p-button icon="pi pi-trash" label="Close" severity="danger" id="div3" [style]="{width: '6rem'}"/>
+</div>
+
 <p-stepper [linear]="true" [(activeStep)]="active" class="stepper-settings">
   <p-stepperPanel>
     <ng-template pTemplate="header" let-onClick="onClick" let-index="index">
@@ -91,3 +97,24 @@
     </ng-template>
   </p-stepperPanel>
 </p-stepper>
+
+<p-dialog
+  header="Info"
+  [modal]="true"
+  [(visible)]="dialog"
+  [style]="{ width: '35rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+  <h3>
+    {{InfoDialogOptions[active].header}}
+  </h3>
+  <p>
+    {{InfoDialogOptions[active].infoText}}
+  </p>
+  <hr>
+  <h3>
+    {{InfoDialogOptions[active].subTextHeader}}
+  </h3>
+  <p>
+    {{InfoDialogOptions[active].subText}}
+  </p>
+</p-dialog>

@@ -10,13 +10,14 @@
 
     <p-table class="tableOnTop"
              #dtL
-             [value]="availableCourses"
+             [value]="(availableCourses$ |async)!"
              [columns]="headers"
              [rows]="15"
              [paginator]="true"
              [rowsPerPageOptions]="[10, 15, 20]"
              [globalFilterFields]="['id', 'lecturer', 'name']"
              [rowHover]="true"
+             scrollHeight="flex"
              dataKey="id"
              responsiveLayout="scroll">
       <ng-template pTemplate="header">
