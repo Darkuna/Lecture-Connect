@@ -85,6 +85,11 @@
   margin-right: .5rem;
 }
 
+#add {
+  padding: .35rem;
+  margin-right: .5rem;
+}
+
 customSearchHeight {
   height: .5rem;
 }

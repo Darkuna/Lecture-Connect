@@ -71,6 +71,10 @@ export class CourseSelectionComponent {
     return index;
   }
 
+  addNewCourse() {
+
+  }
+
   deleteSingleItem(course: Course) {
     let draggedCourseIndex = this.findIndex(course, this.selectedCourses);
     this.selectedCourses = this.selectedCourses?.filter((val, i) => i != draggedCourseIndex);
