@@ -2,22 +2,31 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-course-selection',
   templateUrl: './course-selection.component.html',
-  styleUrl: '../wizard.component.css'
+  styleUrl: '../wizard.component.css',
 })
+
 export class CourseSelectionComponent implements OnInit, OnDestroy {
   availableCourses: Course[];
+
   selectedCourses: Course[];
+  tmpCourseSelection: Course[];
+
   draggedCourse: Course | undefined | null;
   private courseSub?: Subscription;
   headers: any[];
 
-  constructor(private courseService: CourseService) {
+  constructor(
+    private courseService: CourseService,
+    private messageService: MessageService,
+  ) {
     this.selectedCourses = [];
     this.availableCourses = [];
+    this.tmpCourseSelection = [];
     this.headers = [
       {field: 'id', header: 'Id'},
       {field: 'courseType', header: 'Type'},
@@ -28,7 +37,6 @@ export class CourseSelectionComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.selectedCourses = [];
     this.courseSub = this.courseService
       .getAllCourses()
       .subscribe(data => this.availableCourses = data)
@@ -47,10 +55,14 @@ export class CourseSelectionComponent implements OnInit, OnDestroy {
 
   drop() {
     if (this.draggedCourse) {
-      let draggedCourseIndex = this.findIndex(this.draggedCourse, this.availableCourses);
-      this.selectedCourses = [...(this.selectedCourses as Course[]), this.draggedCourse];
-      this.availableCourses = this.availableCourses?.filter((val, i) => i != draggedCourseIndex);
-      this.draggedCourse = null;
+      let idx = this.findIndex(this.draggedCourse, this.selectedCourses);
+
+      if (idx !== -1) {
+        this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
+      } else {
+        this.selectedCourses = [...(this.selectedCourses as Course[]), this.draggedCourse];
+        this.draggedCourse = null;
+      }
     }
   }
 
@@ -72,5 +84,11 @@ export class CourseSelectionComponent implements OnInit, OnDestroy {
   deleteSingleItem(course: Course) {
     let draggedCourseIndex = this.findIndex(course, this.selectedCourses);
     this.selectedCourses = this.selectedCourses?.filter((val, i) => i != draggedCourseIndex);
+  }
+
+  deleteMultipleItems() {
+    this.tmpCourseSelection.forEach(
+      c => this.deleteSingleItem(c)
+    );
   }
 }

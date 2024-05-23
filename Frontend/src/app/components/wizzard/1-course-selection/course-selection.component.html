@@ -1,10 +1,10 @@
 <div class="Context">
   <div class="col-left">
-    <div class="float-container">
+    <div style="overflow: hidden">
       <p class="float-item">All Courses</p>
       <span class="float-item">
             <input pInputText type="text" (input)="dtL.filterGlobal($any($event.target).value, 'contains')"
-                   placeholder="Search..."/>
+                   placeholder="Search..." class="customSearchHeight"/>
         </span>
     </div>
 
@@ -14,6 +14,7 @@
              [columns]="headers"
              [rows]="15"
              [paginator]="true"
+             [rowsPerPageOptions]="[10, 15, 20]"
              [globalFilterFields]="['id', 'lecturer', 'name']"
              [rowHover]="true"
              dataKey="id"
@@ -52,24 +53,32 @@
        (onDrop)="drop()"
        responsiveLayout="scroll">
 
-    <div class="float-container">
+    <div style="overflow: hidden">
       <p class="float-item">Selected Courses</p>
       <span class="float-item">
+              <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
+                      [disabled]="!tmpCourseSelection || !tmpCourseSelection.length"></button>
+
             <input pInputText type="text" (input)="dtR.filterGlobal($any($event.target).value, 'contains')"
-                   placeholder="Search..."/>
+                   placeholder="Search..." class="customSearchHeight"/>
         </span>
     </div>
     <p-table class="tableOnTop"
              #dtR
              [value]="selectedCourses"
+             [(selection)]="tmpCourseSelection"
              [columns]="headers"
-             [rows]="20"
+             [rows]="15"
              [paginator]="true"
+             [rowsPerPageOptions]="[10, 15, 20]"
              [globalFilterFields]="['id', 'lecturer', 'name']"
              [rowHover]="true"
              dataKey="id">
       <ng-template pTemplate="header">
         <tr>
+          <th>
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
           <th class="flex-header"
               *ngFor="let col of headers" [pSortableColumn]="col.field"
               pResizableColumn pReorderableColumn>
@@ -87,6 +96,9 @@
       </ng-template>
       <ng-template pTemplate="body" let-c>
         <tr>
+          <td>
+            <p-tableCheckbox [value]="c"></p-tableCheckbox>
+          </td>
           <td *ngFor="let col of headers">
             <ng-container>
               {{ c[col.field] }}

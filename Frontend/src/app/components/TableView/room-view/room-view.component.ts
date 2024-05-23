@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {RoomService} from "../../../services/room-service";
@@ -7,7 +7,8 @@ import {Subscription} from "rxjs";
 @Component({
   selector: 'app-room-view',
   templateUrl: './room-view.component.html',
-  styleUrl: '../tables.css'
+  styleUrl: '../tables.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RoomViewComponent implements OnInit, OnDestroy {
   itemDialogVisible: boolean = false;
@@ -70,7 +71,6 @@ export class RoomViewComponent implements OnInit, OnDestroy {
         this.roomService.updateSingleRoom(this.singleRoom);
 
       this.itemIsEdited = false;
-      this.singleRoom = new Room();
 
       this.hideDialog();
       this.messageService.add({severity: 'success', summary: 'Change', detail: 'Element was updated'});
@@ -78,12 +78,11 @@ export class RoomViewComponent implements OnInit, OnDestroy {
       this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
     } else {
       this.rooms.push(this.roomService.createSingleRoom(this.singleRoom));
-      this.singleRoom = new Room();
 
       this.hideDialog();
       this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
     }
-    this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
+    this.singleRoom = new Room();
   }
 
   deleteSingleItem(room: Room) {

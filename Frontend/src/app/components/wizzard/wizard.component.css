@@ -62,18 +62,11 @@
 }
 
 .col-left {
-  display: inline-block;
+  display: inline-table;
+  align-content: center;
   width: 50%;
   height: 100%;
   padding: .5rem;
-}
-
-.tableOnTop {
-
-}
-
-.float-container {
-  overflow: hidden; /* Clear floats within the container */
 }
 
 .float-item {
@@ -83,4 +76,15 @@
 
 .float-item:last-child {
   float: right; /* Float the last item to the right */
+}
+
+#del {
+  background-color: #AD5353;
+  border-color: #AD5353;
+  padding: .35rem;
+  margin-right: .5rem;
+}
+
+customSearchHeight {
+  height: .5rem;
 }

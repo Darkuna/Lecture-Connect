@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {ConfirmationService, MessageService} from "primeng/api";
 import {Course} from "../../../../assets/Models/course";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
@@ -8,7 +8,8 @@ import {Subscription} from "rxjs";
 @Component({
   selector: 'app-course-view',
   templateUrl: './course-view.component.html',
-  styleUrl: '../tables.css'
+  styleUrl: '../tables.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CourseViewComponent implements OnInit, OnDestroy {
   itemDialogVisible: boolean = false;
@@ -69,7 +70,6 @@ export class CourseViewComponent implements OnInit, OnDestroy {
         this.courseService.updateSingleCourse(this.singleCourse);
 
       this.itemIsEdited = false;
-      this.singleCourse = new Course();
 
       this.hideDialog();
       this.messageService.add({severity: 'success', summary: 'Change', detail: 'Element was updated'});
@@ -78,11 +78,11 @@ export class CourseViewComponent implements OnInit, OnDestroy {
     } else {
       this.singleCourse.timingConstraints = [];
       this.courses.push(this.courseService.createSingleCourse(this.singleCourse));
-      this.singleCourse = new Course();
 
       this.hideDialog();
       this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
     }
+    this.singleCourse = new Course();
   }
 
   deleteSingleItem(course: Course) {
