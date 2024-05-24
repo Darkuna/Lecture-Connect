@@ -46,4 +46,18 @@ public class CourseSession implements Persistable<Long>, Serializable {
     public boolean isBlocked() {
         return this == BLOCKED;
     }
+
+
+    /*
+    This toString() method was used for test data creation
+    public String toString(){
+        String string = String.format("INSERT INTO COURSE_SESSION(ID, DURATION, IS_ASSIGNED, IS_FIXED, COURSE_ID, ROOM_TABLE_ID, TIME_TABLE_ID, TIMING_ID) VALUES (%d, %d, FALSE, FALSE, '%s', NULL, -2, NULL)",counter, duration, course.getId());
+        counter--;
+        return string;
+    }
+
+    Also add the following attribute to the class to make it work:
+
+    private static int counter = -11;
+     */
 }

@@ -195,4 +195,20 @@ public class CourseSessionService {
         dto.setTiming(timingService.toDTO(courseSession.getTiming()));
         return dto;
     }
+
+    /**
+     * Converts a CourseDTO object into a Course object
+     *
+     * @param dto to be converted
+     * @return CourseSession object
+     */
+    public CourseSession fromDTO(CourseSessionDTO dto) {
+        CourseSession courseSession = new CourseSession();
+        courseSession.setId(dto.getId());
+        courseSession.setAssigned(dto.isAssigned());
+        courseSession.setFixed(dto.isFixed());
+        courseSession.setDuration(dto.getDuration());
+        courseSession.setTiming(timingService.fromDTO(dto.getTiming()));
+        return courseSession;
+    }
 }
