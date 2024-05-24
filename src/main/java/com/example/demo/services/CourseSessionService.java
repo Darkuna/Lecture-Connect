@@ -196,6 +196,12 @@ public class CourseSessionService {
         return dto;
     }
 
+    /**
+     * Converts a CourseDTO object into a Course object
+     *
+     * @param dto to be converted
+     * @return CourseSession object
+     */
     public CourseSession fromDTO(CourseSessionDTO dto) {
         CourseSession courseSession = new CourseSession();
         courseSession.setId(dto.getId());

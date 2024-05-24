@@ -168,6 +168,12 @@ public class TimeTableService {
         //TODO: This is the place where our ALGORITHM will be executed
     }
 
+    /**
+     * Converts a TimeTable object into a TimeTableDTO object
+     *
+     * @param timeTable to be converted
+     * @return TimeTableDTO object
+     */
     public TimeTableDTO toDTO(TimeTable timeTable){
         TimeTableDTO dto = new TimeTableDTO();
         dto.setId(timeTable.getId());
@@ -187,6 +193,12 @@ public class TimeTableService {
         return dto;
     }
 
+    /**
+     * Converts a TimeTableDTO object into a TimeTable object
+     *
+     * @param dto to be converted
+     * @return TimeTable object
+     */
     public TimeTable fromDTO(TimeTableDTO dto) {
         TimeTable timeTable = new TimeTable();
         timeTable.setId(dto.getId());
