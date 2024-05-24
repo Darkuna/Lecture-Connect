@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.RoomTableDTO;
 import com.example.demo.models.*;
 import com.example.demo.repositories.RoomTableRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -120,5 +121,18 @@ public class RoomTableService {
      */
     private AvailabilityMatrix initializeAvailabilityMatrix(List<Timing> timingConstraints){
         return new AvailabilityMatrix(Objects.requireNonNullElseGet(timingConstraints, List::of));
+    }
+
+    public RoomTableDTO toDTO(RoomTable roomTable) {
+        RoomTableDTO dto = new RoomTableDTO();
+        dto.setId(roomTable.getId());
+        dto.setRoomId(roomTable.getRoom().getId());
+        return dto;
+    }
+
+    public RoomTable fromDTO(RoomTableDTO dto) {
+        RoomTable roomTable = new RoomTable();
+        roomTable.setId(dto.getId());
+        return roomTable;
     }
 }

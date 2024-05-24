@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.TimeTableNameDTO;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.services.CourseService;
@@ -80,6 +81,13 @@ public class TimeTableServiceTest {
         List<TimeTable> timeTables = timeTableService.loadAllTimeTables();
 
         assertEquals(1, timeTables.size());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadTimeTableNames(){
+        List<TimeTableNameDTO> timeTableNames = timeTableService.loadTimeTableNames();
+        assertEquals(1, timeTableNames.size());
     }
 
     @Test

@@ -9,9 +9,7 @@ import java.util.List;
 @Setter
 public class RoomTableDTO {
     private Long id;
-    private Long roomId;
-    private Long timeTableId;
-    private List<Long> assignedCourseSessionIds;
-    private List<TimingDTO> timingConstraintIds;
+    private String roomId;
+    private List<CourseSessionDTO> assignedCourseSessions;
 }
 

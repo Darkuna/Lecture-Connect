@@ -13,8 +13,8 @@ public class TimeTableDTO {
     private Long id;
     private String semester;
     private int year;
-    private List<Long> roomTableIds;
-    private List<Long> courseSessionIds;
+    private List<RoomTableDTO> roomTables;
+    private List<CourseSessionDTO> courseSessions;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")

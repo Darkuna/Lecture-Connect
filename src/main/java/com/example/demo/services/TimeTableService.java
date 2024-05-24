@@ -1,5 +1,7 @@
 package com.example.demo.services;
 
+import com.example.demo.dto.TimeTableDTO;
+import com.example.demo.dto.TimeTableNameDTO;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.repositories.TimeTableRepository;
@@ -11,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing timetables.
@@ -149,6 +152,11 @@ public class TimeTableService {
         timeTableRepository.delete(timeTable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<TimeTableNameDTO> loadTimeTableNames(){
+        return timeTableRepository.findAllTimeTableDTOs();
+    }
+
     /**
      * Assigns all course sessions that are not assigned yet to room tables within a timetable.
      * This is the place where the algorithm for scheduling course sessions into room tables will be executed.
@@ -160,5 +168,41 @@ public class TimeTableService {
         //TODO: This is the place where our ALGORITHM will be executed
     }
 
+    public TimeTableDTO toDTO(TimeTable timeTable){
+        TimeTableDTO dto = new TimeTableDTO();
+        dto.setId(timeTable.getId());
+        dto.setSemester(timeTable.getSemester().toString());
+        dto.setYear(timeTable.getYear());
+        dto.setCreatedAt(timeTable.getCreatedAt());
+        dto.setUpdatedAt(timeTable.getUpdatedAt());
 
+        dto.setRoomTables(timeTable.getRoomTables().stream()
+                .map(roomTableService::toDTO)
+                .collect(Collectors.toList()));
+
+        dto.setCourseSessions(timeTable.getCourseSessions().stream()
+                .map(courseSessionService::toDTO)
+                .collect(Collectors.toList()));
+
+        return dto;
+    }
+
+    public TimeTable fromDTO(TimeTableDTO dto) {
+        TimeTable timeTable = new TimeTable();
+        timeTable.setId(dto.getId());
+        timeTable.setSemester(Semester.valueOf(dto.getSemester()));
+        timeTable.setYear(dto.getYear());
+        timeTable.setCreatedAt(dto.getCreatedAt());
+        timeTable.setUpdatedAt(dto.getUpdatedAt());
+
+        timeTable.setRoomTables(dto.getRoomTables().stream()
+                .map(roomTableService::fromDTO)
+                .collect(Collectors.toList()));
+
+        timeTable.setCourseSessions(dto.getCourseSessions().stream()
+                .map(courseSessionService::fromDTO)
+                .collect(Collectors.toList()));
+
+        return timeTable;
+    }
 }
