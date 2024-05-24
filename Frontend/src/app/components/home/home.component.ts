@@ -9,7 +9,7 @@ import {createEventId, INITIAL_EVENTS} from "./event-utils";
 import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {tableStatus} from "../../../assets/Models/enums/table-status";
-import {DropdownFilterOptions} from "primeng/dropdown";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-home',
@@ -25,7 +25,10 @@ export class HomeComponent implements OnInit {
   selectedTable!: TimeTable;
   showNewTableDialog = false;
 
-  constructor(private cd: ChangeDetectorRef) {
+  constructor(
+    private cd: ChangeDetectorRef,
+    private router: Router,
+  ) {
     this.availableTables = []
   }
 
@@ -42,6 +45,8 @@ export class HomeComponent implements OnInit {
     this.timeTable.status = tableStatus.NEW;
     this.availableTables.push(this.timeTable);
     this.hideTableDialog();
+
+    this.router.navigate(['/wizard']);
   }
 
   editTable() {
@@ -135,12 +140,6 @@ export class HomeComponent implements OnInit {
   handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
     this.cd.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
-  }
-
-  customFilterFunction(event: KeyboardEvent, options: DropdownFilterOptions) {
-    if (options.filter) {
-      options.filter(event);
-    }
   }
 
   ngOnInit() {

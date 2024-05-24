@@ -6,10 +6,8 @@
 
 <p-stepper [linear]="true" [(activeStep)]="active" class="stepper-settings">
   <p-stepperPanel>
-    <ng-template pTemplate="header" let-onClick="onClick" let-index="index">
-      <div (click)="onClick.emit()" class="box" [ngClass]="{
-           'bg-primary border-primary': index <= active,
-           'surface-border': index > active }">
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
         <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
           <i class="pi pi-briefcase" style="font-size: 1.5rem;"></i>
         </div>
@@ -30,10 +28,8 @@
   </p-stepperPanel>
 
   <p-stepperPanel>
-    <ng-template pTemplate="header" let-onClick="onClick" let-index="index">
-      <div (click)="onClick.emit()" class="box" [ngClass]="{
-           'bg-primary border-primary': index <= active,
-           'surface-border': index > active }">
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
         <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
           <i class="pi pi-sitemap" style="font-size: 1.5rem;"></i>
         </div>
@@ -53,10 +49,8 @@
   </p-stepperPanel>
 
   <p-stepperPanel>
-    <ng-template pTemplate="header" let-onClick="onClick" let-index="index">
-      <div (click)="onClick.emit()" class="box" [ngClass]="{
-           'bg-primary border-primary': index <= active,
-           'surface-border': index > active }">
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box" >
         <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
           <i class="pi pi-building" style="font-size: 1.5rem;"></i>
         </div>
@@ -76,10 +70,8 @@
   </p-stepperPanel>
 
   <p-stepperPanel>
-    <ng-template pTemplate="header" let-onClick="onClick" let-index="index">
-      <div (click)="onClick.emit()" class="box" [ngClass]="{
-           'bg-primary border-primary': index <= active,
-           'surface-border': index > active }">
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
         <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
           <i class="pi pi-table" style="font-size: 1.5rem;"></i>
         </div>

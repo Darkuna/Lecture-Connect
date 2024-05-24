@@ -81,23 +81,31 @@
 #del {
   background-color: #AD5353;
   border-color: #AD5353;
+
+  height: 2.4rem;
   padding: .35rem;
   margin-right: .5rem;
 }
 
 #add {
+  background-color: var(--system-color-primary-blue);
+  border-color: var(--system-color-primary-blue);
+
+  height: 2.4rem;
   padding: .35rem;
   margin-right: .5rem;
 }
 
-customSearchHeight {
-  height: .5rem;
+.customSearchHeight {
+  height: 2.5rem;
+  padding-bottom: .2rem;
 }
 
 #buttonGrid {
   position: absolute;
   top: calc(7% + 5px);
   left: 90%;
+  padding-right: 4rem;
   place-items: center;
 
   display: grid;

@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
-import {Observable, Subscription} from "rxjs";
+import {Observable, tap} from "rxjs";
 import {MessageService} from "primeng/api";
 
 @Component({
@@ -11,12 +11,12 @@ import {MessageService} from "primeng/api";
 })
 
 export class CourseSelectionComponent {
+  CreateDialogVisible: boolean = false;
   availableCourses$: Observable<Course[]>;
   selectedCourses: Course[];
   tmpCourseSelection: Course[];
 
   draggedCourse: Course | undefined | null;
-  private courseSub?: Subscription;
   headers: any[];
 
   constructor(
@@ -36,6 +36,31 @@ export class CourseSelectionComponent {
 
   }
 
+  showCreateDialog():void{
+    this.CreateDialogVisible = true;
+    this.draggedCourse = new Course();
+  }
+
+  hideDialog() {
+    this.CreateDialogVisible = false;
+  }
+
+  saveNewItem(): void {
+    if(this.draggedCourse){
+      this.draggedCourse.timingConstraints = [];
+
+      this.availableCourses$.pipe(tap(courseList => {
+        courseList.push(this.courseService.createSingleCourse(this.draggedCourse!))
+      }));
+
+      this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
+      this.draggedCourse = null;
+      this.hideDialog();
+    }
+
+
+  }
+
   dragStart(item: Course) {
     this.draggedCourse = item;
   }
@@ -50,7 +75,7 @@ export class CourseSelectionComponent {
       if (idx !== -1) {
         this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
       } else {
-        this.selectedCourses = [...(this.selectedCourses as Course[]), this.draggedCourse];
+        this.selectedCourses = [...(this.selectedCourses), this.draggedCourse];
         this.draggedCourse = null;
       }
     }
@@ -60,10 +85,10 @@ export class CourseSelectionComponent {
     this.draggedCourse = null;
   }
 
-  findIndex(product: Course, list: Course[]) {
+  findIndex(product: Course, list: Course[]): number {
     let index = -1;
-    for (let i = 0; i < (list as Course[]).length; i++) {
-      if (product.id === (list as Course[])[i].id) {
+    for (let i = 0; i < (list).length; i++) {
+      if (product.id === (list)[i].id) {
         index = i;
         break;
       }

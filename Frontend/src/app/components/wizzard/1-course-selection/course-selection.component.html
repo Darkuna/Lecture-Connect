@@ -3,15 +3,15 @@
     <div style="overflow: hidden">
       <p class="float-item">All Courses</p>
       <span class="float-item">
-              <p-button pButton pRipple label="Create" id="add" class="customButton" (click)="addNewCourse()"
-                        [disabled]="!tmpCourseSelection || !tmpCourseSelection.length"></p-button>
-            <input pInputText type="text" (input)="dtL.filterGlobal($any($event.target).value, 'contains')"
+        <button pButton pRipple label="Create" id="add" class="customButton"
+                      (click)="showCreateDialog()"></button>
+        <input pInputText type="text" (input)="dtL.filterGlobal($any($event.target).value, 'contains')"
                    placeholder="Search..." class="customSearchHeight"/>
         </span>
     </div>
 
     <p-table class="tableOnTop"
-             #dtL
+             #dtL dataKey="id"
              [value]="(availableCourses$ |async)!"
              [columns]="headers"
              [rows]="15"
@@ -19,12 +19,10 @@
              [rowsPerPageOptions]="[10, 15, 20]"
              [globalFilterFields]="['id', 'lecturer', 'name']"
              [rowHover]="true"
-             scrollHeight="flex"
-             dataKey="id"
-             responsiveLayout="scroll">
+             [scrollable]="true" scrollHeight="535px">
       <ng-template pTemplate="header">
         <tr>
-          <th class="flex-header"
+          <th id="header" class="flex-header"
               *ngFor="let col of headers" [pSortableColumn]="col.field"
               pResizableColumn pReorderableColumn>
           <span>
@@ -54,20 +52,19 @@
   <div class="col-left"
        pDroppable="products"
        (onDrop)="drop()"
-       responsiveLayout="scroll">
-
+       >
     <div style="overflow: hidden">
       <p class="float-item">Selected Courses</p>
       <span class="float-item">
-              <p-button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
-                        [disabled]="!tmpCourseSelection || !tmpCourseSelection.length"></p-button>
+              <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
+                        [disabled]="!tmpCourseSelection || !tmpCourseSelection.length"></button>
 
             <input pInputText type="text" (input)="dtR.filterGlobal($any($event.target).value, 'contains')"
                    placeholder="Search..." class="customSearchHeight"/>
         </span>
     </div>
     <p-table class="tableOnTop"
-             #dtR
+             #dtR dataKey="id"
              [value]="selectedCourses"
              [(selection)]="tmpCourseSelection"
              [columns]="headers"
@@ -76,13 +73,13 @@
              [rowsPerPageOptions]="[10, 15, 20]"
              [globalFilterFields]="['id', 'lecturer', 'name']"
              [rowHover]="true"
-             dataKey="id">
+             [scrollable]="true" scrollHeight="535px">
       <ng-template pTemplate="header">
         <tr>
-          <th>
+          <th id="checkbox">
             <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
           </th>
-          <th class="flex-header"
+          <th id="headers" class="flex-header"
               *ngFor="let col of headers" [pSortableColumn]="col.field"
               pResizableColumn pReorderableColumn>
           <span>
@@ -92,7 +89,7 @@
             <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
                             [field]="col.field"></p-columnFilter>
           </th>
-          <th>
+          <th id="RemoveColumn">
             Remove
           </th>
         </tr>
@@ -117,3 +114,71 @@
     </p-table>
   </div>
 </div>
+
+<p-dialog [(visible)]="CreateDialogVisible" [style]="{width: '1000px', height:'650px'}"
+          header="Lecture Creation" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content" class="parent">
+    <div class="div-container">
+
+      <div class="rand" style="width: 15%">
+        <label for="type">Type</label>
+        <p-dropdown id="type" [options]="getRoleOptions()" [(ngModel)]="draggedCourse?.courseType"
+                    placeholder="select a Type"/>
+      </div>
+
+      <div class="rand" style="width: 35%">
+        <label for="id">Course ID</label>
+        <input type="text" pInputText id="id" required autofocus [(ngModel)]="draggedCourse?.id"/>
+        <small class="p-error" *ngIf="!draggedCourse?.id">ID is required.</small>
+      </div>
+
+      <div class="rand" style="width: 50%">
+        <label for="name">Name</label>
+        <input type="text" pInputText id="name" required autofocus
+               [(ngModel)]="draggedCourse?.name"/>
+        <small class="p-error" *ngIf="!draggedCourse?.name">Name is required </small>
+      </div>
+    </div>
+
+    <div class="rand">
+      <label for="lecturer">Lecturer</label>
+      <input type="text" pInputText id="lecturer" [(ngModel)]="draggedCourse?.lecturer" autofocus/>
+    </div>
+
+    <div class="rand">
+      <label for="duration">Duration in Minutes</label>
+      <input type="number" pInputText id="duration" [(ngModel)]="draggedCourse?.duration" autofocus/>
+    </div>
+
+    <div class="rand">
+      <label for="allowed">Allowed number of participants</label>
+      <input type="number" pInputText id="allowed" [(ngModel)]="draggedCourse?.numberOfParticipants" autofocus/>
+    </div>
+
+    <div class="div-container">
+      <div class="rand">
+        <label for="op2">computers needed?</label>
+        <p-selectButton id="op2" [options]="stateOptions" [(ngModel)]="draggedCourse?.computersNecessary"
+                        optionLabel="label" optionValue="value"></p-selectButton>
+      </div>
+
+      <div class="rand">
+        <label for="op3">Course split?</label>
+        <p-selectButton id="op3" optionLabel="label" optionValue="value"
+                        [options]="stateOptions" [(ngModel)]="draggedCourse?.isSplit"/>
+      </div>
+    </div>
+
+
+    <div class="rand">
+      <label for="times">Number of splits</label>
+      <input type="number" pInputText id="times" autofocus
+             [(ngModel)]="draggedCourse?.splitTimes" [disabled]="!draggedCourse?.isSplit"/>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+            (click)="saveNewItem()" [disabled]="!singleCourse.id && !singleCourse.name"></button>
+  </ng-template>
+</p-dialog>
