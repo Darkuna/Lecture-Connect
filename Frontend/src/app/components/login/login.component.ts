@@ -1,16 +1,19 @@
 import {HttpClient} from '@angular/common/http';
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
 import {LocalStorageService} from "ngx-webstorage";
 import * as jwt_decode from 'jwt-decode';
 import {MessageService} from "primeng/api";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
+  private loginSub: Subscription | null = null;
+
   loginObj: any = {
     name: "",
     password: ""
@@ -25,7 +28,7 @@ export class LoginComponent {
   }
 
   login() {
-    this.http.post('/proxy/auth/login', this.loginObj)
+    this.loginSub = this.http.post('/proxy/auth/login', this.loginObj)
       .subscribe({
         next: (token: any) => {
           if (token && token['token']) {
@@ -52,7 +55,13 @@ export class LoginComponent {
             detail: 'Server error or network issue!'
           });
         }
-      }).unsubscribe();
+      });
+  }
+
+  ngOnDestroy(): void {
+    if (!this.loginSub?.closed) {
+      this.loginSub?.unsubscribe();
+    }
   }
 
 }

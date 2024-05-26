@@ -4,9 +4,9 @@
       <p class="float-item">All Courses</p>
       <span class="float-item">
         <button pButton pRipple label="Create" id="add" class="customButton"
-                      (click)="showCreateDialog()"></button>
+                (click)="showCreateDialog()"></button>
         <input pInputText type="text" (input)="dtL.filterGlobal($any($event.target).value, 'contains')"
-                   placeholder="Search..." class="customSearchHeight"/>
+               placeholder="Search..." class="customSearchHeight"/>
         </span>
     </div>
 
@@ -52,12 +52,12 @@
   <div class="col-left"
        pDroppable="products"
        (onDrop)="drop()"
-       >
+  >
     <div style="overflow: hidden">
       <p class="float-item">Selected Courses</p>
       <span class="float-item">
               <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
-                        [disabled]="!tmpCourseSelection || !tmpCourseSelection.length"></button>
+                      [disabled]="!tmpCourseSelection || !tmpCourseSelection.length"></button>
 
             <input pInputText type="text" (input)="dtR.filterGlobal($any($event.target).value, 'contains')"
                    placeholder="Search..." class="customSearchHeight"/>
@@ -122,50 +122,49 @@
 
       <div class="rand" style="width: 15%">
         <label for="type">Type</label>
-        <p-dropdown id="type" [options]="getRoleOptions()" [(ngModel)]="draggedCourse?.courseType"
+        <p-dropdown id="type" [options]="getRoleOptions()" [(ngModel)]="draggedCourse!.courseType"
                     placeholder="select a Type"/>
       </div>
-
       <div class="rand" style="width: 35%">
         <label for="id">Course ID</label>
-        <input type="text" pInputText id="id" required autofocus [(ngModel)]="draggedCourse?.id"/>
+        <input type="text" pInputText id="id" required autofocus [(ngModel)]="draggedCourse!.id"/>
         <small class="p-error" *ngIf="!draggedCourse?.id">ID is required.</small>
       </div>
 
       <div class="rand" style="width: 50%">
         <label for="name">Name</label>
         <input type="text" pInputText id="name" required autofocus
-               [(ngModel)]="draggedCourse?.name"/>
+               [(ngModel)]="draggedCourse!.name"/>
         <small class="p-error" *ngIf="!draggedCourse?.name">Name is required </small>
       </div>
     </div>
 
     <div class="rand">
       <label for="lecturer">Lecturer</label>
-      <input type="text" pInputText id="lecturer" [(ngModel)]="draggedCourse?.lecturer" autofocus/>
+      <input type="text" pInputText id="lecturer" [(ngModel)]="draggedCourse!.lecturer" autofocus/>
     </div>
 
     <div class="rand">
       <label for="duration">Duration in Minutes</label>
-      <input type="number" pInputText id="duration" [(ngModel)]="draggedCourse?.duration" autofocus/>
+      <input type="number" pInputText id="duration" [(ngModel)]="draggedCourse!.duration" autofocus/>
     </div>
 
     <div class="rand">
       <label for="allowed">Allowed number of participants</label>
-      <input type="number" pInputText id="allowed" [(ngModel)]="draggedCourse?.numberOfParticipants" autofocus/>
+      <input type="number" pInputText id="allowed" [(ngModel)]="draggedCourse!.numberOfParticipants" autofocus/>
     </div>
 
     <div class="div-container">
       <div class="rand">
         <label for="op2">computers needed?</label>
-        <p-selectButton id="op2" [options]="stateOptions" [(ngModel)]="draggedCourse?.computersNecessary"
+        <p-selectButton id="op2" [options]="stateOptions" [(ngModel)]="draggedCourse!.computersNecessary"
                         optionLabel="label" optionValue="value"></p-selectButton>
       </div>
 
       <div class="rand">
         <label for="op3">Course split?</label>
         <p-selectButton id="op3" optionLabel="label" optionValue="value"
-                        [options]="stateOptions" [(ngModel)]="draggedCourse?.isSplit"/>
+                        [(ngModel)]="draggedCourse!.isSplit" [options]="stateOptions"/>
       </div>
     </div>
 
@@ -173,12 +172,12 @@
     <div class="rand">
       <label for="times">Number of splits</label>
       <input type="number" pInputText id="times" autofocus
-             [(ngModel)]="draggedCourse?.splitTimes" [disabled]="!draggedCourse?.isSplit"/>
+             [(ngModel)]="draggedCourse!.splitTimes" [disabled]="!draggedCourse?.isSplit"/>
     </div>
   </ng-template>
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
     <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
-            (click)="saveNewItem()" [disabled]="!singleCourse.id && !singleCourse.name"></button>
+            (click)="saveNewItem()" [disabled]="!draggedCourse?.id && !draggedCourse?.name"></button>
   </ng-template>
 </p-dialog>

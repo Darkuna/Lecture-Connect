@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {RoomService} from "../../../services/room-service";
@@ -8,12 +8,11 @@ import {Subscription} from "rxjs";
   selector: 'app-room-view',
   templateUrl: './room-view.component.html',
   styleUrl: '../tables.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RoomViewComponent implements OnInit, OnDestroy {
   itemDialogVisible: boolean = false;
   singleRoom: Room;
-  rooms: Room[];
+  rooms!: Room[];
   selectedRooms!: Room[];
   selectedHeaders: any;
   headers: any[];
@@ -32,7 +31,6 @@ export class RoomViewComponent implements OnInit, OnDestroy {
     private confirmationService: ConfirmationService,
     private roomService: RoomService,
   ) {
-    this.rooms = [];
     this.singleRoom = new Room();
 
     this.headers = this.singleRoom.getTableColumns();
@@ -40,7 +38,8 @@ export class RoomViewComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.roomsSub = this.roomService.getAllRooms().subscribe(data => this.rooms = data);
+    this.roomsSub = this.roomService.getAllRooms()
+      .subscribe(data => this.rooms = [...data]);
     this.cd.markForCheck();
   }
 

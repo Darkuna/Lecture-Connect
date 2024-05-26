@@ -1,8 +1,9 @@
 import {Component} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
-import {Observable, tap} from "rxjs";
+import {Observable} from "rxjs";
 import {MessageService} from "primeng/api";
+import {CourseType} from "../../../../assets/Models/enums/course-type";
 
 @Component({
   selector: 'app-course-selection',
@@ -18,6 +19,11 @@ export class CourseSelectionComponent {
 
   draggedCourse: Course | undefined | null;
   headers: any[];
+
+  stateOptions: any[] = [
+    {label: 'Yes', value: true},
+    {label: 'No', value: false}
+  ];
 
   constructor(
     private courseService: CourseService,
@@ -36,7 +42,7 @@ export class CourseSelectionComponent {
 
   }
 
-  showCreateDialog():void{
+  showCreateDialog(): void {
     this.CreateDialogVisible = true;
     this.draggedCourse = new Course();
   }
@@ -46,12 +52,14 @@ export class CourseSelectionComponent {
   }
 
   saveNewItem(): void {
-    if(this.draggedCourse){
+    if (this.draggedCourse) {
       this.draggedCourse.timingConstraints = [];
 
-      this.availableCourses$.pipe(tap(courseList => {
-        courseList.push(this.courseService.createSingleCourse(this.draggedCourse!))
-      }));
+
+      this.availableCourses$.subscribe(data => {
+          data.push(this.courseService.createSingleCourse(this.draggedCourse!));
+        }
+      ).unsubscribe();
 
       this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
       this.draggedCourse = null;
@@ -96,10 +104,6 @@ export class CourseSelectionComponent {
     return index;
   }
 
-  addNewCourse() {
-
-  }
-
   deleteSingleItem(course: Course) {
     let draggedCourseIndex = this.findIndex(course, this.selectedCourses);
     this.selectedCourses = this.selectedCourses?.filter((val, i) => i != draggedCourseIndex);
@@ -110,4 +114,10 @@ export class CourseSelectionComponent {
       c => this.deleteSingleItem(c)
     );
   }
+
+  getRoleOptions() {
+    return Object.keys(CourseType).filter(k => isNaN(Number(k)));
+  }
+
+
 }

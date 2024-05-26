@@ -130,3 +130,17 @@
   grid-area: 2/2/3/3;
   width: 6rem;
 }
+
+.parent {
+  display: flex;
+  flex-direction: column;
+}
+
+.div-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.rand {
+  margin: .4rem .4rem .4rem .4rem;
+}
