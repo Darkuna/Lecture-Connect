@@ -1,9 +1,11 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
 import {Observable} from "rxjs";
 import {MessageService} from "primeng/api";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
+import {TimeTable} from "../../../../assets/Models/time-table";
+import {tableStatus} from "../../../../assets/Models/enums/table-status";
 
 @Component({
   selector: 'app-course-selection',
@@ -16,6 +18,7 @@ export class CourseSelectionComponent {
   availableCourses$: Observable<Course[]>;
   selectedCourses: Course[];
   tmpCourseSelection: Course[];
+  @Input() globalTable!: TimeTable;
 
   draggedCourse: Course | undefined | null;
   headers: any[];
@@ -91,6 +94,7 @@ export class CourseSelectionComponent {
 
   dragEnd() {
     this.draggedCourse = null;
+    this.globalTable.status = tableStatus.EDITED;
   }
 
   findIndex(product: Course, list: Course[]): number {

@@ -1,7 +1,14 @@
+<div id="infoGrid">
+  <td>
+    <p-tag id="status" [value]="selectedTable.status" [severity]="selectedTable.status"/>
+    <p id="div1">{{ selectedTable.semester }} {{ selectedTable.year }}</p>
+  </td>
+</div>
+
 <div id="buttonGrid">
-  <p-button icon="pi pi-info-circle" severity="info" id="div1" (onClick)="showDialog()"/>
-  <p-button icon="pi pi-save" label="Save" severity="success" id="div2" [style]="{width: '6rem'}"/>
-  <p-button icon="pi pi-trash" label="Close" severity="danger" id="div3" [style]="{width: '6rem'}"/>
+  <p-button icon="pi pi-info-circle" severity="info" class="div1" (onClick)="showDialog()"/>
+  <p-button icon="pi pi-save" label="Save" severity="success" class="div2" [style]="{width: '6rem'}"/>
+  <p-button icon="pi pi-trash" label="Close" severity="danger" class="div3" [style]="{width: '6rem'}"/>
 </div>
 
 <p-stepper [linear]="true" [(activeStep)]="active" class="stepper-settings">
@@ -17,7 +24,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback">
-      <app-course-selection></app-course-selection>
+      <app-course-selection [globalTable]="selectedTable"></app-course-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>
@@ -50,7 +57,7 @@
 
   <p-stepperPanel>
     <ng-template pTemplate="header" let-index="index">
-      <div class="box" >
+      <div class="box">
         <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
           <i class="pi pi-building" style="font-size: 1.5rem;"></i>
         </div>

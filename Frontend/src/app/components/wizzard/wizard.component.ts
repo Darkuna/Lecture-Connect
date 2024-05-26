@@ -1,4 +1,6 @@
 import {Component} from '@angular/core';
+import {TimeTable} from "../../../assets/Models/time-table";
+import {TableShareService} from "../../services/table-share.service";
 
 interface InfoDialog {
   header: string;
@@ -13,12 +15,16 @@ interface InfoDialog {
   styleUrl: './wizard.component.css'
 })
 export class WizardComponent {
+  selectedTable!: TimeTable;
   active: number = 0;
   dialog: boolean = false;
   currentDialog: InfoDialog;
   InfoDialogOptions: InfoDialog[];
 
-  constructor() {
+  constructor(
+    private shareService: TableShareService,
+  ) {
+    this.selectedTable = this.shareService.getSelectedTable();
     this.InfoDialogOptions = [
       {
         header: 'Choose Courses',
@@ -75,4 +81,5 @@ export class WizardComponent {
   showDialog(): void {
     this.dialog = true;
   }
+
 }

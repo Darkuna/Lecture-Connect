@@ -10,6 +10,7 @@ import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {tableStatus} from "../../../assets/Models/enums/table-status";
 import {Router} from "@angular/router";
+import {TableShareService} from "../../services/table-share.service";
 
 @Component({
   selector: 'app-home',
@@ -28,6 +29,7 @@ export class HomeComponent implements OnInit {
   constructor(
     private cd: ChangeDetectorRef,
     private router: Router,
+    private shareService: TableShareService
   ) {
     this.availableTables = []
   }
@@ -43,9 +45,11 @@ export class HomeComponent implements OnInit {
 
   createNewTable() {
     this.timeTable.status = tableStatus.NEW;
-    this.availableTables.push(this.timeTable);
+    //TODO backend call to get id
+    this.timeTable.id = 123;
     this.hideTableDialog();
 
+    this.shareService.setSelectedTable(this.timeTable);
     this.router.navigate(['/wizard']);
   }
 
