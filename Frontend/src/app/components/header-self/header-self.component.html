@@ -17,7 +17,7 @@
   <h1>{{ pageTitle }}</h1>
 
   <div id="wrapperRightButtons">
-    <div class="itemRight" *ngIf="hasAdminRole() && isLoggedIn()">
+    <div class="itemRight" *ngIf="isLoggedIn()">
       <button pButton type="button" label="Users" class="headerButton"
               (click)="redirectToPage('/users')"></button>
     </div>

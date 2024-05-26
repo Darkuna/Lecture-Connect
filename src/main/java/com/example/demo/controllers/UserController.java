@@ -1,39 +1,78 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dto.AuthRequest;
-import com.example.demo.models.TokenResponse;
-import com.example.demo.models.UserInfo;
-import com.example.demo.services.JwtService;
-import com.example.demo.services.UserInfoService;
+import com.example.demo.exceptions.user.UserAlreadyExistsException;
+import com.example.demo.exceptions.user.UserInvalidEmailException;
+import com.example.demo.exceptions.user.UserRequiredFieldEmptyException;
+import com.example.demo.models.Userx;
+import com.example.demo.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin
+import java.util.List;
+import java.util.Optional;
+
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/users")
+@Scope("session")
 public class UserController {
-    private final UserInfoService service;
-    private final JwtService jwtService;
+    private final UserService userService;
+
     @Autowired
-    public UserController(UserInfoService service, JwtService jwtService) {
-        this.jwtService = jwtService;
-        this.service = service;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @PostMapping("/addNewUser")
-    public String addNewUser(@RequestBody UserInfo userInfo) {
-        return service.addUser(userInfo);
+    @GetMapping
+    public ResponseEntity<List<Userx>> getAllUsers() {
+        List<Userx> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
-        UserInfo user = service.allowLogin(authRequest.getName(), authRequest.getPassword());
-        if (user != null) {
-            String token = jwtService.generateToken(user);
-            TokenResponse response = new TokenResponse(token);
-            return ResponseEntity.ok(response);
+    @GetMapping("/{username}")
+    public ResponseEntity<Userx> getUserByUsername(@PathVariable String username) {
+        return userService.loadUser(username)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<Userx> createUser(@RequestBody Userx user) {
+        try {
+            Userx savedUser = userService.registerUser(user);
+            return ResponseEntity.ok(savedUser);
+        } catch (UserAlreadyExistsException | UserInvalidEmailException | UserRequiredFieldEmptyException e) {
+            return ResponseEntity.badRequest().body(null);
         }
-        return ResponseEntity.ok(new TokenResponse("null"));
+    }
+
+    @PutMapping("/{username}")
+    public ResponseEntity<Userx> updateUser(@PathVariable String username, @RequestBody Userx user) {
+        try {
+            if (!username.equals(user.getUsername())) {
+                return ResponseEntity.badRequest().build();
+            }
+            Userx updatedUser = userService.saveUser(user);
+            return ResponseEntity.ok(updatedUser);
+        } catch (UserAlreadyExistsException | UserInvalidEmailException | UserRequiredFieldEmptyException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
+        Optional<Userx> user = userService.loadUser(username);
+        if (user.isPresent()) {
+            userService.deleteUser(user.get());
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteMultipleUsers(@RequestBody List<Userx> users) {
+        userService.deleteMultipleUser(users);
+        return ResponseEntity.ok().build();
     }
 }

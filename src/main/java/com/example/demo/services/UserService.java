@@ -51,7 +51,7 @@ public class UserService {
      *
      * @return A list of all Userx entities.
      */
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public List<Userx> getAllUsers() {
         return streamToList(userRepository.findAll());
     }
@@ -190,6 +190,14 @@ public class UserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Optional<Userx> user = userRepository.findById(auth.getName());
         return user.orElse(null);
+    }
+
+    public Userx allowLogin(String name, String password){
+        Optional<Userx> user = userRepository.findByUsername(name);
+        if(user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())){
+            return user.get();
+        }
+        return null;
     }
 
 }

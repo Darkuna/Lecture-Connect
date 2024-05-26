@@ -15,8 +15,8 @@ export class Course {
   timingConstraints?: Timing[];
   isSplit?: boolean;
   splitTimes?: number[];
-  createDate?: Date;
-  updateDate?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 
   getTableColumns(): any[] {
     return [
@@ -28,8 +28,8 @@ export class Course {
       {field: 'duration', header: 'Duration'},
       {field: 'numberOfParticipants', header: '#Participants'},
       {field: 'computersNecessary', header: 'computer needed'},
-      {field: 'createDate', header: 'Creation Date'},
-      {field: 'updateDate', header: 'last time updated'}
+      {field: 'createdAt', header: 'created at'},
+      {field: 'updatedAt', header: 'updated at'}
     ]
   }
 }

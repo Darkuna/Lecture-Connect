@@ -1,7 +1,10 @@
 package com.example.demo.models;
 
 import com.example.demo.models.enums.Semester;
+import com.example.demo.models.base.TimestampedEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
@@ -10,7 +13,9 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class TimeTable implements Persistable<Long>, Serializable{
+@Getter
+@Setter
+public class TimeTable extends TimestampedEntity implements Persistable<Long>, Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -22,20 +27,16 @@ public class TimeTable implements Persistable<Long>, Serializable{
     @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY)
     private List<CourseSession> courseSessions;
 
-    //CONSTRUCTOR
     public TimeTable(){
         this.roomTables = new ArrayList<>();
         this.courseSessions = new ArrayList<>();
     }
 
-    //GETTERS AND SETTERS
     @Override
     public Long getId() {
         return id;
     }
 
-
-    //OTHER METHODS
     @Override
     public boolean isNew() {
         return id == null;
@@ -86,41 +87,5 @@ public class TimeTable implements Persistable<Long>, Serializable{
             }
         }
         return unassignedCourseSessions;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Semester getSemester() {
-        return semester;
-    }
-
-    public void setSemester(Semester semester) {
-        this.semester = semester;
-    }
-
-    public int getYear() {
-        return year;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
-    }
-
-    public List<RoomTable> getRoomTables() {
-        return roomTables;
-    }
-
-    public void setRoomTables(List<RoomTable> roomTables) {
-        this.roomTables = roomTables;
-    }
-
-    public List<CourseSession> getCourseSessions() {
-        return courseSessions;
-    }
-
-    public void setCourseSessions(List<CourseSession> courseSessions) {
-        this.courseSessions = courseSessions;
     }
 }

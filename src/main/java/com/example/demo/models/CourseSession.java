@@ -10,8 +10,6 @@ import org.springframework.data.domain.Persistable;
 import java.io.Serializable;
 import java.util.List;
 
-
-
 @Entity
 @Getter
 @Setter
@@ -41,21 +39,25 @@ public class CourseSession implements Persistable<Long>, Serializable {
     public Long getId() {
         return id;
     }
-
     @Override
     public boolean isNew() {
         return id == null;
     }
-
     public boolean isBlocked() {
         return this == BLOCKED;
     }
 
-    public boolean isFixed() {
-        return isFixed;
+
+    /*
+    This toString() method was used for test data creation
+    public String toString(){
+        String string = String.format("INSERT INTO COURSE_SESSION(ID, DURATION, IS_ASSIGNED, IS_FIXED, COURSE_ID, ROOM_TABLE_ID, TIME_TABLE_ID, TIMING_ID) VALUES (%d, %d, FALSE, FALSE, '%s', NULL, -2, NULL)",counter, duration, course.getId());
+        counter--;
+        return string;
     }
 
-    public void setFixed(boolean fixed) {
-        isFixed = fixed;
-    }
+    Also add the following attribute to the class to make it work:
+
+    private static int counter = -11;
+     */
 }

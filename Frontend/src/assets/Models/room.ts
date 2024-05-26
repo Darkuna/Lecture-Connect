@@ -8,16 +8,16 @@ export class Room implements RoomInterface {
   computersAvailable?: boolean;
   timingConstraints?: Timing[];
   roomTables?: RoomTable[];
-  createDate?: Date;
-  updateDate?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 
   getTableColumns(): any[] {
     return [
       {field: 'id', header: 'Id'},
       {field: 'capacity', header: 'Capacity'},
       {field: 'computersAvailable', header: 'Room has PCs'},
-      {field: 'createDate', header: 'Creation Date'},
-      {field: 'updateDate', header: 'last time updated'}
+      {field: 'createdAt', header: 'Creation Date'},
+      {field: 'updatedAt', header: 'last time updated'}
     ]
   }
 }

@@ -11,5 +11,5 @@ public class TimingDTO {
     private Long id;
     private LocalTime startTime;
     private LocalTime endTime;
-    private String dayOfTheWeek;
+    private String day;
 }
