@@ -1,7 +1,7 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnDestroy} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
-import {Observable} from "rxjs";
+import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
 import {TimeTable} from "../../../../assets/Models/time-table";
@@ -13,10 +13,12 @@ import {tableStatus} from "../../../../assets/Models/enums/table-status";
   styleUrl: '../wizard.component.css',
 })
 
-export class CourseSelectionComponent {
+export class CourseSelectionComponent implements OnDestroy {
   CreateDialogVisible: boolean = false;
-  availableCourses$: Observable<Course[]>;
+  availableCourses!: Course[];
+  courseSub: Subscription;
   selectedCourses: Course[];
+
   tmpCourseSelection: Course[];
   @Input() globalTable!: TimeTable;
 
@@ -32,7 +34,9 @@ export class CourseSelectionComponent {
     private courseService: CourseService,
     private messageService: MessageService,
   ) {
-    this.availableCourses$ = this.courseService.getAllCourses();
+    this.courseSub = this.courseService.getAllCourses().subscribe(
+      (data => this.availableCourses = data)
+    );
 
     this.selectedCourses = [];
     this.tmpCourseSelection = [];
@@ -42,7 +46,10 @@ export class CourseSelectionComponent {
       {field: 'name', header: 'Name'},
       {field: 'semester', header: 'Semester'}
     ];
+  }
 
+  ngOnDestroy(): void {
+    this.courseSub.unsubscribe();
   }
 
   showCreateDialog(): void {
@@ -57,19 +64,15 @@ export class CourseSelectionComponent {
   saveNewItem(): void {
     if (this.draggedCourse) {
       this.draggedCourse.timingConstraints = [];
+      this.draggedCourse.createdAt = undefined;
+      this.draggedCourse.updatedAt = undefined;
 
-
-      this.availableCourses$.subscribe(data => {
-          data.push(this.courseService.createSingleCourse(this.draggedCourse!));
-        }
-      ).unsubscribe();
+      this.availableCourses.push(this.courseService.createSingleCourse(this.draggedCourse!));
 
       this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
       this.draggedCourse = null;
       this.hideDialog();
     }
-
-
   }
 
   dragStart(item: Course) {
@@ -122,6 +125,5 @@ export class CourseSelectionComponent {
   getRoleOptions() {
     return Object.keys(CourseType).filter(k => isNaN(Number(k)));
   }
-
 
 }

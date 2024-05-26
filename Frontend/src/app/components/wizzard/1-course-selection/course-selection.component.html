@@ -12,7 +12,7 @@
 
     <p-table class="tableOnTop"
              #dtL dataKey="id"
-             [value]="(availableCourses$ |async)!"
+             [value]="availableCourses"
              [columns]="headers"
              [rows]="15"
              [paginator]="true"

@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {TimeTable} from "../../../assets/Models/time-table";
 import {TableShareService} from "../../services/table-share.service";
+import {tableStatus} from "../../../assets/Models/enums/table-status";
 
 interface InfoDialog {
   header: string;
@@ -80,6 +81,21 @@ export class WizardComponent {
 
   showDialog(): void {
     this.dialog = true;
+  }
+
+  getTextFromEnum(): string {
+    switch (this.selectedTable.status) {
+      case tableStatus.NEW:
+        return "NEW";
+      case tableStatus.EDITED:
+        return "EDITED";
+      case tableStatus.FINISHED:
+        return "FINISHED";
+      case tableStatus.IN_WORK:
+        return "IN WORK";
+      default:
+        return "DEFAULT";
+    }
   }
 
 }
