@@ -4,7 +4,6 @@ import {TimeTable} from "./time-table";
 import {RoomTable} from "./room-table";
 
 export class CourseSession {
-
   static BLOCKED: CourseSession;
 
   constructor(

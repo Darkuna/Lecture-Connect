@@ -3,5 +3,6 @@ export enum tableStatus {
   IN_WORK = 'warning',
   EDITED = 'warning',
   FINISHED = 'success',
-  DEFAULT = 'danger'
+  DEFAULT = 'danger',
+  LOCAL = 'danger'
 }
