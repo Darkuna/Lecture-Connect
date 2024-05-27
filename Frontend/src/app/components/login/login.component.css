@@ -42,9 +42,9 @@ button {
 }
 
 button {
-  color: #f4f4f4;
+  color: var(--system-color-primary-white);
   cursor: pointer;
-  background-color: #003361;
+  background-color: var(--system-color-primary-blue);
   width: 150px
 
 }

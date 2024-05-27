@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, OnInit, signal} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit, signal} from '@angular/core';
 import {MenuItem} from "primeng/api";
 import {CalendarOptions, DateSelectArg, EventApi, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -9,7 +9,11 @@ import {createEventId, INITIAL_EVENTS} from "./event-utils";
 import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {tableStatus} from "../../../assets/Models/enums/table-status";
-import {DropdownFilterOptions} from "primeng/dropdown";
+import {Router} from "@angular/router";
+import {TableShareService} from "../../services/table-share.service";
+import {Subscription} from "rxjs";
+import {GlobalTableService} from "../../services/global-table.service";
+import {TimeTableNames} from "../../../assets/Models/time-table-names";
 
 @Component({
   selector: 'app-home',
@@ -17,20 +21,34 @@ import {DropdownFilterOptions} from "primeng/dropdown";
   styleUrl: './home.component.css',
 
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   items: MenuItem[] | undefined;
-  availableTables!: TimeTable[];
+  availableTables!: TimeTableNames[];
+  availableTableSubs: Subscription;
   responsiveOptions: any[] | undefined;
-  timeTable!: TimeTable;
-  selectedTable!: TimeTable;
+  selectedTimeTable!: TimeTable;
+  shownTableDD!: TimeTableNames;
   showNewTableDialog = false;
 
-  constructor(private cd: ChangeDetectorRef) {
+  constructor(
+    private cd: ChangeDetectorRef,
+    private router: Router,
+    private shareService: TableShareService,
+    private globalTableService: GlobalTableService,
+  ) {
+    this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe(
+      data => this.availableTables = [...data]
+    );
     this.availableTables = []
   }
 
+
+  ngOnDestroy(): void {
+    this.availableTableSubs.unsubscribe();
+  }
+
   showTableDialog() {
-    this.timeTable = new TimeTable();
+    this.selectedTimeTable = new TimeTable();
     this.showNewTableDialog = true;
   }
 
@@ -38,16 +56,24 @@ export class HomeComponent implements OnInit {
     this.showNewTableDialog = false;
   }
 
+  loadSpecificTable(){
+    this.selectedTimeTable = this.globalTableService.
+    getSpecificTimeTable(this.shownTableDD.id, this.selectedTimeTable);
+  }
+
   createNewTable() {
-    this.timeTable.status = tableStatus.NEW;
-    this.availableTables.push(this.timeTable);
+    this.selectedTimeTable.status = tableStatus.NEW;
+    //TODO backend call to get id
+    this.selectedTimeTable.id = 123;
     this.hideTableDialog();
+
+    this.shareService.setSelectedTable(this.selectedTimeTable);
+    this.router.navigate(['/wizard']);
   }
 
   editTable() {
-    console.log(this.selectedTable);
-    if (this.selectedTable) {
-      this.timeTable = this.selectedTable;
+    if (this.shownTableDD) {
+      this.selectedTimeTable = this.shownTableDD;
     }
     this.showTableDialog();
   }
@@ -84,7 +110,7 @@ export class HomeComponent implements OnInit {
     height: "auto",
     eventBackgroundColor: "#666666",
     eventBorderColor: "#050505",
-    eventTextColor: "#F4F4F4F4",
+    eventTextColor: "var(--system-color-primary-white)",
     slotMinTime: '07:00:00',
     slotMaxTime: '23:00:00',
     slotDuration: '00:15:00',
@@ -135,12 +161,6 @@ export class HomeComponent implements OnInit {
   handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
     this.cd.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
-  }
-
-  customFilterFunction(event: KeyboardEvent, options: DropdownFilterOptions) {
-    if (options.filter) {
-      options.filter(event);
-    }
   }
 
   ngOnInit() {
@@ -226,4 +246,5 @@ export class HomeComponent implements OnInit {
       }
     ];
   }
+
 }

@@ -26,15 +26,14 @@
   <p-table
     #dt
     [value]="rooms"
-    [rows]="10"
+    [rows]="15"
     [columns]="selectedHeaders"
-    [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[10, 25, 50]"
-    [paginator]="true"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 15, 25, 50]"
+    [paginator]="true"
     [globalFilterFields]="['id']"
     [tableStyle]="{ 'min-width': '75rem'}"
-    scrollHeight="100%"
     [(selection)]="selectedRooms"
     [filterDelay]="0"
     [rowHover]="true"
@@ -106,7 +105,8 @@
 
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveNewItem()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+            (click)="saveNewItem()" [disabled]="!singleRoom.id && !singleRoom.capacity"></button>
   </ng-template>
 </p-dialog>
 

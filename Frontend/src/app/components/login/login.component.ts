@@ -1,17 +1,19 @@
 import {HttpClient} from '@angular/common/http';
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
 import {LocalStorageService} from "ngx-webstorage";
 import * as jwt_decode from 'jwt-decode';
 import {MessageService} from "primeng/api";
-import {ReloadService} from "../../services/reload.service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnDestroy {
+  private loginSub: Subscription | null = null;
+
   loginObj: any = {
     name: "",
     password: ""
@@ -22,12 +24,11 @@ export class LoginComponent {
     private http: HttpClient,
     private storage: LocalStorageService,
     private messageService: MessageService,
-    private reloadService: ReloadService
   ) {
   }
 
   login() {
-    this.http.post('/proxy/auth/login', this.loginObj)
+    this.loginSub = this.http.post('/proxy/auth/login', this.loginObj)
       .subscribe({
         next: (token: any) => {
           if (token && token['token']) {
@@ -36,8 +37,6 @@ export class LoginComponent {
             this.storage.store('username', decodedToken['username']);
             this.storage.store('roles', decodedToken['role']);
             this.storage.store('jwtToken', token['token']);
-
-            this.reloadService.notify({isRefresh: true});
 
             this.messageService.add({severity: 'success', summary: `Welcome back ${decodedToken['username']}`});
             this.router.navigate(['/home']);
@@ -59,5 +58,10 @@ export class LoginComponent {
       });
   }
 
+  ngOnDestroy(): void {
+    if (!this.loginSub?.closed) {
+      this.loginSub?.unsubscribe();
+    }
+  }
 
 }

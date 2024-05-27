@@ -33,15 +33,15 @@
   padding: .5rem 0 0 1rem;
 
   .th {
-    background-color: #003361;
+    background-color: var(--system-color-primary-blue);
   }
 }
 
 .headerButton {
   height: 100%;
-  border-color: #003361;
-  background: #003361;
-  color: #f4f4f4;
+  border-color: var(--system-color-primary-blue) 1;
+  background: var(--system-color-primary-blue);
+  color: var(--system-color-primary-white);
   font-size: 24px;
   border-radius: 15px;
   transition: all 0.15s ease;

@@ -1,0 +1,117 @@
+<div id="infoGrid">
+  <p-tag id="status" [value]="getTextFromEnum()" [severity]="selectedTable.status"/>
+  <p id="info">{{ selectedTable.semester }} {{ selectedTable.year }}</p>
+</div>
+
+<div id="buttonGrid">
+  <p-button icon="pi pi-info-circle" severity="info" id="div1" (onClick)="showDialog()"/>
+  <p-button icon="pi pi-save" label="Save" severity="success" id="div2" [style]="{width: '6rem'}"/>
+  <p-button icon="pi pi-trash" label="Close" severity="danger" id="div3" [style]="{width: '6rem'}"/>
+</div>
+
+<p-stepper [linear]="true" [(activeStep)]="active" class="stepper-settings">
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
+        <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
+          <i class="pi pi-briefcase" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text" [style]="{'color': getColorBasedOnIndex('t', index)}">
+          Choose Courses
+        </p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-nextCallback="nextCallback">
+      <app-course-selection [globalTable]="selectedTable"></app-course-selection>
+
+      <div class="flex pt-4 justify-content-between">
+        <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right" class="NextButton"/>
+
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
+        <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
+          <i class="pi pi-sitemap" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text" [style]="{'color': getColorBasedOnIndex('t', index)}">
+          Define Details
+        </p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
+      <app-detail-selection></app-detail-selection>
+
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right" class="NextButton"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
+        <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
+          <i class="pi pi-building" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text" [style]="{'color': getColorBasedOnIndex('t', index)}">
+          Choose Rooms
+        </p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
+      <app-room-selection></app-room-selection>
+
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right" class="NextButton"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
+        <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
+          <i class="pi pi-table" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text" [style]="{'color': getColorBasedOnIndex('t', index)}">
+          blocked Slots
+        </p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-prevCallback="prevCallback">
+      <app-base-selection></app-base-selection>
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button [disabled]="true" icon="pi pi-arrow-right" class="NextButton"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+</p-stepper>
+
+<p-dialog
+  header="Info"
+  [modal]="true"
+  [(visible)]="dialog"
+  [style]="{ width: '35rem' }"
+  [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }">
+  <hr>
+  <h3>
+    {{ InfoDialogOptions[active].header }}
+  </h3>
+  <p>
+    {{ InfoDialogOptions[active].infoText }}
+  </p>
+  <h3>
+    {{ InfoDialogOptions[active].subTextHeader }}
+  </h3>
+  <p>
+    {{ InfoDialogOptions[active].subText }}
+  </p>
+</p-dialog>

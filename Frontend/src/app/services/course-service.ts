@@ -31,27 +31,30 @@ export class CourseService {
 
   createSingleCourse(course: Course) {
     this.http.post<Course>(this.courseApiPath, course, this.httpOptions)
-      .subscribe(data => {course = data});
+      .subscribe(data => {
+        course = data
+      }).unsubscribe();
     return course;
   }
 
-  getSingleCourse(courseID: String): Observable<any> {
+  getSingleCourse(courseID: string): Observable<any> {
     let newUrl = `${this.courseApiPath}/${courseID}`;
     return this.http.get(newUrl, this.httpOptions);
   }
 
   updateSingleCourse(course: Course): Course {
     let newUrl = `${this.courseApiPath}/${course.id}`;
-    this.http.put<Course>(newUrl, course, this.httpOptions).subscribe(res => course = res);
+    this.http.put<Course>(newUrl, course, this.httpOptions).subscribe(res => course = res)
+      .unsubscribe();
     return course;
   }
 
-  deleteSingleCourse(courseID: number) {
+  deleteSingleCourse(courseID: string) {
     let newUrl = `${this.courseApiPath}/${courseID}`;
     this.http.delete(newUrl, this.httpOptions).subscribe({
       error: error => {
         this.messageService.add({severity: 'failure', summary: 'Failure', detail: error});
       }
-    })
+    }).unsubscribe();
   }
 }
