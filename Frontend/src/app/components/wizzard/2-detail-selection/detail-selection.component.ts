@@ -1,5 +1,5 @@
-import {Component} from '@angular/core';
-import {WizardComponent} from "../wizard.component";
+import {Component, Input} from '@angular/core';
+import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 
 @Component({
   selector: 'app-detail-selection',
@@ -7,16 +7,16 @@ import {WizardComponent} from "../wizard.component";
   styleUrl: '../wizard.component.css'
 })
 export class DetailSelectionComponent {
+  @Input() globalTable!: TmpTimeTable;
+  headers: any[];
+
   constructor(
-    private wizard: WizardComponent,
   ) {
-  }
-
-  getColor(type: string, index: number): string {
-    return this.wizard.getColorBasedOnIndex(type, index);
-  }
-
-  isActive(): number {
-    return this.wizard.active;
+    this.headers = [
+      {field: 'id', header: 'Id'},
+      {field: 'courseType', header: 'Type'},
+      {field: 'name', header: 'Name'},
+      {field: 'semester', header: 'Semester'}
+    ];
   }
 }

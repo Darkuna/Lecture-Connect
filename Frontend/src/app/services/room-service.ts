@@ -46,7 +46,6 @@ export class RoomService {
     this.http.put<Room>(newUrl, room, this.httpOptions)
       .subscribe(data => {
         room = data
-        console.log(data)
       }).unsubscribe();
     return room;
   }

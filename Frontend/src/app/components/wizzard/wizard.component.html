@@ -1,11 +1,12 @@
 <div id="infoGrid">
-  <p-tag id="status" [value]="getTextFromEnum()" [severity]="selectedTable.status"/>
-  <p id="info">{{ selectedTable.semester }} {{ selectedTable.year }}</p>
+  <p-tag id="status" [value]="getTextFromEnum()" [severity]="selectedTable.tableName.status"/>
+  <p id="info">{{ selectedTable.tableName.semester }} {{ selectedTable.tableName.year }}</p>
 </div>
 
 <div id="buttonGrid">
   <p-button icon="pi pi-info-circle" severity="info" id="div1" (onClick)="showDialog()"/>
-  <p-button icon="pi pi-save" label="Save" severity="success" id="div2" [style]="{width: '6rem'}"/>
+  <p-button icon="pi pi-save" label="Save" severity="success"
+            (onClick)="SaveLocal()" id="div2" [style]="{width: '6rem'}"/>
   <p-button icon="pi pi-trash" label="Close" severity="danger" id="div3" [style]="{width: '6rem'}"/>
 </div>
 
@@ -44,7 +45,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      <app-detail-selection></app-detail-selection>
+      <app-detail-selection [globalTable]="selectedTable"></app-detail-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>

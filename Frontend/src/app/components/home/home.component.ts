@@ -8,12 +8,12 @@ import listPlugin from "@fullcalendar/list";
 import {createEventId, INITIAL_EVENTS} from "./event-utils";
 import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
-import {tableStatus} from "../../../assets/Models/enums/table-status";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
 import {Subscription} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
+import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 
 @Component({
   selector: 'app-home',
@@ -29,6 +29,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   selectedTimeTable!: TimeTable;
   shownTableDD!: TimeTableNames;
   showNewTableDialog = false;
+  tmpTable!: TmpTimeTable;
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -48,8 +49,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   showTableDialog() {
-    this.selectedTimeTable = new TimeTable();
     this.showNewTableDialog = true;
+    this.shownTableDD = new TimeTableNames();
   }
 
   hideTableDialog() {
@@ -62,12 +63,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   createNewTable() {
-    this.selectedTimeTable.status = tableStatus.NEW;
+    this.tmpTable = new TmpTimeTable();
+    this.tmpTable.tableName = this.shownTableDD;
+    this.tmpTable.courseTable = [];
+    this.tmpTable.roomTables = [];
+
     //TODO backend call to get id
-    this.selectedTimeTable.id = 123;
+    this.tmpTable.tableName.id = 123;
     this.hideTableDialog();
 
-    this.shareService.setSelectedTable(this.selectedTimeTable);
+    this.shareService.setSelectedTable(this.tmpTable);
     this.router.navigate(['/wizard']);
   }
 

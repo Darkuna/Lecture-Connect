@@ -1,14 +1,10 @@
 import {Component} from '@angular/core';
-import {TimeTable} from "../../../assets/Models/time-table";
 import {TableShareService} from "../../services/table-share.service";
 import {tableStatus} from "../../../assets/Models/enums/table-status";
-
-interface InfoDialog {
-  header: string;
-  infoText: string;
-  subTextHeader: string;
-  subText: string;
-}
+import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
+import {InfoDialogInterface} from "../../../assets/Models/interfaces/info-dialog-interface";
+import {LocalStorageService} from "ngx-webstorage";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-wizard',
@@ -16,14 +12,16 @@ interface InfoDialog {
   styleUrl: './wizard.component.css'
 })
 export class WizardComponent {
-  selectedTable!: TimeTable;
+  selectedTable!: TmpTimeTable;
   active: number = 0;
   dialog: boolean = false;
-  currentDialog: InfoDialog;
-  InfoDialogOptions: InfoDialog[];
+  currentDialog: InfoDialogInterface;
+  InfoDialogOptions: InfoDialogInterface[];
 
   constructor(
     private shareService: TableShareService,
+    private localStorage: LocalStorageService,
+    private messageService: MessageService,
   ) {
     this.selectedTable = this.shareService.getSelectedTable();
     this.InfoDialogOptions = [
@@ -84,7 +82,7 @@ export class WizardComponent {
   }
 
   getTextFromEnum(): string {
-    switch (this.selectedTable.status) {
+    switch (this.selectedTable.tableName.status) {
       case tableStatus.NEW:
         return "NEW";
       case tableStatus.EDITED:
@@ -96,6 +94,15 @@ export class WizardComponent {
       default:
         return "DEFAULT";
     }
+  }
+
+  SaveLocal(){
+    this.localStorage.store('tmpTimeTable', this.selectedTable);
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'The Table is only cached locally'
+    });
   }
 
 }

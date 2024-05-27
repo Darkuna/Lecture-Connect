@@ -59,12 +59,12 @@
           header="create new Table" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content" class="parent">
     <label for="type">Semester Type</label>
-    <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="selectedTimeTable.semester"
+    <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="shownTableDD.semester"
                 placeholder="select a Type"/>
     <br>
     <label for="year" >Year</label>
-    <p-inputNumber type="number" id="year" required autofocus [(ngModel)]="selectedTimeTable.year"/>
-    <small class="p-error" *ngIf="!selectedTimeTable.year">for Simplification needed</small>
+    <p-inputNumber type="number" id="year" required autofocus [(ngModel)]="shownTableDD.year"/>
+    <small class="p-error" *ngIf="!shownTableDD.year">for Simplification needed</small>
   </ng-template>
 
   <ng-template pTemplate="footer">
