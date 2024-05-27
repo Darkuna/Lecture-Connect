@@ -10,8 +10,6 @@ import {MessageService} from "primeng/api";
 })
 export class RoomService {
   roomsApiPath = "/proxy/api/rooms";
-  private obs: Observable<Room>[] = []
-
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',

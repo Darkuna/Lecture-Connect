@@ -29,11 +29,17 @@
       </div>
 
       <div class="p-toolbar-group-center">
-        <p-dropdown id="all" [options]="availableTables" [(ngModel)]="selectedTable" scrollHeight="300px"
-                    placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year">
+        <p-dropdown id="all" [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
+                    placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
+                    [showClear]="true" (onChange)="loadSpecificTable()">
+          <ng-template pTemplate="selectedItem">
+            <div class="item">
+              <div>{{ shownTableDD.semester }} {{ shownTableDD.year }} {{ shownTableDD.status }}</div>
+            </div>
+          </ng-template>
           <ng-template let-item pTemplate="item">
             <div class="flex align-items-center gap-2">
-              <div>{{ item.semester }} {{ item.year }}</div>
+              <div>{{ item.semester }} {{ item.year }} {{ item.status }}</div>
             </div>
           </ng-template>
         </p-dropdown>
@@ -53,12 +59,12 @@
           header="create new Table" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content" class="parent">
     <label for="type">Semester Type</label>
-    <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="timeTable.semester"
+    <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="selectedTimeTable.semester"
                 placeholder="select a Type"/>
     <br>
     <label for="year" >Year</label>
-    <p-inputNumber type="number" id="year" required autofocus [(ngModel)]="timeTable.year"/>
-    <small class="p-error" *ngIf="!timeTable.year">for Simplification needed</small>
+    <p-inputNumber type="number" id="year" required autofocus [(ngModel)]="selectedTimeTable.year"/>
+    <small class="p-error" *ngIf="!selectedTimeTable.year">for Simplification needed</small>
   </ng-template>
 
   <ng-template pTemplate="footer">
