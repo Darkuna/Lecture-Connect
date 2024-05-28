@@ -57,7 +57,7 @@
       <p class="float-item">Selected Courses</p>
       <span class="float-item">
               <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
-                      [disabled]="!globalTable.courseTable || !globalTable.courseTable.length"></button>
+                      [disabled]="!selectedCourses || !selectedCourses"></button>
 
             <input pInputText type="text" (input)="dtR.filterGlobal($any($event.target).value, 'contains')"
                    placeholder="Search..." class="customSearchHeight"/>
@@ -66,7 +66,7 @@
     <p-table class="tableOnTop"
              #dtR dataKey="id"
              [value]="globalTable.courseTable"
-             [(selection)]="selectedCourse"
+             [(selection)]="selectedCourses"
              [columns]="headers"
              [rows]="15"
              [paginator]="true"

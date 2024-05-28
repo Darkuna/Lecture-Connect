@@ -20,7 +20,7 @@ export class CourseSelectionComponent implements OnDestroy {
   availableCourses!: Course[];
 
   CreateDialogVisible: boolean = false;
-  selectedCourse!: Course;
+  selectedCourses!: Course[];
   draggedCourse: Course | undefined | null;
 
   headers: any[];
@@ -114,7 +114,7 @@ export class CourseSelectionComponent implements OnDestroy {
   }
 
   deleteMultipleItems() {
-    this.globalTable.courseTable.forEach(
+    this.selectedCourses.forEach(
       c => this.deleteSingleItem(c)
     );
   }

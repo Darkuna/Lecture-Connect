@@ -14,6 +14,7 @@ import {Subscription} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
+import {LocalStorageService} from "ngx-webstorage";
 
 @Component({
   selector: 'app-home',
@@ -22,25 +23,26 @@ import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  items: MenuItem[] | undefined;
-  availableTables!: TimeTableNames[];
   availableTableSubs: Subscription;
-  responsiveOptions: any[] | undefined;
-  selectedTimeTable!: TimeTable;
+  availableTables!: TimeTableNames[];
   shownTableDD!: TimeTableNames;
-  showNewTableDialog = false;
   tmpTable!: TmpTimeTable;
+
+  selectedTimeTable!: TimeTable;
+  responsiveOptions: any[] | undefined;
+  items: MenuItem[] | undefined;
+  showNewTableDialog: boolean = false;
 
   constructor(
     private cd: ChangeDetectorRef,
     private router: Router,
     private shareService: TableShareService,
     private globalTableService: GlobalTableService,
+    private localStorage: LocalStorageService,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe(
       data => this.availableTables = [...data]
     );
-    this.availableTables = []
   }
 
 
@@ -62,6 +64,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     getSpecificTimeTable(this.shownTableDD.id, this.selectedTimeTable);
   }
 
+  isTmpTableAvailable(){
+    return this.localStorage.retrieve('tmptimetable') !== null;
+  }
+
+  loadTmpTable(){
+    this.shareService.selectedTable = this.localStorage.retrieve("tmptimetable");
+    this.router.navigate(['/wizard']);
+  }
+
   createNewTable() {
     this.tmpTable = new TmpTimeTable();
     this.tmpTable.tableName = this.shownTableDD;
@@ -72,7 +83,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.tmpTable.tableName.id = 123;
     this.hideTableDialog();
 
-    this.shareService.setSelectedTable(this.tmpTable);
+    this.shareService.selectedTable = this.tmpTable;
     this.router.navigate(['/wizard']);
   }
 
@@ -127,18 +138,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   });
 
   currentEvents = signal<EventApi[]>([]);
-
-
-  handleCalendarToggle() {
-    this.calendarVisible.update((bool) => !bool);
-  }
-
-  handleWeekendsToggle() {
-    // @ts-ignore
-    this.calendarOptions.mutate((options: any) => {
-      options.weekends = !options.weekends;
-    });
-  }
 
   handleDateSelect(selectInfo: DateSelectArg) {
     const title = prompt('Please enter a new title for your event');

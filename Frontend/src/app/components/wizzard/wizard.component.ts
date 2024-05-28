@@ -5,6 +5,7 @@ import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 import {InfoDialogInterface} from "../../../assets/Models/interfaces/info-dialog-interface";
 import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-wizard',
@@ -22,8 +23,9 @@ export class WizardComponent {
     private shareService: TableShareService,
     private localStorage: LocalStorageService,
     private messageService: MessageService,
+    private router: Router,
   ) {
-    this.selectedTable = this.shareService.getSelectedTable();
+    this.selectedTable = this.shareService.selectedTable;
     this.InfoDialogOptions = [
       {
         header: 'Choose Courses',
@@ -97,12 +99,16 @@ export class WizardComponent {
   }
 
   SaveLocal(){
-    this.localStorage.store('tmpTimeTable', this.selectedTable);
+    this.localStorage.store('tmptimetable', this.selectedTable);
     this.messageService.add({
       severity: 'info',
       summary: 'Info',
       detail: 'The Table is only cached locally'
     });
+  }
+
+  closeWizard(){
+    this.router.navigate(['/home']);
   }
 
 }

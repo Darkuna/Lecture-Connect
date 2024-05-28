@@ -5,17 +5,17 @@ import {TmpTimeTable} from "../../assets/Models/tmp-time-table";
   providedIn: 'root'
 })
 export class TableShareService {
-  private selectedTable: TmpTimeTable;
+  private _selectedTable: TmpTimeTable;
 
   constructor() {
-    this.selectedTable = new TmpTimeTable();
+    this._selectedTable = new TmpTimeTable();
   }
 
-  setSelectedTable(table: TmpTimeTable) {
-    this.selectedTable = table;
+  get selectedTable(): TmpTimeTable {
+    return this._selectedTable;
   }
 
-  getSelectedTable(): TmpTimeTable {
-    return this.selectedTable;
+  set selectedTable(value: TmpTimeTable) {
+    this._selectedTable = value;
   }
 }

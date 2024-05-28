@@ -1,5 +1,4 @@
 <div id="grid">
-
   <div id="div1">
     <p-menu [model]="items">
       <ng-template pTemplate="start">
@@ -23,9 +22,14 @@
     <p-toolbar>
       <div class="p-toolbar-group-start">
         <button pButton type="button" icon="pi pi-calendar-plus"
-                class="headerButton" (click)="showTableDialog()" style="margin-right: .5rem"></button>
-        <button pButton type="button" icon="pi pi-pen-to-square"
-                class="headerButton" (click)="editTable()"></button>
+                class="headerButton" (click)="showTableDialog()" style="margin-right: .5rem">
+        </button>
+        <button pButton type="button" icon="pi pi-pen-to-square" style="margin-right: .5rem"
+                class="headerButton" (click)="editTable()">
+        </button>
+        <button pButton type="button" icon="pi pi-pen-to-square" *ngIf="isTmpTableAvailable()"
+                class="headerButton" (click)="loadTmpTable()">
+        </button>
       </div>
 
       <div class="p-toolbar-group-center">
