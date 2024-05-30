@@ -192,7 +192,9 @@ public class CourseSessionService {
         dto.setAssigned(courseSession.isAssigned());
         dto.setFixed(courseSession.isFixed());
         dto.setDuration(courseSession.getDuration());
-        dto.setTiming(timingService.toDTO(courseSession.getTiming()));
+        if(courseSession.getTiming() != null){
+            dto.setTiming(timingService.toDTO(courseSession.getTiming()));
+        }
         return dto;
     }
 

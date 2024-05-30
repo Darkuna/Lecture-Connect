@@ -1,5 +1,6 @@
 package com.example.demo.models;
 
+import com.example.demo.models.enums.CourseType;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Random;
 
 @Entity
 @Getter
@@ -47,17 +49,38 @@ public class CourseSession implements Persistable<Long>, Serializable {
         return this == BLOCKED;
     }
 
-
     /*
-    This toString() method was used for test data creation
+
+    // This toString Method was used for test data creation.
+    // To use it again, uncomment the method and add the following variables to the class attributes:
+
+    //    private static int id_counter = ID_OF_THE_NEXT_COURSE_SESSION;
+    //    private static int timing_counter = ID_OF_THE_NEXT_TIMING;
+
+    // Use the createTestData() Method in TimeTableServiceTest.java to create the data
+
     public String toString(){
-        String string = String.format("INSERT INTO COURSE_SESSION(ID, DURATION, IS_ASSIGNED, IS_FIXED, COURSE_ID, ROOM_TABLE_ID, TIME_TABLE_ID, TIMING_ID) VALUES (%d, %d, FALSE, FALSE, '%s', NULL, -2, NULL)",counter, duration, course.getId());
-        counter--;
+        Random random = new Random();
+        int upper_bound;
+        int lower_bound;
+        if(course.getCourseType().equals(CourseType.VO)){
+            lower_bound = -41;
+            upper_bound = -34;
+        }
+        else{
+            if(course.isComputersNecessary()){
+                lower_bound = -50;
+                upper_bound = -41;
+            }
+            else{
+                lower_bound = -62;
+                upper_bound = -50;
+            }
+        }
+        String string = String.format("INSERT INTO COURSE_SESSION(ID, DURATION, IS_ASSIGNED, IS_FIXED, COURSE_ID, ROOM_TABLE_ID, TIME_TABLE_ID, TIMING_ID) VALUES (%d, %d, TRUE, FALSE, '%s', %d, -3, %d)",id_counter, duration, course.getId(), random.nextInt(lower_bound, upper_bound), timing_counter);
+        id_counter--;
+        timing_counter--;
         return string;
     }
-
-    Also add the following attribute to the class to make it work:
-
-    private static int counter = -11;
      */
 }

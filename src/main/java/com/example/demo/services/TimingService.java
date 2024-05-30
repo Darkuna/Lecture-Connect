@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.constants.TimingConstants;
 import com.example.demo.dto.TimingDTO;
 import com.example.demo.models.Course;
+import com.example.demo.models.CourseSession;
 import com.example.demo.models.RoomTable;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.Day;
