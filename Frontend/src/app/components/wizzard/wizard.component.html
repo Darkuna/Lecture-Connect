@@ -67,7 +67,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      <app-room-selection></app-room-selection>
+      <app-room-selection [globalTable]="selectedTable"></app-room-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>

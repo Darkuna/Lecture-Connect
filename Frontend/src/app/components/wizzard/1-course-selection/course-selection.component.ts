@@ -34,7 +34,7 @@ export class CourseSelectionComponent implements OnDestroy {
     private messageService: MessageService,
   ) {
     this.courseSub = this.courseService.getAllCourses().subscribe(
-      ( data => this.availableCourses = data )
+      (data => this.availableCourses = data)
     );
 
     this.headers = [
@@ -122,5 +122,4 @@ export class CourseSelectionComponent implements OnDestroy {
   getRoleOptions() {
     return Object.keys(CourseType).filter(k => isNaN(Number(k)));
   }
-
 }
