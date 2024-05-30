@@ -59,16 +59,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showNewTableDialog = false;
   }
 
-  loadSpecificTable(){
-    this.selectedTimeTable = this.globalTableService.
-    getSpecificTimeTable(this.shownTableDD.id, this.selectedTimeTable);
+  loadSpecificTable() {
+    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id, this.selectedTimeTable);
   }
 
-  isTmpTableAvailable(){
+  isTmpTableAvailable() {
     return this.localStorage.retrieve('tmptimetable') !== null;
   }
 
-  loadTmpTable(){
+  loadTmpTable() {
     this.shareService.selectedTable = this.localStorage.retrieve("tmptimetable");
     this.router.navigate(['/wizard']);
   }
@@ -212,11 +211,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'Export Plan (all)',
-            icon: 'pi pi-folder'
+            icon: 'pi pi-folder-open'
           },
           {
             label: 'Export Plan (each)',
-            icon: 'pi pi-folder-open'
+            icon: 'pi pi-folder'
           }
         ]
       },

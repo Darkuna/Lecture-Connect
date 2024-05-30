@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
-import {LocalStorageService} from "ngx-webstorage";
+import {LocalStorageService, SessionStorageService} from "ngx-webstorage";
 import {LoginUserInfoService} from "../../services/login-user-info.service";
 
 @Component({
@@ -14,8 +14,10 @@ export class HeaderSelfComponent {
   constructor(
     private router: Router,
     private storage: LocalStorageService,
-    private userInfoService: LoginUserInfoService
-  ) { }
+    private userInfoService: LoginUserInfoService,
+    private sessionStorageService: SessionStorageService,
+  ) {
+  }
 
   isLoggedIn(): boolean {
     return this.userInfoService.userLoggedIn;
@@ -32,6 +34,7 @@ export class HeaderSelfComponent {
   logout(): void {
     this.userInfoService.userLoggedIn = false;
     this.storage.clear();
+    this.sessionStorageService.clear();
     this.redirectToPage('/login');
   }
 

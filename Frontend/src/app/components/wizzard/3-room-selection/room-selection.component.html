@@ -17,7 +17,7 @@
              [rows]="15"
              [paginator]="true"
              [rowsPerPageOptions]="[10, 15, 20]"
-             [globalFilterFields]="['id', 'lecturer', 'name']"
+             [globalFilterFields]="['id']"
              [rowHover]="true"
              [scrollable]="true" scrollHeight="535px">
       <ng-template pTemplate="header">
@@ -65,13 +65,13 @@
     </div>
     <p-table class="tableOnTop"
              #dtR dataKey="id"
-             [value]="selectedRooms"
+             [value]="globalTable.roomTables"
              [(selection)]="selectedRooms"
              [columns]="headers"
              [rows]="15"
              [paginator]="true"
              [rowsPerPageOptions]="[10, 15, 20]"
-             [globalFilterFields]="['id', 'lecturer', 'name']"
+             [globalFilterFields]="['id']"
              [rowHover]="true"
              [scrollable]="true" scrollHeight="535px">
       <ng-template pTemplate="header">

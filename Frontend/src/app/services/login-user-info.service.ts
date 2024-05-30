@@ -5,31 +5,27 @@ import {SessionStorageService} from "ngx-webstorage";
   providedIn: 'root'
 })
 export class LoginUserInfoService {
-  private _username: string = "username";
-  private _userRole: string = "userRole";
   userLoggedIn: boolean = false;
 
   constructor(
     private sessionStorageService: SessionStorageService,
   ) {
-    this.userLoggedIn = !!sessionStorageService.retrieve(this._username);
-    this._username = this.username;
-    this._userRole = this.userRole;
+    this.userLoggedIn = !!sessionStorageService.retrieve("name");
   }
 
   get username(): string {
-    return this.sessionStorageService.retrieve(this._username) || "";
+    return this.sessionStorageService.retrieve("name") || "";
   }
 
   set username(value: string) {
-    this.sessionStorageService.store(this._username, value);
+    this.sessionStorageService.store("name", value);
   }
 
   get userRole(): string {
-    return this.sessionStorageService.retrieve(this._userRole) || "";
+    return this.sessionStorageService.retrieve("role") || "";
   }
 
   set userRole(value: string) {
-    this.sessionStorageService.store(this._userRole, value);
+    this.sessionStorageService.store("role", value.at(0));
   }
 }

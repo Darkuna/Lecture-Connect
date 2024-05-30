@@ -22,12 +22,14 @@
     <p-toolbar>
       <div class="p-toolbar-group-start">
         <button pButton type="button" icon="pi pi-calendar-plus"
-                class="headerButton" (click)="showTableDialog()" style="margin-right: .5rem">
+                class="headerButton" (click)="showTableDialog()" style="margin-right: .5rem"
+                pTooltip="create new Table">
         </button>
-        <button pButton type="button" icon="pi pi-pen-to-square" style="margin-right: .5rem"
+        <button pButton type="button" icon="pi pi-pen-to-square" style="margin-right: .5rem" pTooltip="edit shown Table"
                 class="headerButton" (click)="editTable()">
         </button>
-        <button pButton type="button" icon="pi pi-pen-to-square" *ngIf="isTmpTableAvailable()"
+        <button pButton type="button" icon="pi pi-asterisk" *ngIf="isTmpTableAvailable()"
+                pTooltip="load unfinished Table"
                 class="headerButton" (click)="loadTmpTable()">
         </button>
       </div>
@@ -38,12 +40,12 @@
                     [showClear]="true" (onChange)="loadSpecificTable()">
           <ng-template pTemplate="selectedItem">
             <div class="item">
-              <div>{{ shownTableDD.semester }} {{ shownTableDD.year }} {{ shownTableDD.status }}</div>
+              <div>{{ shownTableDD.semester }} {{ shownTableDD.year }}</div>
             </div>
           </ng-template>
           <ng-template let-item pTemplate="item">
             <div class="flex align-items-center gap-2">
-              <div>{{ item.semester }} {{ item.year }} {{ item.status }}</div>
+              <div>{{ item.semester }} {{ item.year }}</div>
             </div>
           </ng-template>
         </p-dropdown>
@@ -66,7 +68,7 @@
     <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="shownTableDD.semester"
                 placeholder="select a Type"/>
     <br>
-    <label for="year" >Year</label>
+    <label for="year">Year</label>
     <p-inputNumber type="number" id="year" required autofocus [(ngModel)]="shownTableDD.year"/>
     <small class="p-error" *ngIf="!shownTableDD.year">for Simplification needed</small>
   </ng-template>

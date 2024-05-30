@@ -83,7 +83,7 @@ export class RoomSelectionComponent implements OnDestroy {
       if (idx !== -1) {
         this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Room is already in List'});
       } else {
-        this.globalTable.courseTable.push(this.draggedRoom);
+        this.globalTable.roomTables.push(this.draggedRoom);
         this.draggedRoom = null;
       }
     }
@@ -107,7 +107,7 @@ export class RoomSelectionComponent implements OnDestroy {
 
   deleteSingleItem(course: Room) {
     let draggedRoomIndex = this.findIndex(course, this.globalTable.roomTables);
-    this.globalTable.courseTable = this.globalTable.courseTable?.filter((val, i) => i != draggedRoomIndex);
+    this.globalTable.roomTables = this.globalTable.roomTables?.filter((val, i) => i != draggedRoomIndex);
   }
 
   deleteMultipleItems() {

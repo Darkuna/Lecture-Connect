@@ -7,6 +7,11 @@ import {MessageService} from "primeng/api";
 import {Subscription} from "rxjs";
 import {LoginUserInfoService} from "../../services/login-user-info.service";
 
+interface LoginObj {
+  name: string;
+  password: string;
+}
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -15,7 +20,7 @@ import {LoginUserInfoService} from "../../services/login-user-info.service";
 export class LoginComponent implements OnDestroy {
   private loginSub: Subscription | null = null;
 
-  loginObj: any = {
+  loginObj: LoginObj = {
     name: "",
     password: ""
   }
@@ -42,8 +47,9 @@ export class LoginComponent implements OnDestroy {
           if (token && token['token']) {
             const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string };
             this.userInfoService.username = decodedToken['username'];
-            this.userInfoService.userRole = decodedToken['token'];
+            this.userInfoService.userRole = decodedToken['role'];
             this.userInfoService.userLoggedIn = true;
+
 
             this.storage.store('jwtToken', token['token']);
 
