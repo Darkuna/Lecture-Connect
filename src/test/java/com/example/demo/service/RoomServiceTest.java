@@ -36,7 +36,7 @@ public class RoomServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     @DirtiesContext
     public void testUpdateRoom(){
-        String id = "HSB 3";
+        String id = "HSB 4";
         Room room = roomService.loadRoomByID(id);
         room = roomService.updateRoom(room, 40, true);
 
@@ -48,7 +48,7 @@ public class RoomServiceTest {
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testDeleteRoom(){
-        String id = "HSB 3";
+        String id = "HSB 4";
         Room room = roomService.loadRoomByID(id);
 
         roomService.deleteRoom(room);
@@ -59,11 +59,11 @@ public class RoomServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadRoomByID(){
-        String id = "HSB 3";
+        String id = "HSB 4";
         Room room = roomService.loadRoomByID(id);
 
         assertEquals(id, room.getId());
-        assertEquals(30, room.getCapacity());
+        assertEquals(50, room.getCapacity());
         assertFalse(room.isComputersAvailable());
 
     }
@@ -71,7 +71,7 @@ public class RoomServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllRooms(){
-        int numberOfRooms = 20;
+        int numberOfRooms = 28;
         List<Room> rooms = roomService.loadAllRooms();
 
         assertEquals(numberOfRooms, rooms.size());

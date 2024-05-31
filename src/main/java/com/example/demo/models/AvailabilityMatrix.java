@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 
 @Getter
@@ -15,14 +14,20 @@ public class AvailabilityMatrix {
     private static final LocalTime END_TIME = TimingConstants.END_TIME;
     private static final int SLOTS_PER_DAY = (int) Duration.between(START_TIME, END_TIME).toMinutes() / 60 * 4;
 
+    private long total_available_time = 5 * Duration.between(START_TIME, END_TIME).toMinutes();
+    private int capacity;
+    private boolean computersAvailable;
+
     private final CourseSession[][] matrix;
 
-    public AvailabilityMatrix(List<Timing> timingConstraints) {
+    public AvailabilityMatrix(RoomTable roomTable) {
         this.matrix = new CourseSession[DAYS_IN_WEEK][SLOTS_PER_DAY];
+        this.capacity = roomTable.getRoom().getCapacity();
+        this.computersAvailable = roomTable.getRoom().isComputersAvailable();
 
         // mark all time slots with timingConstraints as BLOCKED
-        if(timingConstraints != null){
-            for (Timing timing : timingConstraints) {
+        if(roomTable.getTimingConstraints() != null){
+            for (Timing timing : roomTable.getTimingConstraints()) {
                 int dayIndex = timing.getDay().ordinal();
                 int startSlot = timeToSlotIndex(timing.getStartTime());
                 int endSlot = timeToSlotIndex(timing.getEndTime());
@@ -30,6 +35,7 @@ public class AvailabilityMatrix {
                 for (int slot = startSlot; slot < endSlot; slot++) {
                     matrix[dayIndex][slot] = CourseSession.BLOCKED;
                 }
+                total_available_time -= timing.getDuration();
             }
         }
     }

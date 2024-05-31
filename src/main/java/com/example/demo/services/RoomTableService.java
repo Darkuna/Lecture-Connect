@@ -41,7 +41,7 @@ public class RoomTableService {
         RoomTable roomTable = new RoomTable();
         roomTable.setRoom(room);
         roomTable.setTimeTable(timeTable);
-        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(room.getTimingConstraints()));
+        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
 
         return roomTableRepository.save(roomTable);
     }
@@ -74,7 +74,7 @@ public class RoomTableService {
                 () -> new EntityNotFoundException("RoomTable not found for ID: " + id));
         roomTable.setAssignedCourseSessions(courseSessionService.loadAllAssignedToRoomTable(roomTable));
         roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
-        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable.getTimingConstraints()));
+        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         return roomTable;
     }
 
@@ -108,7 +108,7 @@ public class RoomTableService {
         for(RoomTable roomTable : roomTables){
             roomTable.setAssignedCourseSessions(courseSessionService.loadAllAssignedToRoomTable(roomTable));
             roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
-            roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable.getTimingConstraints()));
+            roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         }
         return roomTables;
     }
@@ -119,8 +119,8 @@ public class RoomTableService {
      * @param timingConstraints The list of timing constraints for the room table.
      * @return An initialized AvailabilityMatrix object.
      */
-    private AvailabilityMatrix initializeAvailabilityMatrix(List<Timing> timingConstraints){
-        return new AvailabilityMatrix(Objects.requireNonNullElseGet(timingConstraints, List::of));
+    private AvailabilityMatrix initializeAvailabilityMatrix(RoomTable roomTable){
+        return new AvailabilityMatrix(roomTable);
     }
 
     /**

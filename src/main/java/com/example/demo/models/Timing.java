@@ -8,6 +8,7 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @Setter
@@ -55,5 +56,9 @@ public class Timing implements Persistable<Long>, Serializable{
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public long getDuration(){
+        return startTime.until(endTime, ChronoUnit.MINUTES);
     }
 }

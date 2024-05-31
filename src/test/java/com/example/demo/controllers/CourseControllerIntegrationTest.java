@@ -23,6 +23,6 @@ public class CourseControllerIntegrationTest {
         mockMvc.perform(get("/api/courses"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(18)));
+                .andExpect(jsonPath("$", hasSize(56)));
     }
 }
