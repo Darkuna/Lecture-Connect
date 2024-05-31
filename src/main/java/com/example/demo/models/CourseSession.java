@@ -21,6 +21,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String name;
     @Transient
     private List<Timing> timingConstraints;
     private boolean isAssigned;

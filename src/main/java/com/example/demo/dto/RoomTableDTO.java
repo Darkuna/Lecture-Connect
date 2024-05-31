@@ -10,6 +10,5 @@ import java.util.List;
 public class RoomTableDTO {
     private Long id;
     private String roomId;
-    private List<CourseSessionDTO> assignedCourseSessions;
 }
 

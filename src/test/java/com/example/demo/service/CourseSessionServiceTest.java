@@ -51,7 +51,7 @@ public class CourseSessionServiceTest {
 
         assertEquals(1, courseSessions.size());
 
-        CourseSession courseSession = courseSessions.get(0);
+        CourseSession courseSession = courseSessions.getFirst();
 
         assertEquals(normalCourse, courseSession.getCourse());
         assertEquals(normalCourse.getDuration(), courseSession.getDuration());
@@ -96,7 +96,7 @@ public class CourseSessionServiceTest {
 
         assertEquals(6, courseSessions.size());
 
-        CourseSession courseSession = courseSessions.get(0);
+        CourseSession courseSession = courseSessions.getFirst();
 
         assertEquals(groupCourse, courseSession.getCourse());
         assertEquals(groupCourse.getDuration(), courseSession.getDuration());
