@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.base.TimestampedEntity;
+import com.example.demo.models.enums.Status;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,7 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
     private Semester semester;
     @Column(name = "academic_year")
     private int year;
+    private Status status;
     @OneToMany(mappedBy = "timeTable", fetch= FetchType.LAZY)
     private List<RoomTable> roomTables;
     @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY)
