@@ -115,3 +115,35 @@
   </div>
 </div>
 
+<p-dialog [(visible)]="CreateDialogVisible" [style]="{ width: '47rem', height: '25rem' }"
+          header="Room Creation" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content" class="parent">
+    <div class="rand">
+      <label for="nameRoom">Name of room</label>
+      <input type="text" pInputText id="nameRoom" required autofocus
+             [(ngModel)]="draggedRoom!.id"/>
+      <small class="p-error" *ngIf="!draggedRoom!.id">Name is needed!</small>
+    </div>
+    <div class="div-container">
+      <div class="rand">
+        <label for="capacity">Capacity</label>
+        <input type="number" pInputText id="capacity" [(ngModel)]="draggedRoom!.capacity" required autofocus/>
+        <small class="p-error" *ngIf="!draggedRoom!.capacity">We need to know the room size.</small>
+      </div>
+
+      <div class="rand">
+        <label for="op1">Computers available?</label>
+        <p-selectButton id="op1" [options]="stateOptions" [(ngModel)]="draggedRoom!.computersAvailable"
+                        optionLabel="label" optionValue="value"></p-selectButton>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+            (click)="saveNewItem()" [disabled]="!draggedRoom!.id && !draggedRoom!.capacity"></button>
+  </ng-template>
+</p-dialog>
+
+

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
 import {TimeTableNames} from "../../assets/Models/time-table-names";

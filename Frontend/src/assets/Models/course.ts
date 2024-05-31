@@ -13,7 +13,7 @@ export class Course {
   computersNecessary?: boolean;
   courseSessions?: CourseSession[];
   timingConstraints?: Timing[];
-  numberOfGroups?: number;
+  numberOfGroups: number | null = null;
   isSplit?: boolean;
   splitTimes?: number[];
   createdAt?: Date;

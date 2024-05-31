@@ -47,8 +47,8 @@ export class RoomSelectionComponent implements OnDestroy {
   }
 
   showCreateDialog(): void {
-    this.CreateDialogVisible = true;
     this.draggedRoom = new Room();
+    this.CreateDialogVisible = true;
   }
 
   hideDialog() {

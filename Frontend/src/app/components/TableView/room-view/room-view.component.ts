@@ -11,19 +11,19 @@ import {Subscription} from "rxjs";
 })
 export class RoomViewComponent implements OnInit, OnDestroy {
   itemDialogVisible: boolean = false;
+  itemIsEdited = false;
   singleRoom: Room;
   rooms!: Room[];
   selectedRooms!: Room[];
   selectedHeaders: any;
-  headers: any[];
 
+  headers: any[];
   private roomsSub?: Subscription;
+
   stateOptions: any[] = [
     {label: 'Yes', value: true},
     {label: 'No', value: false}
   ];
-
-  itemIsEdited = false;
 
   constructor(
     private cd: ChangeDetectorRef,

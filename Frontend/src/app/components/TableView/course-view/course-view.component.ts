@@ -17,14 +17,7 @@ export class CourseViewComponent implements OnInit, OnDestroy {
   selectedCourses!: Course[];
   selectedHeaders: any;
   headers: any[];
-
   private courseSub?: Subscription;
-
-  stateOptions: any[] = [
-    {label: 'Yes', value: true},
-    {label: 'No', value: false}
-  ];
-
   itemIsEdited = false;
 
   constructor(

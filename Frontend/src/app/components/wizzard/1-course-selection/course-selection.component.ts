@@ -50,8 +50,8 @@ export class CourseSelectionComponent implements OnDestroy {
   }
 
   showCreateDialog(): void {
-    this.CreateDialogVisible = true;
     this.draggedCourse = new Course();
+    this.CreateDialogVisible = true;
   }
 
   hideDialog() {
