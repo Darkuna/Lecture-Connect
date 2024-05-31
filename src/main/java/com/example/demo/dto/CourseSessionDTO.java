@@ -9,12 +9,11 @@ import java.util.List;
 @Setter
 public class CourseSessionDTO {
     private Long id;
+    private String name;
     private boolean isAssigned;
     private boolean isFixed;
     private int duration;
     private List<TimingDTO> timingConstraints;
     private TimingDTO timing;
-    private Long courseId;
-    private Long timeTableId;
     private Long roomTableId;
 }

@@ -49,12 +49,17 @@ public class CourseSessionService {
 
             if(isSplitCourse){
                 courseSession.setDuration(course.getSplitTimes().get(i));
-            } else{
+                courseSession.setName(course.getCourseType() + " " + course.getName() + " - Split " + (i+1));
+            } else if (hasGroups){
                 courseSession.setDuration(course.getDuration());
+                courseSession.setName(course.getCourseType() + " " + course.getName() + " - Group " + (i+1));
+            } else {
+                courseSession.setDuration(course.getDuration());
+                courseSession.setName(course.getCourseType() + " " + course.getName());
             }
             courseSessions.add(courseSession);
         }
-        return courseSessions;
+        return courseSessionRepository.saveAll(courseSessions);
     }
 
     /**
@@ -189,10 +194,16 @@ public class CourseSessionService {
     public CourseSessionDTO toDTO(CourseSession courseSession){
         CourseSessionDTO dto = new CourseSessionDTO();
         dto.setId(courseSession.getId());
+        dto.setName(courseSession.getName());
         dto.setAssigned(courseSession.isAssigned());
         dto.setFixed(courseSession.isFixed());
+        if(courseSession.getRoomTable() != null){
+            dto.setRoomTableId(courseSession.getRoomTable().getId());
+        }
         dto.setDuration(courseSession.getDuration());
-        dto.setTiming(timingService.toDTO(courseSession.getTiming()));
+        if(courseSession.getTiming() != null){
+            dto.setTiming(timingService.toDTO(courseSession.getTiming()));
+        }
         return dto;
     }
 
@@ -205,6 +216,7 @@ public class CourseSessionService {
     public CourseSession fromDTO(CourseSessionDTO dto) {
         CourseSession courseSession = new CourseSession();
         courseSession.setId(dto.getId());
+        courseSession.setName(dto.getName());
         courseSession.setAssigned(dto.isAssigned());
         courseSession.setFixed(dto.isFixed());
         courseSession.setDuration(dto.getDuration());

@@ -1,9 +1,6 @@
 package com.example.demo.repositories;
 
-import com.example.demo.models.Course;
-import com.example.demo.models.CourseSession;
-import com.example.demo.models.RoomTable;
-import com.example.demo.models.TimeTable;
+import com.example.demo.models.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

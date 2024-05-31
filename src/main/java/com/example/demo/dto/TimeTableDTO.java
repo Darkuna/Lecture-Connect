@@ -13,6 +13,7 @@ public class TimeTableDTO {
     private Long id;
     private String semester;
     private int year;
+    private String status;
     private List<RoomTableDTO> roomTables;
     private List<CourseSessionDTO> courseSessions;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
