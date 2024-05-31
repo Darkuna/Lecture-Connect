@@ -8,6 +8,7 @@ export class CourseSession {
 
   constructor(
     private id: number,
+    private name: string,
     private timingConstraints: Timing[],
     private isAssigned: boolean,
     private isFixed: boolean,

@@ -4,6 +4,7 @@ import com.example.demo.dto.TimeTableDTO;
 import com.example.demo.dto.TimeTableNameDTO;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.Semester;
+import com.example.demo.models.enums.Status;
 import com.example.demo.repositories.TimeTableRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -179,6 +180,7 @@ public class TimeTableService {
         dto.setId(timeTable.getId());
         dto.setSemester(timeTable.getSemester().toString());
         dto.setYear(timeTable.getYear());
+        dto.setStatus(timeTable.getStatus().toString());
         dto.setCreatedAt(timeTable.getCreatedAt());
         dto.setUpdatedAt(timeTable.getUpdatedAt());
 
@@ -203,6 +205,7 @@ public class TimeTableService {
         TimeTable timeTable = new TimeTable();
         timeTable.setId(dto.getId());
         timeTable.setSemester(Semester.valueOf(dto.getSemester()));
+        timeTable.setStatus(Status.valueOf(dto.getStatus()));
         timeTable.setYear(dto.getYear());
         timeTable.setCreatedAt(dto.getCreatedAt());
         timeTable.setUpdatedAt(dto.getUpdatedAt());
