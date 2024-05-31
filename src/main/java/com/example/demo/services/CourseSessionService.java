@@ -197,7 +197,9 @@ public class CourseSessionService {
         dto.setName(courseSession.getName());
         dto.setAssigned(courseSession.isAssigned());
         dto.setFixed(courseSession.isFixed());
-        dto.setRoomTableId(courseSession.getRoomTable().getId());
+        if(courseSession.getRoomTable() != null){
+            dto.setRoomTableId(courseSession.getRoomTable().getId());
+        }
         dto.setDuration(courseSession.getDuration());
         if(courseSession.getTiming() != null){
             dto.setTiming(timingService.toDTO(courseSession.getTiming()));
