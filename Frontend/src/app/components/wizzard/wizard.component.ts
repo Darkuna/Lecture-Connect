@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {TableShareService} from "../../services/table-share.service";
-import {tableStatus} from "../../../assets/Models/enums/table-status";
+import {Status} from "../../../assets/Models/enums/status";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 import {InfoDialogInterface} from "../../../assets/Models/interfaces/info-dialog-interface";
 import {LocalStorageService} from "ngx-webstorage";
@@ -26,6 +26,7 @@ export class WizardComponent {
     private router: Router,
   ) {
     this.selectedTable = this.shareService.selectedTable;
+    this.active = this.selectedTable.currentPage;
     this.InfoDialogOptions = [
       {
         header: 'Choose Courses',
@@ -85,13 +86,13 @@ export class WizardComponent {
 
   getTextFromEnum(): string {
     switch (this.selectedTable.tableName.status) {
-      case tableStatus.NEW:
+      case Status.NEW:
         return "NEW";
-      case tableStatus.EDITED:
+      case Status.EDITED:
         return "EDITED";
-      case tableStatus.FINISHED:
+      case Status.FINISHED:
         return "FINISHED";
-      case tableStatus.IN_WORK:
+      case Status.IN_WORK:
         return "IN WORK";
       default:
         return "DEFAULT";
@@ -99,6 +100,7 @@ export class WizardComponent {
   }
 
   SaveLocal(){
+    this.selectedTable.currentPage = this.active;
     this.localStorage.store('tmptimetable', this.selectedTable);
     this.messageService.add({
       severity: 'info',
@@ -108,7 +110,7 @@ export class WizardComponent {
   }
 
   closeWizard(){
+    this.SaveLocal();
     this.router.navigate(['/home']);
   }
-
 }

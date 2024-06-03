@@ -10,11 +10,12 @@ import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
-import {Subscription} from "rxjs";
+import {async, Subscription} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 import {LocalStorageService} from "ngx-webstorage";
+import {CourseSession} from "../../../assets/Models/course-session";
 
 @Component({
   selector: 'app-home',
@@ -52,6 +53,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   showTableDialog() {
     this.showNewTableDialog = true;
+    this.convertCourseSessions();
     this.shownTableDD = new TimeTableNames();
   }
 
@@ -60,7 +62,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadSpecificTable() {
-    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id, this.selectedTimeTable);
+    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
   }
 
   isTmpTableAvailable() {
@@ -68,8 +70,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadTmpTable() {
-    this.shareService.selectedTable = this.localStorage.retrieve("tmptimetable");
-    this.router.navigate(['/wizard']);
+    if(this.isTmpTableAvailable()){
+      this.shareService.selectedTable = this.localStorage.retrieve("tmptimetable");
+      this.router.navigate(['/wizard']);
+    } else {
+
+    }
   }
 
   createNewTable() {
@@ -88,6 +94,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   editTable() {
     if (this.shownTableDD) {
+      // @ts-ignore
       this.selectedTimeTable = this.shownTableDD;
     }
     this.showTableDialog();
@@ -163,7 +170,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
-    this.cd.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
+    this.cd.detectChanges();
   }
 
   ngOnInit() {
@@ -250,4 +257,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     ];
   }
 
+  private convertCourseSessions() {
+    if(this.selectedTimeTable.courseSessions)
+    this.selectedTimeTable.courseSessions.forEach(session => {
+      //TODO implement Logic for Type Conversion
+    })
+
+  }
 }

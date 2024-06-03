@@ -62,7 +62,6 @@ export class CourseViewComponent implements OnInit, OnDestroy {
         this.courseService.updateSingleCourse(this.singleCourse);
 
       this.itemIsEdited = false;
-
       this.hideDialog();
       this.messageService.add({severity: 'success', summary: 'Change', detail: 'Element was updated'});
     } else if (this.isInList(this.singleCourse)) {

@@ -4,7 +4,7 @@ import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
-import {tableStatus} from "../../../../assets/Models/enums/table-status";
+import {Status} from "../../../../assets/Models/enums/status";
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 
 @Component({
@@ -94,7 +94,7 @@ export class CourseSelectionComponent implements OnDestroy {
 
   dragEnd() {
     this.draggedCourse = null;
-    this.globalTable.tableName.status = tableStatus.EDITED;
+    this.globalTable.tableName.status = Status.EDITED;
   }
 
   findIndex(product: Course, list: Course[]): number {

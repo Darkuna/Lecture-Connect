@@ -1,9 +1,9 @@
 import {Semester} from "./enums/semester";
-import {tableStatus} from "./enums/table-status";
+import {Status} from "./enums/status";
 
 export class TimeTableNames {
   id!: number;
   semester?: Semester;
   year?: number;
-  status: tableStatus = tableStatus.NEW;
+  status: Status = Status.NEW;
 }

@@ -5,12 +5,10 @@ import {AvailabilityMatrix} from "./availability-matrix";
 import {CourseSession} from "./course-session";
 
 export class RoomTable {
-  constructor(
-    private id: number,
-    private assignedCourseSessions: CourseSession[],
-    private timingConstraints: Timing[],
-    private room: Room,
-    private timeTable: TimeTable,
-    private availabilityMatrix: AvailabilityMatrix) {
-  }
+  id!: number;
+  assignedCourseSessions?: CourseSession[];
+  timingConstraints?: Timing[];
+  room?: Room;
+  timeTable?: TimeTable;
+  availabilityMatrix?: AvailabilityMatrix;
 }

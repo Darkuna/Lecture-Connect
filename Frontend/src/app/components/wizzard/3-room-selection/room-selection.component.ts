@@ -2,7 +2,7 @@ import {Component, Input, OnDestroy} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
-import {tableStatus} from "../../../../assets/Models/enums/table-status";
+import {Status} from "../../../../assets/Models/enums/status";
 import {RoomService} from "../../../services/room-service";
 import {Room} from "../../../../assets/Models/room";
 
@@ -91,7 +91,7 @@ export class RoomSelectionComponent implements OnDestroy {
 
   dragEnd() {
     this.draggedRoom = null;
-    this.globalTable.tableName.status = tableStatus.EDITED;
+    this.globalTable.tableName.status = Status.EDITED;
   }
 
   findIndex(product: Room, list: Room[]): number {

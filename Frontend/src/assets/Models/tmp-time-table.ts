@@ -6,4 +6,5 @@ export class TmpTimeTable {
   tableName!: TimeTableNames;
   courseTable!: Course[]
   roomTables!: Room[];
+  currentPage: number = 0;
 }

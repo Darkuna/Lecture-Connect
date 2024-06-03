@@ -31,8 +31,7 @@ export class CourseService {
 
   createSingleCourse(course: Course) {
     this.http.post<Course>(this.courseApiPath, course, this.httpOptions)
-      .subscribe(data => {
-        course = data
+      .subscribe(data => {course = data
       }).unsubscribe();
     return course;
   }
@@ -44,8 +43,9 @@ export class CourseService {
 
   updateSingleCourse(course: Course): Course {
     let newUrl = `${this.courseApiPath}/${course.id}`;
-    this.http.put<Course>(newUrl, course, this.httpOptions).subscribe(res => course = res)
-      .unsubscribe();
+    this.http.put<Course>(newUrl, course, this.httpOptions)
+      .subscribe(res => { course = res }
+      ).unsubscribe();
     return course;
   }
 
@@ -53,7 +53,7 @@ export class CourseService {
     let newUrl = `${this.courseApiPath}/${courseID}`;
     this.http.delete(newUrl, this.httpOptions).subscribe({
       error: error => {
-        this.messageService.add({severity: 'failure', summary: 'Failure', detail: error});
+        this.messageService.add({severity: 'failure', summary: 'Failure', detail: error.toString()});
       }
     }).unsubscribe();
   }
