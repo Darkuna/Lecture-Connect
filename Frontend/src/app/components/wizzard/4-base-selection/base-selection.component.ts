@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, signal} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg, EventApi, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -9,6 +9,7 @@ import {CourseColor} from "../../../../assets/Models/enums/lecture-color";
 import {Room} from "../../../../assets/Models/room";
 import {createEventId} from "../../home/event-utils";
 import {ConfirmationService, MessageService} from "primeng/api";
+import {FullCalendarComponent} from "@fullcalendar/angular";
 
 @Component({
   selector: 'app-base-selection',
@@ -17,10 +18,15 @@ import {ConfirmationService, MessageService} from "primeng/api";
 })
 export class BaseSelectionComponent {
   @Input() globalTable!: TmpTimeTable;
-  selectedRoom: Room | null = null;
-  lastUsedColor: CourseColor = CourseColor.DEFAULT;
 
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  protected readonly CourseColor = CourseColor;
+  selectedRoom!: Room;
+  tmpEvents: any[] = [];
+
+  lastUsedColor: CourseColor = CourseColor.DEFAULT;
   showTimeDialog: boolean = false;
+
   constructor(
     private cd: ChangeDetectorRef,
     private confirmationService: ConfirmationService,
@@ -47,7 +53,7 @@ export class BaseSelectionComponent {
   }
 
   calendarOptions = signal<CalendarOptions>({
-    events: undefined,
+    events: this.tmpEvents,
     plugins: [
       interactionPlugin,
       dayGridPlugin,
@@ -67,7 +73,6 @@ export class BaseSelectionComponent {
     dayMaxEvents: true,
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
-    eventsSet: this.handleEvents.bind(this),
     allDaySlot: false,
     height: "auto",
     eventBackgroundColor: this.lastUsedColor,
@@ -83,25 +88,25 @@ export class BaseSelectionComponent {
     nowIndicator: false,
   });
 
-
-  currentEvents = signal<EventApi[]>([]);
-
   handleDateSelect(selectInfo: DateSelectArg) {
     const title = prompt('Please enter a new title for your event');
     const calendarApi = selectInfo.view.calendar;
-    console.log(selectInfo);
 
-    calendarApi.unselect(); // clear date selection
+    calendarApi.unselect();
 
     if (title) {
-      calendarApi.addEvent({
-        id: createEventId(),
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        color: this.lastUsedColor
-      });
+      this.tmpEvents.push(
+        {
+          id: createEventId(),
+          title,
+          start: selectInfo.startStr,
+          end: selectInfo.endStr,
+          color: this.lastUsedColor
+        }
+      )
     }
+
+    this.calendarComponent.getApi().refetchEvents();
   }
 
   handleEventClick(clickInfo: EventClickArg) {
@@ -111,17 +116,11 @@ export class BaseSelectionComponent {
       accept: () => {
         this.messageService.add({severity:'info', summary:'Confirmed', detail:'You have accepted'});
         clickInfo.event.remove();
+        this.calendarComponent.getApi().refetchEvents();
       },
       reject: () => {
         this.messageService.add({severity:'error', summary:'Rejected', detail:'You have rejected'});
       }
     });
   }
-
-  handleEvents(events: EventApi[]) {
-    this.currentEvents.set(events);
-    this.cd.detectChanges();
-  }
-
-  protected readonly CourseColor = CourseColor;
 }

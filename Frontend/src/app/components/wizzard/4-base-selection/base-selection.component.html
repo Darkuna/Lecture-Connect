@@ -1,7 +1,7 @@
 <div class="Context">
   <div class="col-left" style="width: 85%">
     <div id="scrollable-calendar">
-      <full-calendar *ngIf=showCalendar() [options]='calendarOptions()'/>
+      <full-calendar #calendar *ngIf=showCalendar() [options]='calendarOptions()'/>
     </div>
     <div *ngIf="!showCalendar()" class="center-content">
       <br><br><br><br><br><br><br><br><br><br>

@@ -1,15 +1,13 @@
 import {Timing} from "./timing";
 import {RoomTable} from "./room-table";
 import {RoomInterface} from "./interfaces/roomInterface";
-import {EventApi, EventSourceInput} from "@fullcalendar/core";
-import {signal} from "@angular/core";
 
 export class Room implements RoomInterface {
   id!: string;
   capacity!: number;
   computersAvailable?: boolean;
   timingConstraints?: Timing[];
-  tmpCalendarTimes = signal<EventApi[]>([]);
+  tmpCalendarTimes: any[] = [];
   roomTables?: RoomTable[];
   createdAt?: Date;
   updatedAt?: Date;
