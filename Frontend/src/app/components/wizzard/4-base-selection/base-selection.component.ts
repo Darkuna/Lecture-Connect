@@ -1,13 +1,12 @@
 import {ChangeDetectorRef, Component, Input, signal} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
-import {CalendarApi, CalendarOptions, DateSelectArg, EventApi, EventClickArg} from "@fullcalendar/core";
+import {CalendarOptions, DateSelectArg, EventApi, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import {CourseColor} from "../../../../assets/Models/enums/lecture-color";
 import {Room} from "../../../../assets/Models/room";
-import {EventImpl} from "@fullcalendar/core/internal";
 import {createEventId} from "../../home/event-utils";
 import {ConfirmationService, MessageService} from "primeng/api";
 
@@ -19,14 +18,9 @@ import {ConfirmationService, MessageService} from "primeng/api";
 export class BaseSelectionComponent {
   @Input() globalTable!: TmpTimeTable;
   selectedRoom: Room | null = null;
-  lastUsedColor: CourseColor | null = null;
+  lastUsedColor: CourseColor = CourseColor.DEFAULT;
 
   showTimeDialog: boolean = false;
-  eventTitle: string = '';
-  eventStartTime: string = '';
-  eventEndTime: string = '';
-  selectInfo: DateSelectArg | null = null;
-
   constructor(
     private cd: ChangeDetectorRef,
     private confirmationService: ConfirmationService,
@@ -41,6 +35,11 @@ export class BaseSelectionComponent {
       'padding': '.5rem',
       'width': '-webkit-fill-available'
     };
+  }
+
+  setCurrentColor(color: CourseColor){
+    this.lastUsedColor = color;
+    this.messageService.add({severity:'info', summary:'Color Mode', detail:'color changed!'});
   }
 
   showCalendar(): boolean {
@@ -71,8 +70,8 @@ export class BaseSelectionComponent {
     eventsSet: this.handleEvents.bind(this),
     allDaySlot: false,
     height: "auto",
-    eventBackgroundColor: "#666666",
-    eventBorderColor: "#050505",
+    eventBackgroundColor: this.lastUsedColor,
+    eventBorderColor: this.lastUsedColor,
     eventTextColor: "var(--system-color-primary-white)",
     slotMinTime: '07:00:00',
     slotMaxTime: '23:00:00',
@@ -100,6 +99,7 @@ export class BaseSelectionComponent {
         title,
         start: selectInfo.startStr,
         end: selectInfo.endStr,
+        color: this.lastUsedColor
       });
     }
   }

@@ -18,10 +18,12 @@
                     placeholder="select a Room" optionLabel="id"/>
         <br>
         <p-button label="Computer Sciene" icon="pi pi-microchip"
-                  [style]="getButtonStyle(CourseColor.COMPUTER_SCIENCE)"/>
+                  [style]="getButtonStyle(CourseColor.COMPUTER_SCIENCE)"
+                  (onClick)="setCurrentColor(CourseColor.COMPUTER_SCIENCE)"/>
         <br>
         <p-button label="other studies" icon="pi pi-asterisk"
-                  [style]="getButtonStyle(CourseColor.NONE)"/>
+                  [style]="getButtonStyle(CourseColor.NONE)"
+                  (onClick)="setCurrentColor(CourseColor.NONE)"/>
 
       </div>
       <div id="lowerSection">
