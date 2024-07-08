@@ -1,9 +1,8 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import {Injectable} from '@angular/core';
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
-import {Observable} from "rxjs";
 import {TimeTable} from "../../assets/Models/time-table";
 import {RoomTable} from "../../assets/Models/room-table";
 

@@ -10,12 +10,11 @@ import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
-import {async, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 import {LocalStorageService} from "ngx-webstorage";
-import {CourseSession} from "../../../assets/Models/course-session";
 
 @Component({
   selector: 'app-home',
@@ -52,9 +51,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   showTableDialog() {
-    this.showNewTableDialog = true;
-    this.convertCourseSessions();
     this.shownTableDD = new TimeTableNames();
+    this.showNewTableDialog = true;
   }
 
   hideTableDialog() {
@@ -70,7 +68,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadTmpTable() {
-    if(this.isTmpTableAvailable()){
+    if (this.isTmpTableAvailable()) {
       this.shareService.selectedTable = this.localStorage.retrieve("tmptimetable");
       this.router.navigate(['/wizard']);
     } else {
@@ -258,10 +256,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private convertCourseSessions() {
-    if(this.selectedTimeTable.courseSessions)
-    this.selectedTimeTable.courseSessions.forEach(session => {
-      //TODO implement Logic for Type Conversion
-    })
+    if (this.selectedTimeTable.courseSessions)
+      this.selectedTimeTable.courseSessions.forEach(session => {
+        //TODO implement Logic for Type Conversion
+      })
 
   }
 }

@@ -26,7 +26,7 @@ export class WizardComponent {
     private router: Router,
   ) {
     this.selectedTable = this.shareService.selectedTable;
-    this.active = this.selectedTable.currentPage;
+    this.active = this.selectedTable.currentPageIndex;
     this.InfoDialogOptions = [
       {
         header: 'Choose Courses',
@@ -99,8 +99,8 @@ export class WizardComponent {
     }
   }
 
-  SaveLocal(){
-    this.selectedTable.currentPage = this.active;
+  SaveLocal() {
+    this.selectedTable.currentPageIndex = this.active;
     this.localStorage.store('tmptimetable', this.selectedTable);
     this.messageService.add({
       severity: 'info',
@@ -109,7 +109,7 @@ export class WizardComponent {
     });
   }
 
-  closeWizard(){
+  closeWizard() {
     this.SaveLocal();
     this.router.navigate(['/home']);
   }

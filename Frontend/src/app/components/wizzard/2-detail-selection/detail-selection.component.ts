@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {Course} from "../../../../assets/Models/course";
-import {CourseType} from "../../../../assets/Models/enums/course-type";
 
 @Component({
   selector: 'app-detail-selection',
@@ -16,8 +15,7 @@ export class DetailSelectionComponent {
   tmpSplitTimes: number = 0;
   timesArray: number[] = [];
 
-  constructor(
-  ) {
+  constructor() {
     this.selectedCourse = null;
     this.headers = [
       {field: 'id', header: 'Id'},
@@ -33,44 +31,41 @@ export class DetailSelectionComponent {
     this.showDialog();
   }
 
-  hasPsType(){
+  hasPsType() {
     return this.selectedCourse!.courseType?.toString() === 'PS';
   }
 
-  getHeaderText(): string{
-    if(this.selectedCourse){
+  getHeaderText(): string {
+    if (this.selectedCourse) {
       return this.hasPsType() ? 'Groups' : 'Splits'
     } else {
       return 'error';
     }
   }
 
-  saveCourse(){
-    if(this.hasPsType()){
+  saveCourse() {
+    if (this.hasPsType()) {
       this.updateTimesArray(this.timesArray[0])
+    } else {
+      this.selectedCourse!.numberOfGroups = this.tmpSplitTimes;
+      this.selectedCourse!.splitTimes = this.timesArray;
     }
 
-    this.selectedCourse!.numberOfGroups = this.tmpSplitTimes;
-    this.selectedCourse!.splitTimes = this.timesArray;
     this.selectedCourse!.isSplit = true;
-
     this.hideDialog();
   }
 
   updateTimesArray(fillValue: number) {
-    this.timesArray = [];
     this.timesArray = Array(this.tmpSplitTimes).fill(fillValue);
   }
 
-  showDialog(){
+  showDialog() {
     this.showEditDialog = true;
   }
 
-  hideDialog(){
+  hideDialog() {
     this.showEditDialog = false;
     this.tmpSplitTimes = 0;
     this.timesArray = [];
   }
-
-  protected readonly CourseType = CourseType;
 }

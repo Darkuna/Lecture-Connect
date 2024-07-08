@@ -4,8 +4,9 @@ import {TimeTable} from "./time-table";
 import {RoomTable} from "./room-table";
 
 export class CourseSession {
+  static BLOCKED: CourseSession;
   id!: number;
-  name?: string;
+  name!: string;
   timingConstraints?: Timing[];
   isAssigned?: boolean;
   isFixed?: boolean;

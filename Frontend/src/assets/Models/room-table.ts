@@ -11,4 +11,5 @@ export class RoomTable {
   room?: Room;
   timeTable?: TimeTable;
   availabilityMatrix?: AvailabilityMatrix;
+
 }

@@ -52,6 +52,7 @@ import {DetailSelectionComponent} from "./components/wizzard/2-detail-selection/
 import {RoomSelectionComponent} from "./components/wizzard/3-room-selection/room-selection.component";
 import {BaseSelectionComponent} from "./components/wizzard/4-base-selection/base-selection.component";
 import {DragDropModule} from "primeng/dragdrop";
+import { TimingToEventPipe } from './pipes/timing-to-event.pipe';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -70,7 +71,8 @@ import {DragDropModule} from "primeng/dragdrop";
         CourseSelectionComponent,
         DetailSelectionComponent,
         RoomSelectionComponent,
-        BaseSelectionComponent
+        BaseSelectionComponent,
+        TimingToEventPipe
     ],
     bootstrap: [AppComponent], imports: [BrowserAnimationsModule,
         BrowserModule,
