@@ -120,7 +120,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     initialEvents: INITIAL_EVENTS,
     weekends: false,
     editable: false,
-    selectable: false,
+    selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
     select: this.handleDateSelect.bind(this),
@@ -146,6 +146,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   handleDateSelect(selectInfo: DateSelectArg) {
     const title = prompt('Please enter a new title for your event');
     const calendarApi = selectInfo.view.calendar;
+    console.log(selectInfo);
 
     calendarApi.unselect(); // clear date selection
 
@@ -155,7 +156,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         title,
         start: selectInfo.startStr,
         end: selectInfo.endStr,
-        allDay: selectInfo.allDay
       });
     }
   }

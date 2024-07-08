@@ -31,25 +31,21 @@
   </div>
 </div>
 
-<p-dialog header="Add Event" [(visible)]="showTimeDialog" [modal]="true" [closable]="false"
-          [style]="{'top.px': dialogTop, 'left.px': dialogLeft}">
-  <div class="p-fluid">
-    <div class="p-field">
-      <label for="title">Title</label>
-      <input id="title" type="text" pInputText [(ngModel)]="eventTitle"/>
-    </div>
-    <div class="p-field">
-      <label for="start">Start Time</label>
-      <input id="start" type="datetime-local" pInputText [(ngModel)]="eventStartTime"/>
-    </div>
-    <div class="p-field">
-      <label for="end">End Time</label>
-      <input id="end" type="datetime-local" pInputText [(ngModel)]="eventEndTime"/>
-    </div>
-    <div class="p-field">
-      <button pButton type="button" label="Save" icon="pi pi-check" (click)="saveEvent()"></button>
-      <button pButton type="button" label="Cancel" icon="pi pi-times" (click)="cancelEvent()"
-              class="p-button-secondary"></button>
-    </div>
-  </div>
+<p-dialog [(visible)]="showTimeDialog" [style]="{ width: '30rem', height: '20rem' }"
+          header="Time Selection" [modal]="true" [closable]="false" styleClass="p-fluid">
+
+  <ng-template pTemplate="content" class="parent">
+    <label for="start">Start Time</label>
+    <p-calendar id="start" dateFormat="dd.mm.yy" />
+    <br>
+    <label for="end">End Time</label>
+    <p-calendar id="end"  dateFormat="dd.mm.yy" />
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+            ></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+            ></button>
+  </ng-template>
 </p-dialog>

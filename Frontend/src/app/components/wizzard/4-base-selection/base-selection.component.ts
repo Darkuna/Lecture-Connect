@@ -1,13 +1,15 @@
 import {ChangeDetectorRef, Component, Input, signal} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
-import {CalendarOptions, DateSelectArg, EventApi, EventClickArg} from "@fullcalendar/core";
+import {CalendarApi, CalendarOptions, DateSelectArg, EventApi, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import {INITIAL_EVENTS} from "../../home/event-utils";
 import {CourseColor} from "../../../../assets/Models/enums/lecture-color";
 import {Room} from "../../../../assets/Models/room";
+import {EventImpl} from "@fullcalendar/core/internal";
+import {createEventId} from "../../home/event-utils";
+import {ConfirmationService, MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-base-selection',
@@ -20,15 +22,15 @@ export class BaseSelectionComponent {
   lastUsedColor: CourseColor | null = null;
 
   showTimeDialog: boolean = false;
-  dialogTop: number = 0;
-  dialogLeft: number = 0;
   eventTitle: string = '';
   eventStartTime: string = '';
   eventEndTime: string = '';
   selectInfo: DateSelectArg | null = null;
 
   constructor(
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService
   ) {
   }
 
@@ -59,7 +61,6 @@ export class BaseSelectionComponent {
       right: ''
     },
     initialView: 'timeGridWeek',
-    initialEvents: INITIAL_EVENTS,
     weekends: false,
     editable: true,
     selectable: true,
@@ -83,48 +84,38 @@ export class BaseSelectionComponent {
     nowIndicator: false,
   });
 
+
   currentEvents = signal<EventApi[]>([]);
 
   handleDateSelect(selectInfo: DateSelectArg) {
-    this.showTimeDialog = true;
-    this.selectInfo = selectInfo;
-  }
+    const title = prompt('Please enter a new title for your event');
+    const calendarApi = selectInfo.view.calendar;
+    console.log(selectInfo);
 
-  private id = 0;
+    calendarApi.unselect(); // clear date selection
 
-  saveEvent() {
-    const calendarApi = this.selectInfo?.view.calendar;
-
-    if (this.eventTitle && this.eventStartTime && this.eventEndTime) {
-      calendarApi?.addEvent({
-        id: this.id,
-        title: this.eventTitle,
-        start: this.eventStartTime,
-        end: this.eventEndTime,
-        allDay: false
+    if (title) {
+      calendarApi.addEvent({
+        id: createEventId(),
+        title,
+        start: selectInfo.startStr,
+        end: selectInfo.endStr,
       });
-
-      this.resetDialog();
-      this.id += 1;
     }
-  }
-
-  cancelEvent() {
-    this.resetDialog();
-  }
-
-  resetDialog() {
-    this.showTimeDialog = false;
-    this.eventTitle = '';
-    this.eventStartTime = '';
-    this.eventEndTime = '';
-    this.selectInfo = null;
   }
 
   handleEventClick(clickInfo: EventClickArg) {
-    if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-      clickInfo.event.remove();
-    }
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete the event '${clickInfo.event.title}'`,
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.messageService.add({severity:'info', summary:'Confirmed', detail:'You have accepted'});
+        clickInfo.event.remove();
+      },
+      reject: () => {
+        this.messageService.add({severity:'error', summary:'Rejected', detail:'You have rejected'});
+      }
+    });
   }
 
   handleEvents(events: EventApi[]) {
