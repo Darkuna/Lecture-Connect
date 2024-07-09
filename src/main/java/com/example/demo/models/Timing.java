@@ -61,4 +61,12 @@ public class Timing implements Persistable<Long>, Serializable{
     public long getDuration(){
         return startTime.until(endTime, ChronoUnit.MINUTES);
     }
+
+    public boolean intersects(Timing timing) {
+        if (this.day != timing.day) {
+            return false;
+        }
+
+        return this.startTime.isBefore(timing.endTime) && timing.startTime.isBefore(this.endTime);
+    }
 }

@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Service class for managing room tables.
@@ -114,9 +113,9 @@ public class RoomTableService {
     }
 
     /**
-     * Initializes an availability matrix for a room table based on its timing constraints.
+     * Initializes an availability matrix for a room table.
      *
-     * @param timingConstraints The list of timing constraints for the room table.
+     * @param roomTable The roomTable to initialize the availability matrix for.
      * @return An initialized AvailabilityMatrix object.
      */
     private AvailabilityMatrix initializeAvailabilityMatrix(RoomTable roomTable){

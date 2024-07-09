@@ -1,6 +1,8 @@
 package com.example.demo.models;
 
 import com.example.demo.constants.TimingConstants;
+import com.example.demo.exceptions.roomTable.NoSpaceAvailableException;
+import com.example.demo.models.enums.Day;
 import lombok.Getter;
 
 import java.time.Duration;
@@ -9,14 +11,15 @@ import java.util.Optional;
 
 @Getter
 public class AvailabilityMatrix {
+    private static final int DURATION_PER_SLOT = 15;
     private static final int DAYS_IN_WEEK = 5;
     private static final LocalTime START_TIME = TimingConstants.START_TIME;
     private static final LocalTime END_TIME = TimingConstants.END_TIME;
     private static final int SLOTS_PER_DAY = (int) Duration.between(START_TIME, END_TIME).toMinutes() / 60 * 4;
 
     private long total_available_time = 5 * Duration.between(START_TIME, END_TIME).toMinutes();
-    private int capacity;
-    private boolean computersAvailable;
+    private final int capacity;
+    private final boolean computersAvailable;
 
     private final CourseSession[][] matrix;
 
@@ -40,6 +43,32 @@ public class AvailabilityMatrix {
         }
     }
 
+    public Pair getEarliestAvailableSlotForDuration(int minutes) {
+        int numberOfSlots = minutes / DURATION_PER_SLOT;
+        for(int i = 0; i < DAYS_IN_WEEK; i++){
+            for (int j = 0; j < SLOTS_PER_DAY; j++) {
+                if(matrix[i][j] == null){
+                    for(int k = 0; k < numberOfSlots; k++){
+                        if(matrix[i][k] != null){
+                            break;
+                        }
+                    }
+                    return new Pair(i,j);
+                }
+            }
+        }
+        throw new NoSpaceAvailableException();
+    }
+
+    public boolean semesterIntersects(Pair position, int duration, int semester){
+        for(int i = position.getSlot(); i < position.getSlot() + duration / DURATION_PER_SLOT; i++){
+            if(matrix[position.getDay()][i] != null && matrix[position.getDay()][i].getCourse().getSemester() == semester){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private int timeToSlotIndex(LocalTime time) {
         time = time.minusHours(START_TIME.getHour());
         time = time.minusMinutes(START_TIME.getMinute());
@@ -50,16 +79,10 @@ public class AvailabilityMatrix {
         return matrix[day][slot] == null;
     }
 
-    public boolean addCourseSession(int day, int startSlot, int duration, CourseSession courseSession) {
-        for (int i = startSlot; i < startSlot + duration; i++) {
-            if (!isSlotAvailable(day, i)) {
-                return false;
-            }
+    public void assignCourseSession(Pair position, int duration, CourseSession courseSession) {
+        for (int i = position.getSlot(); i < position.getSlot() + duration / DURATION_PER_SLOT; i++) {
+            matrix[position.getDay()][i] = courseSession;
         }
-        for (int i = startSlot; i < startSlot + duration; i++) {
-            matrix[day][i] = courseSession;
-        }
-        return true;
     }
 
     public void removeCourseSession(int day, int startSlot, int duration) {
@@ -82,6 +105,28 @@ public class AvailabilityMatrix {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    public static Timing toTiming(Pair position, int duration){
+        Timing timing = new Timing();
+        int minutes = position.getSlot() % 4 * DURATION_PER_SLOT;
+        int hours = position.getSlot() / DURATION_PER_SLOT;
+        switch(position.getDay()){
+            case 0: timing.setDay(Day.MONDAY);
+                break;
+            case 1: timing.setDay(Day.TUESDAY);
+                break;
+            case 2: timing.setDay(Day.WEDNESDAY);
+                break;
+            case 3: timing.setDay(Day.THURSDAY);
+                break;
+            case 4: timing.setDay(Day.FRIDAY);
+                break;
+        }
+        LocalTime startTime = START_TIME.plusHours(hours).plusMinutes(minutes);
+        timing.setStartTime(startTime);
+        timing.setEndTime(startTime.plusMinutes(duration));
+        return timing;
     }
 
 }
