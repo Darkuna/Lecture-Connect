@@ -168,7 +168,11 @@ public class CourseService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Course> loadAllCourses(){
-        return courseRepository.findAll();
+        List<Course> courses = courseRepository.findAll();
+        for(Course course : courses){
+            course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course));
+        }
+        return courses;
     }
 
 

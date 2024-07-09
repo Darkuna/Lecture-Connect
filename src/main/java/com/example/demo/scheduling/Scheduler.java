@@ -3,13 +3,14 @@ package com.example.demo.scheduling;
 import com.example.demo.models.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Scheduler {
     private final List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
     private final List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
     private final List<AvailabilityMatrix> allAvailabilityMatrices;
-    private final List<CourseSession> courseSessionsWithComputerNeeded;
-    private final List<CourseSession> courseSessionsWithoutComputerNeeded;
+    private List<CourseSession> courseSessionsWithComputerNeeded;
+    private List<CourseSession> courseSessionsWithoutComputerNeeded;
 
     CourseSession currentCourseSession;
     AvailabilityMatrix currentAvailabilityMatrix;
@@ -20,6 +21,8 @@ public class Scheduler {
         availabilityMatricesOfRoomsWithComputers = new ArrayList<>();
         availabilityMatricesOfRoomsWithoutComputers = new ArrayList<>();
         allAvailabilityMatrices = new ArrayList<>();
+        courseSessionsWithoutComputerNeeded = new ArrayList<>();
+        courseSessionsWithComputerNeeded = new ArrayList<>();
         for(RoomTable roomTable : timeTable.getRoomTablesWithComputersAvailable()){
             availabilityMatricesOfRoomsWithComputers.add(roomTable.getAvailabilityMatrix());
             allAvailabilityMatrices.add(roomTable.getAvailabilityMatrix());
@@ -28,11 +31,33 @@ public class Scheduler {
             availabilityMatricesOfRoomsWithoutComputers.add(roomTable.getAvailabilityMatrix());
             allAvailabilityMatrices.add(roomTable.getAvailabilityMatrix());
         }
-        this.courseSessionsWithComputerNeeded = timeTable.getUnassignedCourseSessionsWithComputersNeeded();
-        this.courseSessionsWithoutComputerNeeded = timeTable.getUnassignedCourseSessionsWithComputersNeeded();
+        this.courseSessionsWithComputerNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithComputersNeeded());
+        this.courseSessionsWithoutComputerNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithoutComputersNeeded());
     }
 
     public void assignUnassignedCourseSessions(){
+        int totalTimeNeededNoComputers = 0;
+        int totalTimeNeededComputers = 0;
+        int totalTimeAvailableComputers = 0;
+        int totalTimeAvailableNoComputers = 0;
+        for(CourseSession courseSession : courseSessionsWithoutComputerNeeded){
+            totalTimeNeededNoComputers += courseSession.getDuration();
+        }
+        for(CourseSession courseSession : courseSessionsWithComputerNeeded){
+            totalTimeNeededComputers += courseSession.getDuration();
+        }
+        for(AvailabilityMatrix availabilityMatrix : availabilityMatricesOfRoomsWithComputers){
+            totalTimeAvailableComputers += (int) availabilityMatrix.getTotal_available_time();
+        }
+        for(AvailabilityMatrix availabilityMatrix : availabilityMatricesOfRoomsWithoutComputers){
+            totalTimeAvailableNoComputers += (int) availabilityMatrix.getTotal_available_time();
+        }
+
+        System.out.println("available no comp: " + totalTimeAvailableNoComputers);
+        System.out.println("available comp: " + totalTimeAvailableComputers);
+        System.out.println("needed no comp: " + totalTimeNeededNoComputers);
+        System.out.println("needed comp: " + totalTimeNeededComputers);
+
         //Assign courseSessionsWithComputersNeeded
         assignCourseSessions(courseSessionsWithComputerNeeded, availabilityMatricesOfRoomsWithComputers);
         //Assign courseSessionsWithoutComputersNeeded
@@ -44,8 +69,7 @@ public class Scheduler {
         //Process courseSessions with computer necessary
 
         Map<Pair, AvailabilityMatrix> firstAvailableSlots = new HashMap<>();
-        List<Pair> keys = List.of();
-
+        List<Pair> keys = new ArrayList<>();
         int newDuration;
 
         //Order them by semester and duration
@@ -54,7 +78,7 @@ public class Scheduler {
                 return o1.getCourse().getDuration() - o2.getCourse().getDuration();
             }
             return o1.getCourse().getSemester() - o2.getCourse().getSemester();
-        }).toList();
+        }).collect(Collectors.toList());
 
         // While there are still unassigned courseSessions
         while(!courseSessions.isEmpty()){
@@ -72,7 +96,7 @@ public class Scheduler {
                         return o1.getSlot() - o2.getSlot();
                     }
                     return o1.getDay() - o2.getDay();
-                }).toList();
+                }).collect(Collectors.toList());
             }
 
             //Select courseSession
@@ -93,6 +117,7 @@ public class Scheduler {
             Timing finalTiming = currentAvailabilityMatrix.assignCourseSession(currentPosition, currentDuration, currentCourseSession);
             currentCourseSession.setAssigned(true);
             currentCourseSession.setTiming(finalTiming);
+            firstAvailableSlots.remove(currentPosition);
             firstAvailableSlots.put(currentAvailabilityMatrix.getEarliestAvailableSlotForDuration(currentDuration), currentAvailabilityMatrix);
 
             //Sort the keys again after new put operation
@@ -101,7 +126,7 @@ public class Scheduler {
                     return o1.getSlot() - o2.getSlot();
                 }
                 return o1.getDay() - o2.getDay();
-            }).toList();
+            }).collect(Collectors.toList());
         }
     }
 
@@ -137,8 +162,4 @@ public class Scheduler {
     private boolean checkSplitCourse(){
         return false;
     }
-
-
-
-
 }

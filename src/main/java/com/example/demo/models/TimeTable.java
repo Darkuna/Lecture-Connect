@@ -95,7 +95,7 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
         return unassignedCourseSessions;
     }
 
-    public List<CourseSession> getUnassignedCourseSessionsWithOutComputersNeeded(){
+    public List<CourseSession> getUnassignedCourseSessionsWithoutComputersNeeded(){
         List<CourseSession> unassignedCourseSessions = new ArrayList<>();
         for(CourseSession courseSession : courseSessions){
             if(!courseSession.isAssigned()  && !courseSession.getCourse().isComputersNecessary()){

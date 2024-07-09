@@ -85,6 +85,8 @@ public class AvailabilityMatrix {
         for (int i = position.getSlot(); i < position.getSlot() + duration / DURATION_PER_SLOT; i++) {
             matrix[position.getDay()][i] = courseSession;
         }
+        total_available_time -= duration;
+        System.out.println(this);
         return toTiming(position, duration);
     }
 
@@ -96,18 +98,6 @@ public class AvailabilityMatrix {
 
     public Optional<CourseSession> getCourseSession(int day, int slot) {
         return Optional.ofNullable(matrix[day][slot]);
-    }
-
-    public String toString(){
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < SLOTS_PER_DAY; i++){
-            for(int j = 0; j < DAYS_IN_WEEK; j++){
-                char mark = (matrix[j][i] != null && matrix[j][i].equals(CourseSession.BLOCKED)) ? 'X' : ' ';
-                sb.append(String.format("| %c ", mark));
-            }
-            sb.append("\n");
-        }
-        return sb.toString();
     }
 
     public static Timing toTiming(Pair position, int duration){
@@ -130,6 +120,27 @@ public class AvailabilityMatrix {
         timing.setStartTime(startTime);
         timing.setEndTime(startTime.plusMinutes(duration));
         return timing;
+    }
+
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        String mark;
+        for(int i = 0; i < SLOTS_PER_DAY; i++){
+            for(int j = 0; j < DAYS_IN_WEEK; j++){
+                if(matrix[j][i] == null){
+                    mark = " ";
+                }
+                else if(matrix[j][i] == CourseSession.BLOCKED){
+                    mark = "BLOCK";
+                }
+                else{
+                    mark = matrix[j][i].getName();
+                }
+                sb.append(String.format("| %5s ", mark));
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 
 }
