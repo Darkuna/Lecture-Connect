@@ -54,6 +54,7 @@ import {BaseSelectionComponent} from "./components/wizzard/4-base-selection/base
 import {DragDropModule} from "primeng/dragdrop";
 import { TimingToEventPipe } from './pipes/timing-to-event.pipe';
 import {ConfirmPopupModule} from "primeng/confirmpopup";
+import { CalendarTestComponent } from './components/calendar-test/calendar-test.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -73,7 +74,8 @@ import {ConfirmPopupModule} from "primeng/confirmpopup";
         DetailSelectionComponent,
         RoomSelectionComponent,
         BaseSelectionComponent,
-        TimingToEventPipe
+        TimingToEventPipe,
+        CalendarTestComponent
     ],
     bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,

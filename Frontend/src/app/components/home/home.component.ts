@@ -20,7 +20,6 @@ import {LocalStorageService} from "ngx-webstorage";
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
-
 })
 export class HomeComponent implements OnInit, OnDestroy {
   availableTableSubs: Subscription;

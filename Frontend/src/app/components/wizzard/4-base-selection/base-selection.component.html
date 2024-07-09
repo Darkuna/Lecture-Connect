@@ -1,9 +1,10 @@
 <div class="Context">
   <div class="col-left" style="width: 85%">
     <div id="scrollable-calendar">
-      <full-calendar #calendar *ngIf=showCalendar() [options]='calendarOptions()'/>
+      <full-calendar #calendar [events]="tmpEvents | async"
+                     *ngIf=roomIsSelected() [options]='calendarOptions()'/>
     </div>
-    <div *ngIf="!showCalendar()" class="center-content">
+    <div *ngIf="!roomIsSelected()" class="center-content">
       <br><br><br><br><br><br><br><br><br><br>
       <p style="font-size: 1.5rem; color:var(--system-color-primary-blue)">
         fast! go and choose a room!
@@ -14,8 +15,9 @@
   <div class="col-left" style="width: 15%">
     <div id="vertical-grid">
       <div id="upperSection">
-        <p-dropdown id="type" [options]="globalTable.roomTables" [(ngModel)]="selectedRoom"
-                    placeholder="select a Room" optionLabel="id"/>
+        <p-dropdown id="type" placeholder="select a Room" optionLabel="id"
+                    [options]="globalTable.roomTables" [(ngModel)]="selectedRoom"
+                    (onChange)="clearCalendar()"/>
         <br>
         <p-button label="Computer Sciene" icon="pi pi-microchip"
                   [style]="getButtonStyle(CourseColor.COMPUTER_SCIENCE)"
@@ -24,6 +26,14 @@
         <p-button label="other studies" icon="pi pi-asterisk"
                   [style]="getButtonStyle(CourseColor.NONE)"
                   (onClick)="setCurrentColor(CourseColor.NONE)"/>
+        <br>
+        <p-button label="finish" icon="pi pi-flag"
+                  [style]="getButtonStyle(CourseColor.DEFAULT)"
+                  (onClick)="saveEventsLocally()"/>
+        <br>
+        <p-button label="render" icon="pi pi-flag"
+                  [style]="getButtonStyle(CourseColor.DEFAULT)"
+                  (onClick)="refreshCalendar()"/>
 
       </div>
       <div id="lowerSection">

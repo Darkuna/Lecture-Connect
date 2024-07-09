@@ -6,7 +6,7 @@ export interface RoomInterface {
   capacity?: number;
   computersAvailable?: boolean;
   timingConstraints?: Timing[];
-  tmpCalendarTimes: any[];
+  tmpCalendarTimes?: any[];
   roomTables?: RoomTable[];
   createDate?: Date;
   updateDate?: Date;
