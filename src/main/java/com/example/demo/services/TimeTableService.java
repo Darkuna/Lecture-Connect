@@ -224,5 +224,8 @@ public class TimeTableService {
             timeTable.setScheduler(new Scheduler(timeTable));
         }
         timeTable.getScheduler().assignUnassignedCourseSessions();
+        //TODO: have a look if this is enough to save all assigned courseSessions or if the assignments have
+        // to be saved individually
+        timeTableRepository.save(timeTable);
     }
 }

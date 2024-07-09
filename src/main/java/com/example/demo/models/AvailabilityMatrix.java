@@ -20,6 +20,7 @@ public class AvailabilityMatrix {
     private long total_available_time = 5 * Duration.between(START_TIME, END_TIME).toMinutes();
     private final int capacity;
     private final boolean computersAvailable;
+    private final RoomTable roomTable;
 
     private final CourseSession[][] matrix;
 
@@ -27,6 +28,7 @@ public class AvailabilityMatrix {
         this.matrix = new CourseSession[DAYS_IN_WEEK][SLOTS_PER_DAY];
         this.capacity = roomTable.getRoom().getCapacity();
         this.computersAvailable = roomTable.getRoom().isComputersAvailable();
+        this.roomTable = roomTable;
 
         // mark all time slots with timingConstraints as BLOCKED
         if(roomTable.getTimingConstraints() != null){
@@ -79,10 +81,11 @@ public class AvailabilityMatrix {
         return matrix[day][slot] == null;
     }
 
-    public void assignCourseSession(Pair position, int duration, CourseSession courseSession) {
+    public Timing assignCourseSession(Pair position, int duration, CourseSession courseSession) {
         for (int i = position.getSlot(); i < position.getSlot() + duration / DURATION_PER_SLOT; i++) {
             matrix[position.getDay()][i] = courseSession;
         }
+        return toTiming(position, duration);
     }
 
     public void removeCourseSession(int day, int startSlot, int duration) {

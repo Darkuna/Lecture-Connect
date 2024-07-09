@@ -43,7 +43,7 @@ public class Scheduler {
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         //Process courseSessions with computer necessary
 
-        Map<Pair, AvailabilityMatrix> firstAvailables = new HashMap<>();
+        Map<Pair, AvailabilityMatrix> firstAvailableSlots = new HashMap<>();
         List<Pair> keys = List.of();
 
         int newDuration;
@@ -63,11 +63,11 @@ public class Scheduler {
             if(newDuration != currentDuration){
                 // Get the first available slots for the new duration
                 for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                    firstAvailables.put(availabilityMatrix.getEarliestAvailableSlotForDuration(newDuration), availabilityMatrix);
+                    firstAvailableSlots.put(availabilityMatrix.getEarliestAvailableSlotForDuration(newDuration), availabilityMatrix);
                 }
                 currentDuration = newDuration;
                 // Sort keys
-                keys = firstAvailables.keySet().stream().sorted((o1, o2) -> {
+                keys = firstAvailableSlots.keySet().stream().sorted((o1, o2) -> {
                     if(o1.getSlot() != o2.getSlot()){
                         return o1.getSlot() - o2.getSlot();
                     }
@@ -78,26 +78,25 @@ public class Scheduler {
             //Select courseSession
             currentCourseSession = courseSessions.removeFirst();
 
-            while(true){
+            do {
                 //select possible availabilityMatrix and position for placement
                 currentPosition = keys.removeFirst();
-                currentAvailabilityMatrix = firstAvailables.get(currentPosition);
+                currentAvailabilityMatrix = firstAvailableSlots.get(currentPosition);
 
 
                 //check constraints
                 // ist es ein gruppenkurs?
                 // ist es ein gesplitteter Kurs?
-                if(checkRoomCapacity() && checkTimingConstraintsFulfilled() && checkCoursesOfSameSemester()){
-                    break;
-                }
-            }
+            } while (!checkRoomCapacity() || !checkTimingConstraintsFulfilled() || !checkCoursesOfSameSemester());
 
             //assign courseSession
-            currentAvailabilityMatrix.assignCourseSession(currentPosition, currentDuration, currentCourseSession);
-            firstAvailables.put(currentAvailabilityMatrix.getEarliestAvailableSlotForDuration(currentDuration), currentAvailabilityMatrix);
+            Timing finalTiming = currentAvailabilityMatrix.assignCourseSession(currentPosition, currentDuration, currentCourseSession);
+            currentCourseSession.setAssigned(true);
+            currentCourseSession.setTiming(finalTiming);
+            firstAvailableSlots.put(currentAvailabilityMatrix.getEarliestAvailableSlotForDuration(currentDuration), currentAvailabilityMatrix);
 
             //Sort the keys again after new put operation
-            keys = firstAvailables.keySet().stream().sorted((o1, o2) -> {
+            keys = firstAvailableSlots.keySet().stream().sorted((o1, o2) -> {
                 if(o1.getSlot() != o2.getSlot()){
                     return o1.getSlot() - o2.getSlot();
                 }
