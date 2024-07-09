@@ -62,8 +62,28 @@ public class AvailabilityMatrix {
         throw new NoSpaceAvailableException();
     }
 
+    public Pair getNextAvailableSlotForDurationAfterSlot(int minutes, Pair slot){
+        int numberOfSlots = minutes / DURATION_PER_SLOT;
+        for(int i = slot.getDay(); i < DAYS_IN_WEEK; i++){
+            for (int j = slot.getSlot() + numberOfSlots; j < SLOTS_PER_DAY; j++) {
+                if(matrix[i][j] == null){
+                    for(int k = 0; k < numberOfSlots; k++){
+                        if(matrix[i][k] != null){
+                            break;
+                        }
+                    }
+                    return new Pair(i,j);
+                }
+            }
+        }
+        throw new NoSpaceAvailableException();
+    }
+
     public boolean semesterIntersects(Pair position, int duration, int semester){
         for(int i = position.getSlot(); i < position.getSlot() + duration / DURATION_PER_SLOT; i++){
+            if(i >= SLOTS_PER_DAY){
+                return true;
+            }
             if(matrix[position.getDay()][i] != null && matrix[position.getDay()][i].getCourse().getSemester() == semester){
                 return true;
             }
