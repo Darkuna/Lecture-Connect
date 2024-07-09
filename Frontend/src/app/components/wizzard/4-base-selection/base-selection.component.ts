@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, signal, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, OnInit, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -9,20 +9,20 @@ import {CourseColor} from "../../../../assets/Models/enums/lecture-color";
 import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
-import {Observable, Subject, Subscription} from "rxjs";
+import {Subject} from "rxjs";
 
 @Component({
   selector: 'app-base-selection',
   templateUrl: './base-selection.component.html',
   styleUrl: '../wizard.component.css'
 })
-export class BaseSelectionComponent {
+export class BaseSelectionComponent implements OnInit{
   @Input() globalTable!: TmpTimeTable;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
 
   protected readonly CourseColor = CourseColor;
   selectedRoom: Room | null = null;
-  tmpEvents: Subject<any[]>;
+  tmpEvents: Subject<any[]> | undefined;
 
   lastUsedColor: CourseColor = CourseColor.DEFAULT;
   showTimeDialog: boolean = false;
@@ -31,7 +31,12 @@ export class BaseSelectionComponent {
     private cd: ChangeDetectorRef,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
-  ) {
+  ) { }
+
+  ngOnInit(): void {
+    this.globalTable.roomTables.forEach(item => {
+      item.tmpEvents = new Subject<any[]>()
+    });
     this.tmpEvents = new Subject<any[]>();
   }
 
@@ -53,25 +58,10 @@ export class BaseSelectionComponent {
     return this.selectedRoom !== null ;
   }
 
-  saveEventsLocally(){
-    if(this.roomIsSelected()  && this.selectedRoom) {
-      this.selectedRoom!.tmpCalendarTimes = this.selectedRoom.tmpCalendarTimes ?? this.tmpEvents;
-    }
-  }
-
   clearCalendar(){
-    console.log(this.selectedRoom?.tmpCalendarTimes);
-
-    this.saveEventsLocally();
-    this.calendarComponent.getApi().removeAllEvents();
-    this.calendarComponent.getApi().refetchEvents();
+    this.selectedRoom!.tmpEvents = this.tmpEvents;
+    this.tmpEvents = new Subject<any[]>();
   }
-
-  refreshCalendar(){
-    this.calendarComponent.getApi().refetchEvents();
-    this.calendarComponent.getApi().render();
-  }
-
 
   calendarOptions = signal<CalendarOptions>({
     plugins: [
@@ -109,7 +99,8 @@ export class BaseSelectionComponent {
   });
 
   addItem(newEvent: any): void {
-    this.tmpEvents.next([newEvent]);
+    console.log(this.tmpEvents);
+    this.tmpEvents!.next([newEvent]);
   }
 
   handleDateSelect(selectInfo: DateSelectArg) {

@@ -1,13 +1,14 @@
 import {Timing} from "./timing";
 import {RoomTable} from "./room-table";
 import {RoomInterface} from "./interfaces/roomInterface";
+import {Subject} from "rxjs";
 
 export class Room implements RoomInterface {
   id!: string;
   capacity!: number;
   computersAvailable?: boolean;
   timingConstraints?: Timing[];
-  tmpCalendarTimes: any[] = [];
+  tmpEvents?: Subject<any[]>;
   roomTables?: RoomTable[];
   createdAt?: Date;
   updatedAt?: Date;

@@ -17,27 +17,19 @@
       <div id="upperSection">
         <p-dropdown id="type" placeholder="select a Room" optionLabel="id"
                     [options]="globalTable.roomTables" [(ngModel)]="selectedRoom"
-                    (onChange)="clearCalendar()"/>
+                    (onChange)="clearCalendar()" />
         <br>
         <p-button label="Computer Sciene" icon="pi pi-microchip"
                   [style]="getButtonStyle(CourseColor.COMPUTER_SCIENCE)"
-                  (onClick)="setCurrentColor(CourseColor.COMPUTER_SCIENCE)"/>
+                  (onClick)="setCurrentColor(CourseColor.COMPUTER_SCIENCE)" />
         <br>
         <p-button label="other studies" icon="pi pi-asterisk"
                   [style]="getButtonStyle(CourseColor.NONE)"
                   (onClick)="setCurrentColor(CourseColor.NONE)"/>
-        <br>
-        <p-button label="finish" icon="pi pi-flag"
-                  [style]="getButtonStyle(CourseColor.DEFAULT)"
-                  (onClick)="saveEventsLocally()"/>
-        <br>
-        <p-button label="render" icon="pi pi-flag"
-                  [style]="getButtonStyle(CourseColor.DEFAULT)"
-                  (onClick)="refreshCalendar()"/>
-
       </div>
       <div id="lowerSection">
-        <p-button label="finish" icon="pi pi-flag" [style]="getButtonStyle(CourseColor.DEFAULT)"/>
+        <p-button label="finish" icon="pi pi-flag"
+                  [style]="getButtonStyle(CourseColor.DEFAULT)" />
       </div>
     </div>
   </div>
