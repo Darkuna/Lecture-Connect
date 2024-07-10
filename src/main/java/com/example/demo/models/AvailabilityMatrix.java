@@ -47,15 +47,15 @@ public class AvailabilityMatrix {
 
     public Pair getEarliestAvailableSlotForDuration(int minutes) {
         int numberOfSlots = minutes / DURATION_PER_SLOT;
-        for(int i = 0; i < DAYS_IN_WEEK; i++){
-            for (int j = 0; j < SLOTS_PER_DAY; j++) {
-                if(matrix[i][j] == null){
+        for(int i = 0; i < SLOTS_PER_DAY; i++){
+            for (int j = 0; j < DAYS_IN_WEEK; j++) {
+                if(matrix[j][i] == null){
                     for(int k = 0; k < numberOfSlots; k++){
-                        if(matrix[i][k] != null){
+                        if(matrix[j][k] != null){
                             break;
                         }
                     }
-                    return new Pair(i,j);
+                    return new Pair(j,i);
                 }
             }
         }
@@ -64,15 +64,15 @@ public class AvailabilityMatrix {
 
     public Pair getNextAvailableSlotForDurationAfterSlot(int minutes, Pair slot){
         int numberOfSlots = minutes / DURATION_PER_SLOT;
-        for(int i = slot.getDay(); i < DAYS_IN_WEEK; i++){
-            for (int j = slot.getSlot() + numberOfSlots; j < SLOTS_PER_DAY; j++) {
-                if(matrix[i][j] == null){
+        for(int i = slot.getDay(); i < SLOTS_PER_DAY; i++){
+            for (int j = slot.getSlot() + numberOfSlots; j < DAYS_IN_WEEK; j++) {
+                if(matrix[j][i] == null){
                     for(int k = 0; k < numberOfSlots; k++){
-                        if(matrix[i][k] != null){
+                        if(matrix[j][k] != null){
                             break;
                         }
                     }
-                    return new Pair(i,j);
+                    return new Pair(j,i);
                 }
             }
         }
@@ -106,7 +106,7 @@ public class AvailabilityMatrix {
             matrix[position.getDay()][i] = courseSession;
         }
         total_available_time -= duration;
-        System.out.println(this);
+        System.out.println(this.toString());
         return toTiming(position, duration);
     }
 
@@ -145,6 +145,8 @@ public class AvailabilityMatrix {
     public String toString(){
         StringBuilder sb = new StringBuilder();
         String mark;
+        sb.append(this.getRoomTable().getRoom().getId());
+        sb.append("\n");
         for(int i = 0; i < SLOTS_PER_DAY; i++){
             for(int j = 0; j < DAYS_IN_WEEK; j++){
                 if(matrix[j][i] == null){

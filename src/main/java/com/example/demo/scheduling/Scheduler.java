@@ -60,10 +60,10 @@ public class Scheduler {
         System.out.println("needed no comp: " + totalTimeNeededNoComputers);
         System.out.println("needed comp: " + totalTimeNeededComputers);
 
-        //Assign courseSessionsWithComputersNeeded
-        assignCourseSessions(courseSessionsWithComputerNeeded, availabilityMatricesOfRoomsWithComputers);
         //Assign courseSessionsWithoutComputersNeeded
         assignCourseSessions(courseSessionsWithoutComputerNeeded, availabilityMatricesOfRoomsWithoutComputers);
+        //Assign courseSessionsWithComputersNeeded
+        assignCourseSessions(courseSessionsWithComputerNeeded, availabilityMatricesOfRoomsWithComputers);
     }
 
 
@@ -81,9 +81,9 @@ public class Scheduler {
         //Order them by semester and duration
         courseSessions = courseSessions.stream().sorted((o1, o2) -> {
             if(o1.getCourse().getDuration() != o2.getCourse().getDuration()){
-                return o1.getCourse().getDuration() - o2.getCourse().getDuration();
+                return o2.getCourse().getDuration() - o1.getCourse().getDuration();
             }
-            return o1.getCourse().getSemester() - o2.getCourse().getSemester();
+            return o2.getCourse().getNumberOfParticipants() - o1.getCourse().getNumberOfParticipants();
         }).collect(Collectors.toList());
 
         // While there are still unassigned courseSessions
@@ -101,27 +101,52 @@ public class Scheduler {
                     }
 
                 }
-                System.out.println(candidateQueue);
                 currentDuration = newDuration;
             }
 
             //Select courseSession
             currentCourseSession = courseSessions.removeFirst();
+            System.out.printf("Choosing CourseSession %s for assignment\n", currentCourseSession.getName());
 
-            do {
+            while(true){
                 //select possible candidate for placement
                 currentCandidate = candidateQueue.poll();
-                System.out.println(currentCandidate);
+                System.out.printf("selecting candidate %s for assignment\n", currentCandidate);
                 try{
                     candidateQueue.add(new Candidate(currentCandidate.getAvailabilityMatrix(),
                             currentCandidate.getAvailabilityMatrix().getNextAvailableSlotForDurationAfterSlot(currentDuration, currentCandidate.getPosition())));
                 }
                 catch(Exception e){}
 
-            } while (!checkRoomCapacity() || !checkTimingConstraintsFulfilled() || !checkCoursesOfSameSemester()
-                        || checkGroupCourse() || checkSplitCourse());
+                if(!checkRoomCapacity()){
+                    System.out.println("room capacity exceeded");
+                    continue;
+                }
+                if(!checkRoomCapacity()){
+                    System.out.println("room capacity exceeded");
+                    continue;
+                }
+                if(!checkTimingConstraintsFulfilled()){
+                    System.out.println("timing constraints are intersecting with candidate");
+                    continue;
+                }
+                if(!checkCoursesOfSameSemester()){
+                    System.out.println("other course of same semester intersecting");
+                    continue;
+                }
+                if(!checkGroupCourse()){
+                    System.out.println("group course");
+                    continue;
+                }
+                if(!checkSplitCourse()){
+                    System.out.println("split course");
+                    continue;
+                }
+                break;
+            }
 
             //assign courseSession
+            System.out.printf("Successfully assigned CourseSession %s to %s\n", currentCourseSession.getName(), currentCandidate);
             Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate.getPosition(), currentDuration, currentCourseSession);
             currentCourseSession.setAssigned(true);
             currentCourseSession.setTiming(finalTiming);

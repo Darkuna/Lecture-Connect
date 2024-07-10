@@ -16,4 +16,8 @@ public class Candidate {
         this.availabilityMatrix = availabilityMatrix;
         this.position = position;
     }
+
+    public String toString(){
+        return String.format("Candidate %s, Day: %d, Slot: %d", availabilityMatrix.getRoomTable().getRoom().getId(), position.getDay(), position.getSlot());
+    }
 }
