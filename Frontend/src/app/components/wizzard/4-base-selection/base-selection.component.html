@@ -1,7 +1,8 @@
 <div class="Context">
   <div class="col-left" style="width: 85%">
-    <div id="scrollable-calendar">
-      <full-calendar #calendar [events]="tmpEvents | async" *ngIf=roomIsSelected() [options]='calendarOptions()'/>
+    <div id="scrollable-calendar" #actualTarget>
+      <full-calendar #calendar [events]="tmpEvents | async"
+                     *ngIf=roomIsSelected() [options]='calendarOptions()'/>
     </div>
     <div *ngIf="!roomIsSelected()" class="center-content">
       <br><br><br><br><br><br><br><br><br><br>
@@ -15,7 +16,7 @@
     <div id="vertical-grid">
       <div id="upperSection">
         <p-dropdown id="type" placeholder="select a Room" optionLabel="id"
-                    [options]="globalTable.roomTables" [(ngModel)]="selectedRoom"/>
+                    [options]="globalTable.roomTables" [(ngModel)]="selectedRoom" />
         <br>
         <p-button label="Computer Sciene" icon="pi pi-microchip"
                   [style]="getButtonStyle(CourseColor.COMPUTER_SCIENCE)"
@@ -26,24 +27,8 @@
                   (onClick)="setCurrentColor(CourseColor.NONE)"/>
       </div>
       <div id="lowerSection">
-        <label for="start-time">Start Time</label>
-        <p-calendar id="start-time" inputId="calendar-timeonly"
-                    [timeOnly]="true" [ngModel]="tmpStartDate"
-                    (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
-
-        <label for="end-time">End Time</label>
-        <p-calendar id="end-time" inputId="calendar-timeonly"
-                    [timeOnly]="true" [ngModel]="tmpEndDate"
-                    (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
-
-        <label for="duration">Time Slot Duration</label>
-        <p-calendar id="duration" inputId="calendar-timeonly"
-                    [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
-                    (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
-        <label for="interval">Time Label Interval</label>
-        <p-calendar id="interval" inputId="calendar-timeonly"
-                    [timeOnly]="true" [ngModel]="tmpSlotInterval"
-                    (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
+        <p-button icon="pi pi-bars" label="Calendar Settings"
+                  (click)="op.show($event, actualTarget)"/>
         <br>
        <p-button label="finish" icon="pi pi-flag"
                  [style]="getButtonStyle(CourseColor.DEFAULT)" />
@@ -71,5 +56,25 @@
   </ng-template>
 </p-dialog>
 
+<p-overlayPanel #op showCloseIcon="true">
+  <ng-template pTemplate="content">
+    <label for="start-time">Start Time</label>
+    <p-calendar id="start-time" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpStartDate"
+                (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
 
+    <label for="end-time">End Time</label>
+    <p-calendar id="end-time" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpEndDate"
+                (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
 
+    <label for="duration">Time Slot Duration</label>
+    <p-calendar id="duration" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
+                (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
+    <label for="interval">Time Label Interval</label>
+    <p-calendar id="interval" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpSlotInterval"
+                (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
+  </ng-template>
+</p-overlayPanel>

@@ -1,4 +1,4 @@
-import {Component, Input, signal, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg,  EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -7,7 +7,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import {CourseColor} from "../../../../assets/Models/enums/lecture-color";
 import {Room} from "../../../../assets/Models/room";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmationService, MenuItem, MessageService, PrimeNGConfig} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Subject} from "rxjs";
 
@@ -22,7 +22,7 @@ export class BaseSelectionComponent {
 
   protected readonly CourseColor = CourseColor;
   selectedRoom: Room | null = null;
-  tmpEvents: Subject<any[]> = new Subject<any[]>();
+  tmpEvents: Subject<any[]>;
 
   lastUsedColor: CourseColor = CourseColor.DEFAULT;
   showTimeDialog: boolean = false;
@@ -35,6 +35,7 @@ export class BaseSelectionComponent {
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {
+    this.tmpEvents = new Subject<any[]>();
   }
 
   formatTime(date: Date): string {
@@ -100,17 +101,21 @@ export class BaseSelectionComponent {
     nowIndicator: false,
   });
 
+  addItem(newEvent: any): void {
+    this.tmpEvents.next([newEvent]);
+  }
+
   handleDateSelect(selectInfo: DateSelectArg) {
     const title = prompt('Please enter a new title for your event');
 
     if (title) {
-      this.tmpEvents!.next([{
+      this.addItem({
         id: title,
         title: title,
         start: selectInfo.startStr,
         end: selectInfo.endStr,
         color: this.lastUsedColor
-      }]);
+      });
     }
 
     this.calendarComponent.getApi().unselect();
@@ -138,3 +143,4 @@ export class BaseSelectionComponent {
     }));
   }
 }
+
