@@ -13,4 +13,5 @@ public class Pair {
         this.day = day;
         this.slot = slot;
     }
+    public Pair(){};
 }

@@ -11,10 +11,12 @@ import lombok.Setter;
 public class Candidate {
     private AvailabilityMatrix availabilityMatrix;
     private Pair position;
+    private int duration;
 
-    public Candidate(AvailabilityMatrix availabilityMatrix, Pair position) {
+    public Candidate(AvailabilityMatrix availabilityMatrix, Pair position, int duration) {
         this.availabilityMatrix = availabilityMatrix;
         this.position = position;
+        this.duration = duration;
     }
 
     public String toString(){

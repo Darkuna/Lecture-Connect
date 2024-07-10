@@ -13,11 +13,10 @@ public class Scheduler {
     private List<CourseSession> courseSessionsWithComputerNeeded;
     private List<CourseSession> courseSessionsWithoutComputerNeeded;
 
-
-
-    CourseSession currentCourseSession;
-    int currentDuration = 0;
-    Candidate currentCandidate;
+    private Queue<Candidate> candidateQueue;
+    private CourseSession currentCourseSession;
+    private int currentDuration = 0;
+    private Candidate currentCandidate;
 
     public Scheduler(TimeTable timeTable){
         availabilityMatricesOfRoomsWithComputers = new ArrayList<>();
@@ -35,6 +34,7 @@ public class Scheduler {
         }
         this.courseSessionsWithComputerNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithComputersNeeded());
         this.courseSessionsWithoutComputerNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithoutComputersNeeded());
+        this.candidateQueue = new PriorityQueue<>(Comparator.comparingInt(o -> o.getPosition().getSlot()));
     }
 
     public void assignUnassignedCourseSessions(){
@@ -69,13 +69,6 @@ public class Scheduler {
 
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         //Process courseSessions with computer necessary
-        Random rand = new Random();
-        Queue<Candidate> candidateQueue = new PriorityQueue<>(new Comparator<Candidate>() {
-            @Override
-            public int compare(Candidate o1, Candidate o2) {
-                return o1.getPosition().getSlot() - o2.getPosition().getSlot();
-            }
-        });
         int newDuration;
 
         //Order them by semester and duration
@@ -92,15 +85,7 @@ public class Scheduler {
             // If all unassigned courseSessions of the same durations are processed
             if(newDuration != currentDuration){
                 // Get the first available slots for the new duration
-                for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                    try{
-                        candidateQueue.add(new Candidate(availabilityMatrix, availabilityMatrix.getEarliestAvailableSlotForDuration(newDuration)));
-                    }
-                    catch(NoSpaceAvailableException e){
-
-                    }
-
-                }
+                fillQueue(availabilityMatrices, newDuration);
                 currentDuration = newDuration;
             }
 
@@ -109,14 +94,12 @@ public class Scheduler {
             System.out.printf("Choosing CourseSession %s for assignment\n", currentCourseSession.getName());
 
             while(true){
+                if(candidateQueue.isEmpty()){
+                    fillQueue(availabilityMatrices, currentDuration);
+                }
                 //select possible candidate for placement
                 currentCandidate = candidateQueue.poll();
                 System.out.printf("selecting candidate %s for assignment\n", currentCandidate);
-                try{
-                    candidateQueue.add(new Candidate(currentCandidate.getAvailabilityMatrix(),
-                            currentCandidate.getAvailabilityMatrix().getNextAvailableSlotForDurationAfterSlot(currentDuration, currentCandidate.getPosition())));
-                }
-                catch(Exception e){}
 
                 if(!checkRoomCapacity()){
                     System.out.println("room capacity exceeded");
@@ -148,15 +131,9 @@ public class Scheduler {
             //assign courseSession
             System.out.printf("Successfully assigned CourseSession %s to %s\n", currentCourseSession.getName(), currentCandidate);
             Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate.getPosition(), currentDuration, currentCourseSession);
+            System.out.println("__________");
             currentCourseSession.setAssigned(true);
             currentCourseSession.setTiming(finalTiming);
-            try{
-                candidateQueue.add(new Candidate(currentCandidate.getAvailabilityMatrix(),
-                        currentCandidate.getAvailabilityMatrix().getEarliestAvailableSlotForDuration(currentDuration)));
-            }
-            catch(NoSpaceAvailableException e){
-
-            }
         }
     }
 
@@ -189,5 +166,16 @@ public class Scheduler {
 
     private boolean checkSplitCourse(){
         return true;
+    }
+
+    private void fillQueue(List<AvailabilityMatrix> availabilityMatrices, int duration){
+        candidateQueue.stream().filter(c -> c.getDuration() == duration).forEach(c -> {});
+        for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
+            try{
+                candidateQueue.add(new Candidate(availabilityMatrix, availabilityMatrix.getEarliestAvailableSlotForDuration(duration), duration));
+                candidateQueue.add(new Candidate(availabilityMatrix, availabilityMatrix.getRandomAvailableSlot(duration), duration));
+            }
+            catch(NoSpaceAvailableException ignored){}
+        }
     }
 }
