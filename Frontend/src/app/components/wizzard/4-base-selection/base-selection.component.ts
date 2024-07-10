@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, Input, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg,  EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -10,20 +10,19 @@ import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Subject} from "rxjs";
-import {Option} from "@angular/cli/src/command-builder/utilities/json-schema";
 
 @Component({
   selector: 'app-base-selection',
   templateUrl: './base-selection.component.html',
   styleUrl: '../wizard.component.css'
 })
-export class BaseSelectionComponent implements OnInit{
+export class BaseSelectionComponent {
   @Input() globalTable!: TmpTimeTable;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
 
   protected readonly CourseColor = CourseColor;
   selectedRoom: Room | null = null;
-  tmpEvents: Subject<any[]> | undefined;
+  tmpEvents: Subject<any[]> = new Subject<any[]>();
 
   lastUsedColor: CourseColor = CourseColor.DEFAULT;
   showTimeDialog: boolean = false;
@@ -33,25 +32,19 @@ export class BaseSelectionComponent implements OnInit{
   tmpDuration: Date = new Date('2024-07-10T00:15:00');
   tmpSlotInterval: Date = new Date('2024-07-10T01:00:00');
   constructor(
-    private cd: ChangeDetectorRef,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {
   }
 
-  ngOnInit(): void {
-    this.globalTable.roomTables.forEach(item => {
-      item.tmpEvents = new Subject<any[]>()
-    });
-    this.tmpEvents = new Subject<any[]>();
-  }
-
   formatTime(date: Date): string {
+    /* equal to the return value
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
     const seconds = date.getSeconds().toString().padStart(2, '0');
+    */
+    return date.toString().split(' ')[4];
 
-    return `${hours}:${minutes}:${seconds}`;
   }
 
   getButtonStyle(color: string): { [key: string]: string } {
@@ -70,11 +63,6 @@ export class BaseSelectionComponent implements OnInit{
 
   roomIsSelected(): boolean {
     return this.selectedRoom !== null ;
-  }
-
-  clearCalendar(){
-    this.selectedRoom!.tmpEvents = this.tmpEvents;
-    this.tmpEvents = new Subject<any[]>();
   }
 
   calendarOptions = signal<CalendarOptions>({
@@ -112,22 +100,17 @@ export class BaseSelectionComponent implements OnInit{
     nowIndicator: false,
   });
 
-  addItem(newEvent: any): void {
-    console.log(this.tmpEvents);
-    this.tmpEvents!.next([newEvent]);
-  }
-
   handleDateSelect(selectInfo: DateSelectArg) {
     const title = prompt('Please enter a new title for your event');
 
     if (title) {
-      this.addItem({
+      this.tmpEvents!.next([{
         id: title,
         title: title,
         start: selectInfo.startStr,
         end: selectInfo.endStr,
         color: this.lastUsedColor
-      });
+      }]);
     }
 
     this.calendarComponent.getApi().unselect();
