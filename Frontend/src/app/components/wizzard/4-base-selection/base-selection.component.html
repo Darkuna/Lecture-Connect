@@ -28,6 +28,25 @@
                   (onClick)="setCurrentColor(CourseColor.NONE)"/>
       </div>
       <div id="lowerSection">
+        <label for="start-time">Start Time</label>
+        <p-calendar id="start-time" inputId="calendar-timeonly"
+          [timeOnly]="true" [ngModel]="tmpStartDate"
+                    (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
+
+        <label for="end-time">End Time</label>
+        <p-calendar id="end-time" inputId="calendar-timeonly"
+          [timeOnly]="true" [ngModel]="tmpEndDate"
+                    (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
+
+        <label for="duration">Time Slot Duration</label>
+        <p-calendar id="duration" inputId="calendar-timeonly"
+                    [timeOnly]="true" [ngModel]="tmpEndDate"
+                    (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
+        <label for="interval">Time Label Interval</label>
+        <p-calendar id="interval" inputId="calendar-timeonly"
+                    [timeOnly]="true" [ngModel]="tmpEndDate"
+                    (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
+        <br>
         <p-button label="finish" icon="pi pi-flag"
                   [style]="getButtonStyle(CourseColor.DEFAULT)" />
       </div>

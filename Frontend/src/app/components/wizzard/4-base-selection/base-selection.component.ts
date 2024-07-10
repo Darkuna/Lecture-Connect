@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, Input, OnInit, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
-import {CalendarOptions, DateSelectArg, EventClickArg} from "@fullcalendar/core";
+import {CalendarOptions, DateSelectArg,  EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -10,6 +10,7 @@ import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Subject} from "rxjs";
+import {Option} from "@angular/cli/src/command-builder/utilities/json-schema";
 
 @Component({
   selector: 'app-base-selection',
@@ -27,17 +28,30 @@ export class BaseSelectionComponent implements OnInit{
   lastUsedColor: CourseColor = CourseColor.DEFAULT;
   showTimeDialog: boolean = false;
 
+  tmpStartDate: Date = new Date('2024-07-10T07:00:00');
+  tmpEndDate: Date = new Date('2024-07-10T23:00:00');
+  tmpDuration: Date = new Date('2024-07-10T00:15:00');
+  tmpSlotInterval: Date = new Date('2024-07-10T01:00:00');
   constructor(
     private cd: ChangeDetectorRef,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.globalTable.roomTables.forEach(item => {
       item.tmpEvents = new Subject<any[]>()
     });
     this.tmpEvents = new Subject<any[]>();
+  }
+
+  formatTime(date: Date): string {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+
+    return `${hours}:${minutes}:${seconds}`;
   }
 
   getButtonStyle(color: string): { [key: string]: string } {
@@ -88,10 +102,10 @@ export class BaseSelectionComponent implements OnInit{
     eventBackgroundColor: this.lastUsedColor,
     eventBorderColor: this.lastUsedColor,
     eventTextColor: "var(--system-color-primary-white)",
-    slotMinTime: '07:00:00',
-    slotMaxTime: '23:00:00',
-    slotDuration: '00:15:00',
-    slotLabelInterval: '01:00:00',
+    slotMinTime: this.formatTime(this.tmpStartDate),
+    slotMaxTime: this.formatTime(this.tmpEndDate),
+    slotDuration: this.formatTime(this.tmpDuration),
+    slotLabelInterval: this.formatTime(this.tmpSlotInterval),
     dayHeaderFormat: {weekday: 'long'},
     eventOverlap: true,
     slotEventOverlap: false,
@@ -132,5 +146,12 @@ export class BaseSelectionComponent implements OnInit{
         this.messageService.add({severity:'error', summary:'Rejected', detail:'You have rejected'});
       }
     });
+  }
+
+  updateCalendar(calendarOption: string, value: any) {
+    this.calendarOptions.update(val => ({
+      ...val,
+      [calendarOption]: value
+    }));
   }
 }

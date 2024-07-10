@@ -53,7 +53,7 @@ export class LoginComponent implements OnDestroy {
 
             this.storage.store('jwtToken', token['token']);
 
-            this.messageService.add({severity: 'success', summary: `Welcome back ${decodedToken['username']}`});
+            this.messageService.add({severity: 'success',summary: `Welcome back ${decodedToken['username']}`});
             this.router.navigate(['/home']);
           } else {
             this.messageService.add({
@@ -63,11 +63,11 @@ export class LoginComponent implements OnDestroy {
             });
           }
         },
-        error: (error) => {
+        error: (err) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Login Error',
-            detail: error
+            detail: err
           });
         }
       });
