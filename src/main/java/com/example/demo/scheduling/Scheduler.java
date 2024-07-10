@@ -105,15 +105,11 @@ public class Scheduler {
                     System.out.println("room capacity exceeded");
                     continue;
                 }
-                if(!checkRoomCapacity()){
-                    System.out.println("room capacity exceeded");
-                    continue;
-                }
                 if(!checkTimingConstraintsFulfilled()){
                     System.out.println("timing constraints are intersecting with candidate");
                     continue;
                 }
-                if(!checkCoursesOfSameSemester()){
+                if(!checkCoursesOfSameSemester(currentCourseSession)){
                     System.out.println("other course of same semester intersecting");
                     continue;
                 }
@@ -151,9 +147,9 @@ public class Scheduler {
         return true;
     }
 
-    private boolean checkCoursesOfSameSemester(){
+    private boolean checkCoursesOfSameSemester(CourseSession courseSession){
         for(AvailabilityMatrix availabilityMatrix : allAvailabilityMatrices){
-            if(availabilityMatrix.semesterIntersects(currentCandidate.getPosition(), currentDuration, currentCourseSession.getCourse().getSemester())){
+            if(availabilityMatrix.semesterIntersects(currentCandidate.getPosition(), currentDuration, currentCourseSession.getCourse().getSemester(), courseSession)){
                 return false;
             }
         }

@@ -50,6 +50,10 @@ public class CourseSession implements Persistable<Long>, Serializable {
         return this == BLOCKED;
     }
 
+    public boolean isSamePS(CourseSession courseSession) {
+        return courseSession.getCourse().equals(this.getCourse());
+    }
+
     /*
 
     // This toString Method was used for test data creation.

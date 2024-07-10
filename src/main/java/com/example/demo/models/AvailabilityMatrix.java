@@ -106,12 +106,14 @@ public class AvailabilityMatrix {
         return true;
     }
 
-    public boolean semesterIntersects(Pair position, int duration, int semester) {
+    public boolean semesterIntersects(Pair position, int duration, int semester, CourseSession courseSession) {
         for (int i = position.getSlot(); i < position.getSlot() + duration / DURATION_PER_SLOT; i++) {
             if (i >= SLOTS_PER_DAY) {
                 return true;
             }
-            if (matrix[position.getDay()][i] != null && matrix[position.getDay()][i].getCourse().getSemester() == semester) {
+            if (matrix[position.getDay()][i] != null &&
+                    matrix[position.getDay()][i].getCourse().getSemester() == semester &&
+                    !matrix[position.getDay()][i].isSamePS(courseSession)) {
                 return true;
             }
         }

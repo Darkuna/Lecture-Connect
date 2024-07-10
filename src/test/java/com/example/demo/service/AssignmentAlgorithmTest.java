@@ -47,11 +47,18 @@ public class AssignmentAlgorithmTest {
 
         for(Course course : courses){
             if(course.getCourseType().equals(CourseType.PS)){
-                course.setNumberOfGroups(random.nextInt(3,9));
+                course.setNumberOfGroups(random.nextInt(6,9));
             }
             timeTableService.addCourseSessions(timeTable, course);
         }
 
         timeTableService.assignCourseSessionsToRooms(timeTable);
+
+        for(RoomTable roomTable : timeTable.getRoomTables()){
+            System.out.println(roomTable.getAvailabilityMatrix());
+            System.out.print("\n\n");
+        }
     }
+
+
 }
