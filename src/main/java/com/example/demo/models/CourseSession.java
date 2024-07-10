@@ -1,6 +1,5 @@
 package com.example.demo.models;
 
-import com.example.demo.models.enums.CourseType;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,7 +9,6 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Random;
 
 @Entity
 @Getter

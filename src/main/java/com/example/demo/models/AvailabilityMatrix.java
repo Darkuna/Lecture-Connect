@@ -7,7 +7,6 @@ import lombok.Getter;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.Optional;
 import java.util.Random;
 
 @Getter
@@ -133,16 +132,6 @@ public class AvailabilityMatrix {
         total_available_time -= duration;
         System.out.println(this.toString());
         return toTiming(position, duration);
-    }
-
-    public void removeCourseSession(int day, int startSlot, int duration) {
-        for (int i = startSlot; i < startSlot + duration; i++) {
-            matrix[day][i] = null;
-        }
-    }
-
-    public Optional<CourseSession> getCourseSession(int day, int slot) {
-        return Optional.ofNullable(matrix[day][slot]);
     }
 
     public static Timing toTiming(Pair position, int duration) {

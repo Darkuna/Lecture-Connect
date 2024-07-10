@@ -1,13 +1,11 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.TimeTableNameDTO;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.CourseType;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.services.CourseService;
 import com.example.demo.services.RoomService;
 import com.example.demo.services.TimeTableService;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,8 +16,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.List;
 import java.util.Random;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @WebAppConfiguration
