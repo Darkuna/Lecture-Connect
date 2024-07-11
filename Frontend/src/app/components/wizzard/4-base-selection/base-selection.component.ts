@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, Input, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg,  EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -22,16 +22,20 @@ export class BaseSelectionComponent {
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
 
   protected readonly CourseColor = CourseColor;
+  lastUsedColor: CourseColor = CourseColor.DEFAULT;
+
   selectedRoom: Room | null = null;
   tmpEvents: Subject<any[]> = new Subject<any[]>();
 
-  lastUsedColor: CourseColor = CourseColor.DEFAULT;
   showTimeDialog: boolean = false;
+  dataSelectStart!: Date;
+  dataSelectEnd!: Date;
 
   tmpStartDate: Date = new Date('2024-07-10T07:00:00');
   tmpEndDate: Date = new Date('2024-07-10T23:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:15:00');
   tmpSlotInterval: Date = new Date('2024-07-10T01:00:00');
+
   constructor(
     private confirmationService: ConfirmationService,
     private messageService: MessageService
@@ -60,22 +64,46 @@ export class BaseSelectionComponent {
     this.messageService.add({severity:'info', summary:'Color Mode', detail:'color changed!'});
   }
 
-  calculateTimeDistance(selectInfo: DateSelectArg){
-    let s: Date = new Date(selectInfo.startStr.toString());
-    let e: Date = new Date(selectInfo.endStr.toString());
+  getCourseType(colorCode: string): string | undefined {
+    // Iterate over the enum keys
+    for (const color in CourseColor) {
+      // Check if the value matches the colorCode
+      if (CourseColor[color as keyof typeof CourseColor] === colorCode) {
+        return color;
+      }
+    }
+    // Return undefined if no match is found
+    return undefined;
+  }
+
+  calculateTimeDistance(){
+    let s: Date = new Date(this.dataSelectStart.toString());
+    let e: Date = new Date(this.dataSelectEnd.toString());
 
     const duration = e.getTime() - s.getTime();
     const differenceInMinutes = Math.floor(duration / (1000 * 60));
     const hours = Math.floor(differenceInMinutes / 60);
     const minutes = differenceInMinutes % 60;
 
-    console.log(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  }
+
+  private getDayFromTime() {
+    return [this.dataSelectStart.getDay()];
   }
 
   roomIsSelected(): boolean {
     return this.selectedRoom !== null ;
   }
+
+  showDialog(){
+    this.showTimeDialog = true;
+  }
+
+  hideDialog(){
+    this.showTimeDialog = false;
+  }
+
 
   calendarOptions = signal<CalendarOptions>({
     plugins: [
@@ -114,19 +142,19 @@ export class BaseSelectionComponent {
   });
 
   handleDateSelect(selectInfo: DateSelectArg) {
+    this.dataSelectStart = selectInfo.start;
+    this.dataSelectEnd = selectInfo.end;
+    this.showDialog();
+  }
+
+  saveEvent(){
     this.calendarComponent.getApi().addEvent({
       color: this.lastUsedColor,
       borderColor: '#D8D8D8',
-      rrule: {
-        freq: 'weekly',
-        byweekday: this.getDayFromTime(selectInfo),
-        dtstart: selectInfo.startStr.toString(),
-      },
-      duration: this.calculateTimeDistance(selectInfo)
-
+      start: this.dataSelectStart,
+      end: this.dataSelectEnd
     });
-
-    this.calendarComponent.getApi().unselect();
+    this.hideDialog();
   }
 
   handleEventClick(clickInfo: EventClickArg) {
@@ -149,11 +177,6 @@ export class BaseSelectionComponent {
       ...val,
       [calendarOption]: value
     }));
-  }
-
-  private getDayFromTime(selectInfo: DateSelectArg) {
-    let date: Date = new Date(selectInfo.startStr.toString());
-    return `${date.getDay()}`;
   }
 }
 

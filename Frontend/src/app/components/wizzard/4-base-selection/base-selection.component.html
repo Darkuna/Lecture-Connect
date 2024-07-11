@@ -26,12 +26,14 @@
                   [style]="getButtonStyle(CourseColor.NONE)"
                   (onClick)="setCurrentColor(CourseColor.NONE)"/>
       </div>
+
+
       <div id="lowerSection">
         <p-button icon="pi pi-bars" label="Calendar Settings"
                   (click)="op.show($event, actualTarget)"/>
         <br>
        <p-button label="finish" icon="pi pi-flag"
-                  [style]="getButtonStyle(CourseColor.DEFAULT)" />
+                  (click)="showDialog()" [style]="getButtonStyle(CourseColor.DEFAULT)" />
       </div>
     </div>
   </div>
@@ -42,17 +44,21 @@
 
   <ng-template pTemplate="content" class="parent">
     <label for="start">Start Time</label>
-    <p-calendar id="start" dateFormat="dd.mm.yy" />
+    <p-calendar id="start" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpStartDate"
+                (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
     <br>
     <label for="end">End Time</label>
-    <p-calendar id="end"  dateFormat="dd.mm.yy" />
+    <p-calendar id="end" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpStartDate"
+                (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
-            ></button>
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
-            ></button>
+    <p-button pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+            (onClick)="hideDialog()"/>
+    <p-button pRipple label="Save" icon="pi pi-check" class="p-button-text"
+            (onClick)="saveEvent()"/>
   </ng-template>
 </p-dialog>
 
