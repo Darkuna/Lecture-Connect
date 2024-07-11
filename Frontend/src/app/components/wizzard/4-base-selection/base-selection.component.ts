@@ -5,9 +5,10 @@ import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
+import rrulePlugin from '@fullcalendar/rrule'
 import {CourseColor} from "../../../../assets/Models/enums/lecture-color";
 import {Room} from "../../../../assets/Models/room";
-import {ConfirmationService, MenuItem, MessageService, PrimeNGConfig} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Subject} from "rxjs";
 
@@ -59,12 +60,26 @@ export class BaseSelectionComponent {
     this.messageService.add({severity:'info', summary:'Color Mode', detail:'color changed!'});
   }
 
+  calculateTimeDistance(selectInfo: DateSelectArg){
+    let s: Date = new Date(selectInfo.startStr.toString());
+    let e: Date = new Date(selectInfo.endStr.toString());
+
+    const duration = e.getTime() - s.getTime();
+    const differenceInMinutes = Math.floor(duration / (1000 * 60));
+    const hours = Math.floor(differenceInMinutes / 60);
+    const minutes = differenceInMinutes % 60;
+
+    console.log(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  }
+
   roomIsSelected(): boolean {
     return this.selectedRoom !== null ;
   }
 
   calendarOptions = signal<CalendarOptions>({
     plugins: [
+      rrulePlugin,
       interactionPlugin,
       dayGridPlugin,
       timeGridPlugin,
@@ -99,23 +114,19 @@ export class BaseSelectionComponent {
   });
 
   handleDateSelect(selectInfo: DateSelectArg) {
-    const title = prompt('Please enter a new title for your event');
-    let event: any;
+    this.calendarComponent.getApi().addEvent({
+      color: this.lastUsedColor,
+      borderColor: '#D8D8D8',
+      rrule: {
+        freq: 'weekly',
+        byweekday: this.getDayFromTime(selectInfo),
+        dtstart: selectInfo.startStr.toString(),
+      },
+      duration: this.calculateTimeDistance(selectInfo)
 
+    });
 
-    if (title) {
-      event = {
-        id: title,
-        title: title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-        color: this.lastUsedColor
-      }
-
-      this.calendarComponent.getApi().addEvent(event);
-      this.calendarComponent.getApi().unselect();
-    }
-
+    this.calendarComponent.getApi().unselect();
   }
 
   handleEventClick(clickInfo: EventClickArg) {
@@ -138,6 +149,11 @@ export class BaseSelectionComponent {
       ...val,
       [calendarOption]: value
     }));
+  }
+
+  private getDayFromTime(selectInfo: DateSelectArg) {
+    let date: Date = new Date(selectInfo.startStr.toString());
+    return `${date.getDay()}`;
   }
 }
 

@@ -23,6 +23,7 @@
     "@fullcalendar/daygrid": "^6.1.14",
     "@fullcalendar/interaction": "^6.1.14",
     "@fullcalendar/list": "^6.1.14",
+    "@fullcalendar/rrule": "^6.1.14",
     "@fullcalendar/timegrid": "^6.1.14",
     "jwt-decode": "^4.0.0",
     "ngx-webstorage": "^13.0.1",
