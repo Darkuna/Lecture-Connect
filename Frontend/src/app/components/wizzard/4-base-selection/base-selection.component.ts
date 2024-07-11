@@ -22,7 +22,7 @@ export class BaseSelectionComponent {
 
   protected readonly CourseColor = CourseColor;
   selectedRoom: Room | null = null;
-  tmpEvents: Subject<any[]>;
+  tmpEvents: Subject<any[]> = new Subject<any[]>();
 
   lastUsedColor: CourseColor = CourseColor.DEFAULT;
   showTimeDialog: boolean = false;
@@ -34,9 +34,7 @@ export class BaseSelectionComponent {
   constructor(
     private confirmationService: ConfirmationService,
     private messageService: MessageService
-  ) {
-    this.tmpEvents = new Subject<any[]>();
-  }
+  ) { }
 
   formatTime(date: Date): string {
     /* equal to the return value
@@ -45,7 +43,6 @@ export class BaseSelectionComponent {
     const seconds = date.getSeconds().toString().padStart(2, '0');
     */
     return date.toString().split(' ')[4];
-
   }
 
   getButtonStyle(color: string): { [key: string]: string } {
@@ -101,24 +98,24 @@ export class BaseSelectionComponent {
     nowIndicator: false,
   });
 
-  addItem(newEvent: any): void {
-    this.tmpEvents.next([newEvent]);
-  }
-
   handleDateSelect(selectInfo: DateSelectArg) {
     const title = prompt('Please enter a new title for your event');
+    let event: any;
+
 
     if (title) {
-      this.addItem({
+      event = {
         id: title,
         title: title,
         start: selectInfo.startStr,
         end: selectInfo.endStr,
         color: this.lastUsedColor
-      });
+      }
+
+      this.calendarComponent.getApi().addEvent(event);
+      this.calendarComponent.getApi().unselect();
     }
 
-    this.calendarComponent.getApi().unselect();
   }
 
   handleEventClick(clickInfo: EventClickArg) {
