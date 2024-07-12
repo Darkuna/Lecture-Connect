@@ -82,10 +82,6 @@ public class CourseService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourse(Course course){
-        List<CourseSession> courseSessions = courseSessionService.loadAllFromCourse(course);
-        for(CourseSession courseSession : courseSessions){
-            courseSessionService.deleteCourseSession(courseSession);
-        }
         courseRepository.delete(course);
     }
 

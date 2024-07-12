@@ -157,16 +157,6 @@ public class CourseSessionService {
     }
 
     /**
-     * Loads all course sessions created from a specific course.
-     *
-     * @param course The course the course sessions are created from.
-     * @return The list of course sessions from a specific course.
-     */
-    public List<CourseSession> loadAllFromCourse(Course course){
-        return courseSessionRepository.findAllByCourse(course);
-    }
-
-    /**
      * Loads all course sessions associated to a specific timetable.
      *
      * @param timeTable The timetable the course sessions are associated to.

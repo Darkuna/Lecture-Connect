@@ -88,7 +88,7 @@ public class AvailabilityMatrix {
 
         while (!randomSlotFound) {
             dayIndex = random.nextInt(DAYS_IN_WEEK);
-            slotIndex = random.nextInt(SLOTS_PER_DAY - numberOfSlots);
+            slotIndex = random.nextInt(SLOTS_PER_DAY - numberOfSlots - 8);
             if (matrix[dayIndex][slotIndex] == null) {
                 randomSlotFound = isSlotsAvailable(dayIndex, slotIndex, numberOfSlots);
             }
