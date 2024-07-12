@@ -20,17 +20,17 @@ import {Subject} from "rxjs";
 export class BaseSelectionComponent {
   @Input() globalTable!: TmpTimeTable;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  selectedRoom: Room | null = null;
 
   protected readonly CourseColor = CourseColor;
   lastUsedColor: CourseColor = CourseColor.DEFAULT;
 
-  selectedRoom: Room | null = null;
-  tmpEvents: Subject<any[]> = new Subject<any[]>();
-
+  activeDialog: boolean = true;
   showTimeDialog: boolean = false;
   dataSelectStart!: Date;
   dataSelectEnd!: Date;
 
+  //to be saved in the config file
   tmpStartDate: Date = new Date('2024-07-10T07:00:00');
   tmpEndDate: Date = new Date('2024-07-10T23:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:15:00');
@@ -42,11 +42,7 @@ export class BaseSelectionComponent {
   ) { }
 
   formatTime(date: Date): string {
-    /* equal to the return value
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
-    */
+    // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
   }
 
@@ -65,31 +61,13 @@ export class BaseSelectionComponent {
   }
 
   getCourseType(colorCode: string): string | undefined {
-    // Iterate over the enum keys
     for (const color in CourseColor) {
-      // Check if the value matches the colorCode
       if (CourseColor[color as keyof typeof CourseColor] === colorCode) {
         return color;
       }
     }
     // Return undefined if no match is found
     return undefined;
-  }
-
-  calculateTimeDistance(){
-    let s: Date = new Date(this.dataSelectStart.toString());
-    let e: Date = new Date(this.dataSelectEnd.toString());
-
-    const duration = e.getTime() - s.getTime();
-    const differenceInMinutes = Math.floor(duration / (1000 * 60));
-    const hours = Math.floor(differenceInMinutes / 60);
-    const minutes = differenceInMinutes % 60;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-  }
-
-  private getDayFromTime() {
-    return [this.dataSelectStart.getDay()];
   }
 
   roomIsSelected(): boolean {
@@ -136,7 +114,7 @@ export class BaseSelectionComponent {
     slotDuration: this.formatTime(this.tmpDuration),
     slotLabelInterval: this.formatTime(this.tmpSlotInterval),
     dayHeaderFormat: {weekday: 'long'},
-    eventOverlap: true,
+    eventOverlap: false,
     slotEventOverlap: false,
     nowIndicator: false,
   });
@@ -145,15 +123,23 @@ export class BaseSelectionComponent {
     this.dataSelectStart = selectInfo.start;
     this.dataSelectEnd = selectInfo.end;
     this.showDialog();
+
+    if(!this.activeDialog){
+      this.saveEvent();
+      this.calendarComponent.getApi().unselect();
+    }
   }
 
   saveEvent(){
-    this.calendarComponent.getApi().addEvent({
+    let newEvent = {
+      title:this.getCourseType(this.lastUsedColor),
       color: this.lastUsedColor,
       borderColor: '#D8D8D8',
       start: this.dataSelectStart,
       end: this.dataSelectEnd
-    });
+    };
+
+    this.calendarComponent.getApi().addEvent(newEvent);
     this.hideDialog();
   }
 
@@ -174,9 +160,34 @@ export class BaseSelectionComponent {
 
   updateCalendar(calendarOption: string, value: any) {
     this.calendarOptions.update(val => ({
-      ...val,
-      [calendarOption]: value
+      ...val, [calendarOption]: value
     }));
+  }
+
+  saveTimeStartSelection(event: Date) {
+    this.dataSelectStart = event;
+  }
+
+  saveTimeEndSelection(event: Date) {
+    this.dataSelectEnd = event;
+  }
+
+  handleOptionChange(event:boolean) {
+    this.activeDialog = event;
+  }
+
+  changeRoom(event:Room){
+    this.selectedRoom = event;
+    if(!this.selectedRoom.tmpEvents){
+      this.selectedRoom.tmpEvents = new Subject<any[]>();
+    }
+
+    this.calendarComponent.getApi().removeAllEvents();
+    this.updateCalendar('events', this.selectedRoom.tmpEvents);
+  }
+
+  printRes() {
+    console.log(this.calendarComponent.getApi().getEvents());
   }
 }
 
