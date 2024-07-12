@@ -46,17 +46,18 @@ export class DetailSelectionComponent {
   saveCourse() {
     if (this.hasPsType()) {
       this.updateTimesArray(this.timesArray[0])
-    } else {
-      this.selectedCourse!.numberOfGroups = this.tmpSplitTimes;
-      this.selectedCourse!.splitTimes = this.timesArray;
     }
 
+    this.selectedCourse!.numberOfGroups = this.tmpSplitTimes;
+    this.selectedCourse!.splitTimes = this.timesArray;
     this.selectedCourse!.isSplit = true;
+
     this.hideDialog();
   }
 
   updateTimesArray(fillValue: number) {
     this.timesArray = Array(this.tmpSplitTimes).fill(fillValue);
+    console.log(this.timesArray);
   }
 
   showDialog() {
