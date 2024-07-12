@@ -7,9 +7,6 @@ export class AvailabilityMatrix {
   private static END_TIME = TimingConstants.END_TIME;
   private SLOTS_PER_DAY = 5;
 
-  constructor(
-    private matrix: CourseSession[][]
-  ) {
-  }
+  matrix!: CourseSession[][];
 }
 

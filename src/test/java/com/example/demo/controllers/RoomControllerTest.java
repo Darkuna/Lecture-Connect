@@ -2,9 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.dto.RoomDTO;
 import com.example.demo.models.Room;
-import com.example.demo.services.JwtService;
 import com.example.demo.services.RoomService;
-import com.example.demo.services.UserInfoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,16 +23,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@WebMvcTest(RoomController.class)
 @ActiveProfiles("dev")
 public class RoomControllerTest {
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private UserInfoService userInfoService;
-    @MockBean
-    private JwtService jwtService;
     @MockBean
     private RoomService roomService;
 
@@ -133,7 +126,4 @@ public class RoomControllerTest {
                 .andExpect(jsonPath("$.capacity").value(100))
                 .andExpect(jsonPath("$.computersAvailable").value(true));
     }
-
-
-
 }

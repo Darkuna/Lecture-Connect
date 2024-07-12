@@ -3,7 +3,7 @@ import {Timing} from "./timing";
 import {CourseType} from "./enums/course-type";
 
 export class Course {
-  id!: number;
+  id!: string;
   courseType?: CourseType;
   name?: string;
   lecturer?: string;
@@ -13,11 +13,11 @@ export class Course {
   computersNecessary?: boolean;
   courseSessions?: CourseSession[];
   timingConstraints?: Timing[];
-  numberOfGroups?: number;
-  isSplit?: boolean;
-  splitTimes?: number[];
-  createDate?: Date;
-  updateDate?: Date;
+  numberOfGroups: number | null = null;
+  isSplit: boolean = false;
+  splitTimes: number[] = [];
+  createdAt?: Date;
+  updatedAt?: Date;
 
   getTableColumns(): any[] {
     return [
@@ -29,8 +29,8 @@ export class Course {
       {field: 'duration', header: 'Duration'},
       {field: 'numberOfParticipants', header: '#Participants'},
       {field: 'computersNecessary', header: 'computer needed'},
-      {field: 'createDate', header: 'Creation Date'},
-      {field: 'updateDate', header: 'last time updated'}
+      {field: 'createdAt', header: 'created at'},
+      {field: 'updatedAt', header: 'updated at'}
     ]
   }
 }

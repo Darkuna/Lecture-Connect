@@ -1,23 +1,25 @@
 import {Timing} from "./timing";
 import {RoomTable} from "./room-table";
 import {RoomInterface} from "./interfaces/roomInterface";
+import {EventImpl} from "@fullcalendar/core/internal";
 
 export class Room implements RoomInterface {
   id!: string;
   capacity!: number;
   computersAvailable?: boolean;
   timingConstraints?: Timing[];
+  tmpEvents?: EventImpl[];
   roomTables?: RoomTable[];
-  createDate?: Date;
-  updateDate?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 
   getTableColumns(): any[] {
     return [
       {field: 'id', header: 'Id'},
       {field: 'capacity', header: 'Capacity'},
       {field: 'computersAvailable', header: 'Room has PCs'},
-      {field: 'createDate', header: 'Creation Date'},
-      {field: 'updateDate', header: 'last time updated'}
+      {field: 'createdAt', header: 'Creation Date'},
+      {field: 'updatedAt', header: 'last time updated'}
     ]
   }
 }

@@ -1,27 +1,23 @@
-import {ChangeDetectorRef, Component} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {ConfirmationService, MessageService} from "primeng/api";
 import {Course} from "../../../../assets/Models/course";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
 import {CourseService} from "../../../services/course-service";
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-course-view',
   templateUrl: './course-view.component.html',
-  styleUrl: '../tables.css'
+  styleUrl: '../tables.css',
 })
-export class CourseViewComponent {
+export class CourseViewComponent implements OnInit, OnDestroy {
   itemDialogVisible: boolean = false;
   singleCourse: Course;
   courses: Course[];
   selectedCourses!: Course[];
   selectedHeaders: any;
   headers: any[];
-
-  stateOptions: any[] = [
-    {label: 'Yes', value: true},
-    {label: 'No', value: false}
-  ];
-
+  private courseSub?: Subscription;
   itemIsEdited = false;
 
   constructor(
@@ -37,8 +33,13 @@ export class CourseViewComponent {
   }
 
   ngOnInit(): void {
-    this.courseService.getAllCourses().subscribe(data => this.courses = data)
+    this.courseSub = this.courseService.getAllCourses().subscribe(data => this.courses = data)
     this.cd.markForCheck();
+  }
+
+  ngOnDestroy() {
+    this.courseSub?.unsubscribe();
+    this.cd.detach();
   }
 
   openNew() {
@@ -57,13 +58,10 @@ export class CourseViewComponent {
 
   saveNewItem(): void {
     if (this.itemIsEdited) {
-      this.singleCourse.updateDate = new Date();
       this.courses[this.findIndexById(this.singleCourse.id)] =
         this.courseService.updateSingleCourse(this.singleCourse);
 
       this.itemIsEdited = false;
-      this.singleCourse = new Course();
-
       this.hideDialog();
       this.messageService.add({severity: 'success', summary: 'Change', detail: 'Element was updated'});
     } else if (this.isInList(this.singleCourse)) {
@@ -71,11 +69,11 @@ export class CourseViewComponent {
     } else {
       this.singleCourse.timingConstraints = [];
       this.courses.push(this.courseService.createSingleCourse(this.singleCourse));
-      this.singleCourse = new Course();
 
       this.hideDialog();
       this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
     }
+    this.singleCourse = new Course();
   }
 
   deleteSingleItem(course: Course) {
@@ -114,7 +112,7 @@ export class CourseViewComponent {
     return false;
   }
 
-  findIndexById(id: number): number {
+  findIndexById(id: string): number {
     let index = -1;
     for (let i = 0; i < this.courses.length; i++) {
       if (this.courses[i].id === id) {

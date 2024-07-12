@@ -1,10 +1,13 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.TimeTableNameDTO;
 import com.example.demo.models.*;
+import com.example.demo.models.enums.CourseType;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.services.CourseService;
 import com.example.demo.services.RoomService;
 import com.example.demo.services.TimeTableService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +17,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,6 +87,13 @@ public class TimeTableServiceTest {
     }
 
     @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadTimeTableNames(){
+        List<TimeTableNameDTO> timeTableNames = timeTableService.loadTimeTableNames();
+        assertEquals(1, timeTableNames.size());
+    }
+
+    @Test
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadTimeTable(){
@@ -94,4 +105,25 @@ public class TimeTableServiceTest {
         assertNotNull(timeTable.getCourseSessions());
     }
 
+    /**
+     * Test is only used for test data creation
+     */
+    @Test
+    @DirtiesContext
+    @Disabled
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void createTestData(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-3);
+        List<Course> courses = courseService.loadAllCourses();
+        Random random = new Random();
+        for(Course course : courses){
+            if(course.getCourseType().equals(CourseType.PS)){
+                course.setNumberOfGroups(random.nextInt(3,9));
+            }
+            timeTableService.addCourseSessions(timeTable, course);
+        }
+        for(CourseSession courseSession : timeTable.getCourseSessions()){
+            System.out.println(courseSession);
+        }
+    }
 }

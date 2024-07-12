@@ -1,4 +1,4 @@
 export enum Semester {
-  SS,
-  WS
+  SS = "SS",
+  WS = "WS"
 }

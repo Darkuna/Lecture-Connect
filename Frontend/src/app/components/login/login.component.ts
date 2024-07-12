@@ -1,18 +1,26 @@
-import {HttpClient} from '@angular/common/http';
-import {Component} from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import {Component, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
 import {LocalStorageService} from "ngx-webstorage";
 import * as jwt_decode from 'jwt-decode';
 import {MessageService} from "primeng/api";
-import {ReloadService} from "../../services/reload.service";
+import {Subscription} from "rxjs";
+import {LoginUserInfoService} from "../../services/login-user-info.service";
+
+interface LoginObj {
+  name: string;
+  password: string;
+}
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
-  loginObj: any = {
+export class LoginComponent implements OnDestroy {
+  private loginSub: Subscription | null = null;
+
+  loginObj: LoginObj = {
     name: "",
     password: ""
   }
@@ -22,33 +30,46 @@ export class LoginComponent {
     private http: HttpClient,
     private storage: LocalStorageService,
     private messageService: MessageService,
-    private reloadService: ReloadService
+    private userInfoService: LoginUserInfoService
   ) {
   }
 
+  ngOnDestroy(): void {
+    if (!this.loginSub?.closed) {
+      this.loginSub?.unsubscribe();
+    }
+  }
+
   login() {
-    this.http.post('/proxy/auth/login', this.loginObj)
-      .subscribe((token: any) => {
-        if (token['token'] != 'null') {
-          const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: any };
+    this.loginSub = this.http.post('/proxy/auth/login', this.loginObj)
+      .subscribe({
+        next: (token: any) => {
+          if (token && token['token']) {
+            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string };
+            this.userInfoService.username = decodedToken['username'];
+            this.userInfoService.userRole = decodedToken['role'];
+            this.userInfoService.userLoggedIn = true;
 
-          this.storage.store('username', decodedToken['username']);
-          this.storage.store('roles', decodedToken['role']);
-          this.storage.store('jwtToken', token['token']);
 
-          this.reloadService.notify({isRefresh: true});
+            this.storage.store('jwtToken', token['token']);
 
-          this.messageService.add({severity: 'success', summary: `Willkommen zurück ${decodedToken['username']}`});
-          this.router.navigate(['/home'])
-        } else {
+            this.messageService.add({severity: 'success',summary: `Welcome back ${decodedToken['username']}`});
+            this.router.navigate(['/home']);
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Login Error',
+              detail: 'Invalid credentials provided!'
+            });
+          }
+        },
+        error: (err) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Login Error',
-            detail: 'Falscher Username oder Passwort'
+            detail: err
           });
-
         }
-      })
+      });
   }
-
 }

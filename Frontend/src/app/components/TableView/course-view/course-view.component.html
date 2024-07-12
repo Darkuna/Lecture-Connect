@@ -1,8 +1,6 @@
 <div class="moveDownHeader">
   <p-toolbar styleClass="mb-4 gap-2">
-    <ng-template pTemplate="left">
-
-    </ng-template>
+    <ng-template pTemplate="left"/>
 
     <ng-template pTemplate="left">
       <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
@@ -26,12 +24,16 @@
   <p-table
     #dt
     [value]="courses"
-    [rows]="courses.length"
+    [rows]="15"
     [columns]="selectedHeaders"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 15, 25, 50]"
     [paginator]="true"
     [globalFilterFields]="['id', 'lecturer', 'name']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedCourses"
+    [filterDelay]="0"
     [rowHover]="true"
     dataKey="id">
     <ng-template pTemplate="header">
@@ -39,7 +41,7 @@
         <th id="check">
           <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
         </th>
-        <th id="" class="flex-header"
+        <th class="flex-header"
             *ngFor="let col of selectedHeaders" [pSortableColumn]="col.field"
             pResizableColumn pReorderableColumn>
           <span>
@@ -48,6 +50,9 @@
           </span>
           <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
                           [field]="col.field"></p-columnFilter>
+        </th>
+        <th>
+
         </th>
       </tr>
     </ng-template>
@@ -76,28 +81,28 @@
   </p-table>
 </div>
 
-<p-dialog [(visible)]="itemDialogVisible"
+<p-dialog [(visible)]="itemDialogVisible" [style]="{width: '1000px', height:'650px'}"
           header="Lecture Creation" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content" class="parent">
     <div class="div-container">
 
-      <div class="rand" style="width: 10%">
-        <label for="type">Type</label>1
+      <div class="rand" style="width: 15%">
+        <label for="type">Type</label>
         <p-dropdown id="type" [options]="getRoleOptions()" [(ngModel)]="singleCourse.courseType"
                     placeholder="select a Type"/>
       </div>
 
-      <div class="rand" style="width: 40%" >
+      <div class="rand" style="width: 35%">
         <label for="id">Course ID</label>
-        <input type="number" pInputText id="id" required autofocus
-               [disabled]="itemIsEdited" [(ngModel)]="singleCourse.id" />
+        <input type="text" pInputText id="id" required autofocus
+               [disabled]="itemIsEdited" [(ngModel)]="singleCourse.id"/>
         <small class="p-error" *ngIf="!singleCourse.id">ID is required.</small>
       </div>
 
       <div class="rand" style="width: 50%">
         <label for="name">Name</label>
         <input type="text" pInputText id="name" required autofocus
-               [(ngModel)]="singleCourse.name" />
+               [(ngModel)]="singleCourse.name"/>
         <small class="p-error" *ngIf="!singleCourse.name">Name is required </small>
       </div>
     </div>
@@ -108,7 +113,7 @@
     </div>
 
     <div class="rand">
-      <label for="duration">Duration in Hours</label>
+      <label for="duration">Duration in Minutes</label>
       <input type="number" pInputText id="duration" [(ngModel)]="singleCourse.duration" autofocus/>
     </div>
 
@@ -120,14 +125,12 @@
     <div class="div-container">
       <div class="rand">
         <label for="op2">computers needed?</label>
-        <p-selectButton id="op2" [options]="stateOptions" [(ngModel)]="singleCourse.computersNecessary"
-                        optionLabel="label" optionValue="value"></p-selectButton>
+        <p-toggleButton id="op2" onLabel="Yes" offLabel="No" [(ngModel)]="singleCourse.computersNecessary"/>
       </div>
 
       <div class="rand">
         <label for="op3">Course split?</label>
-        <p-selectButton id="op3" optionLabel="label" optionValue="value"
-                        [options]="stateOptions" [(ngModel)]="singleCourse.isSplit"/>
+        <p-toggleButton id="op3" onLabel="Yes" offLabel="No" [(ngModel)]="singleCourse.isSplit"/>
       </div>
     </div>
 
@@ -140,7 +143,7 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveNewItem()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+            (click)="saveNewItem()" [disabled]="!singleCourse.id && !singleCourse.name"></button>
   </ng-template>
 </p-dialog>
-

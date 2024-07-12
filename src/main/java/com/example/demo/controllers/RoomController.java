@@ -25,17 +25,17 @@ public class RoomController {
 
     @PostMapping
     public ResponseEntity<RoomDTO> createRoom(@RequestBody RoomDTO roomDto) {
-        Room room = convertToEntity(roomDto);
+        Room room = roomService.fromDTO(roomDto);
         Room savedRoom = roomService.createRoom(room);
-        return ResponseEntity.ok(convertToDto(savedRoom));
+        return ResponseEntity.ok(roomService.toDTO(savedRoom));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<RoomDTO> updateRoom(@PathVariable String id, @RequestBody RoomDTO roomDto) {
         Room existingRoom = roomService.loadRoomByID(id);
-        copyDtoToEntity(roomDto, existingRoom);
+        roomService.copyDtoToEntity(roomDto, existingRoom);
         Room updatedRoom = roomService.updateRoom(existingRoom, roomDto.getCapacity(), roomDto.isComputersAvailable());
-        return ResponseEntity.ok(convertToDto(updatedRoom));
+        return ResponseEntity.ok(roomService.toDTO(updatedRoom));
     }
 
     @DeleteMapping("/{id}")
@@ -54,34 +54,13 @@ public class RoomController {
     @GetMapping
     public ResponseEntity<List<RoomDTO>> getAllRooms() {
         List<Room> rooms = roomService.loadAllRooms();
-        return ResponseEntity.ok(rooms.stream().map(this::convertToDto).collect(Collectors.toList()));
+        return ResponseEntity.ok(rooms.stream().map(roomService::toDTO).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<RoomDTO> getRoomById(@PathVariable String id) {
         Room room = roomService.loadRoomByID(id);
-        return ResponseEntity.ok(convertToDto(room));
-    }
-
-    private RoomDTO convertToDto(Room room) {
-        RoomDTO dto = new RoomDTO();
-        dto.setId(room.getId());
-        dto.setCapacity(room.getCapacity());
-        dto.setComputersAvailable(room.isComputersAvailable());
-        return dto;
-    }
-
-    private Room convertToEntity(RoomDTO dto) {
-        Room room = new Room();
-        room.setId(dto.getId());
-        room.setCapacity(dto.getCapacity());
-        room.setComputersAvailable(dto.isComputersAvailable());
-        return room;
-    }
-
-    private void copyDtoToEntity(RoomDTO dto, Room entity) {
-        entity.setCapacity(dto.getCapacity());
-        entity.setComputersAvailable(dto.isComputersAvailable());
+        return ResponseEntity.ok(roomService.toDTO(room));
     }
 }
 

@@ -7,7 +7,7 @@
   right: 0;
   top: 0;
   height: 4%;
-  background: #F39200;
+  background: var(--system-color-primary-orange);
   text-overflow: ellipsis;
   overflow: hidden;
   transition: height 0.3s ease;
@@ -55,17 +55,17 @@
   color: #898989;
   height: 100%;
 
-  background: #F4F4F4;
-  border-color: #f4f4f4;
+  background: var(--system-color-primary-white);
+  border-color: var(--system-color-primary-white);
   border-radius: 15px;
   transition: all 0.15s ease;
 }
 
 
 .container .headerButton:hover {
-  border-color: #003361;
-  background: #003361;
-  color: #f4f4f4;
+  border-color: var(--system-color-primary-blue);
+  background: var(--system-color-primary-blue);
+  color: var(--system-color-primary-white);
   font-size: 20px;
 }
 
@@ -97,5 +97,4 @@
   height: 90%;
   width: auto;
   margin-right: 10px;
-
 }

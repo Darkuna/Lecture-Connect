@@ -6,9 +6,9 @@
 }
 
 .customButton {
-  background-color: #003361;
-  border-color: #003361;
-  color: #f4f4f4;
+  background-color: var(--system-color-primary-blue);
+  border-color: var(--system-color-primary-blue);
+  color: var(--system-color-primary-white);
 
   margin-left: .4rem;
   border-radius: 10px;
@@ -32,4 +32,3 @@
 .rand {
   margin: .4rem .4rem .4rem .4rem;
 }
-

@@ -1,0 +1,57 @@
+.text {
+  display: block;
+  text-align: center;
+}
+
+#grid {
+  display: grid;
+  grid-template-rows: auto;
+  grid-template-columns: auto;
+  gap: 0;
+  position: absolute;
+  top: calc(4% + 5px); /* Adjust 10px to your preference */
+  left: 0;
+  right: 0;
+  overflow: hidden;
+}
+
+#div1 {
+  grid-area: 1 / 3 / 3 / 4;
+  padding: 1rem 2rem 2rem 2rem;
+}
+
+#div2 {
+  grid-area: 1 / 1 / 2 / 3;
+  padding: .5rem 0 0 1rem;
+}
+
+#div3 {
+  grid-area: 2 / 1 / 3 / 3;
+  overflow-y: auto; /* Add scrollbar if content overflows vertically */
+  max-height: 80vh; /* Set a maximum height for the container */
+  height: 100%; /* Ensure div3 fills its container */
+  padding: .5rem 0 0 1rem;
+
+  .th {
+    background-color: var(--system-color-primary-blue);
+  }
+}
+
+.headerButton {
+  height: 100%;
+  border-color: var(--system-color-primary-blue) 1;
+  background: var(--system-color-primary-blue);
+  color: var(--system-color-primary-white);
+  font-size: 24px;
+  border-radius: 15px;
+  transition: all 0.15s ease;
+}
+
+.div-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.rand {
+  margin: .4rem .4rem .4rem .4rem;
+}

@@ -1,6 +1,6 @@
 package com.example.demo.services;
 
-import com.example.demo.models.UserInfo;
+import com.example.demo.models.Userx;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,22 +11,20 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
-
 import java.security.SecureRandom;
 import java.util.Base64;
-
 
 @Component
 public class JwtService {
 
     public static final String SECRET = generateRandomSecret(32);
-    public String generateToken(UserInfo user) {
+    public String generateToken(Userx user) {
         return createToken(
-                Map.of("id", user.getName(),
-               "username", user.getName(),
+                Map.of("id", Objects.requireNonNull(user.getId()),
+               "username", user.getUsername(),
                "role", user.getRoles())
         );
     }

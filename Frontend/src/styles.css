@@ -1,4 +1,106 @@
 /* You can add global styles to this file, and also import other style files */
-@import "primeng/resources/themes/lara-light-blue/theme.css";
+@import "primeng/resources/themes/mira/theme.css";
 @import "primeng/resources/primeng.css";
 @import "primeicons/primeicons.css";
+
+
+:root {
+  --system-color-primary-blue: #003361;
+  --system-color-primary-orange: #F39200;
+  --system-color-primary-white: #f4f4f4;
+
+
+  --fc-small-font-size: .85em;
+  --fc-page-bg-color: var(--system-color-primary-blue);
+  --fc-neutral-bg-color: var(--system-color-primary-white);
+  --fc-neutral-text-color: var(--system-color-primary-white);
+  --fc-border-color: var(--system-color-primary-white);
+
+  --fc-button-text-color: var(--system-color-primary-white);
+  --fc-button-bg-color: var(--system-color-primary-white);
+  --fc-button-border-color: var(--system-color-primary-white);
+  --fc-button-hover-bg-color: var(--system-color-primary-white);
+  --fc-button-hover-border-color: var(--system-color-primary-white);
+  --fc-button-active-bg-color: var(--system-color-primary-white);
+  --fc-button-active-border-color: var(--system-color-primary-white);
+
+  --fc-more-link-bg-color: #d0d0d0;
+  --fc-more-link-text-color: inherit;
+
+  --fc-event-resizer-thickness: 8px;
+  --fc-event-resizer-dot-total-width: 18px;
+  --fc-event-resizer-dot-border-width: 11px;
+
+  --fc-today-bg-color: rgba(255, 0, 0, 0);
+}
+
+.fc .fc-timegrid-slot-minor {
+  border-top-style: dashed;
+  border-width: .1rem;
+}
+
+.fc {
+  width: 100%;
+  margin: 0 auto;
+  padding: 5px 10px;
+  background: var(--system-color-primary-white);
+  border-width: 40px;
+  flex-direction: column-reverse;
+}
+
+.fc .fc-timegrid-slot-label-cushion {
+  display: inline-block;
+  white-space: nowrap;
+  color: var(--system-color-primary-blue);
+}
+
+.fc .fc-col-header-cell-cushion {
+  display: inline-block;
+  padding: 2px 4px;
+  color: var(--system-color-primary-white) !important;
+}
+
+.p-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  background: var(--system-color-primary-white);
+}
+
+.p-menu .p-menuitem > .p-menuitem-content .p-menuitem-link {
+  color: #4c566a;
+  padding: 0.75rem 1rem;
+  -webkit-user-select: none;
+  user-select: none;
+  background: var(--system-color-primary-white);
+}
+
+.p-menu .p-submenu-header {
+  margin: 0;
+  padding: 0.75rem 1.25rem;
+  color: var(--system-color-primary-white) !important;
+  background: var(--system-color-primary-blue);
+  font-weight: 700;
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border: 2px solid var(--system-color-primary-blue);
+}
+
+.p-stepper .p-stepper-separator {
+  width: 100%;
+  height: 2px;
+  margin-inline-start: 1rem;
+  transition: none;
+  border: none;
+  border-top: 4px dashed #898989;
+}
+
+.p-stepper .p-stepper-header:has(~ .p-highlight) .p-stepper-separator {
+  background-color: transparent;
+}
+
+

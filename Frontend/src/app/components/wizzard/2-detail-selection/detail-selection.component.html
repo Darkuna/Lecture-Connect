@@ -1,0 +1,110 @@
+<div class="Context">
+  <p-toolbar styleClass="mb-4 gap-2">
+
+    <ng-template pTemplate="left">
+      <p-multiSelect [options]="headers" [(ngModel)]="headers" optionLabel="header"
+                     selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
+                     placeholder="Choose Columns"></p-multiSelect>
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+               placeholder="Search..."/>
+      </span>
+    </ng-template>
+  </p-toolbar>
+  <p-table
+    #dt
+    [value]="globalTable.courseTable!"
+    [rows]="15"
+    [columns]="headers"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 15, 25, 50]"
+    [paginator]="true"
+    [globalFilterFields]="['id', 'lecturer', 'name']"
+    [filterDelay]="0"
+    [rowHover]="true"
+    dataKey="id">
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="flex-header"
+            *ngFor="let col of headers" [pSortableColumn]="col.field"
+            pResizableColumn pReorderableColumn>
+          <span>
+            <p-sortIcon [field]="col.field"/>
+            {{ col.header }}
+          </span>
+          <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
+                          [field]="col.field"/>
+        </th>
+        <th>
+          Split Settings
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-u>
+      <tr>
+        <td *ngFor="let col of headers">
+          <ng-container>
+            {{ u[col.field] }}
+          </ng-container>
+        </td>
+        <td>
+          <p-button icon="pi pi-bars" styleClass="w-9rem" (onClick)="setSplitTimesOfCourse(u)"/>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="showEditDialog" [style]="{width: '800px', height:'650px'}"
+          header="Split Settings" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content" class="parent">
+    <div class="div-container">
+      <div class="rand" style="width: 15%">
+        <label for="type">Type</label>
+        <input type="text" pInputText id="type" [(ngModel)]="selectedCourse!.courseType" [disabled]="true"/>
+      </div>
+
+      <div class="rand" style="width: 35%">
+        <label for="id">Course ID</label>
+        <input type="text" pInputText id="id" [(ngModel)]="selectedCourse!.id" [disabled]="true"/>
+      </div>
+
+      <div class="rand" style="width: 50%">
+        <label for="name">Name</label>
+        <input type="text" pInputText id="name" [(ngModel)]="selectedCourse!.name" [disabled]="true"/>
+      </div>
+    </div>
+
+    <div class="rand">
+      <label for="time">Number of {{ getHeaderText() }}</label>
+      <p-inputNumber type="number" id="time" [(ngModel)]="tmpSplitTimes"
+                     (ngModelChange)="updateTimesArray(0)"/>
+    </div>
+    <ng-container *ngIf="hasPsType(); else splitsTemplate">
+      <div>
+        <label for="dur">Duration (minutes)</label>
+        <p-inputNumber pInputText type="number" id="dur" [(ngModel)]="timesArray[0]"
+                       [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" [step]="15"
+                       incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"/>
+      </div>
+    </ng-container>
+
+    <ng-template #splitsTemplate>
+      <ng-container *ngFor="let time of timesArray; let i = index">
+        <div class="rand">
+          <label for="time-{{i}}">Split Nr {{ i + 1 }} Duration (minutes)</label>
+          <p-inputNumber pInputText type="number" id="time-{{i}}" [(ngModel)]="timesArray[i]"
+                         [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" [step]="15"
+                         incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"/>
+        </div>
+      </ng-container>
+    </ng-template>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveCourse()"></button>
+  </ng-template>
+</p-dialog>
