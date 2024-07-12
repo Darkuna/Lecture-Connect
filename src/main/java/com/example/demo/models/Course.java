@@ -26,8 +26,6 @@ public class Course extends TimestampedEntity implements Persistable<String>, Se
     private int duration;
     private int numberOfParticipants;
     private boolean computersNecessary;
-    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
-    private List<CourseSession> courseSessions;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")
     private List<Timing> timingConstraints = new ArrayList<>();

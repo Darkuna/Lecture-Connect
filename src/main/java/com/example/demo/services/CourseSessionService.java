@@ -42,9 +42,12 @@ public class CourseSessionService {
 
         for(int i = 0; i < numberOfCourseSessionsToCreate; i++){
             CourseSession courseSession = new CourseSession();
-            courseSession.setCourse(course);
             courseSession.setAssigned(false);
             courseSession.setFixed(false);
+            courseSession.setLecturer(course.getLecturer());
+            courseSession.setNumberOfParticipants(course.getNumberOfParticipants());
+            courseSession.setSemester(course.getSemester());
+            courseSession.setComputersNecessary(course.isComputersNecessary());
             courseSession.setTimingConstraints(course.getTimingConstraints());
 
             if(isSplitCourse){

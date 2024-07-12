@@ -88,7 +88,7 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
     public List<CourseSession> getUnassignedCourseSessionsWithComputersNeeded(){
         List<CourseSession> unassignedCourseSessions = new ArrayList<>();
         for(CourseSession courseSession : courseSessions){
-            if(!courseSession.isAssigned() && courseSession.getCourse().isComputersNecessary()){
+            if(!courseSession.isAssigned() && courseSession.isComputersNecessary()){
                 unassignedCourseSessions.add(courseSession);
             }
         }
@@ -98,7 +98,7 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
     public List<CourseSession> getUnassignedCourseSessionsWithoutComputersNeeded(){
         List<CourseSession> unassignedCourseSessions = new ArrayList<>();
         for(CourseSession courseSession : courseSessions){
-            if(!courseSession.isAssigned()  && !courseSession.getCourse().isComputersNecessary()){
+            if(!courseSession.isAssigned()  && !courseSession.isComputersNecessary()){
                 unassignedCourseSessions.add(courseSession);
             }
         }

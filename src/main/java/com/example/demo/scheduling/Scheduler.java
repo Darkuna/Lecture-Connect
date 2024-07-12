@@ -73,10 +73,10 @@ public class Scheduler {
 
         //Order them by semester and duration
         courseSessions = courseSessions.stream().sorted((o1, o2) -> {
-            if(o1.getCourse().getDuration() != o2.getCourse().getDuration()){
-                return o2.getCourse().getDuration() - o1.getCourse().getDuration();
+            if(o1.getDuration() != o2.getDuration()){
+                return o2.getDuration() - o1.getDuration();
             }
-            return o2.getCourse().getNumberOfParticipants() - o1.getCourse().getNumberOfParticipants();
+            return o2.getNumberOfParticipants() - o1.getNumberOfParticipants();
         }).collect(Collectors.toList());
 
         // While there are still unassigned courseSessions
@@ -134,7 +134,7 @@ public class Scheduler {
     }
 
     private boolean checkRoomCapacity(){
-        return currentCandidate.getAvailabilityMatrix().getCapacity() >= currentCourseSession.getCourse().getNumberOfParticipants();
+        return currentCandidate.getAvailabilityMatrix().getCapacity() >= currentCourseSession.getNumberOfParticipants();
     }
 
     private boolean checkTimingConstraintsFulfilled(){
@@ -149,7 +149,7 @@ public class Scheduler {
 
     private boolean checkCoursesOfSameSemester(CourseSession courseSession){
         for(AvailabilityMatrix availabilityMatrix : allAvailabilityMatrices){
-            if(availabilityMatrix.semesterIntersects(currentCandidate.getPosition(), currentDuration, currentCourseSession.getCourse().getSemester(), courseSession)){
+            if(availabilityMatrix.semesterIntersects(currentCandidate.getPosition(), currentDuration, currentCourseSession.getSemester(), courseSession)){
                 return false;
             }
         }

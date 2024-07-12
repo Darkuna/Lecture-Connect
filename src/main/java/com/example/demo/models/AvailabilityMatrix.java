@@ -111,7 +111,7 @@ public class AvailabilityMatrix {
                 return true;
             }
             if (matrix[position.getDay()][i] != null &&
-                    matrix[position.getDay()][i].getCourse().getSemester() == semester &&
+                    matrix[position.getDay()][i].getSemester() == semester &&
                     !matrix[position.getDay()][i].isSamePS(courseSession)) {
                 return true;
             }
