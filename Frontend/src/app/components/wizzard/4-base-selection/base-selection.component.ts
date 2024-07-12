@@ -1,6 +1,6 @@
 import {Component, Input, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
-import {CalendarOptions, DateSelectArg,  EventClickArg} from "@fullcalendar/core";
+import {CalendarOptions, DateSelectArg, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -10,7 +10,6 @@ import {CourseColor} from "../../../../assets/Models/enums/lecture-color";
 import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
-import {Subject} from "rxjs";
 
 @Component({
   selector: 'app-base-selection',
@@ -104,6 +103,8 @@ export class BaseSelectionComponent {
     dayMaxEvents: true,
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
+    eventAdd: this.interactWithModel.bind(this),
+    eventRemove: this.interactWithModel.bind(this),
     allDaySlot: false,
     height: "auto",
     eventBackgroundColor: this.lastUsedColor,
@@ -143,6 +144,12 @@ export class BaseSelectionComponent {
     this.hideDialog();
   }
 
+  interactWithModel() {
+    if(this.selectedRoom?.tmpEvents) {
+      this.selectedRoom.tmpEvents = this.calendarComponent.getApi().getEvents();
+    }
+  }
+
   handleEventClick(clickInfo: EventClickArg) {
     let title = clickInfo.event.title;
     this.confirmationService.confirm({
@@ -179,7 +186,7 @@ export class BaseSelectionComponent {
   changeRoom(event:Room){
     this.selectedRoom = event;
     if(!this.selectedRoom.tmpEvents){
-      this.selectedRoom.tmpEvents = new Subject<any[]>();
+      this.selectedRoom.tmpEvents = [];
     }
 
     this.calendarComponent.getApi().removeAllEvents();
@@ -187,7 +194,7 @@ export class BaseSelectionComponent {
   }
 
   printRes() {
-    console.log(this.calendarComponent.getApi().getEvents());
+    console.log(this.selectedRoom?.tmpEvents);
   }
 }
 

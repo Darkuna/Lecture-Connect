@@ -1,14 +1,14 @@
 import {Timing} from "./timing";
 import {RoomTable} from "./room-table";
 import {RoomInterface} from "./interfaces/roomInterface";
-import {Subject} from "rxjs";
+import {EventImpl} from "@fullcalendar/core/internal";
 
 export class Room implements RoomInterface {
   id!: string;
   capacity!: number;
   computersAvailable?: boolean;
   timingConstraints?: Timing[];
-  tmpEvents?: Subject<any[]>;
+  tmpEvents?: EventImpl[];
   roomTables?: RoomTable[];
   createdAt?: Date;
   updatedAt?: Date;

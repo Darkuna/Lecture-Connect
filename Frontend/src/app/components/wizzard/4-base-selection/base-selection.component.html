@@ -1,8 +1,7 @@
 <div class="Context">
   <div class="col-left" style="width: 85%">
     <div id="scrollable-calendar" #actualTarget>
-      <full-calendar #calendar [events]="selectedRoom?.tmpEvents | async"
-                     *ngIf=roomIsSelected() [options]='calendarOptions()'/>
+      <full-calendar #calendar *ngIf=roomIsSelected() [options]='calendarOptions()'/>
     </div>
     <div *ngIf="!roomIsSelected()" class="center-content">
       <br><br><br><br><br><br><br><br><br><br><br><br><br>
