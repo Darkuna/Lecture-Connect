@@ -226,12 +226,4 @@ public class TimeTableService {
         timeTable.getScheduler().assignUnassignedCourseSessions();
         timeTableRepository.save(timeTable);
     }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public void printAssignmentsOfTimeTable(TimeTable timeTable){
-        for(RoomTable roomTable : timeTable.getRoomTables()){
-            System.out.println(roomTable.getAvailabilityMatrix().toString());
-            System.out.print("\n\n");
-        }
-    }
 }

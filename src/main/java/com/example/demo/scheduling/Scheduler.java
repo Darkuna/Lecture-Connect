@@ -1,6 +1,6 @@
 package com.example.demo.scheduling;
 
-import com.example.demo.exceptions.roomTable.NoSpaceAvailableException;
+import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
 import com.example.demo.models.*;
 
 import java.util.*;
@@ -56,10 +56,12 @@ public class Scheduler {
         //check pre-constraints
 
         if(totalTimeNeededComputers > totalTimeAvailableComputers){
-            System.out.printf("%d more minutes needed for courses with computers necessary\n", totalTimeNeededComputers - totalTimeAvailableComputers);
+            throw new NoEnoughSpaceAvailableException(String.format("%d more minutes needed for courses with computers necessary",
+                    totalTimeNeededComputers - totalTimeAvailableComputers));
         }
         if(totalTimeNeededNoComputers > totalTimeAvailableNoComputers){
-            System.out.printf("%d more minutes needed for courses without computers necessary\n", totalTimeNeededComputers - totalTimeAvailableComputers);
+            throw new NoEnoughSpaceAvailableException(String.format("%d more minutes needed for courses with computers necessary",
+                    totalTimeNeededNoComputers - totalTimeAvailableNoComputers));
         }
 
         //Assign courseSessionsWithoutComputersNeeded
@@ -173,6 +175,7 @@ public class Scheduler {
     }
 
     private void fillQueue(List<AvailabilityMatrix> availabilityMatrices, int duration){
+        // remove all candidates with different durations when refilling queue
         candidateQueue.stream().filter(c -> c.getDuration() == duration).forEach(c -> {});
         // always fill the queue with the first available and one random candidate
         for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
@@ -180,7 +183,7 @@ public class Scheduler {
                 candidateQueue.add(new Candidate(availabilityMatrix, availabilityMatrix.getEarliestAvailableSlotForDuration(duration), duration));
                 candidateQueue.add(new Candidate(availabilityMatrix, availabilityMatrix.getRandomAvailableSlot(duration), duration));
             }
-            catch(NoSpaceAvailableException ignored){}
+            catch(NoEnoughSpaceAvailableException ignored){}
         }
     }
 }

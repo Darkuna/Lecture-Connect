@@ -1,7 +1,7 @@
 package com.example.demo.models;
 
 import com.example.demo.constants.TimingConstants;
-import com.example.demo.exceptions.roomTable.NoSpaceAvailableException;
+import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
 import com.example.demo.models.enums.Day;
 import lombok.Getter;
 
@@ -59,24 +59,7 @@ public class AvailabilityMatrix {
                 }
             }
         }
-        throw new NoSpaceAvailableException();
-    }
-
-    public Pair getNextAvailableSlotForDurationAfterSlot(int minutes, Pair slot) {
-        int numberOfSlots = minutes / DURATION_PER_SLOT;
-        for (int i = slot.getDay(); i < SLOTS_PER_DAY; i++) {
-            for (int j = slot.getSlot() + numberOfSlots; j < DAYS_IN_WEEK; j++) {
-                if (matrix[j][i] == null) {
-                    for (int k = 0; k < numberOfSlots; k++) {
-                        if (matrix[j][k] != null) {
-                            break;
-                        }
-                    }
-                    return new Pair(j, i);
-                }
-            }
-        }
-        throw new NoSpaceAvailableException();
+        throw new NoEnoughSpaceAvailableException("Not enough space in availability matrix");
     }
 
     public Pair getRandomAvailableSlot(int minutes) {
@@ -138,26 +121,11 @@ public class AvailabilityMatrix {
         Timing timing = new Timing();
         int minutes = position.getSlot() % 4 * DURATION_PER_SLOT;
         int hours = position.getSlot() / DURATION_PER_SLOT;
-        switch (position.getDay()) {
-            case 0:
-                timing.setDay(Day.MONDAY);
-                break;
-            case 1:
-                timing.setDay(Day.TUESDAY);
-                break;
-            case 2:
-                timing.setDay(Day.WEDNESDAY);
-                break;
-            case 3:
-                timing.setDay(Day.THURSDAY);
-                break;
-            case 4:
-                timing.setDay(Day.FRIDAY);
-                break;
-        }
         LocalTime startTime = START_TIME.plusHours(hours).plusMinutes(minutes);
+
         timing.setStartTime(startTime);
         timing.setEndTime(startTime.plusMinutes(duration));
+        timing.setDay(Day.values()[position.getDay()]);
         return timing;
     }
 
@@ -167,7 +135,8 @@ public class AvailabilityMatrix {
         String mark;
         sb.append(this.getRoomTable().getRoom().getId());
         sb.append("\n");
-        sb.append(String.format("      | %20.20s | %20.20s | %20.20s | %20.20s | %20.20s |\n", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"));
+        sb.append(String.format("      | %20.20s | %20.20s | %20.20s | %20.20s | %20.20s |\n",
+                "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"));
         for (int i = 0; i < SLOTS_PER_DAY; i++) {
             if (i % 4 == 0) {
                 sb.append(String.format("%2d Uhr", time));
