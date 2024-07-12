@@ -31,7 +31,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     private int duration;
     @OneToOne(fetch = FetchType.EAGER)
     private Timing timing;
-    private int courseId;
+    private String courseId;
     @ManyToOne
     private TimeTable timeTable;
     @ManyToOne
@@ -52,7 +52,15 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
 
     public boolean isSamePS(CourseSession courseSession) {
-        return courseSession.courseId == this.courseId;
+        return courseSession.courseId.equals(this.courseId);
+    }
+
+    public boolean isGroupCourse(){
+        return name.contains("Group");
+    }
+
+    public boolean isSplitCourse(){
+        return name.contains("Split");
     }
 
     /*

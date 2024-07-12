@@ -231,4 +231,5 @@ public class CourseService {
                 .collect(Collectors.toList());
         entity.setTimingConstraints(timings);
     }
+
 }
