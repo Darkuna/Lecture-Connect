@@ -13,7 +13,7 @@ public class Scheduler {
     private List<CourseSession> courseSessionsWithComputerNeeded;
     private List<CourseSession> courseSessionsWithoutComputerNeeded;
 
-    private Queue<Candidate> candidateQueue;
+    private final Queue<Candidate> candidateQueue;
     private CourseSession currentCourseSession;
     private int currentDuration = 0;
     private Candidate currentCandidate;

@@ -189,6 +189,16 @@ public class AvailabilityMatrix {
         }
         return sb.toString();
     }
+
+    public void addTimingConstraint(Timing timing) {
+        int startSlot = timeToSlotIndex(timing.getStartTime());
+        int endSlot = timeToSlotIndex(timing.getEndTime());
+        int day = timing.getDay().ordinal();
+
+        for(int i = startSlot; i < endSlot; i++) {
+            matrix[day][i] = CourseSession.BLOCKED;
+        }
+    }
 }
 
 

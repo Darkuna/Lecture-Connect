@@ -146,4 +146,10 @@ public class RoomTableService {
         roomTable.setId(dto.getId());
         return roomTable;
     }
+
+    public void addTimingConstraints(RoomTable roomTable, List<Timing> timingConstraints){
+        for(Timing timingConstraint : timingConstraints){
+            roomTable.addTimingConstraint(timingConstraint);
+        }
+    }
 }

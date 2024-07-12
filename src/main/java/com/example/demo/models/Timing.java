@@ -30,6 +30,12 @@ public class Timing implements Persistable<Long>, Serializable{
     //CONSTRUCTOR
     public Timing(){}
 
+    public Timing(LocalTime startTime, LocalTime endTime, Day day) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.day = day;
+    }
+
     @Override
     public Long getId() {
         return id;

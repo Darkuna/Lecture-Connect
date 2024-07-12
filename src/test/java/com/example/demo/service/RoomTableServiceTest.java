@@ -2,10 +2,12 @@ package com.example.demo.service;
 
 import com.example.demo.constants.TimingConstants;
 import com.example.demo.models.*;
+import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.services.RoomService;
 import com.example.demo.services.RoomTableService;
 import com.example.demo.services.TimeTableService;
+import com.example.demo.services.TimingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +17,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import jakarta.persistence.EntityNotFoundException;
+
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -30,6 +34,8 @@ public class RoomTableServiceTest {
     private RoomService roomService;
     @Autowired
     private TimeTableService timeTableService;
+    @Autowired
+    private TimingService timingService;
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
@@ -97,5 +103,20 @@ public class RoomTableServiceTest {
         roomTableService.deleteRoomTable(roomTable);
 
         assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(-2));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testAddTimingConstraint(){
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-4);
+
+        Timing timingConstraint = timingService.createTiming(LocalTime.of(9,0), LocalTime.of(10,0), Day.MONDAY);
+
+        System.out.println(roomTable.getAvailabilityMatrix());
+
+        roomTableService.addTimingConstraints(roomTable, List.of(timingConstraint));
+
+        System.out.println(roomTable.getAvailabilityMatrix());
     }
 }
