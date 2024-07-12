@@ -1,1 +1,90 @@
-test 4
+<div class="Context">
+  <div class="col-left" style="width: 85%">
+    <div id="scrollable-calendar" #actualTarget>
+      <full-calendar #calendar *ngIf=roomIsSelected() [options]='calendarOptions()'/>
+    </div>
+    <div *ngIf="!roomIsSelected()" class="center-content">
+      <br><br><br><br><br><br><br><br><br><br><br><br><br>
+      <p style="font-size: 1.5rem; color:var(--system-color-primary-blue)">
+        fast! go and choose a room!
+      </p>
+      <i class="pi pi-bolt" style="font-size: 1.5rem; color:var(--system-color-primary-blue)"></i>
+    </div>
+  </div>
+  <div class="col-left" style="width: 15%">
+    <div id="vertical-grid">
+      <div id="upperSection">
+        <p-dropdown id="type" placeholder="select a Room" optionLabel="id"
+                    [options]="globalTable.roomTables" [(ngModel)]="selectedRoom"
+                    (ngModelChange)="changeRoom($event)"/>
+        <br>
+        <p-button label="Computer Sciene" icon="pi pi-microchip"
+                  [style]="getButtonStyle(CourseColor.COMPUTER_SCIENCE)"
+                  (onClick)="setCurrentColor(CourseColor.COMPUTER_SCIENCE)" />
+        <br>
+        <p-button label="other studies" icon="pi pi-asterisk"
+                  [style]="getButtonStyle(CourseColor.NONE)"
+                  (onClick)="setCurrentColor(CourseColor.NONE)"/>
+      </div>
+
+
+      <div id="lowerSection">
+        <p-toggleButton onLabel="Dialog activated" offLabel="Dialog deactivated"
+                        onIcon="pi pi-eye" offIcon="pi pi-eye-slash"
+                        [(ngModel)]="activeDialog" (ngModelChange)="handleOptionChange($event)"/>
+        <br>
+        <p-button icon="pi pi-bars" label="Calendar Settings"
+                  (click)="op.show($event, actualTarget)"/>
+        <br>
+       <p-button label="finish" icon="pi pi-flag"
+                  [style]="getButtonStyle(CourseColor.DEFAULT)"
+                  (onClick)="printRes()"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog [(visible)]="showTimeDialog" [style]="{ width: '25rem', height: '30rem' }"
+          header="Time Selection" [modal]="true" [closable]="false" styleClass="p-fluid"
+          *ngIf="activeDialog">
+
+  <ng-template pTemplate="content" class="parent">
+    <label for="start">Start Time</label>
+    <p-calendar id="start" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="dataSelectStart"
+    (ngModelChange)="saveTimeStartSelection($event)"/>
+    <br>
+    <label for="end">End Time</label>
+    <p-calendar id="end" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="dataSelectEnd"
+                (ngModelChange)="saveTimeEndSelection($event)"/>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <p-button pRipple label="Cancel" icon="pi pi-times" class="p-button-text"
+            (onClick)="hideDialog()"/>
+    <p-button pRipple label="Save" icon="pi pi-check" class="p-button-text"
+            (onClick)="saveEvent()"/>
+  </ng-template>
+</p-dialog>
+
+<p-overlayPanel #op showCloseIcon="true">
+  <ng-template pTemplate="content">
+    <label for="start-time" style="padding-right: .7rem; padding-left: .3rem">Start Time</label>
+    <p-calendar id="start-time" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpStartDate"
+                (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
+
+    <label for="end-time" style="padding-right: .7rem; padding-left: .3rem">End Time</label>
+    <p-calendar id="end-time" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpEndDate"
+                (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
+    <label for="duration" style="padding-right: .7rem; padding-left: .3rem">Time Slot Duration</label>
+    <p-calendar id="duration" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
+                (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
+    <label for="interval" style="padding-right: .7rem; padding-left: .3rem">Time Label Interval </label>
+    <p-calendar id="interval" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpSlotInterval"
+                (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
+  </ng-template>
+</p-overlayPanel>

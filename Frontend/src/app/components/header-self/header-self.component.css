@@ -7,7 +7,7 @@
   right: 0;
   top: 0;
   height: 4%;
-  background: #F39200;
+  background: var(--system-color-primary-orange);
   text-overflow: ellipsis;
   overflow: hidden;
   transition: height 0.3s ease;
@@ -97,5 +97,4 @@
   height: 90%;
   width: auto;
   margin-right: 10px;
-
 }

@@ -8,38 +8,40 @@ import listPlugin from "@fullcalendar/list";
 import {createEventId, INITIAL_EVENTS} from "./event-utils";
 import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
-import {tableStatus} from "../../../assets/Models/enums/table-status";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
 import {Subscription} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
+import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
+import {LocalStorageService} from "ngx-webstorage";
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
-
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  items: MenuItem[] | undefined;
-  availableTables!: TimeTableNames[];
   availableTableSubs: Subscription;
-  responsiveOptions: any[] | undefined;
-  selectedTimeTable!: TimeTable;
+  availableTables!: TimeTableNames[];
   shownTableDD!: TimeTableNames;
-  showNewTableDialog = false;
+  tmpTable!: TmpTimeTable;
+
+  selectedTimeTable!: TimeTable;
+  responsiveOptions: any[] | undefined;
+  items: MenuItem[] | undefined;
+  showNewTableDialog: boolean = false;
 
   constructor(
     private cd: ChangeDetectorRef,
     private router: Router,
     private shareService: TableShareService,
     private globalTableService: GlobalTableService,
+    private localStorage: LocalStorageService,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe(
       data => this.availableTables = [...data]
     );
-    this.availableTables = []
   }
 
 
@@ -48,7 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   showTableDialog() {
-    this.selectedTimeTable = new TimeTable();
+    this.shownTableDD = new TimeTableNames();
     this.showNewTableDialog = true;
   }
 
@@ -56,23 +58,40 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showNewTableDialog = false;
   }
 
-  loadSpecificTable(){
-    this.selectedTimeTable = this.globalTableService.
-    getSpecificTimeTable(this.shownTableDD.id, this.selectedTimeTable);
+  loadSpecificTable() {
+    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
+  }
+
+  isTmpTableAvailable() {
+    return this.localStorage.retrieve('tmptimetable') !== null;
+  }
+
+  loadTmpTable() {
+    if (this.isTmpTableAvailable()) {
+      this.shareService.selectedTable = this.localStorage.retrieve("tmptimetable");
+      this.router.navigate(['/wizard']);
+    } else {
+
+    }
   }
 
   createNewTable() {
-    this.selectedTimeTable.status = tableStatus.NEW;
+    this.tmpTable = new TmpTimeTable();
+    this.tmpTable.tableName = this.shownTableDD;
+    this.tmpTable.courseTable = [];
+    this.tmpTable.roomTables = [];
+
     //TODO backend call to get id
-    this.selectedTimeTable.id = 123;
+    this.tmpTable.tableName.id = 123;
     this.hideTableDialog();
 
-    this.shareService.setSelectedTable(this.selectedTimeTable);
+    this.shareService.selectedTable = this.tmpTable;
     this.router.navigate(['/wizard']);
   }
 
   editTable() {
     if (this.shownTableDD) {
+      // @ts-ignore
       this.selectedTimeTable = this.shownTableDD;
     }
     this.showTableDialog();
@@ -100,7 +119,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     initialEvents: INITIAL_EVENTS,
     weekends: false,
     editable: false,
-    selectable: false,
+    selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
     select: this.handleDateSelect.bind(this),
@@ -123,21 +142,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   currentEvents = signal<EventApi[]>([]);
 
-
-  handleCalendarToggle() {
-    this.calendarVisible.update((bool) => !bool);
-  }
-
-  handleWeekendsToggle() {
-    // @ts-ignore
-    this.calendarOptions.mutate((options: any) => {
-      options.weekends = !options.weekends;
-    });
-  }
-
   handleDateSelect(selectInfo: DateSelectArg) {
     const title = prompt('Please enter a new title for your event');
     const calendarApi = selectInfo.view.calendar;
+    console.log(selectInfo);
 
     calendarApi.unselect(); // clear date selection
 
@@ -147,7 +155,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         title,
         start: selectInfo.startStr,
         end: selectInfo.endStr,
-        allDay: selectInfo.allDay
       });
     }
   }
@@ -160,7 +167,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   handleEvents(events: EventApi[]) {
     this.currentEvents.set(events);
-    this.cd.detectChanges(); // workaround for pressionChangedAfterItHasBeenCheckedError
+    this.cd.detectChanges();
   }
 
   ngOnInit() {
@@ -208,11 +215,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'Export Plan (all)',
-            icon: 'pi pi-folder'
+            icon: 'pi pi-folder-open'
           },
           {
             label: 'Export Plan (each)',
-            icon: 'pi pi-folder-open'
+            icon: 'pi pi-folder'
           }
         ]
       },
@@ -247,4 +254,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     ];
   }
 
+  private convertCourseSessions() {
+    if (this.selectedTimeTable.courseSessions)
+      this.selectedTimeTable.courseSessions.forEach(session => {
+        //TODO implement Logic for Type Conversion
+      })
+
+  }
 }

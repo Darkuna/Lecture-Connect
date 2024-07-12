@@ -4,8 +4,8 @@ import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
-import {TimeTable} from "../../../../assets/Models/time-table";
-import {tableStatus} from "../../../../assets/Models/enums/table-status";
+import {Status} from "../../../../assets/Models/enums/status";
+import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 
 @Component({
   selector: 'app-course-selection',
@@ -14,17 +14,16 @@ import {tableStatus} from "../../../../assets/Models/enums/table-status";
 })
 
 export class CourseSelectionComponent implements OnDestroy {
-  CreateDialogVisible: boolean = false;
-  availableCourses!: Course[];
+  @Input() globalTable!: TmpTimeTable;
+
   courseSub: Subscription;
-  selectedCourses: Course[];
+  availableCourses!: Course[];
 
-  tmpCourseSelection: Course[];
-  @Input() globalTable!: TimeTable;
-
+  CreateDialogVisible: boolean = false;
+  selectedCourses!: Course[];
   draggedCourse: Course | undefined | null;
-  headers: any[];
 
+  headers: any[];
   stateOptions: any[] = [
     {label: 'Yes', value: true},
     {label: 'No', value: false}
@@ -38,8 +37,6 @@ export class CourseSelectionComponent implements OnDestroy {
       (data => this.availableCourses = data)
     );
 
-    this.selectedCourses = [];
-    this.tmpCourseSelection = [];
     this.headers = [
       {field: 'id', header: 'Id'},
       {field: 'courseType', header: 'Type'},
@@ -53,8 +50,8 @@ export class CourseSelectionComponent implements OnDestroy {
   }
 
   showCreateDialog(): void {
-    this.CreateDialogVisible = true;
     this.draggedCourse = new Course();
+    this.CreateDialogVisible = true;
   }
 
   hideDialog() {
@@ -84,12 +81,12 @@ export class CourseSelectionComponent implements OnDestroy {
 
   drop() {
     if (this.draggedCourse) {
-      let idx = this.findIndex(this.draggedCourse, this.selectedCourses);
+      let idx = this.findIndex(this.draggedCourse, this.globalTable.courseTable);
 
       if (idx !== -1) {
         this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
       } else {
-        this.selectedCourses = [...(this.selectedCourses), this.draggedCourse];
+        this.globalTable.courseTable.push(this.draggedCourse);
         this.draggedCourse = null;
       }
     }
@@ -97,7 +94,7 @@ export class CourseSelectionComponent implements OnDestroy {
 
   dragEnd() {
     this.draggedCourse = null;
-    this.globalTable.status = tableStatus.EDITED;
+    this.globalTable.tableName.status = Status.EDITED;
   }
 
   findIndex(product: Course, list: Course[]): number {
@@ -112,12 +109,12 @@ export class CourseSelectionComponent implements OnDestroy {
   }
 
   deleteSingleItem(course: Course) {
-    let draggedCourseIndex = this.findIndex(course, this.selectedCourses);
-    this.selectedCourses = this.selectedCourses?.filter((val, i) => i != draggedCourseIndex);
+    let draggedCourseIndex = this.findIndex(course, this.globalTable.courseTable);
+    this.globalTable.courseTable = this.globalTable.courseTable?.filter((val, i) => i != draggedCourseIndex);
   }
 
   deleteMultipleItems() {
-    this.tmpCourseSelection.forEach(
+    this.selectedCourses.forEach(
       c => this.deleteSingleItem(c)
     );
   }
@@ -125,5 +122,4 @@ export class CourseSelectionComponent implements OnDestroy {
   getRoleOptions() {
     return Object.keys(CourseType).filter(k => isNaN(Number(k)));
   }
-
 }

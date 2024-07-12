@@ -6,7 +6,9 @@
 
 :root {
   --system-color-primary-blue: #003361;
+  --system-color-primary-orange: #F39200;
   --system-color-primary-white: #f4f4f4;
+
 
   --fc-small-font-size: .85em;
   --fc-page-bg-color: var(--system-color-primary-blue);
@@ -43,6 +45,7 @@
   padding: 5px 10px;
   background: var(--system-color-primary-white);
   border-width: 40px;
+  flex-direction: column-reverse;
 }
 
 .fc .fc-timegrid-slot-label-cushion {

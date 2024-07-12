@@ -12,7 +12,7 @@ import {PasswordModule} from "primeng/password";
 import {FormsModule} from "@angular/forms";
 import {LoginComponent} from './components/login/login.component';
 import {HomeComponent} from './components/home/home.component';
-import {HttpClientModule} from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {NgxWebstorageModule} from 'ngx-webstorage';
 import {PageNotFoundComponentComponent} from './components/page-not-found-component/page-not-found-component.component';
 import {ToastModule} from 'primeng/toast';
@@ -52,29 +52,36 @@ import {DetailSelectionComponent} from "./components/wizzard/2-detail-selection/
 import {RoomSelectionComponent} from "./components/wizzard/3-room-selection/room-selection.component";
 import {BaseSelectionComponent} from "./components/wizzard/4-base-selection/base-selection.component";
 import {DragDropModule} from "primeng/dragdrop";
+import { TimingToEventPipe } from './pipes/timing-to-event.pipe';
+import {ConfirmPopupModule} from "primeng/confirmpopup";
+import { CalendarTestComponent } from './components/calendar-test/calendar-test.component';
+import {ContextMenuModule} from "primeng/contextmenu";
+import {InplaceModule} from "primeng/inplace";
+import {OverlayPanelModule} from "primeng/overlaypanel";
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    HeaderSelfComponent,
-    LoginComponent,
-    HomeComponent,
-    PageNotFoundComponentComponent,
-    RoomViewComponent,
-    CourseViewComponent,
-    UsersViewComponent,
-    WizardComponent,
-    CourseSelectionComponent,
-    DetailSelectionComponent,
-    RoomSelectionComponent,
-    BaseSelectionComponent,
-    CourseSelectionComponent,
-    DetailSelectionComponent,
-    RoomSelectionComponent,
-    BaseSelectionComponent
-  ],
-  imports: [
-    BrowserAnimationsModule,
+@NgModule({ declarations: [
+        AppComponent,
+        HeaderSelfComponent,
+        LoginComponent,
+        HomeComponent,
+        PageNotFoundComponentComponent,
+        RoomViewComponent,
+        CourseViewComponent,
+        UsersViewComponent,
+        WizardComponent,
+        CourseSelectionComponent,
+        DetailSelectionComponent,
+        RoomSelectionComponent,
+        BaseSelectionComponent,
+        CourseSelectionComponent,
+        DetailSelectionComponent,
+        RoomSelectionComponent,
+        BaseSelectionComponent,
+        TimingToEventPipe,
+        CalendarTestComponent
+    ],
+    bootstrap: [AppComponent],
+  imports: [BrowserAnimationsModule,
     BrowserModule,
     AppRoutingModule,
     ButtonModule,
@@ -83,7 +90,6 @@ import {DragDropModule} from "primeng/dragdrop";
     PasswordModule,
     ToastModule,
     FormsModule,
-    HttpClientModule,
     NgxWebstorageModule.forRoot(),
     RippleModule,
     TableModule,
@@ -110,10 +116,6 @@ import {DragDropModule} from "primeng/dragdrop";
     IconFieldModule,
     InputIconModule,
     ToggleButtonModule,
-    DragDropModule
-  ],
-  providers: [ConfirmationService, MessageService],
-  bootstrap: [AppComponent]
-})
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule], providers: [ConfirmationService, MessageService, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
 }

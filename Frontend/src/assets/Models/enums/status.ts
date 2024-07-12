@@ -1,4 +1,4 @@
-export enum tableStatus {
+export enum Status {
   NEW = 'info',
   IN_WORK = 'warning',
   EDITED = 'warning',

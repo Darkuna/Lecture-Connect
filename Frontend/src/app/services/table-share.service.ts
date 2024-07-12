@@ -1,20 +1,21 @@
 import {Injectable} from '@angular/core';
-import {TimeTable} from "../../assets/Models/time-table";
+import {TmpTimeTable} from "../../assets/Models/tmp-time-table";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TableShareService {
-  private selectedTable!: TimeTable;
+  private _selectedTable: TmpTimeTable;
 
   constructor() {
+    this._selectedTable = new TmpTimeTable();
   }
 
-  setSelectedTable(table: TimeTable) {
-    this.selectedTable = table;
+  get selectedTable(): TmpTimeTable {
+    return this._selectedTable;
   }
 
-  getSelectedTable(): TimeTable {
-    return this.selectedTable;
+  set selectedTable(value: TmpTimeTable) {
+    this._selectedTable = value;
   }
 }

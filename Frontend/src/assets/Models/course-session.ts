@@ -5,18 +5,14 @@ import {RoomTable} from "./room-table";
 
 export class CourseSession {
   static BLOCKED: CourseSession;
-
-  constructor(
-    private id: number,
-    private name: string,
-    private timingConstraints: Timing[],
-    private isAssigned: boolean,
-    private isFixed: boolean,
-    private duration: number,
-    private timing: Timing,
-    private course: Course,
-    private timeTable: TimeTable,
-    private roomTable: RoomTable
-  ) {
-  }
+  id!: number;
+  name!: string;
+  timingConstraints?: Timing[];
+  isAssigned?: boolean;
+  isFixed?: boolean;
+  duration?: number;
+  timing?: Timing;
+  course?: Course;
+  timeTable?: TimeTable;
+  roomTable?: RoomTable;
 }

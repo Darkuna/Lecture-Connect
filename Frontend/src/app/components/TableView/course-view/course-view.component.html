@@ -1,8 +1,6 @@
 <div class="moveDownHeader">
   <p-toolbar styleClass="mb-4 gap-2">
-    <ng-template pTemplate="left">
-
-    </ng-template>
+    <ng-template pTemplate="left"/>
 
     <ng-template pTemplate="left">
       <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
@@ -52,6 +50,9 @@
           </span>
           <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
                           [field]="col.field"></p-columnFilter>
+        </th>
+        <th>
+
         </th>
       </tr>
     </ng-template>
@@ -124,14 +125,12 @@
     <div class="div-container">
       <div class="rand">
         <label for="op2">computers needed?</label>
-        <p-selectButton id="op2" [options]="stateOptions" [(ngModel)]="singleCourse.computersNecessary"
-                        optionLabel="label" optionValue="value"></p-selectButton>
+        <p-toggleButton id="op2" onLabel="Yes" offLabel="No" [(ngModel)]="singleCourse.computersNecessary"/>
       </div>
 
       <div class="rand">
         <label for="op3">Course split?</label>
-        <p-selectButton id="op3" optionLabel="label" optionValue="value"
-                        [options]="stateOptions" [(ngModel)]="singleCourse.isSplit"/>
+        <p-toggleButton id="op3" onLabel="Yes" offLabel="No" [(ngModel)]="singleCourse.isSplit"/>
       </div>
     </div>
 

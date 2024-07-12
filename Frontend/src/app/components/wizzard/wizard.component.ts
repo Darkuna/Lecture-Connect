@@ -1,14 +1,11 @@
 import {Component} from '@angular/core';
-import {TimeTable} from "../../../assets/Models/time-table";
 import {TableShareService} from "../../services/table-share.service";
-import {tableStatus} from "../../../assets/Models/enums/table-status";
-
-interface InfoDialog {
-  header: string;
-  infoText: string;
-  subTextHeader: string;
-  subText: string;
-}
+import {Status} from "../../../assets/Models/enums/status";
+import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
+import {InfoDialogInterface} from "../../../assets/Models/interfaces/info-dialog-interface";
+import {LocalStorageService} from "ngx-webstorage";
+import {MessageService} from "primeng/api";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-wizard',
@@ -16,16 +13,20 @@ interface InfoDialog {
   styleUrl: './wizard.component.css'
 })
 export class WizardComponent {
-  selectedTable!: TimeTable;
+  selectedTable!: TmpTimeTable;
   active: number = 0;
   dialog: boolean = false;
-  currentDialog: InfoDialog;
-  InfoDialogOptions: InfoDialog[];
+  currentDialog: InfoDialogInterface;
+  InfoDialogOptions: InfoDialogInterface[];
 
   constructor(
     private shareService: TableShareService,
+    private localStorage: LocalStorageService,
+    private messageService: MessageService,
+    private router: Router,
   ) {
-    this.selectedTable = this.shareService.getSelectedTable();
+    this.selectedTable = this.shareService.selectedTable;
+    this.active = this.selectedTable.currentPageIndex;
     this.InfoDialogOptions = [
       {
         header: 'Choose Courses',
@@ -84,18 +85,32 @@ export class WizardComponent {
   }
 
   getTextFromEnum(): string {
-    switch (this.selectedTable.status) {
-      case tableStatus.NEW:
+    switch (this.selectedTable.tableName.status) {
+      case Status.NEW:
         return "NEW";
-      case tableStatus.EDITED:
+      case Status.EDITED:
         return "EDITED";
-      case tableStatus.FINISHED:
+      case Status.FINISHED:
         return "FINISHED";
-      case tableStatus.IN_WORK:
+      case Status.IN_WORK:
         return "IN WORK";
       default:
         return "DEFAULT";
     }
   }
 
+  SaveLocal() {
+    this.selectedTable.currentPageIndex = this.active;
+    this.localStorage.store('tmptimetable', this.selectedTable);
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Info',
+      detail: 'The Table is only cached locally'
+    });
+  }
+
+  closeWizard() {
+    this.SaveLocal();
+    this.router.navigate(['/home']);
+  }
 }

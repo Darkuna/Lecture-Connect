@@ -17,7 +17,6 @@ export class UserService {
 
   private getHttpOptions() {
       const token = this.storage.retrieve('jwtToken');
-      console.log('JWT Token:', token);  //debugging
 
       if (!token) {
         console.error('Token not found or is null');

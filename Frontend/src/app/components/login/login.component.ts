@@ -1,10 +1,16 @@
-import {HttpClient} from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import {Component, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
 import {LocalStorageService} from "ngx-webstorage";
 import * as jwt_decode from 'jwt-decode';
 import {MessageService} from "primeng/api";
 import {Subscription} from "rxjs";
+import {LoginUserInfoService} from "../../services/login-user-info.service";
+
+interface LoginObj {
+  name: string;
+  password: string;
+}
 
 @Component({
   selector: 'app-login',
@@ -14,7 +20,7 @@ import {Subscription} from "rxjs";
 export class LoginComponent implements OnDestroy {
   private loginSub: Subscription | null = null;
 
-  loginObj: any = {
+  loginObj: LoginObj = {
     name: "",
     password: ""
   }
@@ -24,7 +30,14 @@ export class LoginComponent implements OnDestroy {
     private http: HttpClient,
     private storage: LocalStorageService,
     private messageService: MessageService,
+    private userInfoService: LoginUserInfoService
   ) {
+  }
+
+  ngOnDestroy(): void {
+    if (!this.loginSub?.closed) {
+      this.loginSub?.unsubscribe();
+    }
   }
 
   login() {
@@ -32,13 +45,15 @@ export class LoginComponent implements OnDestroy {
       .subscribe({
         next: (token: any) => {
           if (token && token['token']) {
-            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: any };
+            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string };
+            this.userInfoService.username = decodedToken['username'];
+            this.userInfoService.userRole = decodedToken['role'];
+            this.userInfoService.userLoggedIn = true;
 
-            this.storage.store('username', decodedToken['username']);
-            this.storage.store('roles', decodedToken['role']);
+
             this.storage.store('jwtToken', token['token']);
 
-            this.messageService.add({severity: 'success', summary: `Welcome back ${decodedToken['username']}`});
+            this.messageService.add({severity: 'success',summary: `Welcome back ${decodedToken['username']}`});
             this.router.navigate(['/home']);
           } else {
             this.messageService.add({
@@ -48,20 +63,13 @@ export class LoginComponent implements OnDestroy {
             });
           }
         },
-        error: (error) => {
+        error: (err) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Login Error',
-            detail: 'Server error or network issue!'
+            detail: err
           });
         }
       });
   }
-
-  ngOnDestroy(): void {
-    if (!this.loginSub?.closed) {
-      this.loginSub?.unsubscribe();
-    }
-  }
-
 }

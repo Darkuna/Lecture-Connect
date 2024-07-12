@@ -1,12 +1,14 @@
 <div id="infoGrid">
-  <p-tag id="status" [value]="getTextFromEnum()" [severity]="selectedTable.status"/>
-  <p id="info">{{ selectedTable.semester }} {{ selectedTable.year }}</p>
+  <p-tag id="status" [value]="getTextFromEnum()" [severity]="selectedTable.tableName.status"/>
+  <p id="info">{{ selectedTable.tableName.semester }} {{ selectedTable.tableName.year }}</p>
 </div>
 
 <div id="buttonGrid">
   <p-button icon="pi pi-info-circle" severity="info" id="div1" (onClick)="showDialog()"/>
-  <p-button icon="pi pi-save" label="Save" severity="success" id="div2" [style]="{width: '6rem'}"/>
-  <p-button icon="pi pi-trash" label="Close" severity="danger" id="div3" [style]="{width: '6rem'}"/>
+  <p-button icon="pi pi-save" label="Save" severity="success"
+            (onClick)="SaveLocal()" id="div2" [style]="{width: '6rem'}"/>
+  <p-button icon="pi pi-arrow-down" label="Close" severity="danger"
+            (onClick)="closeWizard()" id="div3" [style]="{width: '6rem'}"/>
 </div>
 
 <p-stepper [linear]="true" [(activeStep)]="active" class="stepper-settings">
@@ -44,7 +46,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      <app-detail-selection></app-detail-selection>
+      <app-detail-selection [globalTable]="selectedTable"></app-detail-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
@@ -65,7 +67,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      <app-room-selection></app-room-selection>
+      <app-room-selection [globalTable]="selectedTable"></app-room-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
@@ -86,7 +88,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-prevCallback="prevCallback">
-      <app-base-selection></app-base-selection>
+      <app-base-selection [globalTable]="selectedTable"></app-base-selection>
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
         <p-button [disabled]="true" icon="pi pi-arrow-right" class="NextButton"/>
