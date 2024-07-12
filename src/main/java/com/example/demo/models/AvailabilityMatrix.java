@@ -105,13 +105,13 @@ public class AvailabilityMatrix {
         return true;
     }
 
-    public boolean semesterIntersects(Pair position, int duration, int semester, CourseSession courseSession) {
+    public boolean semesterIntersects(Pair position, int duration, CourseSession courseSession) {
         for (int i = position.getSlot(); i < position.getSlot() + duration / DURATION_PER_SLOT; i++) {
             if (i >= SLOTS_PER_DAY) {
                 return true;
             }
             if (matrix[position.getDay()][i] != null &&
-                    matrix[position.getDay()][i].getSemester() == semester &&
+                    matrix[position.getDay()][i].getSemester() == courseSession.getSemester() &&
                     !matrix[position.getDay()][i].isSamePS(courseSession)) {
                 return true;
             }

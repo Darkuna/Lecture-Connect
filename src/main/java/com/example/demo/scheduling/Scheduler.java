@@ -14,9 +14,7 @@ public class Scheduler {
     private List<CourseSession> courseSessionsWithoutComputerNeeded;
 
     private final Queue<Candidate> candidateQueue;
-    private CourseSession currentCourseSession;
     private int currentDuration = 0;
-    private Candidate currentCandidate;
 
     public Scheduler(TimeTable timeTable){
         availabilityMatricesOfRoomsWithComputers = new ArrayList<>();
@@ -70,6 +68,8 @@ public class Scheduler {
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         //Process courseSessions with computer necessary
         int newDuration;
+        CourseSession currentCourseSession;
+        Candidate currentCandidate;
 
         //Order them by semester and duration
         courseSessions = courseSessions.stream().sorted((o1, o2) -> {
@@ -93,36 +93,16 @@ public class Scheduler {
             currentCourseSession = courseSessions.removeFirst();
             System.out.printf("Choosing CourseSession %s for assignment\n", currentCourseSession.getName());
 
-            while(true){
+            // find placement for courseSession
+            do{
                 if(candidateQueue.isEmpty()){
                     fillQueue(availabilityMatrices, currentDuration);
                 }
                 //select possible candidate for placement
                 currentCandidate = candidateQueue.poll();
                 System.out.printf("selecting candidate %s for assignment\n", currentCandidate);
-
-                if(!checkRoomCapacity()){
-                    System.out.println("room capacity exceeded");
-                    continue;
-                }
-                if(!checkTimingConstraintsFulfilled()){
-                    System.out.println("timing constraints are intersecting with candidate");
-                    continue;
-                }
-                if(!checkCoursesOfSameSemester(currentCourseSession)){
-                    System.out.println("other course of same semester intersecting");
-                    continue;
-                }
-                if(!checkGroupCourse()){
-                    System.out.println("group course");
-                    continue;
-                }
-                if(!checkSplitCourse()){
-                    System.out.println("split course");
-                    continue;
-                }
-                break;
             }
+            while(!checkConstraintsFulfilled(currentCourseSession, currentCandidate));
 
             //assign courseSession
             System.out.printf("Successfully assigned CourseSession %s to %s\n", currentCourseSession.getName(), currentCandidate);
@@ -133,13 +113,38 @@ public class Scheduler {
         }
     }
 
-    private boolean checkRoomCapacity(){
-        return currentCandidate.getAvailabilityMatrix().getCapacity() >= currentCourseSession.getNumberOfParticipants();
+    private boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
+        if(!checkRoomCapacity(courseSession, candidate)){
+            System.out.println("room capacity exceeded");
+            return false;
+        }
+        if(!checkTimingConstraintsFulfilled(courseSession, candidate)){
+            System.out.println("timing constraints are intersecting with candidate");
+            return false;
+        }
+        if(!checkCoursesOfSameSemester(courseSession, candidate)){
+            System.out.println("other course of same semester intersecting");
+            return false;
+        }
+        if(!checkGroupCourse()){
+            System.out.println("group course");
+            return false;
+        }
+        if(!checkSplitCourse()){
+            System.out.println("split course");
+            return false;
+        }
+        return true;
     }
 
-    private boolean checkTimingConstraintsFulfilled(){
-        Timing timing = AvailabilityMatrix.toTiming(currentCandidate.getPosition(), currentDuration);
-        for(Timing timingConstraint : currentCourseSession.getTimingConstraints()){
+    private boolean checkRoomCapacity(CourseSession courseSession, Candidate candidate){
+        return candidate.getAvailabilityMatrix().getCapacity() >= courseSession.getNumberOfParticipants()
+                && candidate.getAvailabilityMatrix().getCapacity() / 2 <= courseSession.getNumberOfParticipants();
+    }
+
+    private boolean checkTimingConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
+        Timing timing = AvailabilityMatrix.toTiming(candidate.getPosition(), candidate.getDuration());
+        for(Timing timingConstraint : courseSession.getTimingConstraints()){
             if(timing.intersects(timingConstraint)){
                 return false;
             }
@@ -147,9 +152,9 @@ public class Scheduler {
         return true;
     }
 
-    private boolean checkCoursesOfSameSemester(CourseSession courseSession){
+    private boolean checkCoursesOfSameSemester(CourseSession courseSession, Candidate candidate){
         for(AvailabilityMatrix availabilityMatrix : allAvailabilityMatrices){
-            if(availabilityMatrix.semesterIntersects(currentCandidate.getPosition(), currentDuration, currentCourseSession.getSemester(), courseSession)){
+            if(availabilityMatrix.semesterIntersects(candidate.getPosition(), candidate.getDuration(), courseSession)){
                 return false;
             }
         }
@@ -166,6 +171,7 @@ public class Scheduler {
 
     private void fillQueue(List<AvailabilityMatrix> availabilityMatrices, int duration){
         candidateQueue.stream().filter(c -> c.getDuration() == duration).forEach(c -> {});
+        // always fill the queue with the first available and one random candidate
         for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
             try{
                 candidateQueue.add(new Candidate(availabilityMatrix, availabilityMatrix.getEarliestAvailableSlotForDuration(duration), duration));
