@@ -53,17 +53,20 @@ public class Scheduler {
             totalTimeAvailableNoComputers += (int) availabilityMatrix.getTotal_available_time();
         }
 
-        System.out.println("available no comp: " + totalTimeAvailableNoComputers);
-        System.out.println("available comp: " + totalTimeAvailableComputers);
-        System.out.println("needed no comp: " + totalTimeNeededNoComputers);
-        System.out.println("needed comp: " + totalTimeNeededComputers);
+        //check pre-constraints
+
+        if(totalTimeNeededComputers > totalTimeAvailableComputers){
+            System.out.printf("%d more minutes needed for courses with computers necessary\n", totalTimeNeededComputers - totalTimeAvailableComputers);
+        }
+        if(totalTimeNeededNoComputers > totalTimeAvailableNoComputers){
+            System.out.printf("%d more minutes needed for courses without computers necessary\n", totalTimeNeededComputers - totalTimeAvailableComputers);
+        }
 
         //Assign courseSessionsWithoutComputersNeeded
         assignCourseSessions(courseSessionsWithoutComputerNeeded, availabilityMatricesOfRoomsWithoutComputers);
         //Assign courseSessionsWithComputersNeeded
         assignCourseSessions(courseSessionsWithComputerNeeded, availabilityMatricesOfRoomsWithComputers);
     }
-
 
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         //Process courseSessions with computer necessary
