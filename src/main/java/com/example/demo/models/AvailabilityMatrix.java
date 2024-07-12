@@ -130,7 +130,7 @@ public class AvailabilityMatrix {
             matrix[position.getDay()][i] = courseSession;
         }
         total_available_time -= duration;
-        System.out.println(this.toString());
+        //System.out.println(this);
         return toTiming(position, duration);
     }
 
@@ -198,6 +198,7 @@ public class AvailabilityMatrix {
         for(int i = startSlot; i < endSlot; i++) {
             matrix[day][i] = CourseSession.BLOCKED;
         }
+        total_available_time -= timing.getDuration();
     }
 }
 
