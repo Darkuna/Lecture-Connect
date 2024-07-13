@@ -49,6 +49,7 @@ public class CourseSessionService {
             courseSession.setSemester(course.getSemester());
             courseSession.setComputersNecessary(course.isComputersNecessary());
             courseSession.setTimingConstraints(course.getTimingConstraints());
+            courseSession.setCourseId(course.getId());
 
             if(isSplitCourse){
                 courseSession.setDuration(course.getSplitTimes().get(i));

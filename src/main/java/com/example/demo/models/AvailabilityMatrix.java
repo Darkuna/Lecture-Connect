@@ -3,10 +3,14 @@ package com.example.demo.models;
 import com.example.demo.constants.TimingConstants;
 import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
 import com.example.demo.models.enums.Day;
+import com.example.demo.scheduling.Candidate;
 import lombok.Getter;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 
 @Getter
@@ -129,6 +133,42 @@ public class AvailabilityMatrix {
         return timing;
     }
 
+    public void addTimingConstraint(Timing timing) {
+        int startSlot = timeToSlotIndex(timing.getStartTime());
+        int endSlot = timeToSlotIndex(timing.getEndTime());
+        int day = timing.getDay().ordinal();
+
+        for(int i = startSlot; i < endSlot; i++) {
+            matrix[day][i] = CourseSession.BLOCKED;
+        }
+        total_available_time -= timing.getDuration();
+    }
+
+    public List<Candidate> getPossibleCandidatesOfDay(int dayOfAssignment, int duration) {
+        List<Candidate> candidates = new ArrayList<>();
+        boolean interrupted = false;
+        int numberOfSlots = duration / DURATION_PER_SLOT;
+
+        for (int i = 0; i <= SLOTS_PER_DAY - numberOfSlots; i++) {
+            if (matrix[dayOfAssignment][i] == null) {
+                interrupted = false;
+                for (int j = i; j < i + numberOfSlots; j++) {
+                    if (matrix[dayOfAssignment][j] != null) {
+                        i = j;
+                        interrupted = true;
+                        break;
+                    }
+                }
+                if (!interrupted) {
+
+                    candidates.add(new Candidate(this, new Pair(dayOfAssignment, i), duration));
+                    i += numberOfSlots - 1;
+                }
+            }
+        }
+        return candidates;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         int time = START_TIME.getHour();
@@ -157,17 +197,6 @@ public class AvailabilityMatrix {
             sb.append("|\n");
         }
         return sb.toString();
-    }
-
-    public void addTimingConstraint(Timing timing) {
-        int startSlot = timeToSlotIndex(timing.getStartTime());
-        int endSlot = timeToSlotIndex(timing.getEndTime());
-        int day = timing.getDay().ordinal();
-
-        for(int i = startSlot; i < endSlot; i++) {
-            matrix[day][i] = CourseSession.BLOCKED;
-        }
-        total_available_time -= timing.getDuration();
     }
 }
 

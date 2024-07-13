@@ -78,10 +78,10 @@ public class Scheduler {
         //Create own list of all group courseSessions and order by duration and courseId
         groupCourseSessions = courseSessions.stream()
                 .filter(CourseSession::isGroupCourse)
-                .sorted(Comparator.comparingInt(CourseSession::getDuration)
-                        .thenComparing(CourseSession::getCourseId))
                 .collect(Collectors.toList());
 
+        groupCourseSessions.sort(Comparator.comparingInt(CourseSession::getDuration)
+                .thenComparing(CourseSession::getCourseId));
         // remove them from list of all courseSessions
         courseSessions.removeAll(groupCourseSessions);
 
@@ -106,7 +106,7 @@ public class Scheduler {
         // start the assignment
         processSingleCourseSessions(courseSessions, availabilityMatrices);
         processGroupCourseSessions(groupCourseSessions, availabilityMatrices);
-        processSplitCourseSessions(splitCourseSessions, availabilityMatrices);
+        //processSplitCourseSessions(splitCourseSessions, availabilityMatrices);
     }
 
     private boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
@@ -155,26 +155,45 @@ public class Scheduler {
         int dayOfAssignment;
         List<CourseSession> currentCourseSessions = new ArrayList<>();
         int numberOfGroups;
+        Candidate candidateToAssign;
+        CourseSession courseSessionToAssign;
 
         // While there are still unassigned courseSessions
         while(!groupCourseSessions.isEmpty()){
             groupId = groupCourseSessions.getFirst().getCourseId();
-            while(groupCourseSessions.getFirst().getCourseId().equals(groupId)){
+            while(!groupCourseSessions.isEmpty() && groupCourseSessions.getFirst().getCourseId().equals(groupId)){
                 currentCourseSessions.add(groupCourseSessions.removeFirst());
             }
             numberOfGroups = currentCourseSessions.size();
             dayOfAssignment = random.nextInt(5);
 
-            // find a list of possible candidates for a certain day
+            for(int i = 0; i < 5; i++){
+                // find a list of possible candidates for a certain day
+                for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
+                    currentCandidates.addAll(availabilityMatrix.getPossibleCandidatesOfDay(dayOfAssignment, currentCourseSessions.getFirst().getDuration()));
+                }
+                // filter the list with checkConstraintsFulfilled()
+                currentCandidates = currentCandidates.stream()
+                        .filter(c -> checkConstraintsFulfilled(currentCourseSessions.getFirst(), c))
+                        .collect(Collectors.toList());
+                // check if filtered list <= numberOfGroups
+                if(currentCandidates.size() >= numberOfGroups){
+                    // if yes, try another random day
+                    break;
+                }
+                dayOfAssignment = dayOfAssignment == 4 ? 0 : dayOfAssignment + 1;
+            }
 
-            // filter the list with checkConstraintsFulfilled()
-
-            // check if filtered list >= numberOfGroups
-
-            //  -> if not, try another random day
-
-            // -> if yes, assign all courseSessions of the group to the list
-
+            // assign all courseSessions of the group to the list
+            for(int i = 0; i < numberOfGroups; i++){
+                candidateToAssign = currentCandidates.get(i);
+                courseSessionToAssign = currentCourseSessions.get(i);
+                Timing timing = candidateToAssign.getAvailabilityMatrix().assignCourseSession(candidateToAssign.getPosition(),
+                        candidateToAssign.getDuration(), courseSessionToAssign);
+                courseSessionToAssign.setAssigned(true);
+                courseSessionToAssign.setTiming(timing);
+            }
+            currentCourseSessions.clear();
         }
     }
 
