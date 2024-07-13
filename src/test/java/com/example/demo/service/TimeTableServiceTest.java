@@ -83,14 +83,14 @@ public class TimeTableServiceTest {
     public void testLoadTimeTables(){
         List<TimeTable> timeTables = timeTableService.loadAllTimeTables();
 
-        assertEquals(1, timeTables.size());
+        assertEquals(3, timeTables.size());
     }
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadTimeTableNames(){
         List<TimeTableNameDTO> timeTableNames = timeTableService.loadTimeTableNames();
-        assertEquals(1, timeTableNames.size());
+        assertEquals(3, timeTableNames.size());
     }
 
     @Test

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @Setter
@@ -28,6 +29,12 @@ public class Timing implements Persistable<Long>, Serializable{
 
     //CONSTRUCTOR
     public Timing(){}
+
+    public Timing(LocalTime startTime, LocalTime endTime, Day day) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.day = day;
+    }
 
     @Override
     public Long getId() {
@@ -55,5 +62,17 @@ public class Timing implements Persistable<Long>, Serializable{
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public long getDuration(){
+        return startTime.until(endTime, ChronoUnit.MINUTES);
+    }
+
+    public boolean intersects(Timing timing) {
+        if (this.day != timing.day) {
+            return false;
+        }
+
+        return this.startTime.isBefore(timing.endTime) && timing.startTime.isBefore(this.endTime);
     }
 }

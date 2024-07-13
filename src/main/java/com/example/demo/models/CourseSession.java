@@ -1,6 +1,5 @@
 package com.example.demo.models;
 
-import com.example.demo.models.enums.CourseType;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,7 +9,6 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Random;
 
 @Entity
 @Getter
@@ -22,6 +20,10 @@ public class CourseSession implements Persistable<Long>, Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
+    private String lecturer;
+    private int semester;
+    private int numberOfParticipants;
+    private boolean computersNecessary;
     @Transient
     private List<Timing> timingConstraints;
     private boolean isAssigned;
@@ -29,8 +31,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     private int duration;
     @OneToOne(fetch = FetchType.EAGER)
     private Timing timing;
-    @ManyToOne
-    private Course course;
+    private String courseId;
     @ManyToOne
     private TimeTable timeTable;
     @ManyToOne
@@ -48,6 +49,18 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
     public boolean isBlocked() {
         return this == BLOCKED;
+    }
+
+    public boolean isSamePS(CourseSession courseSession) {
+        return courseSession.courseId.equals(this.courseId);
+    }
+
+    public boolean isGroupCourse(){
+        return name.contains("Group");
+    }
+
+    public boolean isSplitCourse(){
+        return name.contains("Split");
     }
 
     /*

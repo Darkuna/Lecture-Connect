@@ -6,6 +6,7 @@ import com.example.demo.models.*;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
 import com.example.demo.repositories.TimeTableRepository;
+import com.example.demo.scheduling.Scheduler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +130,7 @@ public class TimeTableService {
         List<CourseSession> courseSessions = courseSessionService.loadAllFromTimeTable(timeTable);
         timeTable.setRoomTables(roomTables);
         timeTable.setCourseSessions(courseSessions);
+        timeTable.setScheduler(new Scheduler(timeTable));
         return timeTable;
     }
 
@@ -156,17 +158,6 @@ public class TimeTableService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<TimeTableNameDTO> loadTimeTableNames(){
         return timeTableRepository.findAllTimeTableDTOs();
-    }
-
-    /**
-     * Assigns all course sessions that are not assigned yet to room tables within a timetable.
-     * This is the place where the algorithm for scheduling course sessions into room tables will be executed.
-     *
-     * @param timeTable The timetable for executing the algorithm
-     */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public void assignCourseSessionsToRooms(TimeTable timeTable){
-        //TODO: This is the place where our ALGORITHM will be executed
     }
 
     /**
@@ -219,5 +210,20 @@ public class TimeTableService {
                 .collect(Collectors.toList()));
 
         return timeTable;
+    }
+
+    /**
+     * Assigns all course sessions that are not assigned yet to room tables within a timetable.
+     * This is the place where the algorithm for scheduling course sessions into room tables will be executed.
+     *
+     * @param timeTable The timetable for executing the algorithm
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void assignCourseSessionsToRooms(TimeTable timeTable){
+        if(timeTable.getScheduler() == null){
+            timeTable.setScheduler(new Scheduler(timeTable));
+        }
+        timeTable.getScheduler().assignUnassignedCourseSessions();
+        timeTableRepository.save(timeTable);
     }
 }

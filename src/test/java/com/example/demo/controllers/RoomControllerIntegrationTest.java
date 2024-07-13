@@ -23,7 +23,7 @@ public class RoomControllerIntegrationTest {
         mockMvc.perform(get("/api/rooms"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(20)));
+                .andExpect(jsonPath("$", hasSize(28)));
     }
 
     @Test

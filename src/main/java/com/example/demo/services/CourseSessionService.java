@@ -42,10 +42,14 @@ public class CourseSessionService {
 
         for(int i = 0; i < numberOfCourseSessionsToCreate; i++){
             CourseSession courseSession = new CourseSession();
-            courseSession.setCourse(course);
             courseSession.setAssigned(false);
             courseSession.setFixed(false);
+            courseSession.setLecturer(course.getLecturer());
+            courseSession.setNumberOfParticipants(course.getNumberOfParticipants());
+            courseSession.setSemester(course.getSemester());
+            courseSession.setComputersNecessary(course.isComputersNecessary());
             courseSession.setTimingConstraints(course.getTimingConstraints());
+            courseSession.setCourseId(course.getId());
 
             if(isSplitCourse){
                 courseSession.setDuration(course.getSplitTimes().get(i));
@@ -151,16 +155,6 @@ public class CourseSessionService {
      */
     public List<CourseSession> loadAllAssignedToRoomTable(RoomTable roomTable){
         return courseSessionRepository.findAllByRoomTable(roomTable);
-    }
-
-    /**
-     * Loads all course sessions created from a specific course.
-     *
-     * @param course The course the course sessions are created from.
-     * @return The list of course sessions from a specific course.
-     */
-    public List<CourseSession> loadAllFromCourse(Course course){
-        return courseSessionRepository.findAllByCourse(course);
     }
 
     /**
