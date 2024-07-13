@@ -197,7 +197,7 @@ public class Scheduler {
         }
     }
 
-    private void processSplitCourseSessions(List<CourseSession> groupCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
+    private void processSplitCourseSessions(List<CourseSession> splitCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
 
     }
 

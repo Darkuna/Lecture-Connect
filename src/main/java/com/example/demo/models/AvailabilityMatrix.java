@@ -9,7 +9,6 @@ import lombok.Getter;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -117,7 +116,6 @@ public class AvailabilityMatrix {
             matrix[position.getDay()][i] = courseSession;
         }
         total_available_time -= duration;
-        //System.out.println(this);
         return toTiming(position, duration);
     }
 
