@@ -4,7 +4,7 @@
 \usepackage{ngerman}
 \usepackage{geometry}
 \graphicspath{ {./images/} }
-\title{com.example.demo.models.}
+\title{AvailabilityMatrix}
 \author{Johannes Karrer \& Elias Walder}
 
 \geometry{
@@ -28,7 +28,7 @@
 		\item Kurse mit mehreren Gruppen (PS) sollten nicht alle zur selben Zeit stattfinden, damit die Einteilung für Studierende flexibler möglich ist.
 	\end{itemize}
 	
-	\section{Lösungsansatz: com.example.demo.models.}
+	\section{Lösungsansatz: AvailabilityMatrix}
 	
 	
 	Eigenschaften:
@@ -37,8 +37,8 @@
 		\begin{itemize}
 			\item Jede Spalte repräsentiert dabei einen Wochentag (S1: MON, S2: DIE, ...)
 			\item Jede Zeile repräsentiert 15 Minuten des Tages (Z1: [t0,t0+15), Z2: [t0+15,t0+30), ...)
-			\item Jeder Eintrag in der com.example.demo.models. eines Raumes ist eine Referenz auf die\\ CourseSession, die diesem Raum zu einer bestimmten Zeit zugeordnet ist.\\
-			\includegraphics{com.example.demo.models.}
+			\item Jeder Eintrag in der AvailabilityMatrix eines Raumes ist eine Referenz auf die\\ CourseSession, die diesem Raum zu einer bestimmten Zeit zugeordnet ist.\\
+			\includegraphics{AvailabilityMatrix}
 		\end{itemize}
 		\item Vorteile:
 		\begin{itemize}

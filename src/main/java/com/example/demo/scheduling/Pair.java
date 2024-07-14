@@ -1,4 +1,4 @@
-package com.example.demo.models;
+package com.example.demo.scheduling;
 
 import lombok.Getter;
 import lombok.Setter;

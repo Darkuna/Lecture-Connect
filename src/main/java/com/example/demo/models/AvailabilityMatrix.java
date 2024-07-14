@@ -4,6 +4,7 @@ import com.example.demo.constants.TimingConstants;
 import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
 import com.example.demo.models.enums.Day;
 import com.example.demo.scheduling.Candidate;
+import com.example.demo.scheduling.Pair;
 import lombok.Getter;
 
 import java.time.Duration;

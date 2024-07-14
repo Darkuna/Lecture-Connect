@@ -1,7 +1,6 @@
 package com.example.demo.scheduling;
 
 import com.example.demo.models.AvailabilityMatrix;
-import com.example.demo.models.Pair;
 import lombok.Getter;
 import lombok.Setter;
 
