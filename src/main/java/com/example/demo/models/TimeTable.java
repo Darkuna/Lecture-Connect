@@ -3,6 +3,7 @@ package com.example.demo.models;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.base.TimestampedEntity;
 import com.example.demo.models.enums.Status;
+import com.example.demo.scheduling.Scheduler;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,9 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
     private List<RoomTable> roomTables;
     @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY)
     private List<CourseSession> courseSessions;
+
+    @Transient
+    private Scheduler scheduler;
 
     public TimeTable(){
         this.roomTables = new ArrayList<>();
@@ -81,13 +85,43 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
         return Objects.hash(id);
     }
 
-    public List<CourseSession> getUnassignedCourseSessions(){
+    public List<CourseSession> getUnassignedCourseSessionsWithComputersNeeded(){
         List<CourseSession> unassignedCourseSessions = new ArrayList<>();
         for(CourseSession courseSession : courseSessions){
-            if(!courseSession.isAssigned()){
+            if(!courseSession.isAssigned() && courseSession.isComputersNecessary()){
                 unassignedCourseSessions.add(courseSession);
             }
         }
         return unassignedCourseSessions;
+    }
+
+    public List<CourseSession> getUnassignedCourseSessionsWithoutComputersNeeded(){
+        List<CourseSession> unassignedCourseSessions = new ArrayList<>();
+        for(CourseSession courseSession : courseSessions){
+            if(!courseSession.isAssigned()  && !courseSession.isComputersNecessary()){
+                unassignedCourseSessions.add(courseSession);
+            }
+        }
+        return unassignedCourseSessions;
+    }
+
+    public List<RoomTable> getRoomTablesWithComputersAvailable(){
+        List<RoomTable> roomTablesWithComputersAvailable = new ArrayList<>();
+        for(RoomTable roomTable : roomTables){
+            if(roomTable.getRoom().isComputersAvailable()){
+                roomTablesWithComputersAvailable.add(roomTable);
+            }
+        }
+        return roomTablesWithComputersAvailable;
+    }
+
+    public List<RoomTable> getRoomTablesWithoutComputersAvailable(){
+        List<RoomTable> roomTablesWithoutComputersAvailable = new ArrayList<>();
+        for(RoomTable roomTable : roomTables){
+            if(!roomTable.getRoom().isComputersAvailable()){
+                roomTablesWithoutComputersAvailable.add(roomTable);
+            }
+        }
+        return roomTablesWithoutComputersAvailable;
     }
 }

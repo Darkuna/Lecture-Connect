@@ -11,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Service class for managing room tables.
@@ -41,7 +40,7 @@ public class RoomTableService {
         RoomTable roomTable = new RoomTable();
         roomTable.setRoom(room);
         roomTable.setTimeTable(timeTable);
-        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(room.getTimingConstraints()));
+        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
 
         return roomTableRepository.save(roomTable);
     }
@@ -74,7 +73,7 @@ public class RoomTableService {
                 () -> new EntityNotFoundException("RoomTable not found for ID: " + id));
         roomTable.setAssignedCourseSessions(courseSessionService.loadAllAssignedToRoomTable(roomTable));
         roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
-        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable.getTimingConstraints()));
+        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         return roomTable;
     }
 
@@ -108,19 +107,19 @@ public class RoomTableService {
         for(RoomTable roomTable : roomTables){
             roomTable.setAssignedCourseSessions(courseSessionService.loadAllAssignedToRoomTable(roomTable));
             roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
-            roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable.getTimingConstraints()));
+            roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         }
         return roomTables;
     }
 
     /**
-     * Initializes an availability matrix for a room table based on its timing constraints.
+     * Initializes an availability matrix for a room table.
      *
-     * @param timingConstraints The list of timing constraints for the room table.
+     * @param roomTable The roomTable to initialize the availability matrix for.
      * @return An initialized AvailabilityMatrix object.
      */
-    private AvailabilityMatrix initializeAvailabilityMatrix(List<Timing> timingConstraints){
-        return new AvailabilityMatrix(Objects.requireNonNullElseGet(timingConstraints, List::of));
+    private AvailabilityMatrix initializeAvailabilityMatrix(RoomTable roomTable){
+        return new AvailabilityMatrix(roomTable);
     }
 
     /**
@@ -146,5 +145,11 @@ public class RoomTableService {
         RoomTable roomTable = new RoomTable();
         roomTable.setId(dto.getId());
         return roomTable;
+    }
+
+    public void addTimingConstraints(RoomTable roomTable, List<Timing> timingConstraints){
+        for(Timing timingConstraint : timingConstraints){
+            roomTable.addTimingConstraint(timingConstraint);
+        }
     }
 }

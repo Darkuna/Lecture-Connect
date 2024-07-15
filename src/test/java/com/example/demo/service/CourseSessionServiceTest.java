@@ -53,7 +53,7 @@ public class CourseSessionServiceTest {
 
         CourseSession courseSession = courseSessions.getFirst();
 
-        assertEquals(normalCourse, courseSession.getCourse());
+        assertEquals(Integer.getInteger(normalCourse.getId()), courseSession.getCourseId());
         assertEquals(normalCourse.getDuration(), courseSession.getDuration());
         assertEquals(normalCourse.getTimingConstraints(), courseSession.getTimingConstraints());
     }
@@ -74,11 +74,11 @@ public class CourseSessionServiceTest {
         CourseSession courseSession1 = courseSessions.get(0);
         CourseSession courseSession2 = courseSessions.get(1);
 
-        assertEquals(splitCourse, courseSession1.getCourse());
+        assertEquals(Integer.getInteger(splitCourse.getId()), courseSession1.getCourseId());
         assertEquals(120, courseSession1.getDuration());
         assertEquals(splitCourse.getTimingConstraints(), courseSession1.getTimingConstraints());
 
-        assertEquals(splitCourse, courseSession2.getCourse());
+        assertEquals(Integer.getInteger(splitCourse.getId()), courseSession2.getCourseId());
         assertEquals(60, courseSession2.getDuration());
         assertEquals(splitCourse.getTimingConstraints(), courseSession2.getTimingConstraints());
     }
@@ -98,7 +98,7 @@ public class CourseSessionServiceTest {
 
         CourseSession courseSession = courseSessions.getFirst();
 
-        assertEquals(groupCourse, courseSession.getCourse());
+        assertEquals(Integer.getInteger(groupCourse.getId()), courseSession.getCourseId());
         assertEquals(groupCourse.getDuration(), courseSession.getDuration());
         assertEquals(groupCourse.getTimingConstraints(), courseSession.getTimingConstraints());
     }

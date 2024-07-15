@@ -8,6 +8,7 @@ import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @Setter
@@ -29,6 +30,12 @@ public class Timing implements Persistable<Long>, Serializable{
     //CONSTRUCTOR
     public Timing(){}
 
+    public Timing(LocalTime startTime, LocalTime endTime, Day day) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.day = day;
+    }
+
     @Override
     public Long getId() {
         return id;
@@ -38,10 +45,6 @@ public class Timing implements Persistable<Long>, Serializable{
     @Override
     public boolean isNew(){
         return id == null;
-    }
-
-    public String toString(){
-        return String.format("%s, %s - %s Uhr", day, startTime, endTime);
     }
 
     @Override
@@ -55,5 +58,31 @@ public class Timing implements Persistable<Long>, Serializable{
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public long getDuration(){
+        return startTime.until(endTime, ChronoUnit.MINUTES);
+    }
+
+    public boolean intersects(Timing timing) {
+        if (this.day != timing.day) {
+            return false;
+        }
+
+        return this.startTime.isBefore(timing.endTime) && timing.startTime.isBefore(this.endTime);
+    }
+
+    /*
+    This toString() method was used for test data creation
+
+    public String toString(){
+        return String.format("INSERT INTO TIMING VALUES (%d, %d, '%s', '%s', NULL, NULL ",-id-20, day.ordinal(),
+                startTime.getHour() >= 10 ? startTime.getHour()+":"+ startTime.getMinute()+":00" : "0" + startTime.getHour()+":"+ startTime.getMinute()+":00",
+                endTime.getHour() >= 10 ? endTime.getHour()+":"+ endTime.getMinute()+":00" : "0" + endTime.getHour()+":"+ endTime.getMinute()+":00");
+    }
+    */
+
+    public String toString(){
+        return String.format("%s, %s - %s Uhr", day, startTime, endTime);
     }
 }

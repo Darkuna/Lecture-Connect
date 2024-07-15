@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -29,6 +30,10 @@ public class RoomTable implements Persistable<Long>, Serializable {
     @Transient
     private AvailabilityMatrix availabilityMatrix;
 
+    public RoomTable() {
+        timingConstraints = new ArrayList<>();
+    }
+
     @Override
     public Long getId() {
         return id;
@@ -37,5 +42,10 @@ public class RoomTable implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return id == null;
+    }
+
+    public void addTimingConstraint(Timing timing) {
+        availabilityMatrix.addTimingConstraint(timing);
+        timingConstraints.add(timing);
     }
 }

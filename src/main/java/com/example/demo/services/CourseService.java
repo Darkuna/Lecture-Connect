@@ -82,10 +82,6 @@ public class CourseService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourse(Course course){
-        List<CourseSession> courseSessions = courseSessionService.loadAllFromCourse(course);
-        for(CourseSession courseSession : courseSessions){
-            courseSessionService.deleteCourseSession(courseSession);
-        }
         courseRepository.delete(course);
     }
 
@@ -168,7 +164,11 @@ public class CourseService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Course> loadAllCourses(){
-        return courseRepository.findAll();
+        List<Course> courses = courseRepository.findAll();
+        for(Course course : courses){
+            course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course));
+        }
+        return courses;
     }
 
 
@@ -231,4 +231,5 @@ public class CourseService {
                 .collect(Collectors.toList());
         entity.setTimingConstraints(timings);
     }
+
 }
