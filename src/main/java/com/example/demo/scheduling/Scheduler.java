@@ -71,17 +71,16 @@ public class Scheduler {
 
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         //Process courseSessions with computer necessary
-
         List<CourseSession> groupCourseSessions;
         List<CourseSession> splitCourseSessions;
 
         //Create own list of all group courseSessions and order by duration and courseId
         groupCourseSessions = courseSessions.stream()
                 .filter(CourseSession::isGroupCourse)
+                .sorted(Comparator.comparingInt(CourseSession::getDuration)
+                        .thenComparing(CourseSession::getCourseId))
                 .collect(Collectors.toList());
 
-        groupCourseSessions.sort(Comparator.comparingInt(CourseSession::getDuration)
-                .thenComparing(CourseSession::getCourseId));
         // remove them from list of all courseSessions
         courseSessions.removeAll(groupCourseSessions);
 
@@ -95,7 +94,7 @@ public class Scheduler {
         // remove them from list of all courseSessions
         courseSessions.removeAll(splitCourseSessions);
 
-        //Order other courseSessions duration and numberOfParticipants
+        //Order other courseSessions by duration and numberOfParticipants
         courseSessions = courseSessions.stream().sorted((o1, o2) -> {
             if(o1.getDuration() != o2.getDuration()){
                 return o2.getDuration() - o1.getDuration();
@@ -192,6 +191,7 @@ public class Scheduler {
                         candidateToAssign.getDuration(), courseSessionToAssign);
                 courseSessionToAssign.setAssigned(true);
                 courseSessionToAssign.setTiming(timing);
+                courseSessionToAssign.setRoomTable(candidateToAssign.getAvailabilityMatrix().getRoomTable());
             }
             currentCourseSessions.clear();
         }
@@ -203,41 +203,36 @@ public class Scheduler {
 
     private void processSingleCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         Candidate currentCandidate;
-        int currentDuration = 0;
-        int newDuration;
-        CourseSession currentCourseSession;
 
-        // While there are still unassigned courseSessions
-        while(!courseSessions.isEmpty()){
-            newDuration = courseSessions.getFirst().getDuration();
-            // If all unassigned courseSessions of the same durations are processed
-            if(newDuration != currentDuration){
-                // Get the first available slots for the new duration
-                fillQueue(availabilityMatrices, newDuration);
-                currentDuration = newDuration;
+        // For each courseSession
+        for(CourseSession courseSession : courseSessions){
+            System.out.printf("Choosing CourseSession %s for assignment\n", courseSession.getName());
+            // If queue is empty or all the current courseSession needs candidates of different duration
+            if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
+                // Fill the queue with candidates of appropriate duration
+                fillQueue(availabilityMatrices, courseSession.getDuration());
+
             }
 
-            //Select courseSession
-            currentCourseSession = courseSessions.removeFirst();
-            System.out.printf("Choosing CourseSession %s for assignment\n", currentCourseSession.getName());
-
-            // find placement for courseSession
+            // Find placement candidate for courseSession
             do{
+                //refill the queue if no fitting candidate in queue
                 if(candidateQueue.isEmpty()){
-                    fillQueue(availabilityMatrices, currentDuration);
+                    fillQueue(availabilityMatrices, courseSession.getDuration());
                 }
                 //select possible candidate for placement
                 currentCandidate = candidateQueue.poll();
-                System.out.printf("selecting candidate %s for assignment\n", currentCandidate);
+                System.out.printf("Selecting candidate %s for assignment\n", currentCandidate);
             }
-            while(!checkConstraintsFulfilled(currentCourseSession, currentCandidate));
+            while(!checkConstraintsFulfilled(courseSession, currentCandidate));
 
             //assign courseSession
-            System.out.printf("Successfully assigned CourseSession %s to %s\n", currentCourseSession.getName(), currentCandidate);
-            Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate.getPosition(), currentCandidate.getDuration(), currentCourseSession);
+            System.out.printf("Successfully assigned CourseSession %s to %s\n", courseSession.getName(), currentCandidate);
             System.out.println("__________");
-            currentCourseSession.setAssigned(true);
-            currentCourseSession.setTiming(finalTiming);
+            Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate.getPosition(), currentCandidate.getDuration(), courseSession);
+            courseSession.setAssigned(true);
+            courseSession.setTiming(finalTiming);
+            courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
         }
     }
 

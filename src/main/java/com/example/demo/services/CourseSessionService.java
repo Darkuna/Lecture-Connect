@@ -217,4 +217,8 @@ public class CourseSessionService {
         courseSession.setTiming(timingService.fromDTO(dto.getTiming()));
         return courseSession;
     }
+
+    public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
+        return courseSessionRepository.saveAll(courseSessions);
+    }
 }
