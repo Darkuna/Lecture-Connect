@@ -6,7 +6,5 @@ export class Timing {
   id!: number;
   startTime?: Date;
   endTime?: Date;
-  day?: Day;
-  course?: Course;
-  roomTable?: RoomTable
+  day?: string;
 }

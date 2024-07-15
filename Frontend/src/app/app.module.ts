@@ -54,10 +54,10 @@ import {BaseSelectionComponent} from "./components/wizzard/4-base-selection/base
 import {DragDropModule} from "primeng/dragdrop";
 import { TimingToEventPipe } from './pipes/timing-to-event.pipe';
 import {ConfirmPopupModule} from "primeng/confirmpopup";
-import { CalendarTestComponent } from './components/calendar-test/calendar-test.component';
 import {ContextMenuModule} from "primeng/contextmenu";
 import {InplaceModule} from "primeng/inplace";
 import {OverlayPanelModule} from "primeng/overlaypanel";
+import { CalendarExtendedComponent } from './components/calendar-extended/calendar-extended.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -78,7 +78,7 @@ import {OverlayPanelModule} from "primeng/overlaypanel";
         RoomSelectionComponent,
         BaseSelectionComponent,
         TimingToEventPipe,
-        CalendarTestComponent
+        CalendarExtendedComponent
     ],
     bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,

@@ -4,7 +4,6 @@ import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TimeTable} from "../../assets/Models/time-table";
-import {RoomTable} from "../../assets/Models/room-table";
 
 @Injectable({
   providedIn: 'root'
@@ -30,21 +29,8 @@ export class GlobalTableService {
     return this.http.get<TimeTableNames[]>(newUrl, this.httpOptions);
   }
 
-  getSpecificTimeTable(id: number):TimeTable{
-    let timeTable = new TimeTable();
+  getSpecificTimeTable(id: number) {
     let newUrl = `${this.timeApiPath}/${id}`;
-    this.http.get<TimeTable>(newUrl, this.httpOptions).subscribe(
-      data => {
-        timeTable.id = data["id"];
-        timeTable.semester = data["semester"];
-        timeTable.year = data["year"];
-        timeTable.status = data["status"];
-        timeTable.roomTables = data["roomTables"];
-        timeTable.courseSessions = data["courseSessions"];
-        timeTable.createdAt = data["createdAt"];
-        timeTable.updatedAt = data["updatedAt"];
-      }
-    );
-    return timeTable;
+    return this.http.get<TimeTable>(newUrl, this.httpOptions);
   }
 }
