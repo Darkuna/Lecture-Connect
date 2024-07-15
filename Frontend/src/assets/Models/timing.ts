@@ -4,7 +4,7 @@ import {Day} from "./enums/day";
 
 export class Timing {
   id!: number;
-  startTime?: Date;
-  endTime?: Date;
+  startTime?: number[];
+  endTime?: number[];
   day?: string;
 }

@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {MenuItem} from "primeng/api";
 import {CalendarOptions, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -15,19 +15,27 @@ import {TimeTableNames} from "../../../assets/Models/time-table-names";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 import {LocalStorageService} from "ngx-webstorage";
 import {EventConverterService} from "../../services/event-converter.service";
+import {FullCalendarComponent} from "@fullcalendar/angular";
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD!: TimeTableNames;
 
   tmpTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTable>;
-  combinedTableEvents: EventInput[] = [];
+  combinedTableEvents: EventInput[] = [{
+    "daysOfWeek": ["4"],
+    "title": "PS Informationstheorie und Kryptologie - Group 5",
+    "id": "-179",
+    "startTime": "09:15:00",
+    "endTime": "10:00:00"
+  }];
 
   responsiveOptions: any[] | undefined;
   items: MenuItem[] | undefined;
@@ -69,14 +77,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.combinedTableEvents.push(converted);
       })
     });
+    this.calendarComponent.getApi().removeAllEvents();
+    this.updateCalendar('events', this.combinedTableEvents);
   }
 
   isTmpTableAvailable() {
     return this.localStorage.retrieve('tmptimetable') !== null;
-  }
-
-  printalla(){
-    console.log(this.combinedTableEvents);
   }
 
   loadTmpTable() {
@@ -106,7 +112,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   calendarVisible = signal(true);
   calendarOptions = signal<CalendarOptions>({
-    events: undefined,
     plugins: [
       interactionPlugin,
       dayGridPlugin,
@@ -119,7 +124,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       right: ''
     },
     initialView: 'timeGridWeek',
-    initialEvents: this.combinedTableEvents,
     weekends: false,
     editable: false,
     selectable: false,
@@ -139,6 +143,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     slotEventOverlap: true,
     nowIndicator: false,
   });
+
+  updateCalendar(calendarOption: string, value: any) {
+    this.calendarOptions.update(val => ({
+      ...val, [calendarOption]: value
+    }));
+  }
 
   ngOnInit() {
     this.responsiveOptions = [

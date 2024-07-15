@@ -29,10 +29,6 @@
                 pTooltip="load unfinished Table"
                 class="headerButton" (click)="loadTmpTable()">
         </button>
-        <button pButton type="button" icon="pi pi-asterisk" *ngIf="isTmpTableAvailable()"
-                pTooltip="load unfinished Table"
-                class="headerButton" (click)="printalla()">
-        </button>
       </div>
 
       <div class="p-toolbar-group-center">
@@ -58,7 +54,7 @@
   </div>
 
   <div id="div3">
-    <full-calendar *ngIf='calendarVisible()' [options]='calendarOptions()' [events]="combinedTableEvents"/>
+    <full-calendar #calendar *ngIf='calendarVisible()' [options]='calendarOptions()'/>
   </div>
 </div>
 
