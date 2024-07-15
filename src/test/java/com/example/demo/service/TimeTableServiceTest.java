@@ -113,7 +113,7 @@ public class TimeTableServiceTest {
     @Disabled
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void createTestData(){
-        TimeTable timeTable = timeTableService.loadTimeTable(-3);
+        TimeTable timeTable = timeTableService.loadTimeTable(-2);
         List<Course> courses = courseService.loadAllCourses();
         Random random = new Random();
         for(Course course : courses){

@@ -31,6 +31,8 @@ public class TimeTableService {
     private RoomTableService roomTableService;
     @Autowired
     private CourseSessionService courseSessionService;
+    @Autowired
+    private TimingService timingService;
 
     /**
      * Creates a new timetable for a specific semester and year, and saves it to the database.
@@ -224,6 +226,10 @@ public class TimeTableService {
             timeTable.setScheduler(new Scheduler(timeTable));
         }
         timeTable.getScheduler().assignUnassignedCourseSessions();
+        for(CourseSession courseSession : timeTable.getCourseSessions()){
+            courseSession.setTiming(timingService.createTiming(courseSession.getTiming().getStartTime(), courseSession.getTiming().getEndTime(), courseSession.getTiming().getDay()));
+        }
+        timeTable.setCourseSessions(courseSessionService.saveAll(timeTable.getCourseSessions()));
         timeTableRepository.save(timeTable);
     }
 }

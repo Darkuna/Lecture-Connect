@@ -191,6 +191,7 @@ public class Scheduler {
                         candidateToAssign.getDuration(), courseSessionToAssign);
                 courseSessionToAssign.setAssigned(true);
                 courseSessionToAssign.setTiming(timing);
+                courseSessionToAssign.setRoomTable(candidateToAssign.getAvailabilityMatrix().getRoomTable());
             }
             currentCourseSessions.clear();
         }
@@ -231,6 +232,7 @@ public class Scheduler {
             Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate.getPosition(), currentCandidate.getDuration(), courseSession);
             courseSession.setAssigned(true);
             courseSession.setTiming(finalTiming);
+            courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
         }
     }
 

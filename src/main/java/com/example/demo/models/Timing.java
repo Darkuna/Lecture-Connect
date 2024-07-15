@@ -47,10 +47,6 @@ public class Timing implements Persistable<Long>, Serializable{
         return id == null;
     }
 
-    public String toString(){
-        return String.format("%s, %s - %s Uhr", day, startTime, endTime);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -74,5 +70,19 @@ public class Timing implements Persistable<Long>, Serializable{
         }
 
         return this.startTime.isBefore(timing.endTime) && timing.startTime.isBefore(this.endTime);
+    }
+
+    /*
+    This toString() method was used for test data creation
+
+    public String toString(){
+        return String.format("INSERT INTO TIMING VALUES (%d, %d, '%s', '%s', NULL, NULL ",-id-20, day.ordinal(),
+                startTime.getHour() >= 10 ? startTime.getHour()+":"+ startTime.getMinute()+":00" : "0" + startTime.getHour()+":"+ startTime.getMinute()+":00",
+                endTime.getHour() >= 10 ? endTime.getHour()+":"+ endTime.getMinute()+":00" : "0" + endTime.getHour()+":"+ endTime.getMinute()+":00");
+    }
+    */
+
+    public String toString(){
+        return String.format("%s, %s - %s Uhr", day, startTime, endTime);
     }
 }
