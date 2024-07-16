@@ -122,9 +122,8 @@ public class AvailabilityMatrix {
 
     public static Timing toTiming(Pair position, int duration) {
         Timing timing = new Timing();
-        int minutes = position.getSlot() % 4 * DURATION_PER_SLOT;
-        int hours = position.getSlot() / DURATION_PER_SLOT;
-        LocalTime startTime = START_TIME.plusHours(hours).plusMinutes(minutes);
+        int minutes = position.getSlot() * DURATION_PER_SLOT;
+        LocalTime startTime = START_TIME.plusMinutes(minutes);
 
         timing.setStartTime(startTime);
         timing.setEndTime(startTime.plusMinutes(duration));
