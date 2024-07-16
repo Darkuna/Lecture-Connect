@@ -9,13 +9,14 @@ import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
-import {Observable, Subscription} from "rxjs";
+import {BehaviorSubject, catchError, forkJoin, from, map, Observable, of, Subscription, toArray} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 import {LocalStorageService} from "ngx-webstorage";
 import {EventConverterService} from "../../services/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
+import {Tooltip} from "primeng/tooltip";
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -29,13 +30,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   tmpTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTable>;
-  combinedTableEvents: EventInput[] = [{
-    "daysOfWeek": ["4"],
-    "title": "PS Informationstheorie und Kryptologie - Group 5",
-    "id": "-179",
-    "startTime": "09:15:00",
-    "endTime": "10:00:00"
-  }];
+  private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
+  combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
   responsiveOptions: any[] | undefined;
   items: MenuItem[] | undefined;
@@ -71,14 +67,21 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
 
     this.selectedTimeTable.subscribe((timeTable: TimeTable) => {
-      let sessions= timeTable.courseSessions
-      sessions?.forEach(t => {
-        let converted = this.converter.convertTimingToEventInput(t);
-        this.combinedTableEvents.push(converted);
-      })
+      let sessions = timeTable.courseSessions;
+
+      from(sessions!).pipe(
+        this.converter.convertCourseSessionToEventInput(),
+        toArray(),
+        catchError(error => {
+          console.error('Error converting sessions:', error);
+          return of([]);
+        })
+      ).subscribe(events => {
+        this.combinedTableEventsSubject.next(events);
+      });
     });
-    this.calendarComponent.getApi().removeAllEvents();
-    this.updateCalendar('events', this.combinedTableEvents);
+    this.calendarComponent.getApi().refetchEvents();
+    this.calendarComponent.getApi().render();
   }
 
   isTmpTableAvailable() {
@@ -142,13 +145,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
+    eventDidMount: function(info) {
+    // @ts-ignore
+      var tooltip = new Tooltip(info.el, {
+      title: info.event.extendedProps['description'],
+      placement: 'top',
+      trigger: 'hover',
+      container: 'body'
+    });
+  },
   });
-
-  updateCalendar(calendarOption: string, value: any) {
-    this.calendarOptions.update(val => ({
-      ...val, [calendarOption]: value
-    }));
-  }
 
   ngOnInit() {
     this.responsiveOptions = [
@@ -234,6 +240,4 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     ];
   }
-
-  protected readonly print = print;
 }

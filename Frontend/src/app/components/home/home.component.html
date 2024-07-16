@@ -54,7 +54,8 @@
   </div>
 
   <div id="div3">
-    <full-calendar #calendar *ngIf='calendarVisible()' [options]='calendarOptions()'/>
+    <full-calendar #calendar *ngIf='calendarVisible()' [options]='calendarOptions()'
+    [events]="combinedTableEvents | async"/>
   </div>
 </div>
 
