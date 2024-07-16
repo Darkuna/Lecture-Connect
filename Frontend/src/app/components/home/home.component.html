@@ -80,3 +80,18 @@
     </button>
   </ng-template>
 </p-dialog>
+
+<p-dialog [style]="{ width: '25rem', height: '30rem' }"
+          header="Time Selection" [modal]="false" [closable]="false" styleClass="p-fluid">
+
+  <ng-template pTemplate="content" class="parent">
+    <label for="start">Start Time</label>
+    <p-calendar id="start" inputId="calendar-timeonly" [disabled]="true"
+                [timeOnly]="true" [ngModel]="dataSelectStart"
+                />
+    <br>
+    <label for="end">End Time</label>
+    <p-calendar id="end" inputId="calendar-timeonly" [disabled]="true"
+                [timeOnly]="true" [ngModel]="dataSelectEnd"/>
+  </ng-template>
+</p-dialog>
