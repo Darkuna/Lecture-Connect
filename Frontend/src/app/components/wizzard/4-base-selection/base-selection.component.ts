@@ -10,6 +10,7 @@ import {CourseColor} from "../../../../assets/Models/enums/lecture-color";
 import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
+import {GlobalTableService} from "../../../services/global-table.service";
 
 @Component({
   selector: 'app-base-selection',
@@ -22,7 +23,7 @@ export class BaseSelectionComponent {
   selectedRoom: Room | null = null;
 
   protected readonly CourseColor = CourseColor;
-  lastUsedColor: CourseColor = CourseColor.DEFAULT;
+  lastUsedColor: CourseColor = CourseColor.NONE;
 
   activeDialog: boolean = true;
   showTimeDialog: boolean = false;
@@ -37,7 +38,8 @@ export class BaseSelectionComponent {
 
   constructor(
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private globalTableService: GlobalTableService,
   ) { }
 
   formatTime(date: Date): string {
@@ -126,13 +128,13 @@ export class BaseSelectionComponent {
 
     if(!this.activeDialog){
       this.saveEvent();
-      this.calendarComponent.getApi().unselect();
     }
   }
 
   saveEvent(){
     let newEvent = {
-      title:this.getCourseType(this.lastUsedColor),
+      id: this.getCourseType(this.lastUsedColor),
+      title: this.getCourseType(this.lastUsedColor),
       color: this.lastUsedColor,
       borderColor: '#D8D8D8',
       start: this.dataSelectStart,
@@ -140,6 +142,7 @@ export class BaseSelectionComponent {
     };
 
     this.calendarComponent.getApi().addEvent(newEvent);
+    this.calendarComponent.getApi().unselect();
     this.hideDialog();
   }
 
@@ -192,8 +195,8 @@ export class BaseSelectionComponent {
     this.updateCalendar('events', this.selectedRoom.tmpEvents);
   }
 
-  printRes() {
-    console.log(this.selectedRoom?.tmpEvents);
+  sendToBackend(){
+    let respone = this.globalTableService.pushTmpTableObject(1);
   }
 }
 

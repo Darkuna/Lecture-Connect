@@ -20,7 +20,6 @@ export class GlobalTableService {
   constructor(
     private http: HttpClient,
     private storage: LocalStorageService,
-    private messageService: MessageService,
   ) {
   }
 
@@ -30,6 +29,11 @@ export class GlobalTableService {
   }
 
   getSpecificTimeTable(id: number) {
+    let newUrl = `${this.timeApiPath}/${id}`;
+    return this.http.get<TimeTable>(newUrl, this.httpOptions);
+  }
+
+  pushTmpTableObject(id: number) {
     let newUrl = `${this.timeApiPath}/${id}`;
     return this.http.get<TimeTable>(newUrl, this.httpOptions);
   }

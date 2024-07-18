@@ -57,7 +57,6 @@ export class DetailSelectionComponent {
 
   updateTimesArray(fillValue: number) {
     this.timesArray = Array(this.tmpSplitTimes).fill(fillValue);
-    console.log(this.timesArray);
   }
 
   showDialog() {
