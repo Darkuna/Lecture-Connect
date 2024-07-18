@@ -42,11 +42,11 @@ public class TimingService {
      * @throws IllegalArgumentException if the end time is after global end time.
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Timing createTiming(LocalTime startTime, LocalTime endTime, Day day){
-        if(startTime.isAfter(endTime)){
+    public Timing createTiming(LocalTime startTime, LocalTime endTime, Day day) {
+        if (startTime.isAfter(endTime)) {
             throw new IllegalArgumentException("startTime must be before endTime");
         }
-        if(startTime.isBefore(TimingConstants.START_TIME) || endTime.isAfter(TimingConstants.END_TIME)){
+        if (startTime.isBefore(TimingConstants.START_TIME) || endTime.isAfter(TimingConstants.END_TIME)) {
             throw new IllegalArgumentException(String.format("startTime cannot be before %s, endTime cannot be after %s",
                     TimingConstants.START_TIME, TimingConstants.END_TIME));
         }
@@ -55,6 +55,16 @@ public class TimingService {
         timing.setEndTime(endTime);
         timing.setDay(day);
         return timingRepository.save(timing);
+    }
+        public Timing createTiming(Timing timing){
+            if(timing.getStartTime().isAfter(timing.getEndTime())){
+                throw new IllegalArgumentException("startTime must be before endTime");
+            }
+            if(timing.getStartTime().isBefore(TimingConstants.START_TIME) || timing.getEndTime().isAfter(TimingConstants.END_TIME)){
+                throw new IllegalArgumentException(String.format("startTime cannot be before %s, endTime cannot be after %s",
+                        TimingConstants.START_TIME, TimingConstants.END_TIME));
+            }
+            return timingRepository.save(timing);
     }
 
     /**

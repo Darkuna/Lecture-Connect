@@ -261,7 +261,10 @@ public class DTOConverter {
         timingDTO.setStartTime(timing.getStartTime());
         timingDTO.setEndTime(timing.getEndTime());
         timingDTO.setDay(timing.getDay().toString());
-        timingDTO.setTimingType(timing.getTimingType().toString());
+        if(timing.getTimingType() != null){
+            timingDTO.setTimingType(timing.getTimingType().toString());
+        }
+
         return timingDTO;
     }
 
