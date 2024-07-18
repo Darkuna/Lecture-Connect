@@ -4,9 +4,7 @@ import {Day} from "./enums/day";
 
 export class Timing {
   id!: number;
-  startTime?: Date;
-  endTime?: Date;
-  day?: Day;
-  course?: Course;
-  roomTable?: RoomTable
+  startTime?: number[];
+  endTime?: number[];
+  day?: string;
 }
