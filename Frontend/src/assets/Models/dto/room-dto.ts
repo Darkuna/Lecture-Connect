@@ -1,5 +1,5 @@
-import {Timing} from "../timing";
-import {RoomTable} from "../room-table";
+
+import {TimingDTO} from "./timing-dto";
 
 export class RoomDTO {
   id!: string;
@@ -7,5 +7,5 @@ export class RoomDTO {
   computersAvailable?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-  timingConstraints?: Timing[];
+  timingConstraints?: TimingDTO[];
 }

@@ -13,9 +13,9 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {GlobalTableService} from "../../../services/global-table.service";
 import {Router} from "@angular/router";
 import {EventConverterService} from "../../../services/event-converter.service";
-import {Timing} from "../../../../assets/Models/timing";
 import {TmpTimeTableDTO} from "../../../../assets/Models/dto/tmp-time-table-dto";
 import {RoomDTO} from "../../../../assets/Models/dto/room-dto";
+import {TimingDTO} from "../../../../assets/Models/dto/timing-dto";
 
 @Component({
   selector: 'app-base-selection',
@@ -204,25 +204,29 @@ export class BaseSelectionComponent {
   convertGlobalTableItems(){
     let dto = new TmpTimeTableDTO();
     dto.rooms = [];
-    let timing: Timing | null = null;
+    let timing: TimingDTO | null = null;
     let roomDto: RoomDTO;
+    let constraints: TimingDTO[];
+
 
     this.globalTable.roomTables.forEach(r => {
       roomDto = new RoomDTO();
+      constraints = [];
       r.tmpEvents?.forEach(e => {
         timing = this.converter.convertEventInputToTiming(e);
 
-        r.timingConstraints?.push(timing);
+        constraints.push(timing);
       })
 
       roomDto.id = r.id;
-      roomDto.timingConstraints = r.timingConstraints;
+      roomDto.timingConstraints = constraints;
       roomDto.capacity = r.capacity;
       roomDto.computersAvailable = r.computersAvailable;
       roomDto.updatedAt = r.updatedAt;
       roomDto.createdAt = r.createdAt;
 
       dto.rooms.push(roomDto);
+
     })
 
     //TODO send status but as as string
@@ -238,6 +242,9 @@ export class BaseSelectionComponent {
     let res = this.convertGlobalTableItems();
     let response = this.globalTableService.pushTmpTableObject(res);
 
+    console.log(res);
+    console.log(response);
+
     if(response[0]){ //true bei http 200 response
       this.messageService.add({severity: 'success', summary: 'Upload Success', detail: 'Element saved to DB'});
       this.router.navigate(['/home']);
@@ -247,4 +254,3 @@ export class BaseSelectionComponent {
     }
   }
 }
-

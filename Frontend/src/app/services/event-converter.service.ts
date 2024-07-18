@@ -6,6 +6,7 @@ import {Timing} from "../../assets/Models/timing";
 import LocalTime from "ts-time/LocalTime";
 import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
+import {TimingDTO} from "../../assets/Models/dto/timing-dto";
 
 @Injectable({
   providedIn: 'root'
@@ -45,18 +46,19 @@ export class EventConverterService {
     return LocalTime.parse(formattedTimeString);
   }
 
-  convertEventInputToTiming(event: EventImpl): Timing {
-    let timing = new Timing();
+  convertEventInputToTiming(event: EventImpl): TimingDTO {
+    let timing = new TimingDTO();
 
     timing.id = 0;
     timing.timingType = event.title;
-    timing.day = event.start?.getDay().toString();
+    if(event.start){
+      timing.day = event.start?.getDay().toString();
+    }
     if (event.start) {
-      console.log(event.start.toLocaleTimeString());
-      timing.startTime = this.parseTime(event.start.toLocaleTimeString());
+      timing.startTime = event.start.toLocaleTimeString();
     }
     if (event.end) {
-      timing.endTime = this.parseTime(event.end.toLocaleTimeString());
+      timing.endTime = event.end.toLocaleTimeString();
     }
 
     return timing;
