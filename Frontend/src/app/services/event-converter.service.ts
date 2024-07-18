@@ -13,10 +13,10 @@ import {EventImpl} from "@fullcalendar/core/internal";
 export class EventConverterService {
   convertTimingToEventInput(session: CourseSession): EventInput {
     return {
-      daysOfWeek: this.weekDayToNumber(session.timing?.day!),
+      id: session.id.toString(),
       title: session.name,
       description: session.name,
-      id: session.id.toString(),
+      daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: this.convertArrayToTime(session.timing?.startTime!),
       endTime: this.convertArrayToTime(session.timing?.endTime!),
     };
