@@ -41,7 +41,7 @@ public class RoomTableService {
         roomTable.setRoom(room);
         roomTable.setTimeTable(timeTable);
         roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
-
+        roomTable.setTimingConstraints(roomTable.getTimingConstraints());
         return roomTableRepository.save(roomTable);
     }
 
