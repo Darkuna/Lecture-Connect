@@ -59,6 +59,15 @@ public class TimeTableService {
         return timeTableRepository.save(timeTable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public TimeTable createTimeTable(Semester semester, int year){
+        TimeTable timeTable = new TimeTable();
+        timeTable.setSemester(semester);
+        timeTable.setYear(year);
+        timeTable.setStatus(Status.NEW);
+        return timeTableRepository.save(timeTable);
+    }
+
     /**
      * Adds a room table to a specific timetable based on the provided room.
      * The room table is created and then associated with the timetable.
