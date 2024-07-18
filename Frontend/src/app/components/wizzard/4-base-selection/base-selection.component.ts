@@ -11,6 +11,7 @@ import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {GlobalTableService} from "../../../services/global-table.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-base-selection',
@@ -23,7 +24,7 @@ export class BaseSelectionComponent {
   selectedRoom: Room | null = null;
 
   protected readonly CourseColor = CourseColor;
-  lastUsedColor: CourseColor = CourseColor.NONE;
+  lastUsedColor: CourseColor = CourseColor.COMPUTER_SCIENCE;
 
   activeDialog: boolean = true;
   showTimeDialog: boolean = false;
@@ -40,6 +41,7 @@ export class BaseSelectionComponent {
     private confirmationService: ConfirmationService,
     private messageService: MessageService,
     private globalTableService: GlobalTableService,
+    private router: Router
   ) { }
 
   formatTime(date: Date): string {
@@ -133,7 +135,6 @@ export class BaseSelectionComponent {
 
   saveEvent(){
     let newEvent = {
-      id: this.getCourseType(this.lastUsedColor),
       title: this.getCourseType(this.lastUsedColor),
       color: this.lastUsedColor,
       borderColor: '#D8D8D8',
@@ -196,7 +197,13 @@ export class BaseSelectionComponent {
   }
 
   sendToBackend(){
-    let respone = this.globalTableService.pushTmpTableObject(1);
+    let respone = this.globalTableService.pushTmpTableObject(this.globalTable);
+    if(respone[0]){ //true bei http 200 response
+      this.messageService.add({severity: 'success', summary: 'Upload Success', detail: 'Element saved to DB'});
+      this.router.navigate(['/home']);
+    } else {
+      this.messageService.add({severity: 'danger', summary: 'Upload Fault', detail: respone[1]});
+    }
   }
 }
 

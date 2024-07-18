@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
-import {MessageService} from "primeng/api";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TimeTable} from "../../assets/Models/time-table";
+import {TmpTimeTable} from "../../assets/Models/tmp-time-table";
 
 @Injectable({
   providedIn: 'root'
@@ -33,8 +33,22 @@ export class GlobalTableService {
     return this.http.get<TimeTable>(newUrl, this.httpOptions);
   }
 
-  pushTmpTableObject(id: number) {
-    let newUrl = `${this.timeApiPath}/${id}`;
-    return this.http.get<TimeTable>(newUrl, this.httpOptions);
+  pushTmpTableObject(table: TmpTimeTable) :[boolean, string]{
+    let newUrl = `${this.timeApiPath}/create`;
+    let status = false;
+    let message = "fault happened during upload";
+    let returnValue: [boolean, string] = [status, message];
+
+    this.http.post(newUrl, table, this.httpOptions).subscribe(
+      response => {
+        status = true;
+        message = "upload successfully";
+      },
+      (error: HttpErrorResponse) => {
+        message = error.message;
+      }
+    ).unsubscribe();
+
+    return returnValue;
   }
 }
