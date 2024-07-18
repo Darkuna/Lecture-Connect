@@ -64,6 +64,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadSpecificTable() {
+    this.calendarComponent.getApi().removeAllEvents();
+
+    if(!this.shownTableDD.id){
+      return;
+    }
+
     this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
 
     this.selectedTimeTable.subscribe((timeTable: TimeTable) => {

@@ -1,6 +1,5 @@
 import {Room} from "./room";
 import {Course} from "./course";
-import {EventInput} from "@fullcalendar/core";
 import {Semester} from "./enums/semester";
 import {Status} from "./enums/status";
 
@@ -9,7 +8,7 @@ export class TmpTimeTable {
   id!: number;
   semester?: Semester;
   year?: number;
-  status: Status = Status.NEW;
+  status: Status | string = Status.NEW;
   courseTable!: Course[];
   roomTables!: Room[];
 }

@@ -1,7 +1,9 @@
+import LocalTime from "ts-time/LocalTime";
 
 export class Timing {
   id!: number;
-  startTime?: number[];
-  endTime?: number[];
+  timingType!: string;
+  startTime?: LocalTime;
+  endTime?: LocalTime;
   day?: string;
 }

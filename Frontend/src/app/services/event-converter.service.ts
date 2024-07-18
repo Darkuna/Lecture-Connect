@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
 import { CourseSession } from '../../assets/Models/course-session';
-import { Observable, OperatorFunction } from 'rxjs';
-import { map } from 'rxjs/operators';
+
+import {Timing} from "../../assets/Models/timing";
+import LocalTime from "ts-time/LocalTime";
+import {map, OperatorFunction} from "rxjs";
+import {EventImpl} from "@fullcalendar/core/internal";
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +22,26 @@ export class EventConverterService {
     };
   }
 
+  convertUTCDateToLocalDate(date: Date){
+    return new Date(date.getTime() - date.getTimezoneOffset()*60*1000);
+  }
+
+  convertEventInputToTiming(event: EventImpl): Timing {
+    let timing = new Timing();
+
+    timing.id = 0;
+    timing.timingType = event.title;
+    timing.day = event.start?.getDay().toString();
+    if (event.start) {
+      timing.startTime = LocalTime.parse(event.start.toLocaleTimeString());
+    }
+    if (event.end) {
+      timing.endTime = LocalTime.parse(event.end.toLocaleTimeString());
+    }
+
+    return timing;
+  }
+
   private weekDayToNumber(day: string): string[] {
     switch (day) {
       case 'SUNDAY': return ['0'];
@@ -32,7 +55,8 @@ export class EventConverterService {
     }
   }
 
-  private convertArrayToTime(date: number[]): string {
+  //TODO change date to date: LocalTime and apply to function
+  private convertArrayToTime(date: any): string {
     let hours;
     let minutes;
 
