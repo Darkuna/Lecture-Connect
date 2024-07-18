@@ -23,24 +23,26 @@ export class EventConverterService {
   }
 
   parseTime(timeString: string): LocalTime {
-    const timeParts = timeString.match(/(\d+):(\d+):(\d+) (\w+)/);
+    const timeParts = timeString.match(/(\d+):(\d+):(\d+)\s(AM|PM)/i);
     if (!timeParts) {
       throw new Error('Invalid time format.');
     }
 
-    let hours = parseInt(timeParts[1]);
-    const minutes = parseInt(timeParts[2]);
-    const seconds = parseInt(timeParts[3]);
+    let hours = parseInt(timeParts[1], 10);
+    const minutes = parseInt(timeParts[2], 10);
+    const seconds = parseInt(timeParts[3], 10);
     const period = timeParts[4];
 
-    if (period === 'PM' && hours < 12) {
+    if (period.toUpperCase() === 'PM' && hours < 12) {
       hours += 12;
     }
-    if (period === 'AM' && hours === 12) {
+    if (period.toUpperCase() === 'AM' && hours === 12) {
       hours = 0;
     }
 
-    return LocalTime.of(hours, minutes, seconds);
+    // Convert to string in HH:MM:SS format
+    const formattedTimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return LocalTime.parse(formattedTimeString);
   }
 
   convertEventInputToTiming(event: EventImpl): Timing {
