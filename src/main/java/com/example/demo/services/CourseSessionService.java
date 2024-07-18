@@ -163,7 +163,11 @@ public class CourseSessionService {
      * @return The list of course sessions from a specific timetable.
      */
     public List<CourseSession> loadAllFromTimeTable(TimeTable timeTable){
-        return courseSessionRepository.findAllByTimeTable(timeTable);
+        List<CourseSession> courseSessions = courseSessionRepository.findAllByTimeTable(timeTable);
+        for(CourseSession courseSession : courseSessions){
+            courseSession.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(courseSession.getCourseId()));
+        }
+        return courseSessions;
     }
 
     /**

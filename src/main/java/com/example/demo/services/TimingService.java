@@ -107,6 +107,11 @@ public class TimingService {
         return timingRepository.findAllByCourse(course);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Timing> loadTimingConstraintsOfCourse(String courseId){
+        return timingRepository.findAllByCourseId(courseId);
+    }
+
     /**
      * Loads a specific timing by its ID.
      *
