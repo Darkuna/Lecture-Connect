@@ -85,7 +85,7 @@ export class WizardComponent {
   }
 
   getTextFromEnum(): string {
-    switch (this.selectedTable.tableName.status) {
+    switch (this.selectedTable.status) {
       case Status.NEW:
         return "NEW";
       case Status.EDITED:
