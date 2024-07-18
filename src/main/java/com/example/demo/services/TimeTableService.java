@@ -48,6 +48,9 @@ public class TimeTableService {
         timeTable.setStatus(Status.valueOf(dto.getStatus()));
         timeTable.setSemester(Semester.valueOf(dto.getSemester()));
         timeTable.setYear(dto.getYear());
+
+        timeTable = timeTableRepository.save(timeTable);
+
         for(RoomDTO roomDTO : dto.getRooms()){
             room = dtoConverter.toRoom(roomDTO);
             addRoomTable(timeTable, room);
@@ -56,7 +59,7 @@ public class TimeTableService {
             course = dtoConverter.toCourse(courseDTO);
             addCourseSessions(timeTable, course);
         }
-        return timeTableRepository.save(timeTable);
+        return timeTable;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
