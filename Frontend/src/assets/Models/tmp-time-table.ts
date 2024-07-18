@@ -12,5 +12,4 @@ export class TmpTimeTable {
   status: Status = Status.NEW;
   courseTable!: Course[];
   roomTables!: Room[];
-  selectedTimes: EventInput[] = [];
 }
