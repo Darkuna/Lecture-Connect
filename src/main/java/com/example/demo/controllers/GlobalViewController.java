@@ -54,4 +54,15 @@ public class GlobalViewController {
         TimeTable newTimeTable = timeTableService.createTimeTable(timeTableCreationDTO);
         return ResponseEntity.ok().body(newTimeTable.getId());
     }
+
+    @PostMapping("/assignment/{id}")
+    public ResponseEntity<TimeTableDTO> calculateAndUpdateTimeTable(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+        if (timeTable == null) {
+            return ResponseEntity.notFound().build();
+        }
+        timeTableService.assignCourseSessionsToRooms(timeTable);
+        TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
+        return ResponseEntity.ok(updatedTimeTableDTO);
+    }
 }
