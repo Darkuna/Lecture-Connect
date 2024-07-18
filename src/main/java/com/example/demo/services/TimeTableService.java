@@ -42,11 +42,27 @@ public class TimeTableService {
      * @return The newly created and persisted TimeTable object.
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public TimeTable createTimeTable(Semester semester, int year){
+    public TimeTable createTimeTable(Semester semester, int year, Status status){
         TimeTable timeTable = new TimeTable();
+        timeTable.setStatus(status);
         timeTable.setSemester(semester);
         timeTable.setYear(year);
 
+        return timeTableRepository.save(timeTable);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public TimeTable createTimeTable(Semester semester, int year, Status status, List<Course> courses, List<Room> rooms){
+        TimeTable timeTable = new TimeTable();
+        timeTable.setStatus(status);
+        timeTable.setSemester(semester);
+        timeTable.setYear(year);
+        for(Room room : rooms){
+            addRoomTable(timeTable, room);
+        }
+        for(Course course : courses){
+            addCourseSessions(timeTable, course);
+        }
         return timeTableRepository.save(timeTable);
     }
 
