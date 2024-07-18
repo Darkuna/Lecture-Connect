@@ -22,7 +22,6 @@ function convertEventInputToTiming(event: EventImpl): TimingDTO {
   };
 
   if (event.start) {
-    console.log(event.start.toLocaleTimeString('en-US', { hour12: false }));  // Ensure 24-hour format
     timing.startTime = event.start.toISOString().substring(11, 19); // Get HH:mm:ss from ISO string
   }
 
