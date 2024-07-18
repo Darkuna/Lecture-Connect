@@ -4,6 +4,7 @@ import com.example.demo.dto.TimeTableCreationDTO;
 import com.example.demo.dto.TimeTableDTO;
 import com.example.demo.dto.TimeTableNameDTO;
 import com.example.demo.models.TimeTable;
+import com.example.demo.services.DTOConverter;
 import com.example.demo.services.TimeTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -17,10 +18,12 @@ import java.util.List;
 @RequestMapping("/api/global")
 public class GlobalViewController {
     private final TimeTableService timeTableService;
+    private final DTOConverter dtoConverter;
 
     @Autowired
-    public GlobalViewController(TimeTableService timeTableService) {
+    public GlobalViewController(TimeTableService timeTableService, DTOConverter dtoConverter) {
         this.timeTableService = timeTableService;
+        this.dtoConverter = dtoConverter;
     }
 
     /**
@@ -35,7 +38,7 @@ public class GlobalViewController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TimeTableDTO> getTimeTableById(@PathVariable Long id){
-        TimeTableDTO timeTableDTO = timeTableService.toDTO(timeTableService.loadTimeTable(id));
+        TimeTableDTO timeTableDTO = dtoConverter.toTimeTableDTO(timeTableService.loadTimeTable(id));
         return ResponseEntity.ok(timeTableDTO);
     }
 
@@ -49,6 +52,6 @@ public class GlobalViewController {
     @PostMapping("/create")
     public ResponseEntity<TimeTableDTO> createTimeTable(@RequestBody TimeTableCreationDTO timeTableCreationDTO) {
         TimeTable newTimeTable = timeTableService.createTimeTable(timeTableCreationDTO);
-        return ResponseEntity.ok(timeTableService.toDTO(newTimeTable));
+        return ResponseEntity.ok(dtoConverter.toTimeTableDTO(newTimeTable));
     }
 }

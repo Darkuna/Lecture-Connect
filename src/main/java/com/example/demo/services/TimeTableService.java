@@ -14,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service class for managing timetables.
@@ -33,9 +32,7 @@ public class TimeTableService {
     @Autowired
     private TimingService timingService;
     @Autowired
-    private RoomService roomService;
-    @Autowired
-    private CourseService courseService;
+    private DTOConverter dtoConverter;
 
     /**
      * Creates a new timetable for a specific semester and year, and saves it to the database.
@@ -63,11 +60,11 @@ public class TimeTableService {
         timeTable.setSemester(Semester.valueOf(dto.getSemester()));
         timeTable.setYear(dto.getYear());
         for(RoomDTO roomDTO : dto.getRooms()){
-            room = roomService.fromDTO(roomDTO);
+            room = dtoConverter.toRoom(roomDTO);
             addRoomTable(timeTable, room);
         }
         for(CourseDTO courseDTO : dto.getCourses()){
-            course = courseService.fromDTO(courseDTO);
+            course = dtoConverter.toCourse(courseDTO);
             addCourseSessions(timeTable, course);
         }
         return timeTableRepository.save(timeTable);
@@ -183,58 +180,6 @@ public class TimeTableService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<TimeTableNameDTO> loadTimeTableNames(){
         return timeTableRepository.findAllTimeTableDTOs();
-    }
-
-    /**
-     * Converts a TimeTable object into a TimeTableDTO object
-     *
-     * @param timeTable to be converted
-     * @return TimeTableDTO object
-     */
-    public TimeTableDTO toDTO(TimeTable timeTable){
-        TimeTableDTO dto = new TimeTableDTO();
-        dto.setId(timeTable.getId());
-        dto.setSemester(timeTable.getSemester().toString());
-        dto.setYear(timeTable.getYear());
-        dto.setStatus(timeTable.getStatus().toString());
-        dto.setCreatedAt(timeTable.getCreatedAt());
-        dto.setUpdatedAt(timeTable.getUpdatedAt());
-
-        dto.setRoomTables(timeTable.getRoomTables().stream()
-                .map(roomTableService::toDTO)
-                .collect(Collectors.toList()));
-
-        dto.setCourseSessions(timeTable.getCourseSessions().stream()
-                .map(courseSessionService::toDTO)
-                .collect(Collectors.toList()));
-
-        return dto;
-    }
-
-    /**
-     * Converts a TimeTableDTO object into a TimeTable object
-     *
-     * @param dto to be converted
-     * @return TimeTable object
-     */
-    public TimeTable fromDTO(TimeTableDTO dto) {
-        TimeTable timeTable = new TimeTable();
-        timeTable.setId(dto.getId());
-        timeTable.setSemester(Semester.valueOf(dto.getSemester()));
-        timeTable.setStatus(Status.valueOf(dto.getStatus()));
-        timeTable.setYear(dto.getYear());
-        timeTable.setCreatedAt(dto.getCreatedAt());
-        timeTable.setUpdatedAt(dto.getUpdatedAt());
-
-        timeTable.setRoomTables(dto.getRoomTables().stream()
-                .map(roomTableService::fromDTO)
-                .collect(Collectors.toList()));
-
-        timeTable.setCourseSessions(dto.getCourseSessions().stream()
-                .map(courseSessionService::fromDTO)
-                .collect(Collectors.toList()));
-
-        return timeTable;
     }
 
     /**
