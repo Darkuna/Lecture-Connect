@@ -50,7 +50,7 @@ export class GlobalTableService {
       (error: HttpErrorResponse) => {
         message = error.message;
       }
-    ).unsubscribe();
+    );
     return returnValue;
   }
 
