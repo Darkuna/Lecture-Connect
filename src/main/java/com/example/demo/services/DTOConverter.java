@@ -5,6 +5,7 @@ import com.example.demo.models.*;
 import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
+import com.example.demo.models.enums.TimingType;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -219,6 +220,7 @@ public class DTOConverter {
         timingDTO.setStartTime(timing.getStartTime());
         timingDTO.setEndTime(timing.getEndTime());
         timingDTO.setDay(timing.getDay().toString());
+        timingDTO.setTimingType(timing.getTimingType().toString());
         return timingDTO;
     }
 
@@ -233,6 +235,7 @@ public class DTOConverter {
         timing.setId(dto.getId());
         timing.setStartTime(dto.getStartTime());
         timing.setEndTime(dto.getEndTime());
+        timing.setTimingType(TimingType.valueOf(dto.getTimingType()));
         if (dto.getDay() != null) {
             timing.setDay(Day.valueOf(dto.getDay()));
         }

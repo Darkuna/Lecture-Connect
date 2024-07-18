@@ -12,4 +12,5 @@ public class TimingDTO {
     private LocalTime startTime;
     private LocalTime endTime;
     private String day;
+    private String timingType;
 }
