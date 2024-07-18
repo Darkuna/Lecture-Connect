@@ -33,6 +33,8 @@ public class TimeTableService {
     private TimingService timingService;
     @Autowired
     private DTOConverter dtoConverter;
+    @Autowired
+    private Scheduler scheduler;
 
     /**
      * Creates a new timetable from a TimeTableCreationDTO object and saves it to the database.
@@ -153,7 +155,7 @@ public class TimeTableService {
         List<CourseSession> courseSessions = courseSessionService.loadAllFromTimeTable(timeTable);
         timeTable.setRoomTables(roomTables);
         timeTable.setCourseSessions(courseSessions);
-        timeTable.setScheduler(new Scheduler(timeTable));
+        scheduler.setTimeTable(timeTable);
         return timeTable;
     }
 
@@ -191,13 +193,8 @@ public class TimeTableService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void assignCourseSessionsToRooms(TimeTable timeTable){
-        if(timeTable.getScheduler() == null){
-            timeTable.setScheduler(new Scheduler(timeTable));
-        }
-        timeTable.getScheduler().assignUnassignedCourseSessions();
-        for(CourseSession courseSession : timeTable.getCourseSessions()){
-            courseSession.setTiming(timingService.createTiming(courseSession.getTiming().getStartTime(), courseSession.getTiming().getEndTime(), courseSession.getTiming().getDay()));
-        }
+        scheduler.setTimeTable(timeTable);
+        scheduler.assignUnassignedCourseSessions();
         timeTable.setCourseSessions(courseSessionService.saveAll(timeTable.getCourseSessions()));
         timeTableRepository.save(timeTable);
     }

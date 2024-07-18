@@ -124,4 +124,8 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
         }
         return roomTablesWithoutComputersAvailable;
     }
+
+    public String toString(){
+        return id.toString();
+    }
 }

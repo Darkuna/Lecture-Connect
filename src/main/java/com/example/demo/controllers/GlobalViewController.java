@@ -61,8 +61,13 @@ public class GlobalViewController {
         if (timeTable == null) {
             return ResponseEntity.notFound().build();
         }
+        System.out.println(timeTable);
         timeTableService.assignCourseSessionsToRooms(timeTable);
+        System.out.println("completed");
         TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
-        return ResponseEntity.ok(updatedTimeTableDTO);
+        System.out.println(updatedTimeTableDTO);
+        ResponseEntity res = ResponseEntity.ok().body(updatedTimeTableDTO);
+        System.out.println(res);
+        return res;
     }
 }
