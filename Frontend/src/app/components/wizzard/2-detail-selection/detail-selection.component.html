@@ -83,18 +83,22 @@
                      (ngModelChange)="updateTimesArray(0)"/>
     </div>
     <ng-container *ngIf="hasPsType(); else splitsTemplate">
-      <div>
-        <label for="dur">Duration (minutes)</label>
-        <p-inputNumber pInputText type="number" id="dur" [(ngModel)]="timesArray[0]" [disabled]="true"
-                       [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" [step]="15"
-                       incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"/>
-      </div>
+        <label for="durPS">Duration (minutes)</label>
+        <p-inputNumber pInputText type="number" id="durPS" [(ngModel)]="selectedCourse.duration" [disabled]="true"
+                       [showButtons]="false" buttonLayout="horizontal" inputId="horizontal"/>
     </ng-container>
 
     <ng-template #splitsTemplate>
+      <small class="p-error" *ngIf="splitsSumUpToDuration()">Sum of splits ({{sumOfSplits()}}) differs to duration</small>
       <ng-container *ngFor="let time of timesArray; let i = index">
         <div class="rand">
           <label for="time-{{i}}">Split Nr {{ i + 1 }} Duration (minutes)</label>
+
+          <label for="durVO">Duration (minutes)</label>
+          <p-inputNumber pInputText type="number" id="durVO" [(ngModel)]="selectedCourse.duration" [disabled]="true"
+                         [showButtons]="false" buttonLayout="horizontal" inputId="horizontal"/>
+
+          <label for="durVO">partial Duration (minutes)</label>
           <p-inputNumber pInputText type="number" id="time-{{i}}" [(ngModel)]="timesArray[i]"
                          [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" [step]="15"
                          incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"/>
