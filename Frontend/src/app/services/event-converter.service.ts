@@ -29,6 +29,7 @@ export class EventConverterService {
     timing.timingType = event.title;
     timing.day = event.start?.getDay().toString();
     if (event.start) {
+      console.log(event.start.toLocaleTimeString());
       timing.startTime = LocalTime.parse(event.start.toLocaleTimeString());
     }
     if (event.end) {
