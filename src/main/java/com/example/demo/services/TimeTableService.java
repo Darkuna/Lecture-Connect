@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
-import com.example.demo.dto.TimeTableDTO;
-import com.example.demo.dto.TimeTableNameDTO;
+import com.example.demo.dto.*;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
@@ -33,6 +32,10 @@ public class TimeTableService {
     private CourseSessionService courseSessionService;
     @Autowired
     private TimingService timingService;
+    @Autowired
+    private RoomService roomService;
+    @Autowired
+    private CourseService courseService;
 
     /**
      * Creates a new timetable for a specific semester and year, and saves it to the database.
@@ -52,15 +55,19 @@ public class TimeTableService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public TimeTable createTimeTable(Semester semester, int year, Status status, List<Course> courses, List<Room> rooms){
+    public TimeTable createTimeTable(TimeTableCreationDTO dto){
+        Room room;
+        Course course;
         TimeTable timeTable = new TimeTable();
-        timeTable.setStatus(status);
-        timeTable.setSemester(semester);
-        timeTable.setYear(year);
-        for(Room room : rooms){
+        timeTable.setStatus(Status.valueOf(dto.getStatus()));
+        timeTable.setSemester(Semester.valueOf(dto.getSemester()));
+        timeTable.setYear(dto.getYear());
+        for(RoomDTO roomDTO : dto.getRooms()){
+            room = roomService.fromDTO(roomDTO);
             addRoomTable(timeTable, room);
         }
-        for(Course course : courses){
+        for(CourseDTO courseDTO : dto.getCourses()){
+            course = courseService.fromDTO(courseDTO);
             addCourseSessions(timeTable, course);
         }
         return timeTableRepository.save(timeTable);

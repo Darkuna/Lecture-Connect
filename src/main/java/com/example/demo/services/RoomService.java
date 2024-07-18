@@ -138,6 +138,9 @@ public class RoomService {
         room.setId(dto.getId());
         room.setCapacity(dto.getCapacity());
         room.setComputersAvailable(dto.isComputersAvailable());
+        room.setCreatedAt(dto.getCreatedAt());
+        room.setUpdatedAt(dto.getUpdatedAt());
+        room.setTimingConstraints(dto.getTimingConstraints());
         return room;
     }
 

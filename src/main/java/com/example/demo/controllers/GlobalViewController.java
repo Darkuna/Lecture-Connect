@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.dto.TimeTableCreationDTO;
 import com.example.demo.dto.TimeTableDTO;
 import com.example.demo.dto.TimeTableNameDTO;
 import com.example.demo.models.TimeTable;
@@ -43,5 +44,11 @@ public class GlobalViewController {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
         timeTableService.deleteTimeTable(timeTable);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<TimeTableDTO> createTimeTable(@RequestBody TimeTableCreationDTO timeTableCreationDTO) {
+        TimeTable newTimeTable = timeTableService.createTimeTable(timeTableCreationDTO);
+        return ResponseEntity.ok(timeTableService.toDTO(newTimeTable));
     }
 }
