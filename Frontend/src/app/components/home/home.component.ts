@@ -63,15 +63,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showNewTableDialog = false;
   }
 
-  loadSpecificTable() {
-    this.calendarComponent.getApi().removeAllEvents();
-
-    if(!this.shownTableDD.id){
-      return;
-    }
-
-    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
-
+  updateCalendarEvents(){
     this.selectedTimeTable.subscribe((timeTable: TimeTable) => {
       let sessions = timeTable.courseSessions;
 
@@ -90,6 +82,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.calendarComponent.getApi().render();
   }
 
+  loadSpecificTable() {
+    this.calendarComponent.getApi().removeAllEvents();
+
+    if(!this.shownTableDD.id){
+      return;
+    }
+
+    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
+    this.updateCalendarEvents();
+  }
+
   isTmpTableAvailable() {
     return this.localStorage.retrieve('tmptimetable') !== null;
   }
@@ -103,6 +106,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   applyAlgorithm(){
     this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
+    this.updateCalendarEvents();
   }
 
   createNewTable() {
