@@ -91,7 +91,7 @@ export class RoomSelectionComponent implements OnDestroy {
 
   dragEnd() {
     this.draggedRoom = null;
-    this.globalTable.tableName.status = Status.EDITED;
+    this.globalTable.status = Status.EDITED;
   }
 
   findIndex(product: Room, list: Room[]): number {

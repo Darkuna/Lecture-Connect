@@ -97,12 +97,15 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   createNewTable() {
     this.tmpTable = new TmpTimeTable();
-    this.tmpTable.tableName = this.shownTableDD;
+    this.tmpTable.id = this.shownTableDD.id;
+    this.tmpTable.semester = this.shownTableDD.semester;
+    this.tmpTable.year = this.shownTableDD.year;
+    this.tmpTable.status = this.shownTableDD.status;
     this.tmpTable.courseTable = [];
     this.tmpTable.roomTables = [];
 
     //TODO backend call to get id
-    this.tmpTable.tableName.id = 123;
+    this.tmpTable.id = 123;
     this.hideTableDialog();
 
     this.shareService.selectedTable = this.tmpTable;

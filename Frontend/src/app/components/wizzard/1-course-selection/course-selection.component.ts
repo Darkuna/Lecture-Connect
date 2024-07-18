@@ -94,7 +94,7 @@ export class CourseSelectionComponent implements OnDestroy {
 
   dragEnd() {
     this.draggedCourse = null;
-    this.globalTable.tableName.status = Status.EDITED;
+    this.globalTable.status = Status.EDITED;
   }
 
   findIndex(product: Course, list: Course[]): number {
