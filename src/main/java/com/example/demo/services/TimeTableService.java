@@ -35,22 +35,11 @@ public class TimeTableService {
     private DTOConverter dtoConverter;
 
     /**
-     * Creates a new timetable for a specific semester and year, and saves it to the database.
+     * Creates a new timetable from a TimeTableCreationDTO object and saves it to the database.
      *
-     * @param semester The semester for which the timetable is being created.
-     * @param year The year for which the timetable is being created.
+     * @param dto The TimeTableCreationDTO object to create the timetable from.
      * @return The newly created and persisted TimeTable object.
      */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public TimeTable createTimeTable(Semester semester, int year, Status status){
-        TimeTable timeTable = new TimeTable();
-        timeTable.setStatus(status);
-        timeTable.setSemester(semester);
-        timeTable.setYear(year);
-
-        return timeTableRepository.save(timeTable);
-    }
-
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable createTimeTable(TimeTableCreationDTO dto){
         Room room;
