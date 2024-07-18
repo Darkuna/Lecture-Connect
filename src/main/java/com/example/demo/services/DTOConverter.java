@@ -2,10 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.dto.*;
 import com.example.demo.models.*;
-import com.example.demo.models.enums.Day;
-import com.example.demo.models.enums.Semester;
-import com.example.demo.models.enums.Status;
-import com.example.demo.models.enums.TimingType;
+import com.example.demo.models.enums.*;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -72,7 +69,7 @@ public class DTOConverter {
         CourseDTO dto = new CourseDTO();
         dto.setId(course.getId());
         dto.setName(course.getName());
-        dto.setCourseType(course.getCourseType());
+        dto.setCourseType(course.getCourseType().toString());
         dto.setLecturer(course.getLecturer());
         dto.setSemester(course.getSemester());
         dto.setDuration(course.getDuration());
@@ -83,6 +80,11 @@ public class DTOConverter {
                 .collect(Collectors.toList()));
         dto.setCreatedAt(course.getCreatedAt());
         dto.setUpdatedAt(course.getUpdatedAt());
+        dto.setSplit(course.isSplit());
+        dto.setNumberOfGroups(course.getNumberOfGroups());
+        if(course.getSplitTimes() != null){
+            dto.setSplitTimes(course.getSplitTimes());
+        }
         return dto;
     }
 
@@ -99,7 +101,7 @@ public class DTOConverter {
         Course course = new Course();
         course.setId(dto.getId());
         course.setName(dto.getName());
-        course.setCourseType(dto.getCourseType());
+        course.setCourseType(CourseType.valueOf(dto.getCourseType()));
         course.setLecturer(dto.getLecturer());
         course.setSemester(dto.getSemester());
         course.setDuration(dto.getDuration());
@@ -108,6 +110,11 @@ public class DTOConverter {
         course.setTimingConstraints(dto.getTimingConstraints().stream()
                 .map(this::toTiming)
                 .collect(Collectors.toList()));
+        course.setNumberOfGroups(dto.getNumberOfGroups());
+        course.setSplit(dto.isSplit());
+        if(dto.getSplitTimes() != null){
+            course.setSplitTimes(dto.getSplitTimes());
+        }
         return course;
     }
 
@@ -284,7 +291,7 @@ public class DTOConverter {
             return;
         }
         entity.setName(dto.getName());
-        entity.setCourseType(dto.getCourseType());
+        entity.setCourseType(CourseType.valueOf(dto.getCourseType()));
         entity.setLecturer(dto.getLecturer());
         entity.setSemester(dto.getSemester());
         entity.setDuration(dto.getDuration());
