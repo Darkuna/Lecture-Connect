@@ -122,31 +122,6 @@ public class RoomTableService {
         return new AvailabilityMatrix(roomTable);
     }
 
-    /**
-     * Converts a RoomTable object into a RoomTableDTO object
-     *
-     * @param roomTable to be converted
-     * @return RoomTableDTO object
-     */
-    public RoomTableDTO toDTO(RoomTable roomTable) {
-        RoomTableDTO dto = new RoomTableDTO();
-        dto.setId(roomTable.getId());
-        dto.setRoomId(roomTable.getRoom().getId());
-        return dto;
-    }
-
-    /**
-     * Converts a RoomTableDTO object into a RoomTable object
-     *
-     * @param dto to be converted
-     * @return RoomTable object
-     */
-    public RoomTable fromDTO(RoomTableDTO dto) {
-        RoomTable roomTable = new RoomTable();
-        roomTable.setId(dto.getId());
-        return roomTable;
-    }
-
     public void addTimingConstraints(RoomTable roomTable, List<Timing> timingConstraints){
         for(Timing timingConstraint : timingConstraints){
             roomTable.addTimingConstraint(timingConstraint);

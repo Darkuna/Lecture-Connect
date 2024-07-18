@@ -137,36 +137,4 @@ public class TimingService {
         timingRepository.delete(timing);
     }
 
-
-    /**
-     * Converts a Timing object into a TimingDTO object
-     *
-     * @param timing to be converted
-     * @return TimingDTO object
-     */
-    public TimingDTO toDTO(Timing timing){
-        TimingDTO timingDTO = new TimingDTO();
-        timingDTO.setId(timing.getId());
-        timingDTO.setStartTime(timing.getStartTime());
-        timingDTO.setEndTime(timing.getEndTime());
-        timingDTO.setDay(timing.getDay().toString());
-        return timingDTO;
-    }
-
-    /**
-     * Converts a TimingDTO object into a Timing object
-     *
-     * @param dto to be converted
-     * @return Timing object
-     */
-    public Timing fromDTO(TimingDTO dto) {
-        Timing timing = new Timing();
-        timing.setId(dto.getId());
-        timing.setStartTime(dto.getStartTime());
-        timing.setEndTime(dto.getEndTime());
-        if (dto.getDay() != null) {
-            timing.setDay(Day.valueOf(dto.getDay()));
-        }
-        return timing;
-    }
 }
