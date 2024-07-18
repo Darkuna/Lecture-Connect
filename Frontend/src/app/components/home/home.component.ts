@@ -101,6 +101,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  applyAlgorithm(){
+    this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
+  }
+
   createNewTable() {
     this.tmpTable = new TmpTimeTable();
     this.tmpTable.id = this.shownTableDD.id;
@@ -190,7 +194,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           {
             label: 'Auto Fill',
             icon: 'pi pi-microchip',
-            command: () => this.autoFill()
+            command: () => this.applyAlgorithm()
           },
           {
             label: 'Collision Check',
@@ -242,8 +246,5 @@ export class HomeComponent implements OnInit, OnDestroy {
         ]
       }
     ];
-  }
-  autoFill() {
-    console.log('Auto Fill button clicked');
   }
 }

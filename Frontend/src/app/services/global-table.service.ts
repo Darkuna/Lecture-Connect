@@ -53,4 +53,9 @@ export class GlobalTableService {
     ).unsubscribe();
     return returnValue;
   }
+
+  getScheduledTimeTable(id: number) {
+    let newUrl = `${this.timeApiPath}/assignment/${id}`;
+    return this.http.post<TimeTable>(newUrl, this.httpOptions);
+  }
 }
