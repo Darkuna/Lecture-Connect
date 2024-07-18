@@ -22,6 +22,27 @@ export class EventConverterService {
     };
   }
 
+  parseTime(timeString: string): LocalTime {
+    const timeParts = timeString.match(/(\d+):(\d+):(\d+) (\w+)/);
+    if (!timeParts) {
+      throw new Error('Invalid time format.');
+    }
+
+    let hours = parseInt(timeParts[1]);
+    const minutes = parseInt(timeParts[2]);
+    const seconds = parseInt(timeParts[3]);
+    const period = timeParts[4];
+
+    if (period === 'PM' && hours < 12) {
+      hours += 12;
+    }
+    if (period === 'AM' && hours === 12) {
+      hours = 0;
+    }
+
+    return LocalTime.of(hours, minutes, seconds);
+  }
+
   convertEventInputToTiming(event: EventImpl): Timing {
     let timing = new Timing();
 
@@ -30,14 +51,15 @@ export class EventConverterService {
     timing.day = event.start?.getDay().toString();
     if (event.start) {
       console.log(event.start.toLocaleTimeString());
-      timing.startTime = LocalTime.parse(event.start.toLocaleTimeString());
+      timing.startTime = this.parseTime(event.start.toLocaleTimeString());
     }
     if (event.end) {
-      timing.endTime = LocalTime.parse(event.end.toLocaleTimeString());
+      timing.endTime = this.parseTime(event.end.toLocaleTimeString());
     }
 
     return timing;
   }
+
 
   private weekDayToNumber(day: string): string[] {
     switch (day) {
