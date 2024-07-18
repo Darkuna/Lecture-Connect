@@ -85,7 +85,7 @@
     <ng-container *ngIf="hasPsType(); else splitsTemplate">
       <div>
         <label for="dur">Duration (minutes)</label>
-        <p-inputNumber pInputText type="number" id="dur" [(ngModel)]="timesArray[0]"
+        <p-inputNumber pInputText type="number" id="dur" [(ngModel)]="timesArray[0]" [disabled]="true"
                        [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" [step]="15"
                        incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"/>
       </div>

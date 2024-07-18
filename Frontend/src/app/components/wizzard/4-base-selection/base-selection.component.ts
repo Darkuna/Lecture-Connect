@@ -227,6 +227,7 @@ export class BaseSelectionComponent {
 
     //TODO send status but as as string
     dto.status = "NEW";
+    dto.year = this.globalTable.year;
     dto.semester = this.globalTable.semester;
     dto.courses = this.globalTable.courseTable;
 
@@ -235,14 +236,14 @@ export class BaseSelectionComponent {
 
   sendToBackend(){
     let res = this.convertGlobalTableItems();
-    let respone = this.globalTableService.pushTmpTableObject(res);
+    let response = this.globalTableService.pushTmpTableObject(res);
 
-    if(respone[0]){ //true bei http 200 response
+    if(response[0]){ //true bei http 200 response
       this.messageService.add({severity: 'success', summary: 'Upload Success', detail: 'Element saved to DB'});
       this.router.navigate(['/home']);
     }
     else {
-      this.messageService.add({severity: 'danger', summary: 'Upload Fault', detail: respone[1]});
+      this.messageService.add({severity: 'danger', summary: 'Upload Fault', detail: response[1]});
     }
   }
 }
