@@ -22,6 +22,9 @@ public class DTOConverter {
      * @return CourseSessionDTO object
      */
     public CourseSessionDTO toCourseSessionDTO(CourseSession courseSession) {
+        if (courseSession == null) {
+            return null;
+        }
         CourseSessionDTO dto = new CourseSessionDTO();
         dto.setId(courseSession.getId());
         dto.setName(courseSession.getName());
@@ -43,6 +46,9 @@ public class DTOConverter {
      * @return CourseSession object
      */
     public CourseSession toCourseSession(CourseSessionDTO dto) {
+        if (dto == null) {
+            return null;
+        }
         CourseSession courseSession = new CourseSession();
         courseSession.setId(dto.getId());
         courseSession.setName(dto.getName());
@@ -60,6 +66,9 @@ public class DTOConverter {
      * @return CourseDTO object
      */
     public CourseDTO toCourseDTO(Course course) {
+        if (course == null) {
+            return null;
+        }
         CourseDTO dto = new CourseDTO();
         dto.setId(course.getId());
         dto.setName(course.getName());
@@ -84,6 +93,9 @@ public class DTOConverter {
      * @return Course object
      */
     public Course toCourse(CourseDTO dto) {
+        if (dto == null) {
+            return null;
+        }
         Course course = new Course();
         course.setId(dto.getId());
         course.setName(dto.getName());
@@ -106,6 +118,9 @@ public class DTOConverter {
      * @return RoomDTO object
      */
     public RoomDTO toRoomDTO(Room room) {
+        if (room == null) {
+            return null;
+        }
         RoomDTO dto = new RoomDTO();
         dto.setId(room.getId());
         dto.setCapacity(room.getCapacity());
@@ -122,6 +137,9 @@ public class DTOConverter {
      * @return Room object
      */
     public Room toRoom(RoomDTO dto) {
+        if (dto == null) {
+            return null;
+        }
         Room room = new Room();
         room.setId(dto.getId());
         room.setCapacity(dto.getCapacity());
@@ -139,11 +157,15 @@ public class DTOConverter {
      * @return RoomTableDTO object
      */
     public RoomTableDTO toRoomTableDTO(RoomTable roomTable) {
+        if (roomTable == null) {
+            return null;
+        }
         RoomTableDTO dto = new RoomTableDTO();
         dto.setId(roomTable.getId());
         dto.setRoomId(roomTable.getRoom().getId());
         return dto;
     }
+
 
     /**
      * Converts a RoomTableDTO object into a RoomTable object
@@ -152,6 +174,9 @@ public class DTOConverter {
      * @return RoomTable object
      */
     public RoomTable toRoomTable(RoomTableDTO dto) {
+        if (dto == null) {
+            return null;
+        }
         RoomTable roomTable = new RoomTable();
         roomTable.setId(dto.getId());
         return roomTable;
@@ -164,6 +189,9 @@ public class DTOConverter {
      * @return TimeTableDTO object
      */
     public TimeTableDTO toTimeTableDTO(TimeTable timeTable) {
+        if (timeTable == null) {
+            return null;
+        }
         TimeTableDTO dto = new TimeTableDTO();
         dto.setId(timeTable.getId());
         dto.setSemester(timeTable.getSemester().toString());
@@ -189,6 +217,9 @@ public class DTOConverter {
      * @return TimeTable object
      */
     public TimeTable toTimeTable(TimeTableDTO dto) {
+        if (dto == null) {
+            return null;
+        }
         TimeTable timeTable = new TimeTable();
         timeTable.setId(dto.getId());
         timeTable.setSemester(Semester.valueOf(dto.getSemester()));
@@ -215,6 +246,9 @@ public class DTOConverter {
      * @return TimingDTO object
      */
     public TimingDTO toTimingDTO(Timing timing) {
+        if (timing == null) {
+            return null;
+        }
         TimingDTO timingDTO = new TimingDTO();
         timingDTO.setId(timing.getId());
         timingDTO.setStartTime(timing.getStartTime());
@@ -231,6 +265,9 @@ public class DTOConverter {
      * @return Timing object
      */
     public Timing toTiming(TimingDTO dto) {
+        if (dto == null) {
+            return null;
+        }
         Timing timing = new Timing();
         timing.setId(dto.getId());
         timing.setStartTime(dto.getStartTime());
@@ -243,6 +280,9 @@ public class DTOConverter {
     }
 
     public void copyCourseDtoToEntity(CourseDTO dto, Course entity) {
+        if (dto == null || entity == null) {
+            return;
+        }
         entity.setName(dto.getName());
         entity.setCourseType(dto.getCourseType());
         entity.setLecturer(dto.getLecturer());
@@ -257,6 +297,9 @@ public class DTOConverter {
     }
 
     public void copyRoomDtoToEntity(RoomDTO dto, Room entity) {
+        if (dto == null || entity == null) {
+            return;
+        }
         entity.setCapacity(dto.getCapacity());
         entity.setComputersAvailable(dto.isComputersAvailable());
     }

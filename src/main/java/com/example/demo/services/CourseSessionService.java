@@ -1,6 +1,5 @@
 package com.example.demo.services;
 
-import com.example.demo.dto.CourseSessionDTO;
 import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.example.demo.models.*;
 import com.example.demo.repositories.CourseSessionRepository;

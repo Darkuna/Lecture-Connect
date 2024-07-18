@@ -1,6 +1,5 @@
 package com.example.demo.services;
 
-import com.example.demo.dto.RoomTableDTO;
 import com.example.demo.models.*;
 import com.example.demo.repositories.RoomTableRepository;
 import jakarta.persistence.EntityNotFoundException;

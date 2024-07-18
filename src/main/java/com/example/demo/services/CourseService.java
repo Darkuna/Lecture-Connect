@@ -25,13 +25,12 @@ import java.util.stream.Collectors;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final TimingService timingService;
-    private final CourseSessionService courseSessionService;
     @Autowired
-    public CourseService(CourseRepository courseRepository, TimingService timingService, CourseSessionService courseSessionService){
+    public CourseService(CourseRepository courseRepository, TimingService timingService){
         this.courseRepository = courseRepository;
         this.timingService = timingService;
-        this.courseSessionService = courseSessionService;
     }
+
     /**
      * Creates a new course and saves it to the database.
      *
