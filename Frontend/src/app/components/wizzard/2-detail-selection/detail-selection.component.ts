@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {Course} from "../../../../assets/Models/course";
+import {C} from "@fullcalendar/core/internal-common";
 
 @Component({
   selector: 'app-detail-selection',
@@ -11,12 +12,11 @@ export class DetailSelectionComponent {
   @Input() globalTable!: TmpTimeTable;
   showEditDialog: boolean = false;
   headers: any[];
-  selectedCourse: Course | null;
+  selectedCourse!: Course;
   tmpSplitTimes: number = 0;
   timesArray: number[] = [];
 
   constructor() {
-    this.selectedCourse = null;
     this.headers = [
       {field: 'id', header: 'Id'},
       {field: 'courseType', header: 'Type'},
@@ -45,7 +45,7 @@ export class DetailSelectionComponent {
 
   saveCourse() {
     if (this.hasPsType()) {
-      this.updateTimesArray(this.timesArray[0])
+      this.updateTimesArray(this.selectedCourse.duration!);
     }
 
     this.selectedCourse!.numberOfGroups = this.tmpSplitTimes;
@@ -67,5 +67,16 @@ export class DetailSelectionComponent {
     this.showEditDialog = false;
     this.tmpSplitTimes = 0;
     this.timesArray = [];
+  }
+
+  splitsSumUpToDuration(): boolean {
+    console.log(this.sumOfSplits())
+    return this.sumOfSplits() === this.selectedCourse.duration;
+  }
+
+  sumOfSplits(): any {
+    this.timesArray.reduce((accumulation, current) => {
+      return accumulation + current;
+    }, 0);
   }
 }
