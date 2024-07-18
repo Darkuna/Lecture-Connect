@@ -50,8 +50,8 @@ public class GlobalViewController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<TimeTableDTO> createTimeTable(@RequestBody TimeTableCreationDTO timeTableCreationDTO) {
+    public ResponseEntity<Long> createTimeTable(@RequestBody TimeTableCreationDTO timeTableCreationDTO) {
         TimeTable newTimeTable = timeTableService.createTimeTable(timeTableCreationDTO);
-        return ResponseEntity.ok().body(dtoConverter.toTimeTableDTO(newTimeTable));
+        return ResponseEntity.ok().body(newTimeTable.getId());
     }
 }

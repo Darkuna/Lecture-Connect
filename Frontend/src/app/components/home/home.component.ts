@@ -189,7 +189,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           },
           {
             label: 'Auto Fill',
-            icon: 'pi pi-microchip'
+            icon: 'pi pi-microchip',
+            command: () => this.autoFill()
           },
           {
             label: 'Collision Check',
@@ -241,5 +242,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         ]
       }
     ];
+  }
+  autoFill() {
+    console.log('Auto Fill button clicked');
   }
 }
