@@ -22,10 +22,6 @@ export class EventConverterService {
     };
   }
 
-  convertUTCDateToLocalDate(date: Date){
-    return new Date(date.getTime() - date.getTimezoneOffset()*60*1000);
-  }
-
   convertEventInputToTiming(event: EventImpl): Timing {
     let timing = new Timing();
 
@@ -57,15 +53,16 @@ export class EventConverterService {
 
   //TODO change date to date: LocalTime and apply to function
   private convertArrayToTime(date: any): string {
-    let hours;
-    let minutes;
-
-    if (date.length === 2) {
-      hours = date[0].toString().padStart(2, '0');
-      minutes = date[1].toString().padStart(2, '0');
-    } else {
-      hours = date[0].toString().padStart(2, '0');
-      minutes = '00';
+    let hours = '00';
+    let minutes = '00';
+    if(date){
+      if (date.length === 2) {
+        hours = date[0].toString().padStart(2, '0');
+        minutes = date[1].toString().padStart(2, '0');
+      } else {
+        hours = date[0].toString().padStart(2, '0');
+        minutes = '00';
+      }
     }
     return `${hours}:${minutes}:00`;
   }
