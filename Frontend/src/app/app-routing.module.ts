@@ -6,7 +6,7 @@ import {RoomViewComponent} from "./components/TableView/room-view/room-view.comp
 import {CourseViewComponent} from "./components/TableView/course-view/course-view.component";
 import {UsersViewComponent} from "./components/TableView/users-view/users-view.component";
 import {WizardComponent} from "./components/wizzard/wizard.component";
-import {CalendarTestComponent} from "./components/calendar-test/calendar-test.component";
+import {CourseSelectionComponent} from "./components/wizzard/1-course-selection/course-selection.component";
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent},
@@ -15,7 +15,7 @@ const routes: Routes = [
   {path: 'lectures', component: CourseViewComponent},
   {path: 'users', component: UsersViewComponent},
   {path: 'wizard', component: WizardComponent},
-  {path: 'calendar', component: CalendarTestComponent},
+  {path: 'course-selection', component: CourseSelectionComponent},
 ];
 
 @NgModule({

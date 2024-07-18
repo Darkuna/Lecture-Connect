@@ -1,20 +1,21 @@
-import {ChangeDetectorRef, Component, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {MenuItem} from "primeng/api";
-import {CalendarOptions, DateSelectArg, EventApi, EventClickArg} from "@fullcalendar/core";
+import {CalendarOptions, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import {createEventId, INITIAL_EVENTS} from "./event-utils";
 import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
-import {Subscription} from "rxjs";
+import {BehaviorSubject, catchError, from, Observable, of, Subscription, toArray} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 import {LocalStorageService} from "ngx-webstorage";
+import {EventConverterService} from "../../services/event-converter.service";
+import {FullCalendarComponent} from "@fullcalendar/angular";
 
 @Component({
   selector: 'app-home',
@@ -22,22 +23,26 @@ import {LocalStorageService} from "ngx-webstorage";
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD!: TimeTableNames;
-  tmpTable!: TmpTimeTable;
 
-  selectedTimeTable!: TimeTable;
+  tmpTable!: TmpTimeTable;
+  selectedTimeTable!: Observable<TimeTable>;
+  private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
+  combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
+
   responsiveOptions: any[] | undefined;
   items: MenuItem[] | undefined;
   showNewTableDialog: boolean = false;
 
   constructor(
-    private cd: ChangeDetectorRef,
     private router: Router,
     private shareService: TableShareService,
     private globalTableService: GlobalTableService,
     private localStorage: LocalStorageService,
+    private converter: EventConverterService,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe(
       data => this.availableTables = [...data]
@@ -60,6 +65,23 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadSpecificTable() {
     this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
+
+    this.selectedTimeTable.subscribe((timeTable: TimeTable) => {
+      let sessions = timeTable.courseSessions;
+
+      from(sessions!).pipe(
+        this.converter.convertCourseSessionToEventInput(),
+        toArray(),
+        catchError(error => {
+          console.error('Error converting sessions:', error);
+          return of([]);
+        })
+      ).subscribe(events => {
+        this.combinedTableEventsSubject.next(events);
+      });
+    });
+    this.calendarComponent.getApi().refetchEvents();
+    this.calendarComponent.getApi().render();
   }
 
   isTmpTableAvailable() {
@@ -70,8 +92,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (this.isTmpTableAvailable()) {
       this.shareService.selectedTable = this.localStorage.retrieve("tmptimetable");
       this.router.navigate(['/wizard']);
-    } else {
-
     }
   }
 
@@ -89,21 +109,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.router.navigate(['/wizard']);
   }
 
-  editTable() {
-    if (this.shownTableDD) {
-      // @ts-ignore
-      this.selectedTimeTable = this.shownTableDD;
-    }
-    this.showTableDialog();
-  }
-
   getSemesterOptions() {
     return Object.keys(Semester).filter(k => isNaN(Number(k)));
   }
 
   calendarVisible = signal(true);
   calendarOptions = signal<CalendarOptions>({
-    events: undefined,
+    snapDuration: undefined,
     plugins: [
       interactionPlugin,
       dayGridPlugin,
@@ -116,15 +128,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       right: ''
     },
     initialView: 'timeGridWeek',
-    initialEvents: INITIAL_EVENTS,
     weekends: false,
     editable: false,
-    selectable: true,
+    selectable: false,
     selectMirror: true,
     dayMaxEvents: true,
-    select: this.handleDateSelect.bind(this),
-    eventClick: this.handleEventClick.bind(this),
-    eventsSet: this.handleEvents.bind(this),
     allDaySlot: false,
     height: "auto",
     eventBackgroundColor: "#666666",
@@ -136,39 +144,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     slotLabelInterval: '01:00:00',
     dayHeaderFormat: {weekday: 'long'},
     eventOverlap: true,
-    slotEventOverlap: false,
+    slotEventOverlap: true,
     nowIndicator: false,
-  });
-
-  currentEvents = signal<EventApi[]>([]);
-
-  handleDateSelect(selectInfo: DateSelectArg) {
-    const title = prompt('Please enter a new title for your event');
-    const calendarApi = selectInfo.view.calendar;
-    console.log(selectInfo);
-
-    calendarApi.unselect(); // clear date selection
-
-    if (title) {
-      calendarApi.addEvent({
-        id: createEventId(),
-        title,
-        start: selectInfo.startStr,
-        end: selectInfo.endStr,
-      });
     }
-  }
-
-  handleEventClick(clickInfo: EventClickArg) {
-    if (confirm(`Are you sure you want to delete the event '${clickInfo.event.title}'`)) {
-      clickInfo.event.remove();
-    }
-  }
-
-  handleEvents(events: EventApi[]) {
-    this.currentEvents.set(events);
-    this.cd.detectChanges();
-  }
+  );
 
   ngOnInit() {
     this.responsiveOptions = [
@@ -228,12 +207,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         label: 'Data',
         items: [
           {
-            label: 'Edit Room list',
-            icon: 'pi pi-warehouse'
+            label: 'edit Course list',
+            icon: 'pi pi-book',
+            routerLinkActiveOptions: ['/course-selection']
           },
           {
-            label: 'edit Course list',
-            icon: 'pi pi-book'
+            label: 'Edit Room list',
+            icon: 'pi pi-warehouse'
           },
           {
             label: 'Filter',
@@ -252,13 +232,5 @@ export class HomeComponent implements OnInit, OnDestroy {
         ]
       }
     ];
-  }
-
-  private convertCourseSessions() {
-    if (this.selectedTimeTable.courseSessions)
-      this.selectedTimeTable.courseSessions.forEach(session => {
-        //TODO implement Logic for Type Conversion
-      })
-
   }
 }

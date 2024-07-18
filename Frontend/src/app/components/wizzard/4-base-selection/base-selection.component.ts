@@ -65,7 +65,6 @@ export class BaseSelectionComponent {
         return color;
       }
     }
-    // Return undefined if no match is found
     return undefined;
   }
 
