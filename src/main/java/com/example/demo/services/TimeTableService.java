@@ -37,9 +37,9 @@ public class TimeTableService {
     private Scheduler scheduler;
 
     /**
-     * Creates a new timetable from a TimeTableCreationDTO object and saves it to the database.
+     * Creates a new timetable from a TimeTableCreationDto object and saves it to the database.
      *
-     * @param dto The TimeTableCreationDTO object to create the timetable from.
+     * @param dto The TimeTableCreationDto object to create the timetable from.
      * @return The newly created and persisted TimeTable object.
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
