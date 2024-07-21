@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
 import { CourseSession } from '../../assets/Models/course-session';
 
-import {Timing} from "../../assets/Models/timing";
 import LocalTime from "ts-time/LocalTime";
 import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
@@ -23,36 +22,13 @@ export class EventConverterService {
     };
   }
 
-  parseTime(timeString: string): LocalTime {
-    const timeParts = timeString.match(/(\d+):(\d+):(\d+)\s(AM|PM)/i);
-    if (!timeParts) {
-      throw new Error('Invalid time format.');
-    }
-
-    let hours = parseInt(timeParts[1], 10);
-    const minutes = parseInt(timeParts[2], 10);
-    const seconds = parseInt(timeParts[3], 10);
-    const period = timeParts[4];
-
-    if (period.toUpperCase() === 'PM' && hours < 12) {
-      hours += 12;
-    }
-    if (period.toUpperCase() === 'AM' && hours === 12) {
-      hours = 0;
-    }
-
-    // Convert to string in HH:MM:SS format
-    const formattedTimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    return LocalTime.parse(formattedTimeString);
-  }
-
   convertEventInputToTiming(event: EventImpl): TimingDTO {
     let timing = new TimingDTO();
 
     timing.id = 0;
     timing.timingType = event.title;
     if(event.start){
-      timing.day = event.start?.getDay().toString();
+      timing.day = this.weekNumberToDay(event.start?.getDay());
     }
     if (event.start) {
       timing.startTime = event.start.toLocaleTimeString();
@@ -65,7 +41,7 @@ export class EventConverterService {
   }
 
 
-  private weekDayToNumber(day: string): string[] {
+  weekDayToNumber(day: string): string[] {
     switch (day) {
       case 'SUNDAY': return ['0'];
       case 'MONDAY': return ['1'];
@@ -75,6 +51,19 @@ export class EventConverterService {
       case 'FRIDAY': return ['5'];
       case 'SATURDAY': return ['6'];
       default: return ['-1'];
+    }
+  }
+
+  weekNumberToDay(day: number):string {
+    switch (day) {
+      case 0: return 'SUNDAY';
+      case 1: return 'MONDAY';
+      case 2: return 'TUESDAY';
+      case 3: return 'WEDNESDAY';
+      case 4: return 'THURSDAY';
+      case 5: return 'FRIDAY';
+      case 6: return 'SATURDAY';
+      default: return 'ERR';
     }
   }
 

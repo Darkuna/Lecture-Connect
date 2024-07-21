@@ -12,10 +12,9 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {GlobalTableService} from "../../../services/global-table.service";
 import {Router} from "@angular/router";
-import {EventConverterService} from "../../../services/event-converter.service";
 import {TmpTimeTableDTO} from "../../../../assets/Models/dto/tmp-time-table-dto";
-import {RoomDTO} from "../../../../assets/Models/dto/room-dto";
-import {TimingDTO} from "../../../../assets/Models/dto/timing-dto";
+import {RoomToDtoConverterService} from "../../../services/room-to-dto-converter.service";
+import {CourseToDtoConverterService} from "../../../services/course-to-dto-converter.service";
 
 @Component({
   selector: 'app-base-selection',
@@ -46,7 +45,8 @@ export class BaseSelectionComponent {
     private messageService: MessageService,
     private globalTableService: GlobalTableService,
     private router: Router,
-    private converter: EventConverterService,
+    private roomConverter: RoomToDtoConverterService,
+    private courseConverter: CourseToDtoConverterService
   ) { }
 
   formatTime(date: Date): string {
@@ -203,37 +203,13 @@ export class BaseSelectionComponent {
 
   convertGlobalTableItems(){
     let dto = new TmpTimeTableDTO();
-    dto.rooms = [];
-    let timing: TimingDTO | null = null;
-    let roomDto: RoomDTO;
-    let constraints: TimingDTO[];
 
-
-    this.globalTable.roomTables.forEach(r => {
-      roomDto = new RoomDTO();
-      constraints = [];
-      r.tmpEvents?.forEach(e => {
-        timing = this.converter.convertEventInputToTiming(e);
-
-        constraints.push(timing);
-      })
-
-      roomDto.id = r.id;
-      roomDto.timingConstraints = constraints;
-      roomDto.capacity = r.capacity;
-      roomDto.computersAvailable = r.computersAvailable;
-      roomDto.updatedAt = r.updatedAt;
-      roomDto.createdAt = r.createdAt;
-
-      dto.rooms.push(roomDto);
-
-    })
-
-    //TODO send status but as as string
+    dto.rooms = this.roomConverter.convertRoomsToDto(this.globalTable.roomTables);
+    dto.courses = this.courseConverter.convertCourseToDto(this.globalTable.courseTable);
+    //TODO send status but as as string not as the colors hex code
     dto.status = "NEW";
     dto.year = this.globalTable.year;
     dto.semester = this.globalTable.semester;
-    dto.courses = this.globalTable.courseTable;
 
     return dto;
   }

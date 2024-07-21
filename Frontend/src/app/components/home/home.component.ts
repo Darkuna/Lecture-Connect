@@ -7,7 +7,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
-import {Event, Router} from "@angular/router";
+import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
 import {BehaviorSubject, catchError, from, Observable, of, Subscription, toArray} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -85,6 +85,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       ).subscribe(events => {
         this.combinedTableEventsSubject.next(events);
       });
+
+      console.log(timeTable)
     });
   }
 
@@ -127,7 +129,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   applyAlgorithm(){
-    console.log(this.selectedTimeTable);
     if(this.selectedTimeTable){
       this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
 
@@ -137,7 +138,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     else {
       this.messageService.add({severity: 'info', summary: 'No Data', detail: 'there is currently no table selected!'});
     }
-
   }
 
   createNewTable() {

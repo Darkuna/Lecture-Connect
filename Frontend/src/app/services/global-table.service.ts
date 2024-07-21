@@ -36,16 +36,15 @@ export class GlobalTableService {
   pushTmpTableObject(table: TmpTimeTableDTO) :[boolean, string]{
     let newUrl = `${this.timeApiPath}/create`;
     let status = false;
-    let message = "fault happened during upload";
+    let message = 'fault happened during upload';
     let returnValue: [boolean, string] = [status, message];
 
     console.log(table);
 
     this.http.post<any>(newUrl, table, this.httpOptions).subscribe(
       response => {
-        console.log(response);
         status = true;
-        message = "upload successfully";
+        message = 'upload successfully';
       },
       (error: HttpErrorResponse) => {
         message = error.message;
