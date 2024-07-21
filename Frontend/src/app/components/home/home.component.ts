@@ -63,7 +63,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showNewTableDialog = false;
   }
 
+  clearCalendar(){
+    this.calendarComponent.getApi().removeAllEvents();
+  }
+
   updateCalendarEvents(){
+    this.clearCalendar();
+
     this.selectedTimeTable.subscribe((timeTable: TimeTable) => {
       let sessions = timeTable.courseSessions;
 
@@ -78,13 +84,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.combinedTableEventsSubject.next(events);
       });
     });
-    this.calendarComponent.getApi().refetchEvents();
-    this.calendarComponent.getApi().render();
   }
 
   loadSpecificTable() {
-    this.calendarComponent.getApi().removeAllEvents();
-
     if(!this.shownTableDD.id){
       return;
     }

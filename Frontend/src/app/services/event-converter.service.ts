@@ -79,19 +79,8 @@ export class EventConverterService {
   }
 
   //TODO change date to date: LocalTime and apply to function
-  private convertArrayToTime(date: any): string {
-    let hours = '00';
-    let minutes = '00';
-    if(date){
-      if (date.length === 2) {
-        hours = date[0].toString().padStart(2, '0');
-        minutes = date[1].toString().padStart(2, '0');
-      } else {
-        hours = date[0].toString().padStart(2, '0');
-        minutes = '00';
-      }
-    }
-    return `${hours}:${minutes}:00`;
+  private convertArrayToTime(date: LocalTime): string {
+    return date.toString();
   }
 
   convertCourseSessionToEventInput(): OperatorFunction<CourseSession, EventInput> {

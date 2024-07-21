@@ -34,7 +34,7 @@
       <div class="p-toolbar-group-center">
         <p-dropdown id="all" [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
                     placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
-                    [showClear]="true" (onChange)="loadSpecificTable()">
+                    [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="clearCalendar()">
           <ng-template pTemplate="selectedItem">
             <div class="item">
               <div>{{ shownTableDD.semester }} {{ shownTableDD.year }}</div>
