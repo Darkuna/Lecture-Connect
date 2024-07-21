@@ -250,7 +250,7 @@ export class BaseSelectionComponent {
       this.router.navigate(['/home']);
     }
     else {
-      this.messageService.add({severity: 'danger', summary: 'Upload Fault', detail: response[1]});
+      this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: response[1]});
     }
   }
 }

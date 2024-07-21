@@ -13,7 +13,7 @@
     </ng-template>
   </p-toolbar>
   <p-table
-    #dt
+    #dt dataKey="id"
     [value]="globalTable.courseTable!"
     [rows]="15"
     [columns]="headers"
@@ -23,8 +23,7 @@
     [paginator]="true"
     [globalFilterFields]="['id', 'lecturer', 'name']"
     [filterDelay]="0"
-    [rowHover]="true"
-    dataKey="id">
+    [rowHover]="true" [scrollable]="true" scrollHeight="700px">
     <ng-template pTemplate="header">
       <tr>
         <th class="flex-header"

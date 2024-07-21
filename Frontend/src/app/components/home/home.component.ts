@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
-import {MenuItem} from "primeng/api";
+import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -7,7 +7,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
-import {Router} from "@angular/router";
+import {Event, Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
 import {BehaviorSubject, catchError, from, Observable, of, Subscription, toArray} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -43,6 +43,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private globalTableService: GlobalTableService,
     private localStorage: LocalStorageService,
     private converter: EventConverterService,
+    private messageService: MessageService,
+  private confirmationService: ConfirmationService
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe(
       data => this.availableTables = [...data]
@@ -95,20 +97,47 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.updateCalendarEvents();
   }
 
-  isTmpTableAvailable() {
-    return this.localStorage.retrieve('tmptimetable') !== null;
+  isTmpTableAvailable(): TmpTimeTable {
+    return this.localStorage.retrieve('tmptimetable');
   }
 
   loadTmpTable() {
-    if (this.isTmpTableAvailable()) {
-      this.shareService.selectedTable = this.localStorage.retrieve("tmptimetable");
+    let tmpTable = this.isTmpTableAvailable();
+    if (tmpTable !== null) {
+      this.shareService.selectedTable = tmpTable;
       this.router.navigate(['/wizard']);
     }
   }
 
+  deleteUnfinishedTable(){
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete all the selected Rooms?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.localStorage.clear('tmptimetable');
+        this.messageService.add({severity: 'error', summary: 'Deleted Item', detail: 'temporary table got deleted'});
+      },
+      reject: () => {
+        this.messageService.add({severity: 'info', summary: 'Table saved', detail: 'your table was not deleted'});
+      }
+    });
+
+
+  }
+
   applyAlgorithm(){
-    this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
-    this.updateCalendarEvents();
+    console.log(this.selectedTimeTable);
+    if(this.selectedTimeTable){
+      this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
+
+      this.updateCalendarEvents();
+      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
+    }
+    else {
+      this.messageService.add({severity: 'info', summary: 'No Data', detail: 'there is currently no table selected!'});
+    }
+
   }
 
   createNewTable() {

@@ -29,6 +29,10 @@
                 pTooltip="load unfinished Table"
                 class="headerButton" (click)="loadTmpTable()">
         </button>
+        <button pButton type="button" icon="pi pi-trash" *ngIf="isTmpTableAvailable()"
+                pTooltip="delete unfinished table"
+                class="headerButton" (click)="deleteUnfinishedTable()">
+        </button>
       </div>
 
       <div class="p-toolbar-group-center">

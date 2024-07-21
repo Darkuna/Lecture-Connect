@@ -20,7 +20,7 @@ export class CourseSelectionComponent implements OnDestroy {
   availableCourses!: Course[];
 
   CreateDialogVisible: boolean = false;
-  selectedCourses!: Course[];
+  selectedCourses: Course[] = [];
   draggedCourse: Course | undefined | null;
 
   headers: any[];
@@ -110,13 +110,22 @@ export class CourseSelectionComponent implements OnDestroy {
 
   deleteSingleItem(course: Course) {
     let draggedCourseIndex = this.findIndex(course, this.globalTable.courseTable);
+    let selectIndex = this.findIndex(course, this.selectedCourses);
+
+    this.selectedCourses.filter((val, i) => i != selectIndex);
     this.globalTable.courseTable = this.globalTable.courseTable?.filter((val, i) => i != draggedCourseIndex);
   }
 
+  coursesSelected() : boolean{
+    return this.selectedCourses.length !== 0;
+  }
+
   deleteMultipleItems() {
-    this.selectedCourses.forEach(
-      c => this.deleteSingleItem(c)
-    );
+    if(this.coursesSelected()){
+      this.selectedCourses.forEach(
+        c => this.deleteSingleItem(c)
+      );
+    }
   }
 
   getRoleOptions() {
