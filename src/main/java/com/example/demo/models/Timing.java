@@ -32,10 +32,11 @@ public class Timing implements Persistable<Long>, Serializable{
     //CONSTRUCTOR
     public Timing(){}
 
-    public Timing(LocalTime startTime, LocalTime endTime, Day day) {
+    public Timing(LocalTime startTime, LocalTime endTime, Day day, TimingType timingType) {
         this.startTime = startTime;
         this.endTime = endTime;
         this.day = day;
+        this.timingType = timingType;
     }
 
     @Override
@@ -85,6 +86,6 @@ public class Timing implements Persistable<Long>, Serializable{
     */
 
     public String toString(){
-        return String.format("%s, %s - %s Uhr", day, startTime, endTime);
+        return String.format("%s, %s - %s Uhr", day.toString(), startTime, endTime);
     }
 }

@@ -19,6 +19,7 @@ import java.util.List;
 public class GlobalViewController {
     private final TimeTableService timeTableService;
     private final DTOConverter dtoConverter;
+    private TimeTable timeTable;
 
     @Autowired
     public GlobalViewController(TimeTableService timeTableService, DTOConverter dtoConverter) {
@@ -38,7 +39,8 @@ public class GlobalViewController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TimeTableDTO> getTimeTableById(@PathVariable Long id){
-        TimeTableDTO timeTableDTO = dtoConverter.toTimeTableDTO(timeTableService.loadTimeTable(id));
+        timeTable = timeTableService.loadTimeTable(id);
+        TimeTableDTO timeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok(timeTableDTO);
     }
 
@@ -57,17 +59,8 @@ public class GlobalViewController {
 
     @PostMapping("/assignment/{id}")
     public ResponseEntity<TimeTableDTO> calculateAndUpdateTimeTable(@PathVariable Long id) {
-        TimeTable timeTable = timeTableService.loadTimeTable(id);
-        if (timeTable == null) {
-            return ResponseEntity.notFound().build();
-        }
-        System.out.println(timeTable);
         timeTableService.assignCourseSessionsToRooms(timeTable);
-        System.out.println("completed");
         TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
-        System.out.println(updatedTimeTableDTO);
-        ResponseEntity res = ResponseEntity.ok().body(updatedTimeTableDTO);
-        System.out.println(res);
-        return res;
+        return ResponseEntity.ok().body(updatedTimeTableDTO);
     }
 }

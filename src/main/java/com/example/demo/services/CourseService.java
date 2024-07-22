@@ -1,20 +1,19 @@
 package com.example.demo.services;
 
-import com.example.demo.dto.CourseDTO;
 import com.example.demo.models.Course;
-import com.example.demo.models.CourseSession;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.CourseType;
 import com.example.demo.repositories.CourseRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service class for managing courses.
@@ -23,8 +22,11 @@ import java.util.stream.Collectors;
 @Service
 @Scope("session")
 public class CourseService {
+
     private final CourseRepository courseRepository;
     private final TimingService timingService;
+    private static final Logger log = LoggerFactory.getLogger(CourseService.class);
+
     @Autowired
     public CourseService(CourseRepository courseRepository, TimingService timingService){
         this.courseRepository = courseRepository;
@@ -70,7 +72,9 @@ public class CourseService {
         course.setComputersNecessary(computersNecessary);
         course.setTimingConstraints(timingConstraints);
 
-        return courseRepository.save(course);
+        course = courseRepository.save(course);
+        log.info("Created course with id {}", course.getId());
+        return course;
     }
 
     /**
@@ -82,6 +86,7 @@ public class CourseService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourse(Course course){
         courseRepository.delete(course);
+        log.info("Deleted course with id {}", course.getId());
     }
 
     /**
@@ -96,6 +101,7 @@ public class CourseService {
         for(Course course : coursesToDelete){
             deleteCourse(course);
         }
+        log.info("Deleted {} courses", coursesToDelete.size());
     }
 
 
@@ -138,7 +144,9 @@ public class CourseService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course updateCourse(Course course){
-        return courseRepository.save(course);
+        course = courseRepository.save(course);
+        log.info("Updated course with id {}", course.getId());
+        return course;
     }
 
     /**
@@ -152,7 +160,8 @@ public class CourseService {
     public Course loadCourseById(String id){
         Course course = courseRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Course not found for ID: " + id));
-        course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course));
+        course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(id));
+        log.info("Loaded course with id {}", course.getId());
         return course;
     }
 
@@ -165,8 +174,9 @@ public class CourseService {
     public List<Course> loadAllCourses(){
         List<Course> courses = courseRepository.findAll();
         for(Course course : courses){
-            course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course));
+            course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course.getId()));
         }
+        log.info("Loaded all courses ({})", courses.size());
         return courses;
     }
 }
