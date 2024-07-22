@@ -140,7 +140,9 @@ public class TimingService {
      * @param timingConstraints The list of Timing objects to be deleted.
      */
     public void deleteTimingConstraints(List<Timing> timingConstraints){
-        timingRepository.deleteAll(timingConstraints);
+        if(timingConstraints != null){
+            timingRepository.deleteAll(timingConstraints);
+        }
     }
 
     /**
