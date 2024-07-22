@@ -56,8 +56,8 @@
     <div style="overflow: hidden">
       <p class="float-item">Selected Courses</p>
       <span class="float-item">
-              <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
-                      [disabled]="!coursesSelected()"></button>
+              <button pButton pRipple label="Delete" id="del" class="customButton"
+                      (click)="deleteMultipleItems()" [disabled]="!coursesSelected()"></button>
 
             <input pInputText type="text" (input)="dtR.filterGlobal($any($event.target).value, 'contains')"
                    placeholder="Search..." class="customSearchHeight"/>
