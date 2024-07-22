@@ -5,7 +5,6 @@ import com.example.demo.models.*;
 import com.example.demo.models.enums.CourseType;
 import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.Semester;
-import com.example.demo.models.enums.Status;
 import com.example.demo.services.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +49,7 @@ public class AssignmentAlgorithmTest {
 
         // create roomTables and assign random timing constraints
         for(Room room : rooms){
-            RoomTable roomTable = timeTableService.addRoomTable(timeTable, room);
+            RoomTable roomTable = timeTableService.createRoomTable(timeTable, room);
             
             //Block two random days of the week
             firstRandomValue = random.nextInt(5);
@@ -81,7 +80,7 @@ public class AssignmentAlgorithmTest {
             if(course.getCourseType().equals(CourseType.PS)){
                 course.setNumberOfGroups(random.nextInt(6,9));
             }
-            timeTableService.addCourseSessions(timeTable, course);
+            timeTableService.createCourseSessions(timeTable, course);
         }
 
         // start algorithm
