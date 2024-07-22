@@ -55,13 +55,13 @@ public class TimeTableService {
 
         for(RoomDTO roomDTO : dto.getRooms()){
             room = dtoConverter.toRoom(roomDTO);
-            addRoomTable(timeTable, room);
+            timeTable.addRoomTable(addRoomTable(timeTable, room));
         }
         for(CourseDTO courseDTO : dto.getCourses()){
             course = dtoConverter.toCourse(courseDTO);
-            addCourseSessions(timeTable, course);
+            timeTable.addCourseSessions(addCourseSessions(timeTable, course));
         }
-        return timeTable;
+        return timeTableRepository.save(timeTable);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")

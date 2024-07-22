@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,10 +38,14 @@ public class RoomTableService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public RoomTable createRoomTableFromRoom(TimeTable timeTable, Room room){
         RoomTable roomTable = new RoomTable();
+        List<Timing> timingConstraints = new ArrayList<>();
         roomTable.setRoom(room);
         roomTable.setTimeTable(timeTable);
         roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
-        roomTable.setTimingConstraints(roomTable.getTimingConstraints());
+        for(Timing timing : room.getTimingConstraints()){
+            timingConstraints.add(timingService.createTiming(timing));
+        }
+        roomTable.setTimingConstraints(timingConstraints);
         return roomTableRepository.save(roomTable);
     }
 
