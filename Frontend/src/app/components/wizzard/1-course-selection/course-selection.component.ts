@@ -21,6 +21,7 @@ export class CourseSelectionComponent implements OnDestroy {
 
   CreateDialogVisible: boolean = false;
   selectedCourses: Course[] = [];
+  singleSelectedCourse: Course | null = null;
   draggedCourse: Course | undefined | null;
 
   headers: any[];
@@ -109,11 +110,15 @@ export class CourseSelectionComponent implements OnDestroy {
   }
 
   deleteSingleItem(course: Course) {
-    let draggedCourseIndex = this.findIndex(course, this.globalTable.courseTable);
-    let selectIndex = this.findIndex(course, this.selectedCourses);
 
-    this.selectedCourses.filter((val, i) => i != selectIndex);
-    this.globalTable.courseTable = this.globalTable.courseTable?.filter((val, i) => i != draggedCourseIndex);
+    const index = this.selectedCourses.indexOf(course, 0);
+    console.log(course, index);
+    console.log(this.globalTable);
+    if (index > -1) {
+      this.selectedCourses.splice(index, 1);
+    }
+
+    this.globalTable.courseTable = this.globalTable.courseTable.filter(val => val.id !== course.id);
   }
 
   coursesSelected() : boolean{
@@ -121,6 +126,7 @@ export class CourseSelectionComponent implements OnDestroy {
   }
 
   deleteMultipleItems() {
+
     if(this.coursesSelected()){
       this.selectedCourses.forEach(
         c => this.deleteSingleItem(c)
