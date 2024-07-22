@@ -57,6 +57,8 @@ import {ContextMenuModule} from "primeng/contextmenu";
 import {InplaceModule} from "primeng/inplace";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import { CalendarExtendedComponent } from './components/calendar-extended/calendar-extended.component';
+import {InputGroupModule} from "primeng/inputgroup";
+import {FloatLabelModule} from "primeng/floatlabel";
 
 @NgModule({ declarations: [
         AppComponent,
@@ -76,7 +78,7 @@ import { CalendarExtendedComponent } from './components/calendar-extended/calend
         DetailSelectionComponent,
         RoomSelectionComponent,
         BaseSelectionComponent,
-        CalendarExtendedComponent
+        CalendarExtendedComponent,
     ],
     bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,
@@ -114,6 +116,6 @@ import { CalendarExtendedComponent } from './components/calendar-extended/calend
     IconFieldModule,
     InputIconModule,
     ToggleButtonModule,
-    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule], providers: [ConfirmationService, MessageService, provideHttpClient(withInterceptorsFromDi())] })
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule], providers: [ConfirmationService, MessageService, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
 }

@@ -39,6 +39,7 @@
     "@angular/cli": "^17.3.8",
     "@angular/compiler-cli": "^17.3.11",
     "@types/jasmine": "~5.1.0",
+    "bootstrap": "^5.3.3",
     "jasmine-core": "~5.1.0",
     "jwt-decode": "^4.0.0",
     "karma": "~6.4.0",

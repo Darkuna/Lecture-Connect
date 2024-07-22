@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
-import {CalendarOptions, EventInput} from "@fullcalendar/core";
+import {CalendarOptions, EventClickArg, EventInput, EventMountArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -38,6 +38,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   items: MenuItem[] | undefined;
   showNewTableDialog: boolean = false;
   position: any = 'topleft';
+
+  showHoverDialogBool: boolean = false;
+  hoverEventInfo: EventClickArg |null = null;
 
   constructor(
     private router: Router,
@@ -187,8 +190,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
+    eventMouseEnter: this.showHoverDialog.bind(this),
+    eventMouseLeave: this.hideHoverDialog.bind(this)
     }
   );
+
+  showHoverDialog(event: EventClickArg){
+    this.showHoverDialogBool = true;
+    this.hoverEventInfo = event;
+  }
+
+  hideHoverDialog(){
+    this.showHoverDialogBool = false;
+    this.hoverEventInfo = null;
+  }
 
   ngOnInit() {
     this.responsiveOptions = [
@@ -275,4 +290,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     ];
   }
+
+  protected readonly screenX = screenX;
+  protected readonly screenY = screenY;
 }
