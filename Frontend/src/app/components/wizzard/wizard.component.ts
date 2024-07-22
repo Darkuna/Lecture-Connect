@@ -14,6 +14,7 @@ import {Router} from "@angular/router";
 })
 export class WizardComponent {
   selectedTable!: TmpTimeTable;
+
   active: number = 0;
   dialog: boolean = false;
   currentDialog: InfoDialogInterface;
@@ -85,7 +86,7 @@ export class WizardComponent {
   }
 
   getTextFromEnum(): string {
-    switch (this.selectedTable.tableName.status) {
+    switch (this.selectedTable.status) {
       case Status.NEW:
         return "NEW";
       case Status.EDITED:
@@ -94,13 +95,16 @@ export class WizardComponent {
         return "FINISHED";
       case Status.IN_WORK:
         return "IN WORK";
+      case Status.LOCAL:
+        return "LOCAL SAVE";
       default:
         return "DEFAULT";
     }
   }
 
-  SaveLocal() {
+  saveLocal() {
     this.selectedTable.currentPageIndex = this.active;
+    this.selectedTable.status = Status.LOCAL;
     this.localStorage.store('tmptimetable', this.selectedTable);
     this.messageService.add({
       severity: 'info',
@@ -110,7 +114,7 @@ export class WizardComponent {
   }
 
   closeWizard() {
-    this.SaveLocal();
+    this.saveLocal();
     this.router.navigate(['/home']);
   }
 }

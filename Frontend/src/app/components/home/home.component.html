@@ -29,12 +29,16 @@
                 pTooltip="load unfinished Table"
                 class="headerButton" (click)="loadTmpTable()">
         </button>
+        <button pButton type="button" icon="pi pi-trash" *ngIf="isTmpTableAvailable()"
+                pTooltip="delete unfinished table"
+                class="headerButton" (click)="deleteUnfinishedTable()">
+        </button>
       </div>
 
       <div class="p-toolbar-group-center">
         <p-dropdown id="all" [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
                     placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
-                    [showClear]="true" (onChange)="loadSpecificTable()">
+                    [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="clearCalendar()">
           <ng-template pTemplate="selectedItem">
             <div class="item">
               <div>{{ shownTableDD.semester }} {{ shownTableDD.year }}</div>
@@ -54,6 +58,8 @@
   </div>
 
   <div id="div3">
+    <i *ngIf="loading" class="pi pi-spin pi-cog" style="font-size: 15rem; z-index:8888"></i>
+
     <full-calendar #calendar *ngIf='calendarVisible()' [options]='calendarOptions()'
     [events]="combinedTableEvents | async"/>
   </div>

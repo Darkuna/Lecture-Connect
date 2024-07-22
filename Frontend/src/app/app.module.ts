@@ -52,7 +52,6 @@ import {DetailSelectionComponent} from "./components/wizzard/2-detail-selection/
 import {RoomSelectionComponent} from "./components/wizzard/3-room-selection/room-selection.component";
 import {BaseSelectionComponent} from "./components/wizzard/4-base-selection/base-selection.component";
 import {DragDropModule} from "primeng/dragdrop";
-import { TimingToEventPipe } from './pipes/timing-to-event.pipe';
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ContextMenuModule} from "primeng/contextmenu";
 import {InplaceModule} from "primeng/inplace";
@@ -77,7 +76,6 @@ import { CalendarExtendedComponent } from './components/calendar-extended/calend
         DetailSelectionComponent,
         RoomSelectionComponent,
         BaseSelectionComponent,
-        TimingToEventPipe,
         CalendarExtendedComponent
     ],
     bootstrap: [AppComponent],

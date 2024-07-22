@@ -23,8 +23,8 @@
                   (onClick)="setCurrentColor(CourseColor.COMPUTER_SCIENCE)" />
         <br>
         <p-button label="other studies" icon="pi pi-asterisk"
-                  [style]="getButtonStyle(CourseColor.NONE)"
-                  (onClick)="setCurrentColor(CourseColor.NONE)"/>
+                  [style]="getButtonStyle(CourseColor.BLOCKED)"
+                  (onClick)="setCurrentColor(CourseColor.BLOCKED)"/>
       </div>
 
 
@@ -37,8 +37,8 @@
                   (click)="op.show($event, actualTarget)"/>
         <br>
        <p-button label="finish" icon="pi pi-flag"
-                  [style]="getButtonStyle(CourseColor.DEFAULT)"
-                  (onClick)="printRes()"/>
+                  [style]="getButtonStyle(CourseColor.NONE)"
+                  (onClick)="sendToBackend()"/>
       </div>
     </div>
   </div>

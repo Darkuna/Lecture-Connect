@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
-import {MessageService} from "primeng/api";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TimeTable} from "../../assets/Models/time-table";
+import {TmpTimeTableDTO} from "../../assets/Models/dto/tmp-time-table-dto";
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +20,6 @@ export class GlobalTableService {
   constructor(
     private http: HttpClient,
     private storage: LocalStorageService,
-    private messageService: MessageService,
   ) {
   }
 
@@ -32,5 +31,30 @@ export class GlobalTableService {
   getSpecificTimeTable(id: number) {
     let newUrl = `${this.timeApiPath}/${id}`;
     return this.http.get<TimeTable>(newUrl, this.httpOptions);
+  }
+
+  pushTmpTableObject(table: TmpTimeTableDTO) :[boolean, string]{
+    let newUrl = `${this.timeApiPath}/create`;
+    let status = false;
+    let message = 'fault happened during upload';
+    let returnValue: [boolean, string] = [status, message];
+
+    console.log(table);
+
+    this.http.post<any>(newUrl, table, this.httpOptions).subscribe(
+      response => {
+        status = true;
+        message = 'upload successfully';
+      },
+      (error: HttpErrorResponse) => {
+        message = error.message;
+      }
+    );
+    return returnValue;
+  }
+
+  getScheduledTimeTable(id: number) {
+    let newUrl = `${this.timeApiPath}/assignment/${id}`;
+    return this.http.post<TimeTable>(newUrl, this.httpOptions);
   }
 }

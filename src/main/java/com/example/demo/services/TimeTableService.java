@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
-import com.example.demo.dto.TimeTableDTO;
-import com.example.demo.dto.TimeTableNameDTO;
+import com.example.demo.dto.*;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
@@ -15,7 +14,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Service class for managing timetables.
@@ -33,20 +31,45 @@ public class TimeTableService {
     private CourseSessionService courseSessionService;
     @Autowired
     private TimingService timingService;
+    @Autowired
+    private DTOConverter dtoConverter;
+    @Autowired
+    private Scheduler scheduler;
 
     /**
-     * Creates a new timetable for a specific semester and year, and saves it to the database.
+     * Creates a new timetable from a TimeTableCreationDto object and saves it to the database.
      *
-     * @param semester The semester for which the timetable is being created.
-     * @param year The year for which the timetable is being created.
+     * @param dto The TimeTableCreationDto object to create the timetable from.
      * @return The newly created and persisted TimeTable object.
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public TimeTable createTimeTable(TimeTableCreationDTO dto){
+        Room room;
+        Course course;
+        TimeTable timeTable = new TimeTable();
+        timeTable.setStatus(Status.valueOf(dto.getStatus()));
+        timeTable.setSemester(Semester.valueOf(dto.getSemester()));
+        timeTable.setYear(dto.getYear());
+
+        timeTable = timeTableRepository.save(timeTable);
+
+        for(RoomDTO roomDTO : dto.getRooms()){
+            room = dtoConverter.toRoom(roomDTO);
+            timeTable.addRoomTable(addRoomTable(timeTable, room));
+        }
+        for(CourseDTO courseDTO : dto.getCourses()){
+            course = dtoConverter.toCourse(courseDTO);
+            timeTable.addCourseSessions(addCourseSessions(timeTable, course));
+        }
+        return timeTableRepository.save(timeTable);
+    }
+
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable createTimeTable(Semester semester, int year){
         TimeTable timeTable = new TimeTable();
         timeTable.setSemester(semester);
         timeTable.setYear(year);
-
+        timeTable.setStatus(Status.NEW);
         return timeTableRepository.save(timeTable);
     }
 
@@ -76,7 +99,7 @@ public class TimeTableService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> addCourseSessions(TimeTable timeTable, Course course){
-        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(course);
+        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(timeTable, course);
         timeTable.addCourseSessions(courseSessions);
 
         return courseSessions;
@@ -132,7 +155,7 @@ public class TimeTableService {
         List<CourseSession> courseSessions = courseSessionService.loadAllFromTimeTable(timeTable);
         timeTable.setRoomTables(roomTables);
         timeTable.setCourseSessions(courseSessions);
-        timeTable.setScheduler(new Scheduler(timeTable));
+        scheduler.setTimeTable(timeTable);
         return timeTable;
     }
 
@@ -163,58 +186,6 @@ public class TimeTableService {
     }
 
     /**
-     * Converts a TimeTable object into a TimeTableDTO object
-     *
-     * @param timeTable to be converted
-     * @return TimeTableDTO object
-     */
-    public TimeTableDTO toDTO(TimeTable timeTable){
-        TimeTableDTO dto = new TimeTableDTO();
-        dto.setId(timeTable.getId());
-        dto.setSemester(timeTable.getSemester().toString());
-        dto.setYear(timeTable.getYear());
-        dto.setStatus(timeTable.getStatus().toString());
-        dto.setCreatedAt(timeTable.getCreatedAt());
-        dto.setUpdatedAt(timeTable.getUpdatedAt());
-
-        dto.setRoomTables(timeTable.getRoomTables().stream()
-                .map(roomTableService::toDTO)
-                .collect(Collectors.toList()));
-
-        dto.setCourseSessions(timeTable.getCourseSessions().stream()
-                .map(courseSessionService::toDTO)
-                .collect(Collectors.toList()));
-
-        return dto;
-    }
-
-    /**
-     * Converts a TimeTableDTO object into a TimeTable object
-     *
-     * @param dto to be converted
-     * @return TimeTable object
-     */
-    public TimeTable fromDTO(TimeTableDTO dto) {
-        TimeTable timeTable = new TimeTable();
-        timeTable.setId(dto.getId());
-        timeTable.setSemester(Semester.valueOf(dto.getSemester()));
-        timeTable.setStatus(Status.valueOf(dto.getStatus()));
-        timeTable.setYear(dto.getYear());
-        timeTable.setCreatedAt(dto.getCreatedAt());
-        timeTable.setUpdatedAt(dto.getUpdatedAt());
-
-        timeTable.setRoomTables(dto.getRoomTables().stream()
-                .map(roomTableService::fromDTO)
-                .collect(Collectors.toList()));
-
-        timeTable.setCourseSessions(dto.getCourseSessions().stream()
-                .map(courseSessionService::fromDTO)
-                .collect(Collectors.toList()));
-
-        return timeTable;
-    }
-
-    /**
      * Assigns all course sessions that are not assigned yet to room tables within a timetable.
      * This is the place where the algorithm for scheduling course sessions into room tables will be executed.
      *
@@ -222,13 +193,8 @@ public class TimeTableService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void assignCourseSessionsToRooms(TimeTable timeTable){
-        if(timeTable.getScheduler() == null){
-            timeTable.setScheduler(new Scheduler(timeTable));
-        }
-        timeTable.getScheduler().assignUnassignedCourseSessions();
-        for(CourseSession courseSession : timeTable.getCourseSessions()){
-            courseSession.setTiming(timingService.createTiming(courseSession.getTiming().getStartTime(), courseSession.getTiming().getEndTime(), courseSession.getTiming().getDay()));
-        }
+        scheduler.setTimeTable(timeTable);
+        scheduler.assignUnassignedCourseSessions();
         timeTable.setCourseSessions(courseSessionService.saveAll(timeTable.getCourseSessions()));
         timeTableRepository.save(timeTable);
     }

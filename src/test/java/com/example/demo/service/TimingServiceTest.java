@@ -105,4 +105,10 @@ public class TimingServiceTest {
     public void testLoadTimingWithWrongID(){
         assertThrows(EntityNotFoundException.class, () -> timingService.loadTimingByID(-1000));
     }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadTimingConstraintsOfCourseByCourseId(){
+        System.out.println(timingService.loadTimingConstraintsOfCourse("703010"));
+    }
 }

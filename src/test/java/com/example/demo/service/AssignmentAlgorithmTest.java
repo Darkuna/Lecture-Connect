@@ -5,6 +5,7 @@ import com.example.demo.models.*;
 import com.example.demo.models.enums.CourseType;
 import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.Semester;
+import com.example.demo.models.enums.Status;
 import com.example.demo.services.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,6 @@ public class AssignmentAlgorithmTest {
     private RoomService roomService;
     @Autowired
     private RoomTableService roomTableService;
-    @Autowired
-    private TimingService timingService;
     @Autowired
     private CourseService courseService;
 

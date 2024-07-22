@@ -1,6 +1,7 @@
 package com.example.demo.models;
 
 import com.example.demo.models.enums.Day;
+import com.example.demo.models.enums.TimingType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,7 @@ public class Timing implements Persistable<Long>, Serializable{
     private Long id;
     private LocalTime startTime;
     private LocalTime endTime;
+    private TimingType timingType;
     @Column(name = "day_of_the_week")
     private Day day;
     @ManyToOne

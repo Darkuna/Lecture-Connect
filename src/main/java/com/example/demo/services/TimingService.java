@@ -42,11 +42,11 @@ public class TimingService {
      * @throws IllegalArgumentException if the end time is after global end time.
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Timing createTiming(LocalTime startTime, LocalTime endTime, Day day){
-        if(startTime.isAfter(endTime)){
+    public Timing createTiming(LocalTime startTime, LocalTime endTime, Day day) {
+        if (startTime.isAfter(endTime)) {
             throw new IllegalArgumentException("startTime must be before endTime");
         }
-        if(startTime.isBefore(TimingConstants.START_TIME) || endTime.isAfter(TimingConstants.END_TIME)){
+        if (startTime.isBefore(TimingConstants.START_TIME) || endTime.isAfter(TimingConstants.END_TIME)) {
             throw new IllegalArgumentException(String.format("startTime cannot be before %s, endTime cannot be after %s",
                     TimingConstants.START_TIME, TimingConstants.END_TIME));
         }
@@ -55,6 +55,16 @@ public class TimingService {
         timing.setEndTime(endTime);
         timing.setDay(day);
         return timingRepository.save(timing);
+    }
+        public Timing createTiming(Timing timing){
+            if(timing.getStartTime().isAfter(timing.getEndTime())){
+                throw new IllegalArgumentException("startTime must be before endTime");
+            }
+            if(timing.getStartTime().isBefore(TimingConstants.START_TIME) || timing.getEndTime().isAfter(TimingConstants.END_TIME)){
+                throw new IllegalArgumentException(String.format("startTime cannot be before %s, endTime cannot be after %s",
+                        TimingConstants.START_TIME, TimingConstants.END_TIME));
+            }
+            return timingRepository.save(timing);
     }
 
     /**
@@ -107,6 +117,11 @@ public class TimingService {
         return timingRepository.findAllByCourse(course);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Timing> loadTimingConstraintsOfCourse(String courseId){
+        return timingRepository.findAllByCourseId(courseId);
+    }
+
     /**
      * Loads a specific timing by its ID.
      *
@@ -137,36 +152,4 @@ public class TimingService {
         timingRepository.delete(timing);
     }
 
-
-    /**
-     * Converts a Timing object into a TimingDTO object
-     *
-     * @param timing to be converted
-     * @return TimingDTO object
-     */
-    public TimingDTO toDTO(Timing timing){
-        TimingDTO timingDTO = new TimingDTO();
-        timingDTO.setId(timing.getId());
-        timingDTO.setStartTime(timing.getStartTime());
-        timingDTO.setEndTime(timing.getEndTime());
-        timingDTO.setDay(timing.getDay().toString());
-        return timingDTO;
-    }
-
-    /**
-     * Converts a TimingDTO object into a Timing object
-     *
-     * @param dto to be converted
-     * @return Timing object
-     */
-    public Timing fromDTO(TimingDTO dto) {
-        Timing timing = new Timing();
-        timing.setId(dto.getId());
-        timing.setStartTime(dto.getStartTime());
-        timing.setEndTime(dto.getEndTime());
-        if (dto.getDay() != null) {
-            timing.setDay(Day.valueOf(dto.getDay()));
-        }
-        return timing;
-    }
 }

@@ -122,27 +122,4 @@ public class RoomService {
             deleteRoom(room);
         }
     }
-
-    public RoomDTO toDTO(Room room){
-        RoomDTO dto = new RoomDTO();
-        dto.setId(room.getId());
-        dto.setCapacity(room.getCapacity());
-        dto.setComputersAvailable(room.isComputersAvailable());
-        dto.setCreatedAt(room.getCreatedAt());
-        dto.setUpdatedAt(room.getUpdatedAt());
-        return dto;
-    }
-
-    public Room fromDTO(RoomDTO dto){
-        Room room = new Room();
-        room.setId(dto.getId());
-        room.setCapacity(dto.getCapacity());
-        room.setComputersAvailable(dto.isComputersAvailable());
-        return room;
-    }
-
-    public void copyDtoToEntity(RoomDTO dto, Room entity) {
-        entity.setCapacity(dto.getCapacity());
-        entity.setComputersAvailable(dto.isComputersAvailable());
-    }
 }

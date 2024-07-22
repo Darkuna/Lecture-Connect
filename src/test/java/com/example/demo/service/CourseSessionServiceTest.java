@@ -47,7 +47,7 @@ public class CourseSessionServiceTest {
         normalCourse.setSplit(false);
         normalCourse.setSplitTimes(null);
 
-        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(normalCourse);
+        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(null,normalCourse);
 
         assertEquals(1, courseSessions.size());
 
@@ -67,7 +67,7 @@ public class CourseSessionServiceTest {
         splitCourse.setSplit(true);
         splitCourse.setSplitTimes(List.of(120,60));
 
-        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(splitCourse);
+        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(null, splitCourse);
 
         assertEquals(2, courseSessions.size());
 
@@ -92,7 +92,7 @@ public class CourseSessionServiceTest {
         groupCourse.setSplit(false);
         groupCourse.setSplitTimes(null);
 
-        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(groupCourse);
+        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(null, groupCourse);
 
         assertEquals(6, courseSessions.size());
 
