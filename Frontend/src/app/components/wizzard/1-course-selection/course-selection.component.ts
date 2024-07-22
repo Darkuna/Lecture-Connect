@@ -109,11 +109,13 @@ export class CourseSelectionComponent implements OnDestroy {
   }
 
   deleteSingleItem(course: Course) {
-    let draggedCourseIndex = this.findIndex(course, this.globalTable.courseTable);
-    let selectIndex = this.findIndex(course, this.selectedCourses);
 
-    this.selectedCourses.filter((val, i) => i != selectIndex);
-    this.globalTable.courseTable = this.globalTable.courseTable?.filter((val, i) => i != draggedCourseIndex);
+    const index = this.selectedCourses.indexOf(course, 0);
+    if (index > -1) {
+      this.selectedCourses.splice(index, 1);
+    }
+
+    this.globalTable.courseTable = this.globalTable.courseTable.filter(val => val.id !== course.id);
   }
 
   coursesSelected() : boolean{

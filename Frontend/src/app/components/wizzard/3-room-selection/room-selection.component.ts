@@ -5,6 +5,7 @@ import {MessageService} from "primeng/api";
 import {Status} from "../../../../assets/Models/enums/status";
 import {RoomService} from "../../../services/room-service";
 import {Room} from "../../../../assets/Models/room";
+import {Course} from "../../../../assets/Models/course";
 
 @Component({
   selector: 'app-room-selection',
@@ -18,7 +19,7 @@ export class RoomSelectionComponent implements OnDestroy {
   availableRooms!: Room[];
 
   CreateDialogVisible: boolean = false;
-  selectedRooms!: Room[];
+  selectedRooms: Room[] = [];
   draggedRoom: Room | undefined | null;
 
   headers: any[];
@@ -89,11 +90,6 @@ export class RoomSelectionComponent implements OnDestroy {
     }
   }
 
-  dragEnd() {
-    this.draggedRoom = null;
-    this.globalTable.status = Status.EDITED;
-  }
-
   findIndex(product: Room, list: Room[]): number {
     let index = -1;
     for (let i = 0; i < (list).length; i++) {
@@ -105,14 +101,30 @@ export class RoomSelectionComponent implements OnDestroy {
     return index;
   }
 
-  deleteSingleItem(course: Room) {
-    let draggedRoomIndex = this.findIndex(course, this.globalTable.roomTables);
-    this.globalTable.roomTables = this.globalTable.roomTables?.filter((val, i) => i != draggedRoomIndex);
+  dragEnd() {
+    this.draggedRoom = null;
+    this.globalTable.status = Status.EDITED;
+  }
+
+  deleteSingleItem(room: Room) {
+
+    const index = this.selectedRooms.indexOf(room, 0);
+    if (index > -1) {
+      this.selectedRooms.splice(index, 1);
+    }
+
+    this.globalTable.roomTables = this.globalTable.roomTables.filter(val => val.id !== room.id);
+  }
+
+  roomsSelected() : boolean{
+    return this.selectedRooms.length !== 0;
   }
 
   deleteMultipleItems() {
-    this.selectedRooms.forEach(
-      c => this.deleteSingleItem(c)
-    );
+    if(this.roomsSelected()){
+      this.selectedRooms.forEach(
+        c => this.deleteSingleItem(c)
+      );
+    }
   }
 }

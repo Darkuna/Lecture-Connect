@@ -56,8 +56,8 @@
     <div style="overflow: hidden">
       <p class="float-item">Selected Rooms</p>
       <span class="float-item">
-              <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
-                      [disabled]="!selectedRooms || !selectedRooms"></button>
+              <button pButton pRipple label="Delete" id="del" class="customButton"
+                      (click)="deleteMultipleItems()" [disabled]="!roomsSelected()"></button>
 
             <input pInputText type="text" (input)="dtR.filterGlobal($any($event.target).value, 'contains')"
                    placeholder="Search..." class="customSearchHeight"/>
@@ -94,20 +94,20 @@
           </th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-c>
+      <ng-template pTemplate="body" let-r>
         <tr>
           <td>
-            <p-tableCheckbox [value]="c"></p-tableCheckbox>
+            <p-tableCheckbox [value]="r"></p-tableCheckbox>
           </td>
           <td *ngFor="let col of headers">
             <ng-container>
-              {{ c[col.field] }}
+              {{ r[col.field] }}
             </ng-container>
           </td>
           <td>
             <p-button pButton pRipple icon="pi pi-trash" severity="danger"
                       [rounded]="true" [outlined]="true"
-                      (click)="deleteSingleItem(c)"/>
+                      (click)="deleteSingleItem(r)"/>
           </td>
         </tr>
       </ng-template>
