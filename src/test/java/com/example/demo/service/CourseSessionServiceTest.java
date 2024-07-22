@@ -6,6 +6,7 @@ import com.example.demo.models.CourseSession;
 import com.example.demo.models.RoomTable;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.Day;
+import com.example.demo.models.enums.TimingType;
 import com.example.demo.services.CourseService;
 import com.example.demo.services.CourseSessionService;
 import com.example.demo.services.RoomTableService;
@@ -109,7 +110,7 @@ public class CourseSessionServiceTest {
         CourseSession courseSession = courseSessionService.loadCourseSessionByID(-2);
         RoomTable roomTable = roomTableService.loadRoomTableByID(-2);
         Timing timing = timingService.createTiming(LocalTime.of(8,0), LocalTime.of(10,0),
-                Day.TUESDAY);
+                Day.TUESDAY, TimingType.ASSIGNED);
         courseSessionService.assignCourseSessionToRoomTable(courseSession, roomTable, timing);
 
         assertEquals(Day.TUESDAY, courseSession.getTiming().getDay());

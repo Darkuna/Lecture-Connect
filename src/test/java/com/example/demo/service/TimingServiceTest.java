@@ -4,6 +4,7 @@ import com.example.demo.models.Course;
 import com.example.demo.models.RoomTable;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.Day;
+import com.example.demo.models.enums.TimingType;
 import com.example.demo.services.CourseService;
 import com.example.demo.services.RoomTableService;
 import com.example.demo.services.TimingService;
@@ -38,7 +39,7 @@ public class TimingServiceTest {
         Day day = Day.MONDAY;
         LocalTime start = LocalTime.of(12,0);
         LocalTime end = LocalTime.of(14,0);
-        Timing timing = timingService.createTiming(start, end, day);
+        Timing timing = timingService.createTiming(start, end, day, TimingType.ASSIGNED);
 
         assertEquals(day, timing.getDay());
         assertEquals(start, timing.getStartTime());
@@ -52,7 +53,8 @@ public class TimingServiceTest {
         LocalTime start = LocalTime.of(14,0);
         LocalTime end = LocalTime.of(12,0);
 
-        assertThrows(IllegalArgumentException.class, () -> timingService.createTiming(start, end, day));
+        assertThrows(IllegalArgumentException.class, () -> timingService.createTiming(start, end, day,
+                TimingType.ASSIGNED));
     }
 
     @Test
@@ -62,7 +64,7 @@ public class TimingServiceTest {
         Day day = Day.FRIDAY;
         LocalTime start = LocalTime.of(8,0);
         LocalTime end = LocalTime.of(10,0);
-        timing = timingService.updateTiming(timing, start, end, day);
+        timing = timingService.updateTiming(timing, start, end, day, TimingType.ASSIGNED);
 
         assertEquals(day, timing.getDay());
         assertEquals(start, timing.getStartTime());
@@ -77,7 +79,8 @@ public class TimingServiceTest {
         LocalTime start = LocalTime.of(10,0);
         LocalTime end = LocalTime.of(8,0);
 
-        assertThrows(IllegalArgumentException.class, () -> timingService.updateTiming(timing, start, end, day));
+        assertThrows(IllegalArgumentException.class, () -> timingService.updateTiming(timing, start, end, day,
+                TimingType.ASSIGNED));
     }
 
     @Test
