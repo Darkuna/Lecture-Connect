@@ -99,7 +99,7 @@ public class TimeTableService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> addCourseSessions(TimeTable timeTable, Course course){
-        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(course);
+        List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(timeTable, course);
         timeTable.addCourseSessions(courseSessions);
 
         return courseSessions;

@@ -33,7 +33,7 @@ public class CourseSessionService {
      * @return A list of created course sessions.
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<CourseSession> createCourseSessionsFromCourse(Course course){
+    public List<CourseSession> createCourseSessionsFromCourse(TimeTable timeTable, Course course){
         List<CourseSession> courseSessions = new ArrayList<>();
         boolean isSplitCourse = course.isSplit();
         boolean hasGroups = course.getNumberOfGroups() > 1;
@@ -49,6 +49,7 @@ public class CourseSessionService {
             courseSession.setComputersNecessary(course.isComputersNecessary());
             courseSession.setTimingConstraints(course.getTimingConstraints());
             courseSession.setCourseId(course.getId());
+            courseSession.setTimeTable(timeTable);
 
             if(isSplitCourse){
                 courseSession.setDuration(course.getSplitTimes().get(i));
