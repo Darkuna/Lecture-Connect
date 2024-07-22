@@ -58,7 +58,7 @@ public class TimingService {
         timing.setDay(day);
         timing.setTimingType(timingType);
         timing = timingRepository.save(timing);
-        log.info("Created timing with id {}", timing.getId());
+        log.debug("Created timing with id {}", timing.getId());
         return timing;
     }
 
@@ -79,7 +79,7 @@ public class TimingService {
                     TimingConstants.START_TIME, TimingConstants.END_TIME));
         }
         timing = timingRepository.save(timing);
-        log.info("Created timing with id {}", timing.getId());
+        log.debug("Created timing with id {}", timing.getId());
         return timing;
     }
 
@@ -135,7 +135,7 @@ public class TimingService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Timing> loadTimingConstraintsOfCourse(String courseId){
         List<Timing> timingConstraints = timingRepository.findAllByCourseId(courseId);
-        log.info("Loaded all timingConstraints of course {} ({})", courseId, timingConstraints.size());
+        log.debug("Loaded all timingConstraints of course {} ({})", courseId, timingConstraints.size());
         return timingConstraints;
     }
 
