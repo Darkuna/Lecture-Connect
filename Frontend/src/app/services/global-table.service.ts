@@ -39,8 +39,6 @@ export class GlobalTableService {
     let message = 'fault happened during upload';
     let returnValue: [boolean, string] = [status, message];
 
-    console.log(table);
-
     this.http.post<any>(newUrl, table, this.httpOptions).subscribe(
       response => {
         status = true;

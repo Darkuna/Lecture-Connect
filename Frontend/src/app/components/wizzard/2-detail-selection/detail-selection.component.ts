@@ -70,7 +70,6 @@ export class DetailSelectionComponent {
   }
 
   splitsSumUpToDuration(): boolean {
-    console.log(this.sumOfSplits())
     return this.sumOfSplits() === this.selectedCourse.duration;
   }
 
