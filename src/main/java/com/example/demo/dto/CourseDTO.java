@@ -13,8 +13,8 @@ import java.util.List;
 @Setter
 public class CourseDTO {
     private String id;
+    private String courseType;
     private String name;
-    private CourseType courseType;
     private String lecturer;
     private int semester;
     private int duration;
@@ -25,4 +25,7 @@ public class CourseDTO {
     private LocalDateTime createdAt;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
+    private int numberOfGroups;
+    private boolean isSplit;
+    private List<Integer> splitTimes;
 }

@@ -2,21 +2,33 @@ package com.example.demo.scheduling;
 
 import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
 import com.example.demo.models.*;
+import com.example.demo.services.TimingService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
+@Scope("session")
 public class Scheduler {
-    private final List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
-    private final List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
-    private final List<AvailabilityMatrix> allAvailabilityMatrices;
+    private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
+    private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
+    private List<AvailabilityMatrix> allAvailabilityMatrices;
+    private TimingService timingService;
     private List<CourseSession> courseSessionsWithComputerNeeded;
     private List<CourseSession> courseSessionsWithoutComputerNeeded;
     private final Random random = new Random(System.currentTimeMillis());
 
-    private final Queue<Candidate> candidateQueue;
+    private Queue<Candidate> candidateQueue;
 
-    public Scheduler(TimeTable timeTable){
+    @Autowired
+    public Scheduler(TimingService timingService) {
+        this.timingService = timingService;
+    }
+
+    public void setTimeTable(TimeTable timeTable){
         availabilityMatricesOfRoomsWithComputers = new ArrayList<>();
         availabilityMatricesOfRoomsWithoutComputers = new ArrayList<>();
         allAvailabilityMatrices = new ArrayList<>();
@@ -190,7 +202,7 @@ public class Scheduler {
                 Timing timing = candidateToAssign.getAvailabilityMatrix().assignCourseSession(candidateToAssign.getPosition(),
                         candidateToAssign.getDuration(), courseSessionToAssign);
                 courseSessionToAssign.setAssigned(true);
-                courseSessionToAssign.setTiming(timing);
+                courseSessionToAssign.setTiming(timingService.createTiming(timing));
                 courseSessionToAssign.setRoomTable(candidateToAssign.getAvailabilityMatrix().getRoomTable());
             }
             currentCourseSessions.clear();
@@ -231,7 +243,7 @@ public class Scheduler {
             System.out.println("__________");
             Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate.getPosition(), currentCandidate.getDuration(), courseSession);
             courseSession.setAssigned(true);
-            courseSession.setTiming(finalTiming);
+            courseSession.setTiming(timingService.createTiming(finalTiming));
             courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
         }
     }

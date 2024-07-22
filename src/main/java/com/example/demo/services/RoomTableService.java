@@ -1,6 +1,5 @@
 package com.example.demo.services;
 
-import com.example.demo.dto.RoomTableDTO;
 import com.example.demo.models.*;
 import com.example.demo.repositories.RoomTableRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -10,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,10 +38,14 @@ public class RoomTableService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public RoomTable createRoomTableFromRoom(TimeTable timeTable, Room room){
         RoomTable roomTable = new RoomTable();
+        List<Timing> timingConstraints = new ArrayList<>();
         roomTable.setRoom(room);
         roomTable.setTimeTable(timeTable);
         roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
-
+        for(Timing timing : room.getTimingConstraints()){
+            timingConstraints.add(timingService.createTiming(timing));
+        }
+        roomTable.setTimingConstraints(timingConstraints);
         return roomTableRepository.save(roomTable);
     }
 
@@ -120,31 +124,6 @@ public class RoomTableService {
      */
     private AvailabilityMatrix initializeAvailabilityMatrix(RoomTable roomTable){
         return new AvailabilityMatrix(roomTable);
-    }
-
-    /**
-     * Converts a RoomTable object into a RoomTableDTO object
-     *
-     * @param roomTable to be converted
-     * @return RoomTableDTO object
-     */
-    public RoomTableDTO toDTO(RoomTable roomTable) {
-        RoomTableDTO dto = new RoomTableDTO();
-        dto.setId(roomTable.getId());
-        dto.setRoomId(roomTable.getRoom().getId());
-        return dto;
-    }
-
-    /**
-     * Converts a RoomTableDTO object into a RoomTable object
-     *
-     * @param dto to be converted
-     * @return RoomTable object
-     */
-    public RoomTable fromDTO(RoomTableDTO dto) {
-        RoomTable roomTable = new RoomTable();
-        roomTable.setId(dto.getId());
-        return roomTable;
     }
 
     public void addTimingConstraints(RoomTable roomTable, List<Timing> timingConstraints){

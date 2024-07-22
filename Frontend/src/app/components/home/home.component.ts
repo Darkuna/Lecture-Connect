@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
-import {MenuItem} from "primeng/api";
+import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD!: TimeTableNames;
+  loading: boolean = false;
 
   tmpTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTable>;
@@ -43,6 +44,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private globalTableService: GlobalTableService,
     private localStorage: LocalStorageService,
     private converter: EventConverterService,
+    private messageService: MessageService,
+  private confirmationService: ConfirmationService
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe(
       data => this.availableTables = [...data]
@@ -63,8 +66,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.showNewTableDialog = false;
   }
 
-  loadSpecificTable() {
-    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
+  clearCalendar(){
+    this.calendarComponent.getApi().removeAllEvents();
+  }
+
+  updateCalendarEvents(){
+    this.clearCalendar();
 
     this.selectedTimeTable.subscribe((timeTable: TimeTable) => {
       let sessions = timeTable.courseSessions;
@@ -79,30 +86,73 @@ export class HomeComponent implements OnInit, OnDestroy {
       ).subscribe(events => {
         this.combinedTableEventsSubject.next(events);
       });
+
+      console.log(timeTable)
     });
-    this.calendarComponent.getApi().refetchEvents();
-    this.calendarComponent.getApi().render();
   }
 
-  isTmpTableAvailable() {
-    return this.localStorage.retrieve('tmptimetable') !== null;
+  loadSpecificTable() {
+    if(!this.shownTableDD.id){
+      return;
+    }
+
+    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
+    this.updateCalendarEvents();
+  }
+
+  isTmpTableAvailable(): TmpTimeTable {
+    return this.localStorage.retrieve('tmptimetable');
   }
 
   loadTmpTable() {
-    if (this.isTmpTableAvailable()) {
-      this.shareService.selectedTable = this.localStorage.retrieve("tmptimetable");
+    let tmpTable = this.isTmpTableAvailable();
+    if (tmpTable !== null) {
+      this.shareService.selectedTable = tmpTable;
       this.router.navigate(['/wizard']);
+    }
+  }
+
+  deleteUnfinishedTable(){
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete all the selected Rooms?', header: 'Confirm', icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.localStorage.clear('tmptimetable');
+        this.messageService.add({severity: 'error', summary: 'Deleted Item', detail: 'temporary table got deleted'});
+      },
+      reject: () => {
+        this.messageService.add({severity: 'info', summary: 'Table saved', detail: 'your table was not deleted'});
+      }
+    });
+
+
+  }
+
+  applyAlgorithm(){
+    this.loading = true;
+    if(this.selectedTimeTable){
+      this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
+
+      this.updateCalendarEvents();
+      this.loading = false;
+
+      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
+    }
+    else {
+      this.messageService.add({severity: 'info', summary: 'No Data', detail: 'there is currently no table selected!'});
     }
   }
 
   createNewTable() {
     this.tmpTable = new TmpTimeTable();
-    this.tmpTable.tableName = this.shownTableDD;
+    this.tmpTable.id = this.shownTableDD.id;
+    this.tmpTable.semester = this.shownTableDD.semester;
+    this.tmpTable.year = this.shownTableDD.year;
+    this.tmpTable.status = this.shownTableDD.status;
     this.tmpTable.courseTable = [];
     this.tmpTable.roomTables = [];
 
     //TODO backend call to get id
-    this.tmpTable.tableName.id = 123;
+    this.tmpTable.id = 123;
     this.hideTableDialog();
 
     this.shareService.selectedTable = this.tmpTable;
@@ -180,7 +230,8 @@ export class HomeComponent implements OnInit, OnDestroy {
           },
           {
             label: 'Auto Fill',
-            icon: 'pi pi-microchip'
+            icon: 'pi pi-microchip',
+            command: () => this.applyAlgorithm()
           },
           {
             label: 'Collision Check',

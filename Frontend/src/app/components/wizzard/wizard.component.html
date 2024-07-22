@@ -1,12 +1,12 @@
 <div id="infoGrid">
-  <p-tag id="status" [value]="getTextFromEnum()" [severity]="selectedTable.tableName.status"/>
-  <p id="info">{{ selectedTable.tableName.semester }} {{ selectedTable.tableName.year }}</p>
+  <p-tag id="status" [severity]="selectedTable.status" [value]="getTextFromEnum()"/>
+  <p id="info">{{ selectedTable.semester }} {{ selectedTable.year }}</p>
 </div>
 
 <div id="buttonGrid">
   <p-button icon="pi pi-info-circle" severity="info" id="div1" (onClick)="showDialog()"/>
   <p-button icon="pi pi-save" label="Save" severity="success"
-            (onClick)="SaveLocal()" id="div2" [style]="{width: '6rem'}"/>
+            (onClick)="saveLocal()" id="div2" [style]="{width: '6rem'}"/>
   <p-button icon="pi pi-arrow-down" label="Close" severity="danger"
             (onClick)="closeWizard()" id="div3" [style]="{width: '6rem'}"/>
 </div>
@@ -28,7 +28,7 @@
 
       <div class="flex pt-4 justify-content-between">
         <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>
-        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right" class="NextButton"/>
+        <p-button (onClick)="nextCallback.emit()" (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
 
       </div>
     </ng-template>
@@ -49,8 +49,8 @@
       <app-detail-selection [globalTable]="selectedTable"></app-detail-selection>
 
       <div class="flex pt-4 justify-content-between">
-        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
-        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right" class="NextButton"/>
+        <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
       </div>
     </ng-template>
   </p-stepperPanel>
@@ -70,8 +70,8 @@
       <app-room-selection [globalTable]="selectedTable"></app-room-selection>
 
       <div class="flex pt-4 justify-content-between">
-        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
-        <p-button (onClick)="nextCallback.emit()" icon="pi pi-arrow-right" class="NextButton"/>
+        <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
       </div>
     </ng-template>
   </p-stepperPanel>
@@ -90,7 +90,7 @@
     <ng-template pTemplate="content" let-prevCallback="prevCallback">
       <app-base-selection [globalTable]="selectedTable"></app-base-selection>
       <div class="flex pt-4 justify-content-between">
-        <p-button (onClick)="prevCallback.emit()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
         <p-button [disabled]="true" icon="pi pi-arrow-right" class="NextButton"/>
       </div>
     </ng-template>

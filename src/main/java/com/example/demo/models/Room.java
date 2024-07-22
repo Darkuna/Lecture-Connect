@@ -23,7 +23,6 @@ public class Room extends TimestampedEntity implements Persistable<String>, Seri
     @OneToMany(mappedBy="room", fetch = FetchType.LAZY)
     private List<RoomTable> roomTables;
 
-    // CONSTRUCTOR
     public Room() {
     }
 
@@ -38,7 +37,6 @@ public class Room extends TimestampedEntity implements Persistable<String>, Seri
         return id;
     }
 
-    //OTHER METHODS
     public boolean isNew() {
         return id == null;
     }

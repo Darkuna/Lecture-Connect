@@ -1,6 +1,5 @@
 package com.example.demo.services;
 
-import com.example.demo.dto.CourseSessionDTO;
 import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.example.demo.models.*;
 import com.example.demo.repositories.CourseSessionRepository;
@@ -34,7 +33,7 @@ public class CourseSessionService {
      * @return A list of created course sessions.
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<CourseSession> createCourseSessionsFromCourse(Course course){
+    public List<CourseSession> createCourseSessionsFromCourse(TimeTable timeTable, Course course){
         List<CourseSession> courseSessions = new ArrayList<>();
         boolean isSplitCourse = course.isSplit();
         boolean hasGroups = course.getNumberOfGroups() > 1;
@@ -50,6 +49,7 @@ public class CourseSessionService {
             courseSession.setComputersNecessary(course.isComputersNecessary());
             courseSession.setTimingConstraints(course.getTimingConstraints());
             courseSession.setCourseId(course.getId());
+            courseSession.setTimeTable(timeTable);
 
             if(isSplitCourse){
                 courseSession.setDuration(course.getSplitTimes().get(i));
@@ -164,7 +164,11 @@ public class CourseSessionService {
      * @return The list of course sessions from a specific timetable.
      */
     public List<CourseSession> loadAllFromTimeTable(TimeTable timeTable){
-        return courseSessionRepository.findAllByTimeTable(timeTable);
+        List<CourseSession> courseSessions = courseSessionRepository.findAllByTimeTable(timeTable);
+        for(CourseSession courseSession : courseSessions){
+            courseSession.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(courseSession.getCourseId()));
+        }
+        return courseSessions;
     }
 
     /**
@@ -177,45 +181,6 @@ public class CourseSessionService {
     public CourseSession loadCourseSessionByID(long id){
         return courseSessionRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("CourseSession not found for ID: " + id));
-    }
-
-    /**
-     * Converts a Course object into a CourseDTO object
-     *
-     * @param courseSession to be converted
-     * @return CourseSessionDTO object
-     */
-    public CourseSessionDTO toDTO(CourseSession courseSession){
-        CourseSessionDTO dto = new CourseSessionDTO();
-        dto.setId(courseSession.getId());
-        dto.setName(courseSession.getName());
-        dto.setAssigned(courseSession.isAssigned());
-        dto.setFixed(courseSession.isFixed());
-        if(courseSession.getRoomTable() != null){
-            dto.setRoomTableId(courseSession.getRoomTable().getId());
-        }
-        dto.setDuration(courseSession.getDuration());
-        if(courseSession.getTiming() != null){
-            dto.setTiming(timingService.toDTO(courseSession.getTiming()));
-        }
-        return dto;
-    }
-
-    /**
-     * Converts a CourseDTO object into a Course object
-     *
-     * @param dto to be converted
-     * @return CourseSession object
-     */
-    public CourseSession fromDTO(CourseSessionDTO dto) {
-        CourseSession courseSession = new CourseSession();
-        courseSession.setId(dto.getId());
-        courseSession.setName(dto.getName());
-        courseSession.setAssigned(dto.isAssigned());
-        courseSession.setFixed(dto.isFixed());
-        courseSession.setDuration(dto.getDuration());
-        courseSession.setTiming(timingService.fromDTO(dto.getTiming()));
-        return courseSession;
     }
 
     public List<CourseSession> saveAll(List<CourseSession> courseSessions) {

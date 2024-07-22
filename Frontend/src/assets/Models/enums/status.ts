@@ -6,3 +6,12 @@ export enum Status {
   DEFAULT = 'danger',
   LOCAL = 'danger'
 }
+
+export function getStatusKey(value: string): string {
+  for (const [key, enumValue] of Object.entries(Status)) {
+    if (enumValue === value) {
+      return key;
+    }
+  }
+  return 'undefined';
+}

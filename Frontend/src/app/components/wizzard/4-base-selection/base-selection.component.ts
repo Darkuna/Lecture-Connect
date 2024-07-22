@@ -1,4 +1,4 @@
-import {Component, Input, signal, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -10,19 +10,26 @@ import {CourseColor} from "../../../../assets/Models/enums/lecture-color";
 import {Room} from "../../../../assets/Models/room";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
+import {GlobalTableService} from "../../../services/global-table.service";
+import {Router} from "@angular/router";
+import {TmpTimeTableDTO} from "../../../../assets/Models/dto/tmp-time-table-dto";
+import {RoomToDtoConverterService} from "../../../services/room-to-dto-converter.service";
+import {CourseToDtoConverterService} from "../../../services/course-to-dto-converter.service";
+import {Observable} from "rxjs";
+import {getStatusKey} from "../../../../assets/Models/enums/status";
 
 @Component({
   selector: 'app-base-selection',
   templateUrl: './base-selection.component.html',
   styleUrl: '../wizard.component.css'
 })
-export class BaseSelectionComponent {
+export class BaseSelectionComponent{
   @Input() globalTable!: TmpTimeTable;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   selectedRoom: Room | null = null;
 
   protected readonly CourseColor = CourseColor;
-  lastUsedColor: CourseColor = CourseColor.DEFAULT;
+  lastUsedColor: CourseColor = CourseColor.COMPUTER_SCIENCE;
 
   activeDialog: boolean = true;
   showTimeDialog: boolean = false;
@@ -37,7 +44,11 @@ export class BaseSelectionComponent {
 
   constructor(
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private globalTableService: GlobalTableService,
+    private router: Router,
+    private roomConverter: RoomToDtoConverterService,
+    private courseConverter: CourseToDtoConverterService
   ) { }
 
   formatTime(date: Date): string {
@@ -126,13 +137,12 @@ export class BaseSelectionComponent {
 
     if(!this.activeDialog){
       this.saveEvent();
-      this.calendarComponent.getApi().unselect();
     }
   }
 
   saveEvent(){
     let newEvent = {
-      title:this.getCourseType(this.lastUsedColor),
+      title: this.getCourseType(this.lastUsedColor),
       color: this.lastUsedColor,
       borderColor: '#D8D8D8',
       start: this.dataSelectStart,
@@ -140,6 +150,7 @@ export class BaseSelectionComponent {
     };
 
     this.calendarComponent.getApi().addEvent(newEvent);
+    this.calendarComponent.getApi().unselect();
     this.hideDialog();
   }
 
@@ -192,8 +203,32 @@ export class BaseSelectionComponent {
     this.updateCalendar('events', this.selectedRoom.tmpEvents);
   }
 
-  printRes() {
-    console.log(this.selectedRoom?.tmpEvents);
+  convertGlobalTableItems(){
+    let dto = new TmpTimeTableDTO();
+
+    dto.rooms = this.roomConverter.convertRoomsToDto(this.globalTable.roomTables);
+    dto.courses = this.courseConverter.convertCourseToDto(this.globalTable.courseTable);
+
+    dto.year = this.globalTable.year;
+    dto.semester = this.globalTable.semester;
+    dto.status = getStatusKey(this.globalTable.status);
+
+    return dto;
+  }
+
+  sendToBackend(){
+    let res = this.convertGlobalTableItems();
+    let response = this.globalTableService.pushTmpTableObject(res);
+
+    console.log(res);
+    console.log(response);
+
+    if(response[0]){ //true bei http 200 response
+      this.messageService.add({severity: 'success', summary: 'Upload Success', detail: 'Element saved to DB'});
+      this.router.navigate(['/home']);
+    }
+    else {
+      this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: response[1]});
+    }
   }
 }
-
