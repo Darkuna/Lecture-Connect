@@ -3,7 +3,8 @@ package com.example.demo.scheduling;
 import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
 import com.example.demo.models.*;
 import com.example.demo.services.TimingService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +17,14 @@ public class Scheduler {
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
     private List<AvailabilityMatrix> allAvailabilityMatrices;
-    private TimingService timingService;
     private List<CourseSession> courseSessionsWithComputerNeeded;
     private List<CourseSession> courseSessionsWithoutComputerNeeded;
     private final Random random = new Random(System.currentTimeMillis());
-
     private Queue<Candidate> candidateQueue;
+    private final Logger log = LoggerFactory.getLogger(Scheduler.class);
 
-    @Autowired
+    private final TimingService timingService;
+
     public Scheduler(TimingService timingService) {
         this.timingService = timingService;
     }
@@ -122,15 +123,15 @@ public class Scheduler {
 
     private boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
         if(!checkRoomCapacity(courseSession, candidate)){
-            System.out.println("room capacity exceeded");
+            log.debug("room capacity exceeded");
             return false;
         }
         if(!checkTimingConstraintsFulfilled(courseSession, candidate)){
-            System.out.println("timing constraints are intersecting with candidate");
+            log.debug("timing constraints are intersecting with candidate");
             return false;
         }
         if(!checkCoursesOfSameSemester(courseSession, candidate)){
-            System.out.println("other course of same semester intersecting");
+            log.debug("other course of same semester intersecting");
             return false;
         }
         return true;
@@ -218,7 +219,7 @@ public class Scheduler {
 
         // For each courseSession
         for(CourseSession courseSession : courseSessions){
-            System.out.printf("Choosing CourseSession %s for assignment\n", courseSession.getName());
+            log.debug("Choosing CourseSession {} for assignment", courseSession.getName());
             // If queue is empty or all the current courseSession needs candidates of different duration
             if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
                 // Fill the queue with candidates of appropriate duration
@@ -234,13 +235,12 @@ public class Scheduler {
                 }
                 //select possible candidate for placement
                 currentCandidate = candidateQueue.poll();
-                System.out.printf("Selecting candidate %s for assignment\n", currentCandidate);
+                log.debug("Selecting candidate {} for assignment", currentCandidate);
             }
             while(!checkConstraintsFulfilled(courseSession, currentCandidate));
 
             //assign courseSession
-            System.out.printf("Successfully assigned CourseSession %s to %s\n", courseSession.getName(), currentCandidate);
-            System.out.println("__________");
+            log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
             Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate.getPosition(), currentCandidate.getDuration(), courseSession);
             courseSession.setAssigned(true);
             courseSession.setTiming(timingService.createTiming(finalTiming));
