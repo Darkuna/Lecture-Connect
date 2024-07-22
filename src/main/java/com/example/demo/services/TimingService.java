@@ -127,16 +127,9 @@ public class TimingService {
     /**
      * Loads all timing constraints associated with a specific course.
      *
-     * @param course The course for which to load timing constraints.
+     * @param courseId The courseId of the course to load timing constraints of.
      * @return A list of Timing objects associated with the given course.
      */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<Timing> loadTimingConstraintsOfCourse(Course course){
-        List<Timing> timingConstraints = timingRepository.findAllByCourse(course);
-        log.info("Loaded all timingConstraints of course {} ({})", course.getId(), timingConstraints.size());
-        return timingConstraints;
-    }
-
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Timing> loadTimingConstraintsOfCourse(String courseId){
         List<Timing> timingConstraints = timingRepository.findAllByCourseId(courseId);

@@ -160,7 +160,7 @@ public class CourseService {
     public Course loadCourseById(String id){
         Course course = courseRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Course not found for ID: " + id));
-        course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course));
+        course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(id));
         log.info("Loaded course with id {}", course.getId());
         return course;
     }
@@ -174,9 +174,9 @@ public class CourseService {
     public List<Course> loadAllCourses(){
         List<Course> courses = courseRepository.findAll();
         for(Course course : courses){
-            course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course));
+            course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course.getId()));
         }
-        log.info("Loaded {} courses", courses.size());
+        log.info("Loaded all courses ({})", courses.size());
         return courses;
     }
 }

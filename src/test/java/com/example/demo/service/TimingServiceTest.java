@@ -93,9 +93,9 @@ public class TimingServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadTimingConstraintsOfCourse(){
+        String courseId = "703010";
         int numberOfConstraints = 2;
-        Course course = courseService.loadCourseById("703010");
-        List<Timing> timingConstraints = timingService.loadTimingConstraintsOfCourse(course);
+        List<Timing> timingConstraints = timingService.loadTimingConstraintsOfCourse(courseId);
 
         assertEquals(numberOfConstraints, timingConstraints.size());
     }
