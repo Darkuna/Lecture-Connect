@@ -153,7 +153,9 @@ public class DTOConverter {
         room.setComputersAvailable(dto.isComputersAvailable());
         room.setCreatedAt(dto.getCreatedAt());
         room.setUpdatedAt(dto.getUpdatedAt());
-        room.setTimingConstraints(dto.getTimingConstraints());
+        room.setTimingConstraints(dto.getTimingConstraints().stream()
+                .map(this::toTiming)
+                .collect(Collectors.toList()));
         return room;
     }
 

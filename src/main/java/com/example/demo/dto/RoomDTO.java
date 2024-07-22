@@ -19,5 +19,5 @@ public class RoomDTO {
     private LocalDateTime createdAt;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
-    private List<Timing> timingConstraints = new ArrayList<>();
+    private List<TimingDTO> timingConstraints = new ArrayList<>();
 }
