@@ -1,16 +1,15 @@
 package com.example.demo.services;
 
 import com.example.demo.constants.TimingConstants;
-import com.example.demo.dto.TimingDTO;
 import com.example.demo.models.Course;
-import com.example.demo.models.CourseSession;
 import com.example.demo.models.RoomTable;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.Day;
 import com.example.demo.repositories.TimingRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -26,9 +25,12 @@ import java.util.List;
 @Service
 @Scope("session")
 public class TimingService {
-    @Autowired
-    private TimingRepository timingRepository;
+    private final TimingRepository timingRepository;
+    private static final Logger log = LoggerFactory.getLogger(TimingService.class);
 
+    public TimingService(TimingRepository timingRepository) {
+        this.timingRepository = timingRepository;
+    }
     /**
      * Creates a new timing with specified start time, end time, and day of the week,
      * and saves it to the database.
@@ -54,17 +56,30 @@ public class TimingService {
         timing.setStartTime(startTime);
         timing.setEndTime(endTime);
         timing.setDay(day);
-        return timingRepository.save(timing);
+        timing = timingRepository.save(timing);
+        log.info("Created timing with id {}", timing.getId());
+        return timing;
     }
-        public Timing createTiming(Timing timing){
-            if(timing.getStartTime().isAfter(timing.getEndTime())){
-                throw new IllegalArgumentException("startTime must be before endTime");
-            }
-            if(timing.getStartTime().isBefore(TimingConstants.START_TIME) || timing.getEndTime().isAfter(TimingConstants.END_TIME)){
-                throw new IllegalArgumentException(String.format("startTime cannot be before %s, endTime cannot be after %s",
-                        TimingConstants.START_TIME, TimingConstants.END_TIME));
-            }
-            return timingRepository.save(timing);
+
+    /**
+     * Creates a new Timing object from a transient timing object
+     *
+     * @param timing to be persisted
+     * @return persisted timing object
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Timing createTiming(Timing timing){
+        timing.setId(null);
+        if(timing.getStartTime().isAfter(timing.getEndTime())){
+            throw new IllegalArgumentException("startTime must be before endTime");
+        }
+        if(timing.getStartTime().isBefore(TimingConstants.START_TIME) || timing.getEndTime().isAfter(TimingConstants.END_TIME)){
+            throw new IllegalArgumentException(String.format("startTime cannot be before %s, endTime cannot be after %s",
+                    TimingConstants.START_TIME, TimingConstants.END_TIME));
+        }
+        timing = timingRepository.save(timing);
+        log.info("Created timing with id {}", timing.getId());
+        return timing;
     }
 
     /**
@@ -92,6 +107,7 @@ public class TimingService {
         timing.setStartTime(startTime);
         timing.setEndTime(endTime);
         timing.setDay(day);
+        log.info("Updated timing with id {}", timing.getId());
         return timingRepository.save(timing);
     }
 
@@ -103,7 +119,9 @@ public class TimingService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Timing> loadTimingConstraintsOfRoomTable(RoomTable roomTable){
-        return timingRepository.findAllByRoomTable(roomTable);
+        List<Timing> timingConstraints = timingRepository.findAllByRoomTable(roomTable);
+        log.info("Loaded all timingConstraints of roomTable {} ({})", roomTable.getId(), timingConstraints.size());
+        return timingConstraints;
     }
 
     /**
@@ -114,12 +132,16 @@ public class TimingService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Timing> loadTimingConstraintsOfCourse(Course course){
-        return timingRepository.findAllByCourse(course);
+        List<Timing> timingConstraints = timingRepository.findAllByCourse(course);
+        log.info("Loaded all timingConstraints of course {} ({})", course.getId(), timingConstraints.size());
+        return timingConstraints;
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Timing> loadTimingConstraintsOfCourse(String courseId){
-        return timingRepository.findAllByCourseId(courseId);
+        List<Timing> timingConstraints = timingRepository.findAllByCourseId(courseId);
+        log.info("Loaded all timingConstraints of course {} ({})", courseId, timingConstraints.size());
+        return timingConstraints;
     }
 
     /**
@@ -131,7 +153,9 @@ public class TimingService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Timing loadTimingByID(long id){
-        return timingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Timing not found for ID: " + id));
+        Timing timing = timingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Timing not found for ID: " + id));
+        log.info("Loaded timing with id {}", id);
+        return timing;
     }
 
     /**
@@ -142,6 +166,7 @@ public class TimingService {
     public void deleteTimingConstraints(List<Timing> timingConstraints){
         if(timingConstraints != null){
             timingRepository.deleteAll(timingConstraints);
+            log.info("Deleted {} timingConstraints", timingConstraints.size());
         }
     }
 
@@ -152,6 +177,7 @@ public class TimingService {
      */
     public void deleteTiming(Timing timing){
         timingRepository.delete(timing);
+        log.info("Deleted timing with id {}", timing.getId());
     }
 
 }
