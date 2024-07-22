@@ -220,9 +220,6 @@ export class BaseSelectionComponent{
     let res = this.convertGlobalTableItems();
     let response = this.globalTableService.pushTmpTableObject(res);
 
-    console.log(res);
-    console.log(response);
-
     if(response[0]){ //true bei http 200 response
       this.messageService.add({severity: 'success', summary: 'Upload Success', detail: 'Element saved to DB'});
       this.router.navigate(['/home']);

@@ -16,6 +16,7 @@ import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 import {LocalStorageService} from "ngx-webstorage";
 import {EventConverterService} from "../../services/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
+import {Status} from "../../../assets/Models/enums/status";
 
 @Component({
   selector: 'app-home',
@@ -27,9 +28,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD!: TimeTableNames;
-  loading: boolean = false;
 
-  tmpTable!: TmpTimeTable;
+  creationTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTable>;
   private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
@@ -37,6 +37,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   responsiveOptions: any[] | undefined;
   items: MenuItem[] | undefined;
   showNewTableDialog: boolean = false;
+  position: any = 'topleft';
 
   constructor(
     private router: Router,
@@ -58,7 +59,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   showTableDialog() {
-    this.shownTableDD = new TimeTableNames();
+    this.creationTable = new TmpTimeTable();
     this.showNewTableDialog = true;
   }
 
@@ -86,8 +87,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       ).subscribe(events => {
         this.combinedTableEventsSubject.next(events);
       });
-
-      console.log(timeTable)
     });
   }
 
@@ -128,12 +127,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   applyAlgorithm(){
-    this.loading = true;
     if(this.selectedTimeTable){
       this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
-
       this.updateCalendarEvents();
-      this.loading = false;
 
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
     }
@@ -143,19 +139,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   createNewTable() {
-    this.tmpTable = new TmpTimeTable();
-    this.tmpTable.id = this.shownTableDD.id;
-    this.tmpTable.semester = this.shownTableDD.semester;
-    this.tmpTable.year = this.shownTableDD.year;
-    this.tmpTable.status = this.shownTableDD.status;
-    this.tmpTable.courseTable = [];
-    this.tmpTable.roomTables = [];
+    this.creationTable.id = 999999;
+    this.creationTable.status = Status.NEW;
+    this.creationTable.courseTable = [];
+    this.creationTable.roomTables = [];
 
-    //TODO backend call to get id
-    this.tmpTable.id = 123;
     this.hideTableDialog();
 
-    this.shareService.selectedTable = this.tmpTable;
+    this.shareService.selectedTable = this.creationTable;
     this.router.navigate(['/wizard']);
   }
 
