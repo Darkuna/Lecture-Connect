@@ -5,6 +5,7 @@ import com.example.demo.models.*;
 import com.example.demo.models.enums.CourseType;
 import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.Semester;
+import com.example.demo.models.enums.TimingType;
 import com.example.demo.services.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,12 +54,12 @@ public class AssignmentAlgorithmTest {
             
             //Block two random days of the week
             firstRandomValue = random.nextInt(5);
-            timingConstraints.add(new Timing(TimingConstants.START_TIME, TimingConstants.END_TIME, Day.values()[firstRandomValue]));
+            timingConstraints.add(new Timing(TimingConstants.START_TIME, TimingConstants.END_TIME, Day.values()[firstRandomValue], TimingType.BLOCKED));
             secondRandomValue = firstRandomValue;
             while(secondRandomValue == firstRandomValue){
                 secondRandomValue = random.nextInt(5);
             }
-            timingConstraints.add(new Timing(TimingConstants.START_TIME, TimingConstants.END_TIME, Day.values()[secondRandomValue]));
+            timingConstraints.add(new Timing(TimingConstants.START_TIME, TimingConstants.END_TIME, Day.values()[secondRandomValue], TimingType.BLOCKED));
             //Block another three random 2-hour-slots
             thirdRandomValue = firstRandomValue;
             while(thirdRandomValue == firstRandomValue || thirdRandomValue == secondRandomValue){
@@ -66,7 +67,7 @@ public class AssignmentAlgorithmTest {
             }
             start = random.nextInt() % 2 == 0 ? 8 : 9;
             for(int i = 0; i < 3; i++){
-                timingConstraints.add(new Timing(LocalTime.of(start,0), LocalTime.of(start+2, 0), Day.values()[thirdRandomValue]));
+                timingConstraints.add(new Timing(LocalTime.of(start,0), LocalTime.of(start+2, 0), Day.values()[thirdRandomValue], TimingType.BLOCKED));
                 start += 4;
             }
 
