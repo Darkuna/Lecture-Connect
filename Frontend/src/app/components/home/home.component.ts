@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD!: TimeTableNames;
+  loading: boolean = false;
 
   tmpTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTable>;
@@ -113,9 +114,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   deleteUnfinishedTable(){
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete all the selected Rooms?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
+      message: 'Are you sure you want to delete all the selected Rooms?', header: 'Confirm', icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.localStorage.clear('tmptimetable');
         this.messageService.add({severity: 'error', summary: 'Deleted Item', detail: 'temporary table got deleted'});
@@ -129,10 +128,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   applyAlgorithm(){
+    this.loading = true;
     if(this.selectedTimeTable){
       this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
 
       this.updateCalendarEvents();
+      this.loading = false;
+
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
     }
     else {

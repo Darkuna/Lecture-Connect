@@ -58,6 +58,8 @@
   </div>
 
   <div id="div3">
+    <i *ngIf="loading" class="pi pi-spin pi-cog" style="font-size: 15rem; z-index:8888"></i>
+
     <full-calendar #calendar *ngIf='calendarVisible()' [options]='calendarOptions()'
     [events]="combinedTableEvents | async"/>
   </div>

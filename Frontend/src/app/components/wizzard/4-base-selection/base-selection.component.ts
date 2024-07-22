@@ -1,4 +1,4 @@
-import {Component, Input, signal, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -15,13 +15,15 @@ import {Router} from "@angular/router";
 import {TmpTimeTableDTO} from "../../../../assets/Models/dto/tmp-time-table-dto";
 import {RoomToDtoConverterService} from "../../../services/room-to-dto-converter.service";
 import {CourseToDtoConverterService} from "../../../services/course-to-dto-converter.service";
+import {Observable} from "rxjs";
+import {getStatusKey} from "../../../../assets/Models/enums/status";
 
 @Component({
   selector: 'app-base-selection',
   templateUrl: './base-selection.component.html',
   styleUrl: '../wizard.component.css'
 })
-export class BaseSelectionComponent {
+export class BaseSelectionComponent{
   @Input() globalTable!: TmpTimeTable;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   selectedRoom: Room | null = null;
@@ -206,10 +208,10 @@ export class BaseSelectionComponent {
 
     dto.rooms = this.roomConverter.convertRoomsToDto(this.globalTable.roomTables);
     dto.courses = this.courseConverter.convertCourseToDto(this.globalTable.courseTable);
-    //TODO send status but as as string not as the colors hex code
-    dto.status = "NEW";
+
     dto.year = this.globalTable.year;
     dto.semester = this.globalTable.semester;
+    dto.status = getStatusKey(this.globalTable.status);
 
     return dto;
   }
@@ -230,4 +232,3 @@ export class BaseSelectionComponent {
     }
   }
 }
-

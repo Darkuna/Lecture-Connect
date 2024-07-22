@@ -14,6 +14,7 @@ import {Router} from "@angular/router";
 })
 export class WizardComponent {
   selectedTable!: TmpTimeTable;
+
   active: number = 0;
   dialog: boolean = false;
   currentDialog: InfoDialogInterface;

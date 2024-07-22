@@ -6,6 +6,7 @@ import LocalTime from "ts-time/LocalTime";
 import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../assets/Models/dto/timing-dto";
+import LocalDate from "ts-time/LocalDate";
 
 @Injectable({
   providedIn: 'root'
@@ -31,13 +32,27 @@ export class EventConverterService {
       timing.day = this.weekNumberToDay(event.start?.getDay());
     }
     if (event.start) {
-      timing.startTime = event.start.toLocaleTimeString();
+      timing.startTime = this.convertLocalDateToString(event.start);
     }
     if (event.end) {
-      timing.endTime = event.end.toLocaleTimeString();
+      timing.endTime = this.convertLocalDateToString(event.end);
     }
 
     return timing;
+  }
+
+  private convertLocalDateToString(date: Date):string{
+    let hours: number = date.getHours();
+    let minutes: number = date.getMinutes();
+    let seconds: number = date.getSeconds();
+
+    // Pad single digit minutes and seconds with leading zeroes
+    let formattedHours: string = hours < 10 ? '0' + hours : hours.toString();
+    let formattedMinutes: string = minutes < 10 ? '0' + minutes : minutes.toString();
+    let formattedSeconds: string = seconds < 10 ? '0' + seconds : seconds.toString();
+
+    // Combine into a string of 'hh:mm:ss' format
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
   }
 
 
