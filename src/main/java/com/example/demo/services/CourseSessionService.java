@@ -172,7 +172,7 @@ public class CourseSessionService {
     public List<CourseSession> loadAllAssignedToRoomTable(RoomTable roomTable){
 
         List<CourseSession> courseSessions = courseSessionRepository.findAllByRoomTable(roomTable);
-        log.info("Loaded all courseSessions assigned to roomTable {} ({})", roomTable.getRoom().getId(),
+        log.info("Loaded all courseSessions assigned to roomTable {} ({})", roomTable.getRoomId(),
                 courseSessions.size());
         return courseSessions;
     }

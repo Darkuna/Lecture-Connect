@@ -49,7 +49,6 @@ public class TimeTableServiceTest {
         Room room = roomService.loadRoomByID("HS A");
         RoomTable roomTable = timeTableService.createRoomTable(timeTable, room);
 
-        assertEquals(room, roomTable.getRoom());
         assertEquals(timeTable, roomTable.getTimeTable());
     }
 

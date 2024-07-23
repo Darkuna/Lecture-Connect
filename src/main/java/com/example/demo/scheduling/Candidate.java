@@ -19,6 +19,6 @@ public class Candidate {
     }
 
     public String toString(){
-        return String.format("Candidate %s, Day: %d, Slot: %d", availabilityMatrix.getRoomTable().getRoom().getId(), position.getDay(), position.getSlot());
+        return String.format("Candidate %s, Day: %d, Slot: %d", availabilityMatrix.getRoomTable().getRoomId(), position.getDay(), position.getSlot());
     }
 }
