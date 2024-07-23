@@ -33,22 +33,19 @@ export class GlobalTableService {
     return this.http.get<TimeTable>(newUrl, this.httpOptions);
   }
 
-  pushTmpTableObject(table: TmpTimeTableDTO) :[boolean, string]{
+  pushTmpTableObject(table: TmpTimeTableDTO): Promise<[boolean, string]> {
     let newUrl = `${this.timeApiPath}/create`;
-    let status = false;
-    let message = 'fault happened during upload';
-    let returnValue: [boolean, string] = [status, message];
 
-    this.http.post<any>(newUrl, table, this.httpOptions).subscribe(
-      response => {
-        status = true;
-        message = 'upload successfully';
-      },
-      (error: HttpErrorResponse) => {
-        message = error.message;
-      }
-    );
-    return returnValue;
+    return new Promise((resolve, reject) => {
+      this.http.post<any>(newUrl, table, this.httpOptions).subscribe(
+        response => {
+          resolve([true, 'upload successfully']);
+        },
+        (error: HttpErrorResponse) => {
+          reject([false, error.message]);
+        }
+      );
+    });
   }
 
   getScheduledTimeTable(id: number) {
