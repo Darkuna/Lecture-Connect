@@ -4,7 +4,6 @@ import com.example.demo.constants.TimingConstants;
 import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
 import com.example.demo.models.enums.Day;
 import com.example.demo.scheduling.Candidate;
-import com.example.demo.scheduling.Pair;
 import lombok.Getter;
 
 import java.time.Duration;
@@ -49,7 +48,7 @@ public class AvailabilityMatrix {
         }
     }
 
-    public Pair getEarliestAvailableSlotForDuration(int minutes) {
+    public Candidate getEarliestAvailableSlotForDuration(int minutes) {
         int numberOfSlots = minutes / DURATION_PER_SLOT;
         for (int i = 0; i < SLOTS_PER_DAY; i++) {
             for (int j = 0; j < DAYS_IN_WEEK; j++) {
@@ -59,14 +58,14 @@ public class AvailabilityMatrix {
                             break;
                         }
                     }
-                    return new Pair(j, i);
+                    return new Candidate(this, j, i, minutes);
                 }
             }
         }
         throw new NoEnoughSpaceAvailableException("Not enough space in availability matrix");
     }
 
-    public Pair getRandomAvailableSlot(int minutes) {
+    public Candidate getRandomAvailableSlot(int minutes) {
         Random random = new Random();
         int numberOfSlots = minutes / DURATION_PER_SLOT;
         int dayIndex = 0;
@@ -80,7 +79,7 @@ public class AvailabilityMatrix {
                 randomSlotFound = isSlotsAvailable(dayIndex, slotIndex, numberOfSlots);
             }
         }
-        return new Pair(dayIndex, slotIndex);
+        return new Candidate(this, dayIndex, slotIndex, minutes);
     }
 
     private boolean isSlotsAvailable(int dayIndex, int slotIndex, int numberOfSlots) {
@@ -92,14 +91,14 @@ public class AvailabilityMatrix {
         return true;
     }
 
-    public boolean semesterIntersects(Pair position, int duration, CourseSession courseSession) {
-        for (int i = position.getSlot(); i < position.getSlot() + duration / DURATION_PER_SLOT; i++) {
+    public boolean semesterIntersects(Candidate candidate, CourseSession courseSession) {
+        for (int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
             if (i >= SLOTS_PER_DAY) {
                 return true;
             }
-            if (matrix[position.getDay()][i] != null &&
-                    matrix[position.getDay()][i].getSemester() == courseSession.getSemester() &&
-                    !matrix[position.getDay()][i].isSamePS(courseSession)) {
+            if (matrix[candidate.getDay()][i] != null &&
+                    matrix[candidate.getDay()][i].getSemester() == courseSession.getSemester() &&
+                    !matrix[candidate.getDay()][i].isSamePS(courseSession)) {
                 return true;
             }
         }
@@ -112,22 +111,22 @@ public class AvailabilityMatrix {
         return (time.getHour() * 60 + time.getMinute()) / 15;
     }
 
-    public Timing assignCourseSession(Pair position, int duration, CourseSession courseSession) {
-        for (int i = position.getSlot(); i < position.getSlot() + duration / DURATION_PER_SLOT; i++) {
-            matrix[position.getDay()][i] = courseSession;
+    public Timing assignCourseSession(Candidate candidate, CourseSession courseSession) {
+        for (int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
+            matrix[candidate.getDay()][i] = courseSession;
         }
-        total_available_time -= duration;
-        return toTiming(position, duration);
+        total_available_time -= candidate.getDuration();
+        return toTiming(candidate);
     }
 
-    public static Timing toTiming(Pair position, int duration) {
+    public static Timing toTiming(Candidate candidate) {
         Timing timing = new Timing();
-        int minutes = position.getSlot() * DURATION_PER_SLOT;
+        int minutes = candidate.getSlot() * DURATION_PER_SLOT;
         LocalTime startTime = START_TIME.plusMinutes(minutes);
 
         timing.setStartTime(startTime);
-        timing.setEndTime(startTime.plusMinutes(duration));
-        timing.setDay(Day.values()[position.getDay()]);
+        timing.setEndTime(startTime.plusMinutes(candidate.getDuration()));
+        timing.setDay(Day.values()[candidate.getDay()]);
         return timing;
     }
 
@@ -159,7 +158,7 @@ public class AvailabilityMatrix {
                 }
                 if (!interrupted) {
 
-                    candidates.add(new Candidate(this, new Pair(dayOfAssignment, i), duration));
+                    candidates.add(new Candidate(this, dayOfAssignment, i, duration));
                     i += numberOfSlots - 1;
                 }
             }

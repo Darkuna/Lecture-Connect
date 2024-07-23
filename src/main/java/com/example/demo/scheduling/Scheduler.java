@@ -45,7 +45,7 @@ public class Scheduler {
         }
         this.courseSessionsWithComputerNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithComputersNeeded());
         this.courseSessionsWithoutComputerNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithoutComputersNeeded());
-        this.candidateQueue = new PriorityQueue<>(Comparator.comparingInt(o -> o.getPosition().getSlot()));
+        this.candidateQueue = new PriorityQueue<>(Comparator.comparingInt(Candidate::getSlot));
     }
 
     public void assignUnassignedCourseSessions(){
@@ -143,7 +143,7 @@ public class Scheduler {
     }
 
     private boolean checkTimingConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
-        Timing timing = AvailabilityMatrix.toTiming(candidate.getPosition(), candidate.getDuration());
+        Timing timing = AvailabilityMatrix.toTiming(candidate);
         for(Timing timingConstraint : courseSession.getTimingConstraints()){
             if(timing.intersects(timingConstraint)){
                 return false;
@@ -154,7 +154,7 @@ public class Scheduler {
 
     private boolean checkCoursesOfSameSemester(CourseSession courseSession, Candidate candidate){
         for(AvailabilityMatrix availabilityMatrix : allAvailabilityMatrices){
-            if(availabilityMatrix.semesterIntersects(candidate.getPosition(), candidate.getDuration(), courseSession)){
+            if(availabilityMatrix.semesterIntersects(candidate, courseSession)){
                 return false;
             }
         }
@@ -200,8 +200,7 @@ public class Scheduler {
             for(int i = 0; i < numberOfGroups; i++){
                 candidateToAssign = currentCandidates.get(i);
                 courseSessionToAssign = currentCourseSessions.get(i);
-                Timing timing = candidateToAssign.getAvailabilityMatrix().assignCourseSession(candidateToAssign.getPosition(),
-                        candidateToAssign.getDuration(), courseSessionToAssign);
+                Timing timing = candidateToAssign.getAvailabilityMatrix().assignCourseSession(candidateToAssign, courseSessionToAssign);
                 courseSessionToAssign.setAssigned(true);
                 courseSessionToAssign.setTiming(timingService.createTiming(timing));
                 courseSessionToAssign.setRoomTable(candidateToAssign.getAvailabilityMatrix().getRoomTable());
@@ -241,7 +240,7 @@ public class Scheduler {
 
             //assign courseSession
             log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
-            Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate.getPosition(), currentCandidate.getDuration(), courseSession);
+            Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
             courseSession.setAssigned(true);
             courseSession.setTiming(timingService.createTiming(finalTiming));
             courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
@@ -254,8 +253,8 @@ public class Scheduler {
         // always fill the queue with the first available and one random candidate
         for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
             try{
-                candidateQueue.add(new Candidate(availabilityMatrix, availabilityMatrix.getEarliestAvailableSlotForDuration(duration), duration));
-                candidateQueue.add(new Candidate(availabilityMatrix, availabilityMatrix.getRandomAvailableSlot(duration), duration));
+                candidateQueue.add(availabilityMatrix.getEarliestAvailableSlotForDuration(duration));
+                candidateQueue.add(availabilityMatrix.getRandomAvailableSlot(duration));
             }
             catch(NoEnoughSpaceAvailableException ignored){}
         }
