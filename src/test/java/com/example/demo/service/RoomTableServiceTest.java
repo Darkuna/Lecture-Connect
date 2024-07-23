@@ -45,7 +45,6 @@ public class RoomTableServiceTest {
         Room room = roomService.loadRoomByID("HS A");
         RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
 
-        assertEquals(room, roomTable.getRoom());
         assertEquals(timeTable, roomTable.getTimeTable());
         assertNotNull(roomTable.getAvailabilityMatrix());
     }

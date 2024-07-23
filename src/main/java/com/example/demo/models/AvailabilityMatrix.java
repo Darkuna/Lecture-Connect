@@ -22,16 +22,12 @@ public class AvailabilityMatrix {
     private static final int SLOTS_PER_DAY = (int) Duration.between(START_TIME, END_TIME).toMinutes() / 60 * 4;
 
     private long total_available_time = 5 * Duration.between(START_TIME, END_TIME).toMinutes();
-    private final int capacity;
-    private final boolean computersAvailable;
     private final RoomTable roomTable;
 
     private final CourseSession[][] matrix;
 
     public AvailabilityMatrix(RoomTable roomTable) {
         this.matrix = new CourseSession[DAYS_IN_WEEK][SLOTS_PER_DAY];
-        this.capacity = roomTable.getRoom().getCapacity();
-        this.computersAvailable = roomTable.getRoom().isComputersAvailable();
         this.roomTable = roomTable;
 
         // mark all time slots with timingConstraints as BLOCKED
@@ -144,7 +140,7 @@ public class AvailabilityMatrix {
 
     public List<Candidate> getPossibleCandidatesOfDay(int dayOfAssignment, int duration) {
         List<Candidate> candidates = new ArrayList<>();
-        boolean interrupted = false;
+        boolean interrupted;
         int numberOfSlots = duration / DURATION_PER_SLOT;
 
         for (int i = 0; i <= SLOTS_PER_DAY - numberOfSlots; i++) {
@@ -171,7 +167,7 @@ public class AvailabilityMatrix {
         StringBuilder sb = new StringBuilder();
         int time = START_TIME.getHour();
         String mark;
-        sb.append(this.getRoomTable().getRoom().getId());
+        sb.append(this.getRoomTable().getRoomId());
         sb.append("\n");
         sb.append(String.format("      | %20.20s | %20.20s | %20.20s | %20.20s | %20.20s |\n",
                 "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"));

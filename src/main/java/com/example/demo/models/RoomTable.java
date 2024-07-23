@@ -18,12 +18,13 @@ public class RoomTable implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String roomId;
+    private int capacity;
+    private boolean computersAvailable;
     @OneToMany(mappedBy="roomTable", fetch = FetchType.LAZY)
     private List<CourseSession> assignedCourseSessions;
     @OneToMany(mappedBy="roomTable", fetch = FetchType.LAZY)
     private List<Timing> timingConstraints;
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Room room;
     @ManyToOne
     private TimeTable timeTable;
 

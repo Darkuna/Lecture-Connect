@@ -171,7 +171,14 @@ public class DTOConverter {
         }
         RoomTableDTO dto = new RoomTableDTO();
         dto.setId(roomTable.getId());
-        dto.setRoomId(roomTable.getRoom().getId());
+        dto.setRoomId(roomTable.getRoomId());
+        dto.setCapacity(roomTable.getCapacity());
+        dto.setComputersAvailable(roomTable.isComputersAvailable());
+        if(roomTable.getTimingConstraints() != null){
+            dto.setTimingConstraints(roomTable.getTimingConstraints().stream()
+                    .map(this::toTimingDTO)
+                    .collect(Collectors.toList()));
+        }
         return dto;
     }
 
@@ -188,6 +195,13 @@ public class DTOConverter {
         }
         RoomTable roomTable = new RoomTable();
         roomTable.setId(dto.getId());
+        roomTable.setCapacity(dto.getCapacity());
+        roomTable.setComputersAvailable(dto.isComputersAvailable());
+        if(dto.getTimingConstraints() != null){
+            roomTable.setTimingConstraints(dto.getTimingConstraints().stream()
+                    .map(this::toTiming)
+                    .collect(Collectors.toList()));
+        }
         return roomTable;
     }
 
@@ -266,7 +280,6 @@ public class DTOConverter {
         if(timing.getTimingType() != null){
             timingDTO.setTimingType(timing.getTimingType().toString());
         }
-
         return timingDTO;
     }
 

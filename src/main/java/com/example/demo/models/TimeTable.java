@@ -108,7 +108,7 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
     public List<RoomTable> getRoomTablesWithComputersAvailable(){
         List<RoomTable> roomTablesWithComputersAvailable = new ArrayList<>();
         for(RoomTable roomTable : roomTables){
-            if(roomTable.getRoom().isComputersAvailable()){
+            if(roomTable.isComputersAvailable()){
                 roomTablesWithComputersAvailable.add(roomTable);
             }
         }
@@ -118,7 +118,7 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
     public List<RoomTable> getRoomTablesWithoutComputersAvailable(){
         List<RoomTable> roomTablesWithoutComputersAvailable = new ArrayList<>();
         for(RoomTable roomTable : roomTables){
-            if(!roomTable.getRoom().isComputersAvailable()){
+            if(!roomTable.isComputersAvailable()){
                 roomTablesWithoutComputersAvailable.add(roomTable);
             }
         }

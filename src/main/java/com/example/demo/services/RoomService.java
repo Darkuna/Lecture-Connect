@@ -22,12 +22,10 @@ import java.util.List;
 public class RoomService {
 
     private final RoomRepository roomRepository;
-    private final RoomTableService roomTableService;
     private static final Logger log = LoggerFactory.getLogger(RoomService.class);
 
-    public RoomService(RoomRepository roomRepository, RoomTableService roomTableService) {
+    public RoomService(RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
-        this.roomTableService = roomTableService;
     }
 
     /**

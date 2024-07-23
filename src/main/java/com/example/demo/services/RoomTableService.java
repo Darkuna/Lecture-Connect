@@ -46,7 +46,9 @@ public class RoomTableService {
     public RoomTable createRoomTableFromRoom(TimeTable timeTable, Room room){
         RoomTable roomTable = new RoomTable();
         List<Timing> timingConstraints = new ArrayList<>();
-        roomTable.setRoom(room);
+        roomTable.setRoomId(room.getId());
+        roomTable.setCapacity(room.getCapacity());
+        roomTable.setComputersAvailable(room.isComputersAvailable());
         roomTable.setTimeTable(timeTable);
         roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         for(Timing timing : room.getTimingConstraints()){

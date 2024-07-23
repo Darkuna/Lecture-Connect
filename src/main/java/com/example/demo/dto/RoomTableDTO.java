@@ -10,5 +10,8 @@ import java.util.List;
 public class RoomTableDTO {
     private Long id;
     private String roomId;
+    private int capacity;
+    private boolean isComputersAvailable;
+    private List<TimingDTO> timingConstraints;
 }
 
