@@ -206,6 +206,7 @@ public class Scheduler {
                 courseSessionToAssign.setRoomTable(candidateToAssign.getAvailabilityMatrix().getRoomTable());
             }
             currentCourseSessions.clear();
+            currentCandidates.clear();
         }
     }
 
