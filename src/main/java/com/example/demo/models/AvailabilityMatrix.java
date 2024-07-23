@@ -22,12 +22,16 @@ public class AvailabilityMatrix {
     private static final int SLOTS_PER_DAY = (int) Duration.between(START_TIME, END_TIME).toMinutes() / 60 * 4;
 
     private long total_available_time = 5 * Duration.between(START_TIME, END_TIME).toMinutes();
+    private final int capacity;
+    private final boolean computersAvailable;
     private final RoomTable roomTable;
 
     private final CourseSession[][] matrix;
 
     public AvailabilityMatrix(RoomTable roomTable) {
         this.matrix = new CourseSession[DAYS_IN_WEEK][SLOTS_PER_DAY];
+        this.capacity = roomTable.getCapacity();
+        this.computersAvailable = roomTable.isComputersAvailable();
         this.roomTable = roomTable;
 
         // mark all time slots with timingConstraints as BLOCKED
