@@ -46,6 +46,7 @@ public class AvailabilityMatrix {
                 total_available_time -= timing.getDuration();
             }
         }
+        System.out.println(this);
     }
 
     public Candidate getEarliestAvailableSlotForDuration(int minutes) {
@@ -53,12 +54,9 @@ public class AvailabilityMatrix {
         for (int i = 0; i < SLOTS_PER_DAY; i++) {
             for (int j = 0; j < DAYS_IN_WEEK; j++) {
                 if (matrix[j][i] == null) {
-                    for (int k = 0; k < numberOfSlots; k++) {
-                        if (matrix[j][k] != null) {
-                            break;
-                        }
+                    if(isSlotsAvailable(j,i,numberOfSlots)) {
+                        return new Candidate(this, j, i, minutes);
                     }
-                    return new Candidate(this, j, i, minutes);
                 }
             }
         }
