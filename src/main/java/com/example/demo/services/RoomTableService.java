@@ -4,7 +4,8 @@ import com.example.demo.models.*;
 import com.example.demo.repositories.RoomTableRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,18 @@ import java.util.List;
 @Service
 @Scope("session")
 public class RoomTableService {
-    @Autowired
-    private RoomTableRepository roomTableRepository;
-    @Autowired
-    private CourseSessionService courseSessionService;
-    @Autowired
-    private TimingService timingService;
+
+    private final RoomTableRepository roomTableRepository;
+    private final CourseSessionService courseSessionService;
+    private final TimingService timingService;
+    private static final Logger log = LoggerFactory.getLogger(RoomTableService.class);
+
+    public RoomTableService(RoomTableRepository roomTableRepository, CourseSessionService courseSessionService,
+                            TimingService timingService) {
+        this.roomTableRepository = roomTableRepository;
+        this.courseSessionService = courseSessionService;
+        this.timingService = timingService;
+    }
 
     /**
      * Creates a room table for a specified room and timetable, initializing its availability matrix based
@@ -39,14 +46,18 @@ public class RoomTableService {
     public RoomTable createRoomTableFromRoom(TimeTable timeTable, Room room){
         RoomTable roomTable = new RoomTable();
         List<Timing> timingConstraints = new ArrayList<>();
-        roomTable.setRoom(room);
+        roomTable.setRoomId(room.getId());
+        roomTable.setCapacity(room.getCapacity());
+        roomTable.setComputersAvailable(room.isComputersAvailable());
         roomTable.setTimeTable(timeTable);
         roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         for(Timing timing : room.getTimingConstraints()){
             timingConstraints.add(timingService.createTiming(timing));
         }
         roomTable.setTimingConstraints(timingConstraints);
-        return roomTableRepository.save(roomTable);
+        roomTable = roomTableRepository.save(roomTable);
+        log.info("Created roomTable for room {}", room.getId());
+        return roomTable;
     }
 
     /**
@@ -78,25 +89,8 @@ public class RoomTableService {
         roomTable.setAssignedCourseSessions(courseSessionService.loadAllAssignedToRoomTable(roomTable));
         roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
         roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
+        log.info("Loaded roomTable with id {}", roomTable.getId());
         return roomTable;
-    }
-
-    /**
-     * Loads all room tables associated with a specific room, each supplemented with assigned course sessions
-     * and timing constraints.
-     * The availability matrix is not initialized, since this method is only used for loading all room tables
-     * for cascading deletion when deleting a room object.
-     *
-     * @param room The room for which to load room tables.
-     * @return A list of RoomTable objects associated with the given room.
-     */
-    public List<RoomTable> loadRoomTableByRoom(Room room){
-        List<RoomTable> roomTables = roomTableRepository.findAllByRoom(room);
-        for(RoomTable roomTable : roomTables){
-            roomTable.setAssignedCourseSessions(courseSessionService.loadAllAssignedToRoomTable(roomTable));
-            roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
-        }
-        return roomTables;
     }
 
     /**
@@ -113,6 +107,7 @@ public class RoomTableService {
             roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
             roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         }
+        log.info("Loaded all roomTables of timeTable {} ({})", timeTable.getId(), roomTables.size());
         return roomTables;
     }
 

@@ -4,6 +4,7 @@ import com.example.demo.constants.TimingConstants;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.Semester;
+import com.example.demo.models.enums.TimingType;
 import com.example.demo.services.RoomService;
 import com.example.demo.services.RoomTableService;
 import com.example.demo.services.TimeTableService;
@@ -44,7 +45,6 @@ public class RoomTableServiceTest {
         Room room = roomService.loadRoomByID("HS A");
         RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
 
-        assertEquals(room, roomTable.getRoom());
         assertEquals(timeTable, roomTable.getTimeTable());
         assertNotNull(roomTable.getAvailabilityMatrix());
     }
@@ -111,7 +111,8 @@ public class RoomTableServiceTest {
     public void testAddTimingConstraint(){
         RoomTable roomTable = roomTableService.loadRoomTableByID(-4);
 
-        Timing timingConstraint = timingService.createTiming(LocalTime.of(9,0), LocalTime.of(10,0), Day.MONDAY);
+        Timing timingConstraint = timingService.createTiming(LocalTime.of(9,0),
+                LocalTime.of(10,0), Day.MONDAY, TimingType.BLOCKED);
 
         System.out.println(roomTable.getAvailabilityMatrix());
 

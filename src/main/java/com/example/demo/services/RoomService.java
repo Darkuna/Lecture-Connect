@@ -1,12 +1,11 @@
 package com.example.demo.services;
 
-import com.example.demo.dto.RoomDTO;
 import com.example.demo.models.Room;
-import com.example.demo.models.RoomTable;
 import com.example.demo.repositories.RoomRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -21,10 +20,13 @@ import java.util.List;
 @Service
 @Scope("session")
 public class RoomService {
-    @Autowired
-    private RoomRepository roomRepository;
-    @Autowired
-    private RoomTableService roomTableService;
+
+    private final RoomRepository roomRepository;
+    private static final Logger log = LoggerFactory.getLogger(RoomService.class);
+
+    public RoomService(RoomRepository roomRepository) {
+        this.roomRepository = roomRepository;
+    }
 
     /**
      * Creates a new room and saves it to the database.
@@ -40,7 +42,9 @@ public class RoomService {
         newRoom.setId(id);
         newRoom.setCapacity(capacity);
         newRoom.setComputersAvailable(computersAvailable);
-        return roomRepository.save(newRoom);
+        newRoom = roomRepository.save(newRoom);
+        log.info("Created room with id {}", newRoom.getId());
+        return newRoom;
     }
 
     /**
@@ -51,7 +55,9 @@ public class RoomService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Room createRoom(Room room) {
-        return roomRepository.save(room);
+        room = roomRepository.save(room);
+        log.info("Created room with id {}", room.getId());
+        return room;
     }
 
     /**
@@ -67,6 +73,7 @@ public class RoomService {
     public Room updateRoom(Room room, int capacity, boolean computersAvailable){
         room.setCapacity(capacity);
         room.setComputersAvailable(computersAvailable);
+        log.info("Updated room with id {}", room.getId());
         return roomRepository.save(room);
     }
 
@@ -79,11 +86,8 @@ public class RoomService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteRoom(Room room){
-        List<RoomTable> roomTables = roomTableService.loadRoomTableByRoom(room);
-        for(RoomTable roomTable : roomTables){
-            roomTableService.deleteRoomTable(roomTable);
-        }
         roomRepository.delete(room);
+        log.info("Deleted room with id {}", room.getId());
     }
 
     /**
@@ -93,7 +97,9 @@ public class RoomService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Room> loadAllRooms(){
-        return roomRepository.findAll();
+        List<Room> rooms = roomRepository.findAll();
+        log.info("Loaded all rooms ({})", rooms.size());
+        return rooms;
     }
 
     /**
@@ -105,7 +111,10 @@ public class RoomService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Room loadRoomByID(String id) {
-        return roomRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Room not found for ID: " + id));
+        Room room = roomRepository.findById(id).orElseThrow(
+                () -> new EntityNotFoundException("Room not found for ID: " + id));
+        log.info("Loaded room with id {}", room.getId());
+        return room;
     }
 
     /**
@@ -121,5 +130,6 @@ public class RoomService {
         for(Room room : roomsToBeDeleted){
             deleteRoom(room);
         }
+        log.info("Deleted {} rooms", roomIds.size());
     }
 }

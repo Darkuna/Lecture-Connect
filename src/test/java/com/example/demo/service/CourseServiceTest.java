@@ -4,6 +4,7 @@ import com.example.demo.models.Course;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.CourseType;
 import com.example.demo.models.enums.Day;
+import com.example.demo.models.enums.TimingType;
 import com.example.demo.services.CourseService;
 import com.example.demo.services.TimingService;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,8 @@ public class CourseServiceTest {
         int semester = 1;
         int numberOfParticipants = 35;
         boolean computersNecessary = false;
-        Timing constraint = timingService.createTiming(LocalTime.of(12,0), LocalTime.of(14,30), Day.MONDAY);
+        Timing constraint = timingService.createTiming(LocalTime.of(12,0), LocalTime.of(14,30),
+                Day.MONDAY, TimingType.BLOCKED);
         List<Timing> timingConstraints = List.of(constraint);
 
         Course course = courseService.createCourse(id, name, courseType, lecturer, semester, duration, numberOfParticipants,
