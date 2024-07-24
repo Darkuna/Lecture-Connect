@@ -3,6 +3,7 @@ package com.example.demo.models;
 import com.example.demo.constants.TimingConstants;
 import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
 import com.example.demo.models.enums.Day;
+import com.example.demo.models.enums.TimingType;
 import com.example.demo.scheduling.Candidate;
 import lombok.Getter;
 
@@ -33,15 +34,33 @@ public class AvailabilityMatrix {
         this.computersAvailable = roomTable.isComputersAvailable();
         this.roomTable = roomTable;
 
+        int dayIndex = 0;
+        int startSlot = 0;
+        int endSlot = 0;
         // mark all time slots with timingConstraints as BLOCKED
         if (roomTable.getTimingConstraints() != null) {
             for (Timing timing : roomTable.getTimingConstraints()) {
-                int dayIndex = timing.getDay().ordinal();
-                int startSlot = timeToSlotIndex(timing.getStartTime());
-                int endSlot = timeToSlotIndex(timing.getEndTime());
+                dayIndex = timing.getDay().ordinal();
+                startSlot = timeToSlotIndex(timing.getStartTime());
+                endSlot = timeToSlotIndex(timing.getEndTime());
 
                 for (int slot = startSlot; slot < endSlot; slot++) {
-                    matrix[dayIndex][slot] = CourseSession.BLOCKED;
+                    matrix[dayIndex][slot] = timing.getTimingType().equals(TimingType.BLOCKED)
+                            ? CourseSession.BLOCKED : CourseSession.PREFERRED;
+                }
+                total_available_time -= timing.getDuration();
+            }
+        }
+        if(roomTable.getAssignedCourseSessions() != null) {
+            Timing timing;
+            for (CourseSession courseSession : roomTable.getAssignedCourseSessions()){
+                timing = courseSession.getTiming();
+                dayIndex = timing.getDay().ordinal();
+                startSlot = timeToSlotIndex(timing.getStartTime());
+                endSlot = timeToSlotIndex(timing.getEndTime());
+
+                for (int slot = startSlot; slot < endSlot; slot++) {
+                    matrix[dayIndex][slot] = courseSession;
                 }
                 total_available_time -= timing.getDuration();
             }
@@ -184,6 +203,8 @@ public class AvailabilityMatrix {
                     mark = " ";
                 } else if (matrix[j][i] == CourseSession.BLOCKED) {
                     mark = "BLOCK";
+                } else if (matrix[j][i] == CourseSession.PREFERRED) {
+                    mark = "PREFERRED";
                 } else {
                     mark = matrix[j][i].getName();
                 }

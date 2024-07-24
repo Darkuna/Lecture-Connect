@@ -38,6 +38,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     private RoomTable roomTable;
 
     public static final CourseSession BLOCKED = new CourseSession();
+    public static final CourseSession PREFERRED = new CourseSession();
 
     @Override
     public Long getId() {
