@@ -17,6 +17,7 @@ import {RoomToDtoConverterService} from "../../../services/room-to-dto-converter
 import {CourseToDtoConverterService} from "../../../services/course-to-dto-converter.service";
 import {Observable} from "rxjs";
 import {getStatusKey} from "../../../../assets/Models/enums/status";
+import {LocalStorageService} from "ngx-webstorage";
 
 @Component({
   selector: 'app-base-selection',
@@ -48,7 +49,8 @@ export class BaseSelectionComponent{
     private globalTableService: GlobalTableService,
     private router: Router,
     private roomConverter: RoomToDtoConverterService,
-    private courseConverter: CourseToDtoConverterService
+    private courseConverter: CourseToDtoConverterService,
+    private localStorage: LocalStorageService
   ) { }
 
   formatTime(date: Date): string {
@@ -216,16 +218,19 @@ export class BaseSelectionComponent{
     return dto;
   }
 
-  sendToBackend(){
+  sendToBackend() {
     let res = this.convertGlobalTableItems();
-    let response = this.globalTableService.pushTmpTableObject(res);
-
-    if(response[0]){ //true bei http 200 response
-      this.messageService.add({severity: 'success', summary: 'Upload Success', detail: 'Element saved to DB'});
-      this.router.navigate(['/home']);
-    }
-    else {
-      this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: response[1]});
-    }
+    this.globalTableService.pushTmpTableObject(res)
+      .then(([status, message]) => {
+        if (status) {
+          this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
+          this.router.navigate(['/home']);
+        } else {
+          this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
+        }
+      })
+      .catch(([status, message]) => {
+        this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
+      });
   }
 }

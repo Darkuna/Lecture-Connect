@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
-import {CalendarOptions, EventClickArg, EventInput, EventMountArg} from "@fullcalendar/core";
+import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -28,6 +28,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD!: TimeTableNames;
+  activateLens: boolean = true;
 
   creationTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTable>;
@@ -49,7 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private localStorage: LocalStorageService,
     private converter: EventConverterService,
     private messageService: MessageService,
-  private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe(
       data => this.availableTables = [...data]
@@ -78,8 +79,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.clearCalendar();
 
     this.selectedTimeTable.subscribe((timeTable: TimeTable) => {
-      let sessions = timeTable.courseSessions;
+      console.log(timeTable);
 
+      let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput(),
         toArray(),
@@ -191,7 +193,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     slotEventOverlap: true,
     nowIndicator: false,
     eventMouseEnter: this.showHoverDialog.bind(this),
-    eventMouseLeave: this.hideHoverDialog.bind(this)
+    eventMouseLeave: this.hideHoverDialog.bind(this),
     }
   );
 
@@ -203,6 +205,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   hideHoverDialog(){
     this.showHoverDialogBool = false;
     this.hoverEventInfo = null;
+  }
+
+  changeLensStatus(){
+    this.activateLens = !this.activateLens;
+
+    if(this.activateLens){
+      this.messageService.add({severity: 'success', summary: 'Hover Mode', detail: 'Lens is activated'});
+    } else {
+      this.messageService.add({severity: 'error', summary: 'Hover Mode', detail: 'Lens is deactivated'});
+    }
   }
 
   ngOnInit() {
@@ -275,6 +287,11 @@ export class HomeComponent implements OnInit, OnDestroy {
           {
             label: 'Filter',
             icon: 'pi pi-filter'
+          },
+          {
+            label: 'Lens ',
+            icon: 'pi pi-search',
+            command: () => this.changeLensStatus()
           }
         ]
       },
@@ -290,7 +307,4 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     ];
   }
-
-  protected readonly screenX = screenX;
-  protected readonly screenY = screenY;
 }

@@ -1,4 +1,4 @@
-export interface RoomTableDTO {
-  id: number;
-  roomId: string;
+export class RoomTableDTO {
+  id!: number;
+  roomId!: string;
 }

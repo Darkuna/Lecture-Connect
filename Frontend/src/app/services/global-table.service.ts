@@ -4,11 +4,16 @@ import {LocalStorageService} from "ngx-webstorage";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TimeTable} from "../../assets/Models/time-table";
 import {TmpTimeTableDTO} from "../../assets/Models/dto/tmp-time-table-dto";
+import {Observable} from "rxjs";
+import {Time} from "@angular/common";
+import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
 
 @Injectable({
   providedIn: 'root'
 })
 export class GlobalTableService {
+  globalTable: Observable<TimeTableDTO> | null = null;
+
   timeApiPath = "/proxy/api/global";
   httpOptions = {
     headers: new HttpHeaders({
@@ -30,25 +35,23 @@ export class GlobalTableService {
 
   getSpecificTimeTable(id: number) {
     let newUrl = `${this.timeApiPath}/${id}`;
-    return this.http.get<TimeTable>(newUrl, this.httpOptions);
+    this.globalTable = this.http.get<TimeTableDTO>(newUrl, this.httpOptions);
+    return this.globalTable;
   }
 
-  pushTmpTableObject(table: TmpTimeTableDTO) :[boolean, string]{
+  pushTmpTableObject(table: TmpTimeTableDTO): Promise<[boolean, string]> {
     let newUrl = `${this.timeApiPath}/create`;
-    let status = false;
-    let message = 'fault happened during upload';
-    let returnValue: [boolean, string] = [status, message];
 
-    this.http.post<any>(newUrl, table, this.httpOptions).subscribe(
-      response => {
-        status = true;
-        message = 'upload successfully';
-      },
-      (error: HttpErrorResponse) => {
-        message = error.message;
-      }
-    );
-    return returnValue;
+    return new Promise((resolve, reject) => {
+      this.http.post<any>(newUrl, table, this.httpOptions).subscribe(
+        response => {
+          resolve([true, 'upload successfully']);
+        },
+        (error: HttpErrorResponse) => {
+          reject([false, error.message]);
+        }
+      );
+    });
   }
 
   getScheduledTimeTable(id: number) {

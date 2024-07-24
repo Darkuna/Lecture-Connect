@@ -6,21 +6,41 @@ import LocalTime from "ts-time/LocalTime";
 import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../assets/Models/dto/timing-dto";
-import LocalDate from "ts-time/LocalDate";
+import {GlobalTableService} from "./global-table.service";
+import {Room} from "../../assets/Models/room";
+import {RoomTable} from "../../assets/Models/room-table";
+import {makeResourceNotFoundError} from "@angular/compiler-cli/src/ngtsc/annotations/component/src/resources";
+import {RoomTableDTO} from "../../assets/Models/dto/room-table-dto";
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventConverterService {
+  constructor(
+    private globalTableService: GlobalTableService,
+  ) { }
+
   convertTimingToEventInput(session: CourseSession): EventInput {
     return {
       id: session.id.toString(),
       title: session.name,
-      description: session.roomTable?.room,
+      description: this.getRoomFromId(session.roomTable?.room?.id),
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: this.convertArrayToTime(session.timing?.startTime!),
       endTime: this.convertArrayToTime(session.timing?.endTime!),
     };
+  }
+
+  getRoomFromId(roomId: any){
+    let found;
+    if(this.globalTableService.globalTable){
+
+      this.globalTableService.globalTable.subscribe(t => {
+        console.log(t);
+      })
+    }
+
+    return "test";
   }
 
   convertEventInputToTiming(event: EventImpl): TimingDTO {
