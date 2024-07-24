@@ -1,22 +1,14 @@
 import { Injectable } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
-import { CourseSession } from '../../assets/Models/course-session';
-
-import LocalTime from "ts-time/LocalTime";
 import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../assets/Models/dto/timing-dto";
-import {GlobalTableService} from "./global-table.service";
 import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventConverterService {
-  constructor(
-    private globalTableService: GlobalTableService,
-  ) { }
-
   convertTimingToEventInput(session: CourseSessionDTO): EventInput {
     return {
       id: session.id.toString(),

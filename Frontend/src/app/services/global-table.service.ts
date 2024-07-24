@@ -12,8 +12,6 @@ import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
   providedIn: 'root'
 })
 export class GlobalTableService {
-  globalTable: Observable<TimeTableDTO> | null = null;
-
   timeApiPath = "/proxy/api/global";
   httpOptions = {
     headers: new HttpHeaders({
@@ -35,8 +33,7 @@ export class GlobalTableService {
 
   getSpecificTimeTable(id: number) {
     let newUrl = `${this.timeApiPath}/${id}`;
-    this.globalTable = this.http.get<TimeTableDTO>(newUrl, this.httpOptions);
-    return this.globalTable;
+    return this.http.get<TimeTableDTO>(newUrl, this.httpOptions);
   }
 
   pushTmpTableObject(table: TmpTimeTableDTO): Promise<[boolean, string]> {
