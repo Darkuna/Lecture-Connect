@@ -17,6 +17,7 @@ import {LocalStorageService} from "ngx-webstorage";
 import {EventConverterService} from "../../services/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Status} from "../../../assets/Models/enums/status";
+import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 
 @Component({
   selector: 'app-home',
@@ -31,7 +32,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   activateLens: boolean = true;
 
   creationTable!: TmpTimeTable;
-  selectedTimeTable!: Observable<TimeTable>;
+  selectedTimeTable!: Observable<TimeTableDTO>;
   private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
@@ -78,9 +79,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   updateCalendarEvents(){
     this.clearCalendar();
 
-    this.selectedTimeTable.subscribe((timeTable: TimeTable) => {
-      console.log(timeTable);
-
+    this.selectedTimeTable.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput(),

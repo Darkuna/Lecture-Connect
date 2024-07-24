@@ -7,10 +7,7 @@ import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../assets/Models/dto/timing-dto";
 import {GlobalTableService} from "./global-table.service";
-import {Room} from "../../assets/Models/room";
-import {RoomTable} from "../../assets/Models/room-table";
-import {makeResourceNotFoundError} from "@angular/compiler-cli/src/ngtsc/annotations/component/src/resources";
-import {RoomTableDTO} from "../../assets/Models/dto/room-table-dto";
+import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 
 @Injectable({
   providedIn: 'root'
@@ -20,27 +17,15 @@ export class EventConverterService {
     private globalTableService: GlobalTableService,
   ) { }
 
-  convertTimingToEventInput(session: CourseSession): EventInput {
+  convertTimingToEventInput(session: CourseSessionDTO): EventInput {
     return {
       id: session.id.toString(),
       title: session.name,
-      description: this.getRoomFromId(session.roomTable?.room?.id),
+      description: session.roomTable?.roomId,
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
-      startTime: this.convertArrayToTime(session.timing?.startTime!),
-      endTime: this.convertArrayToTime(session.timing?.endTime!),
+      startTime: session.timing?.startTime,
+      endTime: session.timing?.endTime!,
     };
-  }
-
-  getRoomFromId(roomId: any){
-    let found;
-    if(this.globalTableService.globalTable){
-
-      this.globalTableService.globalTable.subscribe(t => {
-        console.log(t);
-      })
-    }
-
-    return "test";
   }
 
   convertEventInputToTiming(event: EventImpl): TimingDTO {
@@ -102,12 +87,7 @@ export class EventConverterService {
     }
   }
 
-  //TODO change date to date: LocalTime and apply to function
-  private convertArrayToTime(date: LocalTime): string {
-    return date.toString();
-  }
-
-  convertCourseSessionToEventInput(): OperatorFunction<CourseSession, EventInput> {
-    return map((session: CourseSession) => this.convertTimingToEventInput(session));
+  convertCourseSessionToEventInput(): OperatorFunction<CourseSessionDTO, EventInput> {
+    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session));
   }
 }

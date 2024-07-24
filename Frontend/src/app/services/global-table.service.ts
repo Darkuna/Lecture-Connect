@@ -54,8 +54,8 @@ export class GlobalTableService {
     });
   }
 
-  getScheduledTimeTable(id: number) {
+  getScheduledTimeTable(id: number):Observable<TimeTableDTO> {
     let newUrl = `${this.timeApiPath}/assignment/${id}`;
-    return this.http.post<TimeTable>(newUrl, this.httpOptions);
+    return this.http.post<TimeTableDTO>(newUrl, this.httpOptions);
   }
 }
