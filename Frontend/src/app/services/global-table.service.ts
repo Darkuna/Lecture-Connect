@@ -4,6 +4,9 @@ import {LocalStorageService} from "ngx-webstorage";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TimeTable} from "../../assets/Models/time-table";
 import {TmpTimeTableDTO} from "../../assets/Models/dto/tmp-time-table-dto";
+import {Observable} from "rxjs";
+import {Time} from "@angular/common";
+import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +33,7 @@ export class GlobalTableService {
 
   getSpecificTimeTable(id: number) {
     let newUrl = `${this.timeApiPath}/${id}`;
-    return this.http.get<TimeTable>(newUrl, this.httpOptions);
+    return this.http.get<TimeTableDTO>(newUrl, this.httpOptions);
   }
 
   pushTmpTableObject(table: TmpTimeTableDTO): Promise<[boolean, string]> {
@@ -48,8 +51,8 @@ export class GlobalTableService {
     });
   }
 
-  getScheduledTimeTable(id: number) {
+  getScheduledTimeTable(id: number):Observable<TimeTableDTO> {
     let newUrl = `${this.timeApiPath}/assignment/${id}`;
-    return this.http.post<TimeTable>(newUrl, this.httpOptions);
+    return this.http.post<TimeTableDTO>(newUrl, this.httpOptions);
   }
 }

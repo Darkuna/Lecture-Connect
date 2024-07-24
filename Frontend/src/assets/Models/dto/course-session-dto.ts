@@ -1,4 +1,5 @@
 import { TimingDTO } from './timing-dto';
+import {RoomTableDTO} from "./room-table-dto";
 
 export interface CourseSessionDTO {
   id: number;
@@ -8,5 +9,5 @@ export interface CourseSessionDTO {
   duration: number;
   timingConstraints: TimingDTO[];
   timing?: TimingDTO;
-  roomTableId?: number;
+  roomTable?: RoomTableDTO;
 }

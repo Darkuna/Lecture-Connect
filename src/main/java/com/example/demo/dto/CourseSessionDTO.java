@@ -15,5 +15,5 @@ public class CourseSessionDTO {
     private int duration;
     private List<TimingDTO> timingConstraints;
     private TimingDTO timing;
-    private Long roomTableId;
+    private RoomTableDTO roomTable;
 }

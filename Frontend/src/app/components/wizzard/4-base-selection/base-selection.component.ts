@@ -17,6 +17,7 @@ import {RoomToDtoConverterService} from "../../../services/room-to-dto-converter
 import {CourseToDtoConverterService} from "../../../services/course-to-dto-converter.service";
 import {Observable} from "rxjs";
 import {getStatusKey} from "../../../../assets/Models/enums/status";
+import {LocalStorageService} from "ngx-webstorage";
 
 @Component({
   selector: 'app-base-selection',
@@ -48,7 +49,8 @@ export class BaseSelectionComponent{
     private globalTableService: GlobalTableService,
     private router: Router,
     private roomConverter: RoomToDtoConverterService,
-    private courseConverter: CourseToDtoConverterService
+    private courseConverter: CourseToDtoConverterService,
+    private localStorage: LocalStorageService
   ) { }
 
   formatTime(date: Date): string {

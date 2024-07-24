@@ -1,25 +1,22 @@
 import { Injectable } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
-import { CourseSession } from '../../assets/Models/course-session';
-
-import LocalTime from "ts-time/LocalTime";
 import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../assets/Models/dto/timing-dto";
-import LocalDate from "ts-time/LocalDate";
+import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventConverterService {
-  convertTimingToEventInput(session: CourseSession): EventInput {
+  convertTimingToEventInput(session: CourseSessionDTO): EventInput {
     return {
       id: session.id.toString(),
       title: session.name,
-      description: session.name,
+      description: session.roomTable?.roomId,
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
-      startTime: this.convertArrayToTime(session.timing?.startTime!),
-      endTime: this.convertArrayToTime(session.timing?.endTime!),
+      startTime: session.timing?.startTime,
+      endTime: session.timing?.endTime!,
     };
   }
 
@@ -82,12 +79,7 @@ export class EventConverterService {
     }
   }
 
-  //TODO change date to date: LocalTime and apply to function
-  private convertArrayToTime(date: LocalTime): string {
-    return date.toString();
-  }
-
-  convertCourseSessionToEventInput(): OperatorFunction<CourseSession, EventInput> {
-    return map((session: CourseSession) => this.convertTimingToEventInput(session));
+  convertCourseSessionToEventInput(): OperatorFunction<CourseSessionDTO, EventInput> {
+    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session));
   }
 }

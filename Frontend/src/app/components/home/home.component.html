@@ -85,3 +85,30 @@
   </ng-template>
 </p-dialog>
 
+<p-dialog [(visible)]="showHoverDialogBool && activateLens" header="{{hoverEventInfo?.event!.title}}"
+          [modal]="false" styleClass="p-fluid" [closable]="false"
+          [style]="{position:'absolute' ,
+          left:hoverEventInfo?.jsEvent!.screenX - 75 +'px',
+          top: hoverEventInfo?.jsEvent!.screenY - 75 +'px'}">
+  <ng-template pTemplate="content" class="parent">
+    <div id="cssportal-grid">
+      <div id="startTime">
+        <label for="start">Start Time</label>
+        <input pInputText id="start"
+               [ngModel]="hoverEventInfo?.event!.start!.toLocaleString()" [disabled]="true"/></div>
+      <div id="endTime">
+        <label for="end">End Time</label>
+        <input pInputText id="end"
+               [ngModel]="hoverEventInfo?.event!.end!.toLocaleString()" [disabled]="true"/></div>
+      <div id="details">
+        <label for="room">Room</label>
+        <input pInputText id="room"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['description']" [disabled]="true"/>
+      </div>
+    </div>
+
+  </ng-template>
+
+
+</p-dialog>
+
