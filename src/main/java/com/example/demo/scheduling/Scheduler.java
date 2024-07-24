@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @Service
 @Scope("session")
 public class Scheduler {
+    private final int NUMBER_OF_TRIES = 10;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
     private List<AvailabilityMatrix> allAvailabilityMatrices;
@@ -22,6 +23,8 @@ public class Scheduler {
     private final Random random = new Random(System.currentTimeMillis());
     private Queue<Candidate> candidateQueue;
     private final Logger log = LoggerFactory.getLogger(Scheduler.class);
+    private final Map<CourseSession, Timing> readyForAssignmentSet = new HashMap<>();
+    int numberOfCourseSessions;
 
     private final TimingService timingService;
 
@@ -83,12 +86,12 @@ public class Scheduler {
         if(totalTimeNeededComputers > totalTimePreferredAvailableComputers){
             log.warn("There is not enough space reserved for COMPUTER_SCIENCE " +
                             "for courses with computers needed. {} more minutes will be used from other free space",
-                    totalTimeNeededNoComputers - totalTimeAvailableNoComputers);
+                    totalTimeNeededNoComputers - totalTimePreferredAvailableComputers);
         }
         if(totalTimeNeededNoComputers > totalTimePreferredAvailableNoComputers){
             log.warn("There is not enough space reserved for COMPUTER_SCIENCE " +
                             "for courses without computers needed. {} more minutes will be used from other free space",
-                    totalTimeNeededNoComputers - totalTimeAvailableNoComputers);
+                    totalTimeNeededNoComputers - totalTimePreferredAvailableNoComputers);
         }
 
         //Assign courseSessionsWithoutComputersNeeded
@@ -98,42 +101,74 @@ public class Scheduler {
     }
 
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        //Process courseSessions with computer necessary
+        int numberOfTries = 0;
+        numberOfCourseSessions = courseSessions.size();
+        boolean assignmentFinished;
+        List<CourseSession> singleCourseSessions;
         List<CourseSession> groupCourseSessions;
         List<CourseSession> splitCourseSessions;
 
-        //Create own list of all group courseSessions and order by duration and courseId
-        groupCourseSessions = courseSessions.stream()
+        do {
+            singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
+            groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
+            splitCourseSessions = filterAndSortSplitCourseSessions(courseSessions);
+
+            processSingleCourseSessions(singleCourseSessions, availabilityMatrices);
+            processGroupCourseSessions(groupCourseSessions, availabilityMatrices);
+            //processSplitCourseSessions(splitCourseSessions, availabilityMatrices);
+
+            if(numberOfTries >= NUMBER_OF_TRIES){
+                log.error("Assignment of courseSessions {} computers failed",
+                        courseSessions.getFirst().isComputersNecessary() ? "with" : "without");
+                break;
+            }
+            numberOfTries++;
+        }
+        while(!finalizeAssignment());
+    }
+
+    private List<CourseSession> filterAndSortSingleCourseSessions(List<CourseSession> courseSessions){
+        return courseSessions.stream()
+                .filter(c -> !c.isSplitCourse() && !c.isGroupCourse())
+                .sorted(Comparator.comparingInt(CourseSession::getDuration)
+                        .thenComparing(CourseSession::getNumberOfParticipants))
+                .collect(Collectors.toList());
+    }
+
+    private List<CourseSession> filterAndSortGroupCourseSessions(List<CourseSession> courseSessions){
+        return courseSessions.stream()
                 .filter(CourseSession::isGroupCourse)
                 .sorted(Comparator.comparingInt(CourseSession::getDuration)
                         .thenComparing(CourseSession::getCourseId))
                 .collect(Collectors.toList());
+    }
 
-        // remove them from list of all courseSessions
-        courseSessions.removeAll(groupCourseSessions);
-
-        //Create own list of all split courseSessions and order by duration and courseId
-        splitCourseSessions = courseSessions.stream()
+    private List<CourseSession> filterAndSortSplitCourseSessions(List<CourseSession> courseSessions){
+        return courseSessions.stream()
                 .filter(CourseSession::isSplitCourse)
-                .sorted(Comparator.comparingInt(CourseSession::getDuration)
-                        .thenComparing(CourseSession::getCourseId))
+                .sorted(Comparator.comparing(CourseSession::getCourseId)
+                        .thenComparingInt(CourseSession::getDuration))
                 .collect(Collectors.toList());
+    }
 
-        // remove them from list of all courseSessions
-        courseSessions.removeAll(splitCourseSessions);
-
-        //Order other courseSessions by duration and numberOfParticipants
-        courseSessions = courseSessions.stream().sorted((o1, o2) -> {
-            if(o1.getDuration() != o2.getDuration()){
-                return o2.getDuration() - o1.getDuration();
+    private boolean finalizeAssignment() {
+        if(readyForAssignmentSet.size() == numberOfCourseSessions){
+            for(CourseSession courseSession : readyForAssignmentSet.keySet()){
+                Timing timing = readyForAssignmentSet.get(courseSession);
+                timing = timingService.createTiming(timing);
+                courseSession.setTiming(timing);
+                courseSession.setAssigned(true);
             }
-            return o2.getNumberOfParticipants() - o1.getNumberOfParticipants();
-        }).collect(Collectors.toList());
-
-        // start the assignment
-        processSingleCourseSessions(courseSessions, availabilityMatrices);
-        processGroupCourseSessions(groupCourseSessions, availabilityMatrices);
-        //processSplitCourseSessions(splitCourseSessions, availabilityMatrices);
+            readyForAssignmentSet.clear();
+            return true;
+        }
+        else{
+            for(CourseSession courseSession : readyForAssignmentSet.keySet()){
+                courseSession.setRoomTable(null);
+            }
+            readyForAssignmentSet.clear();
+            return false;
+        }
     }
 
     private void processGroupCourseSessions(List<CourseSession> groupCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
@@ -176,9 +211,8 @@ public class Scheduler {
                 candidateToAssign = currentCandidates.get(i);
                 courseSessionToAssign = currentCourseSessions.get(i);
                 Timing timing = candidateToAssign.getAvailabilityMatrix().assignCourseSession(candidateToAssign, courseSessionToAssign);
-                courseSessionToAssign.setAssigned(true);
-                courseSessionToAssign.setTiming(timingService.createTiming(timing));
                 courseSessionToAssign.setRoomTable(candidateToAssign.getAvailabilityMatrix().getRoomTable());
+                readyForAssignmentSet.put(courseSessionToAssign, timing);
             }
             currentCourseSessions.clear();
             currentCandidates.clear();
@@ -186,7 +220,14 @@ public class Scheduler {
     }
 
     private void processSplitCourseSessions(List<CourseSession> splitCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
-
+        List<CourseSession> currentCourseSessions = new ArrayList<>();
+        String groupId;
+        while (!splitCourseSessions.isEmpty()){
+            groupId = splitCourseSessions.getFirst().getCourseId();
+            while(!splitCourseSessions.isEmpty() && splitCourseSessions.getFirst().getCourseId().equals(groupId)){
+                currentCourseSessions.add(splitCourseSessions.removeFirst());
+            }
+        }
     }
 
     private void processSingleCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
@@ -217,8 +258,9 @@ public class Scheduler {
             //assign courseSession
             log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
             Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
-            courseSession.setAssigned(true);
-            courseSession.setTiming(timingService.createTiming(finalTiming));
+            readyForAssignmentSet.put(courseSession, finalTiming);
+            //courseSession.setAssigned(true);
+            //courseSession.setTiming(timingService.createTiming(finalTiming));
             courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
         }
     }
