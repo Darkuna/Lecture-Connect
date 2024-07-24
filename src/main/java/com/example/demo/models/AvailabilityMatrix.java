@@ -35,47 +35,60 @@ public class AvailabilityMatrix {
         this.computersAvailable = roomTable.isComputersAvailable();
         this.roomTable = roomTable;
 
-        int dayIndex;
-        int startSlot;
-        int endSlot;
         // initialize timingConstraints
         if (roomTable.getTimingConstraints() != null) {
-            for (Timing timing : roomTable.getTimingConstraints()) {
-                dayIndex = timing.getDay().ordinal();
-                startSlot = timeToSlotIndex(timing.getStartTime());
-                endSlot = timeToSlotIndex(timing.getEndTime());
-
-                if(timing.getTimingType().equals(TimingType.BLOCKED)) {
-                    for (int slot = startSlot; slot < endSlot; slot++) {
-                        matrix[dayIndex][slot] = CourseSession.BLOCKED;
-                    }
-                    total_available_time -= timing.getDuration();
-                }
-                else if(timing.getTimingType().equals(TimingType.COMPUTER_SCIENCE)){
-                    for (int slot = startSlot; slot < endSlot; slot++) {
-                        matrix[dayIndex][slot] = CourseSession.PREFERRED;
-                    }
-                    total_available_preferred_time += timing.getDuration();
-                }
-            }
+            initializeTimingConstraints();
         }
         // initialize assigned courseSessions
         if(roomTable.getAssignedCourseSessions() != null) {
-            Timing timing;
-            for (CourseSession courseSession : roomTable.getAssignedCourseSessions()){
-                timing = courseSession.getTiming();
-                dayIndex = timing.getDay().ordinal();
-                startSlot = timeToSlotIndex(timing.getStartTime());
-                endSlot = timeToSlotIndex(timing.getEndTime());
+            initializeAssignedCourseSessions();
+        }
+    }
 
+    private void initializeTimingConstraints() {
+        int dayIndex;
+        int startSlot;
+        int endSlot;
+
+        for (Timing timing : roomTable.getTimingConstraints()) {
+            dayIndex = timing.getDay().ordinal();
+            startSlot = timeToSlotIndex(timing.getStartTime());
+            endSlot = timeToSlotIndex(timing.getEndTime());
+
+            if(timing.getTimingType().equals(TimingType.BLOCKED)) {
                 for (int slot = startSlot; slot < endSlot; slot++) {
-                    if(matrix[dayIndex][slot] == CourseSession.PREFERRED){
-                        total_available_preferred_time -= DURATION_PER_SLOT;
-                    }
-                    matrix[dayIndex][slot] = courseSession;
+                    matrix[dayIndex][slot] = CourseSession.BLOCKED;
                 }
                 total_available_time -= timing.getDuration();
             }
+            else if(timing.getTimingType().equals(TimingType.COMPUTER_SCIENCE)){
+                for (int slot = startSlot; slot < endSlot; slot++) {
+                    matrix[dayIndex][slot] = CourseSession.PREFERRED;
+                }
+                total_available_preferred_time += timing.getDuration();
+            }
+        }
+    }
+
+    private void initializeAssignedCourseSessions() {
+        int dayIndex;
+        int startSlot;
+        int endSlot;
+        Timing timing;
+
+        for (CourseSession courseSession : roomTable.getAssignedCourseSessions()){
+            timing = courseSession.getTiming();
+            dayIndex = timing.getDay().ordinal();
+            startSlot = timeToSlotIndex(timing.getStartTime());
+            endSlot = timeToSlotIndex(timing.getEndTime());
+
+            for (int slot = startSlot; slot < endSlot; slot++) {
+                if(matrix[dayIndex][slot] == CourseSession.PREFERRED){
+                    total_available_preferred_time -= DURATION_PER_SLOT;
+                }
+                matrix[dayIndex][slot] = courseSession;
+            }
+            total_available_time -= timing.getDuration();
         }
     }
 
@@ -199,6 +212,7 @@ public class AvailabilityMatrix {
         int time = START_TIME.getHour();
         String mark;
         sb.append(this.getRoomTable().getRoomId());
+        sb.append(String.format("\nTotal time available: %d, Preferred time available: %d", total_available_time, total_available_preferred_time));
         sb.append("\n");
         sb.append(String.format("      | %20.20s | %20.20s | %20.20s | %20.20s | %20.20s |\n",
                 "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"));
