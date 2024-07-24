@@ -43,6 +43,7 @@ public class AvailabilityMatrix {
         if(roomTable.getAssignedCourseSessions() != null) {
             initializeAssignedCourseSessions();
         }
+        System.out.println(this);
     }
 
     private void initializeTimingConstraints() {
