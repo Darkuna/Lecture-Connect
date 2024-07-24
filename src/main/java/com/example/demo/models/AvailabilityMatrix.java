@@ -22,6 +22,7 @@ public class AvailabilityMatrix {
     private static final int SLOTS_PER_DAY = (int) Duration.between(START_TIME, END_TIME).toMinutes() / 60 * 4;
 
     private long total_available_time = 5 * Duration.between(START_TIME, END_TIME).toMinutes();
+    private long total_available_preferred_time = 0;
     private final int capacity;
     private final boolean computersAvailable;
     private final RoomTable roomTable;
@@ -34,23 +35,31 @@ public class AvailabilityMatrix {
         this.computersAvailable = roomTable.isComputersAvailable();
         this.roomTable = roomTable;
 
-        int dayIndex = 0;
-        int startSlot = 0;
-        int endSlot = 0;
-        // mark all time slots with timingConstraints as BLOCKED
+        int dayIndex;
+        int startSlot;
+        int endSlot;
+        // initialize timingConstraints
         if (roomTable.getTimingConstraints() != null) {
             for (Timing timing : roomTable.getTimingConstraints()) {
                 dayIndex = timing.getDay().ordinal();
                 startSlot = timeToSlotIndex(timing.getStartTime());
                 endSlot = timeToSlotIndex(timing.getEndTime());
 
-                for (int slot = startSlot; slot < endSlot; slot++) {
-                    matrix[dayIndex][slot] = timing.getTimingType().equals(TimingType.BLOCKED)
-                            ? CourseSession.BLOCKED : CourseSession.PREFERRED;
+                if(timing.getTimingType().equals(TimingType.BLOCKED)) {
+                    for (int slot = startSlot; slot < endSlot; slot++) {
+                        matrix[dayIndex][slot] = CourseSession.BLOCKED;
+                    }
+                    total_available_time -= timing.getDuration();
                 }
-                total_available_time -= timing.getDuration();
+                else if(timing.getTimingType().equals(TimingType.COMPUTER_SCIENCE)){
+                    for (int slot = startSlot; slot < endSlot; slot++) {
+                        matrix[dayIndex][slot] = CourseSession.PREFERRED;
+                    }
+                    total_available_preferred_time += timing.getDuration();
+                }
             }
         }
+        // initialize assigned courseSessions
         if(roomTable.getAssignedCourseSessions() != null) {
             Timing timing;
             for (CourseSession courseSession : roomTable.getAssignedCourseSessions()){
@@ -60,12 +69,14 @@ public class AvailabilityMatrix {
                 endSlot = timeToSlotIndex(timing.getEndTime());
 
                 for (int slot = startSlot; slot < endSlot; slot++) {
+                    if(matrix[dayIndex][slot] == CourseSession.PREFERRED){
+                        total_available_preferred_time -= DURATION_PER_SLOT;
+                    }
                     matrix[dayIndex][slot] = courseSession;
                 }
                 total_available_time -= timing.getDuration();
             }
         }
-        System.out.println(this);
     }
 
     public Candidate getEarliestAvailableSlotForDuration(int minutes) {
