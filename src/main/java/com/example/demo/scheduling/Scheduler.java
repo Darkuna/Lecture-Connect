@@ -1,6 +1,6 @@
 package com.example.demo.scheduling;
 
-import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
+import com.example.demo.exceptions.roomTable.NotEnoughSpaceAvailableException;
 import com.example.demo.models.*;
 import com.example.demo.services.TimingService;
 import org.slf4j.Logger;
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 @Scope("session")
 public class Scheduler {
-    private final int NUMBER_OF_TRIES = 10;
+    private final int MAX_NUMBER_OF_TRIES = 10;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
     private List<AvailabilityMatrix> allAvailabilityMatrices;
@@ -78,11 +78,11 @@ public class Scheduler {
 
         //check pre-constraints
         if(totalTimeNeededComputers > totalTimeAvailableComputers){
-            throw new NoEnoughSpaceAvailableException(String.format("%d more minutes needed for courses with computers necessary",
+            throw new NotEnoughSpaceAvailableException(String.format("%d more minutes needed for courses with computers necessary",
                     totalTimeNeededComputers - totalTimeAvailableComputers));
         }
         if(totalTimeNeededNoComputers > totalTimeAvailableNoComputers){
-            throw new NoEnoughSpaceAvailableException(String.format("%d more minutes needed for courses with computers necessary",
+            throw new NotEnoughSpaceAvailableException(String.format("%d more minutes needed for courses with computers necessary",
                     totalTimeNeededNoComputers - totalTimeAvailableNoComputers));
         }
         if(totalTimeNeededComputers > totalTimePreferredAvailableComputers){
@@ -97,6 +97,13 @@ public class Scheduler {
                     totalTimeNeededNoComputers - totalTimePreferredAvailableNoComputers);
             usePreferredSlotsForNoComputers = false;
         }
+
+        log.info("TotalTimeNeededNoComputers = {}", totalTimeNeededNoComputers);
+        log.info("TotalTimeNeededComputers = {}", totalTimeNeededComputers);
+        log.info("TotalTimeAvailableNoComputers = {}", totalTimeAvailableNoComputers);
+        log.info("TotalTimePreferredAvailableComputers = {}", totalTimePreferredAvailableComputers);
+        log.info("TotalTimePreferredAvailableNoComputers = {}", totalTimePreferredAvailableNoComputers);
+        log.info("TotalTimeAvailableComputers = {}", totalTimeAvailableComputers);
 
         //Assign courseSessionsWithoutComputersNeeded
         assignCourseSessions(courseSessionsWithoutComputerNeeded, availabilityMatricesOfRoomsWithoutComputers,
@@ -114,7 +121,14 @@ public class Scheduler {
         List<CourseSession> splitCourseSessions;
 
         do {
+            if(numberOfTries != 0){
+                availabilityMatrices.replaceAll(availabilityMatrix -> new AvailabilityMatrix(availabilityMatrix.getRoomTable()));
+            }
+
             singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
+            for(CourseSession courseSession : singleCourseSessions){
+                System.out.println(courseSession.getNumberOfParticipants());
+            }
             groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
             splitCourseSessions = filterAndSortSplitCourseSessions(courseSessions);
 
@@ -122,9 +136,9 @@ public class Scheduler {
             processGroupCourseSessions(groupCourseSessions, availabilityMatrices, preferredOnly);
             processSplitCourseSessions(splitCourseSessions, availabilityMatrices, preferredOnly);
 
-            if(numberOfTries >= NUMBER_OF_TRIES){
-                log.error("Assignment of courseSessions {} computers failed",
-                        courseSessions.getFirst().isComputersNecessary() ? "with" : "without");
+            if(numberOfTries >= MAX_NUMBER_OF_TRIES){
+                log.error("Assignment of courseSessions {} computers failed after {} tries",
+                        courseSessions.getFirst().isComputersNecessary() ? "with" : "without", numberOfTries);
                 break;
             }
             numberOfTries++;
@@ -135,15 +149,15 @@ public class Scheduler {
     private List<CourseSession> filterAndSortSingleCourseSessions(List<CourseSession> courseSessions){
         return courseSessions.stream()
                 .filter(c -> !c.isSplitCourse() && !c.isGroupCourse())
-                .sorted(Comparator.comparingInt(CourseSession::getDuration)
-                        .thenComparing(CourseSession::getNumberOfParticipants))
+                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
+                        .thenComparing(CourseSession::getNumberOfParticipants).reversed())
                 .collect(Collectors.toList());
     }
 
     private List<CourseSession> filterAndSortGroupCourseSessions(List<CourseSession> courseSessions){
         return courseSessions.stream()
                 .filter(CourseSession::isGroupCourse)
-                .sorted(Comparator.comparingInt(CourseSession::getDuration)
+                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
                         .thenComparing(CourseSession::getCourseId))
                 .collect(Collectors.toList());
     }
@@ -212,6 +226,10 @@ public class Scheduler {
                 dayOfAssignment = dayOfAssignment == 4 ? 0 : dayOfAssignment + 1;
             }
 
+            if(currentCandidates.size() < numberOfGroups){
+                throw new NotEnoughSpaceAvailableException("Not enough space available to assign all groups of course " + groupId);
+            }
+
             // assign all courseSessions of the group to the list
             for(int i = 0; i < numberOfGroups; i++){
                 candidateToAssign = currentCandidates.get(i);
@@ -241,11 +259,11 @@ public class Scheduler {
 
         // For each courseSession
         for(CourseSession courseSession : courseSessions){
-            log.debug("Choosing CourseSession {} for assignment", courseSession.getName());
+            log.info("Choosing CourseSession {} for assignment", courseSession.getName());
             // If queue is empty or all the current courseSession needs candidates of different duration
             if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
                 // Fill the queue with candidates of appropriate duration
-                fillQueue(availabilityMatrices, courseSession.getDuration(), preferredOnly);
+                fillQueue(availabilityMatrices, courseSession, preferredOnly);
 
             }
 
@@ -253,43 +271,41 @@ public class Scheduler {
             do{
                 //refill the queue if no fitting candidate in queue
                 if(candidateQueue.isEmpty()){
-                    fillQueue(availabilityMatrices, courseSession.getDuration(), preferredOnly);
+                    fillQueue(availabilityMatrices, courseSession, preferredOnly);
                 }
                 //select possible candidate for placement
                 currentCandidate = candidateQueue.poll();
-                log.debug("Selecting candidate {} for assignment", currentCandidate);
+                log.info("Selecting candidate {} for assignment", currentCandidate);
             }
             while(!checkConstraintsFulfilled(courseSession, currentCandidate));
 
             //assign courseSession
-            log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
-            Timing finalTiming = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
-            readyForAssignmentSet.put(courseSession, finalTiming);
-            //courseSession.setAssigned(true);
-            //courseSession.setTiming(timingService.createTiming(finalTiming));
+            log.info("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
+            Timing timing = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
             courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
+            readyForAssignmentSet.put(courseSession, timing);
         }
     }
 
     private boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
-        if(!checkRoomCapacity(courseSession, candidate)){
-            log.debug("room capacity exceeded");
+        if(!checkRoomCapacity(courseSession, candidate.getAvailabilityMatrix())){
+            log.info("room capacity exceeded cs: {}, cand: {}", courseSession.getNumberOfParticipants(), candidate.getAvailabilityMatrix().getCapacity());
             return false;
         }
         if(!checkTimingConstraintsFulfilled(courseSession, candidate)){
-            log.debug("timing constraints are intersecting with candidate");
+            log.info("timing constraints are intersecting with candidate");
             return false;
         }
         if(!checkCoursesOfSameSemester(courseSession, candidate)){
-            log.debug("other course of same semester intersecting");
+            log.info("other course of same semester intersecting");
             return false;
         }
         return true;
     }
 
-    private boolean checkRoomCapacity(CourseSession courseSession, Candidate candidate){
-        return candidate.getAvailabilityMatrix().getCapacity() >= courseSession.getNumberOfParticipants()
-                && candidate.getAvailabilityMatrix().getCapacity() / 2 <= courseSession.getNumberOfParticipants();
+    private boolean checkRoomCapacity(CourseSession courseSession, AvailabilityMatrix availabilityMatrix){
+        return availabilityMatrix.getCapacity() >= courseSession.getNumberOfParticipants()
+                    && availabilityMatrix.getCapacity() / 2 <= courseSession.getNumberOfParticipants();
     }
 
     private boolean checkTimingConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
@@ -311,16 +327,33 @@ public class Scheduler {
         return true;
     }
 
-    private void fillQueue(List<AvailabilityMatrix> availabilityMatrices, int duration, boolean preferredOnly){
+    private void fillQueue(List<AvailabilityMatrix> availabilityMatrices, CourseSession courseSession, boolean preferredOnly){
+        Candidate firstCandidate = null;
+        Candidate randomCandidate = null;
         // remove all candidates with different durations when refilling queue
-        candidateQueue.stream().filter(c -> c.getDuration() == duration).forEach(c -> {});
+        candidateQueue.stream().filter(c -> c.getDuration() == courseSession.getDuration()).forEach(c -> {});
         // always fill the queue with the first available and one random candidate
         for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-            try{
-                candidateQueue.add(availabilityMatrix.getEarliestAvailableSlotForDuration(duration, preferredOnly));
-                candidateQueue.add(availabilityMatrix.getRandomAvailableSlot(duration, preferredOnly));
+            if(checkRoomCapacity(courseSession, availabilityMatrix)){
+                do {
+                    try{
+                        firstCandidate = availabilityMatrix.getEarliestAvailableSlotForDuration(courseSession.getDuration(), preferredOnly);
+                        randomCandidate = availabilityMatrix.getRandomAvailableSlot(courseSession.getDuration(), preferredOnly);
+                    }
+                    catch(Exception e){
+                        break;
+                    }
+                } while (AvailabilityMatrix.toTiming(randomCandidate).intersects(AvailabilityMatrix.toTiming(firstCandidate)));
+                if(firstCandidate != null){
+                    candidateQueue.add(firstCandidate);
+                }
+                if(randomCandidate != null){
+                    candidateQueue.add(randomCandidate);
+                }
             }
-            catch(NoEnoughSpaceAvailableException ignored){}
+        }
+        if(candidateQueue.isEmpty()){
+            throw new NotEnoughSpaceAvailableException("No candidates found");
         }
     }
 }

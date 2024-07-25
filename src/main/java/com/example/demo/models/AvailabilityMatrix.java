@@ -1,7 +1,7 @@
 package com.example.demo.models;
 
 import com.example.demo.constants.TimingConstants;
-import com.example.demo.exceptions.roomTable.NoEnoughSpaceAvailableException;
+import com.example.demo.exceptions.roomTable.NotEnoughSpaceAvailableException;
 import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.TimingType;
 import com.example.demo.scheduling.Candidate;
@@ -43,7 +43,6 @@ public class AvailabilityMatrix {
         if(roomTable.getAssignedCourseSessions() != null) {
             initializeAssignedCourseSessions();
         }
-        System.out.println(this);
     }
 
     private void initializeTimingConstraints() {
@@ -99,7 +98,7 @@ public class AvailabilityMatrix {
             for (int i = 0; i < SLOTS_PER_DAY; i++) {
                 for (int j = 0; j < DAYS_IN_WEEK; j++) {
                     if (matrix[j][i] == CourseSession.PREFERRED) {
-                        if(isSlotsAvailable(j,i,numberOfSlots, preferredOnly)) {
+                        if(isSlotsAvailable(j,i,numberOfSlots, true)) {
                             return new Candidate(this, j, i, minutes);
                         }
                     }
@@ -110,19 +109,20 @@ public class AvailabilityMatrix {
             for (int i = 0; i < SLOTS_PER_DAY; i++) {
                 for (int j = 0; j < DAYS_IN_WEEK; j++) {
                     if (matrix[j][i] == null || matrix[j][i] == CourseSession.PREFERRED) {
-                        if(isSlotsAvailable(j,i,numberOfSlots, preferredOnly)) {
+                        if(isSlotsAvailable(j,i,numberOfSlots, false)) {
                             return new Candidate(this, j, i, minutes);
                         }
                     }
                 }
             }
         }
-        throw new NoEnoughSpaceAvailableException("Not enough space in availability matrix");
+        throw new NotEnoughSpaceAvailableException("Not enough space in availability matrix");
     }
 
     public Candidate getRandomAvailableSlot(int minutes, boolean preferredOnly) {
         Random random = new Random();
         int numberOfSlots = minutes / DURATION_PER_SLOT;
+        int numberOfTries = 0;
         int dayIndex = 0;
         int slotIndex = 0;
         boolean randomSlotFound = false;
@@ -132,7 +132,11 @@ public class AvailabilityMatrix {
                 dayIndex = random.nextInt(DAYS_IN_WEEK);
                 slotIndex = random.nextInt(SLOTS_PER_DAY - numberOfSlots - 8);
                 if (matrix[dayIndex][slotIndex] == CourseSession.PREFERRED) {
-                    randomSlotFound = isSlotsAvailable(dayIndex, slotIndex, numberOfSlots, preferredOnly);
+                    randomSlotFound = isSlotsAvailable(dayIndex, slotIndex, numberOfSlots, true);
+                }
+                numberOfTries++;
+                if(numberOfTries >= 50) {
+                    throw new NotEnoughSpaceAvailableException("No random candidate found");
                 }
             }
         }
@@ -141,7 +145,11 @@ public class AvailabilityMatrix {
                 dayIndex = random.nextInt(DAYS_IN_WEEK);
                 slotIndex = random.nextInt(SLOTS_PER_DAY - numberOfSlots - 8);
                 if (matrix[dayIndex][slotIndex] == null || matrix[dayIndex][slotIndex] == CourseSession.PREFERRED) {
-                    randomSlotFound = isSlotsAvailable(dayIndex, slotIndex, numberOfSlots, preferredOnly);
+                    randomSlotFound = isSlotsAvailable(dayIndex, slotIndex, numberOfSlots, false);
+                }
+                numberOfTries++;
+                if(numberOfTries >= 50) {
+                    throw new NotEnoughSpaceAvailableException("No random candidate found");
                 }
             }
         }
