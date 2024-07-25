@@ -66,7 +66,7 @@ public class RoomTableServiceTest {
         assertNotNull(availabilityMatrix);
         long totalAvailableTime = TimingConstants.START_TIME.until(TimingConstants.END_TIME, ChronoUnit.MINUTES) * 5;
         long toSubtract = roomTable.getTimingConstraints().getFirst().getDuration();
-        assertEquals(totalAvailableTime-toSubtract, availabilityMatrix.getTotal_available_time());
+        assertEquals(totalAvailableTime-toSubtract, availabilityMatrix.getTotalAvailableTime());
     }
 
     @Test
