@@ -45,6 +45,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   showHoverDialogBool: boolean = false;
   hoverEventInfo: EventClickArg |null = null;
   tmpPartners : EventImpl[] = [];
+  tmpRenderSelection : EventImpl[] = [];
+  tmpColorSelection : EventImpl[] = [];
 
   constructor(
     private router: Router,
@@ -208,6 +210,55 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   );
 
+  renderEventType(type: string){
+    let newItems = this.calendarComponent.getApi().getEvents()
+      .filter(e => e.extendedProps['type'] === type);
+
+    this.tmpRenderSelection = this.tmpRenderSelection.concat(newItems);
+    newItems.forEach(e => e.setProp('display', 'none'));
+  }
+
+  showAllEvents(){
+    this.tmpRenderSelection.forEach(e => {
+      e.setProp('display', 'auto');
+    });
+
+    this.tmpRenderSelection = [];
+  }
+
+  colorEventType(type: string, color: string){
+    let newItems = this.calendarComponent.getApi().getEvents()
+      .filter(e => e.extendedProps['type'] === type);
+
+    this.tmpColorSelection = this.tmpColorSelection.concat(newItems);
+    newItems.forEach(e => e.setProp('backgroundColor', color));
+  }
+
+  clearEvents(){
+    this.tmpColorSelection
+      .forEach(e => {
+        e.setProp('backgroundColor', '#666666');
+      });
+
+    this.tmpColorSelection = [];
+  }
+
+  colorPartnerEvents(event: EventClickArg, color: string): EventImpl[]{
+    let key = event.event.title.replace(/ - Group \d+$/, '');
+    let partner = this.calendarComponent
+      .getApi().getEvents()
+      .filter(e => e.title.includes(key));
+
+    partner.forEach(e => e.setProp('backgroundColor', color));
+    return partner;
+  }
+
+  clearAll(){
+    this.clearEvents();
+    this.showAllEvents();
+    this.activateLens = false;
+  }
+
   showHoverDialog(event: EventClickArg){
     if(this.activateLens){
       this.showHoverDialogBool = true;
@@ -216,24 +267,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       this.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
     }
-  }
-
-  highlightEvents(key: string, color: string): EventImpl[]{
-    let partner = this.calendarComponent.getApi().getEvents()
-      .filter(e => e.title.includes(key));
-
-    partner.forEach(e => e.setProp('backgroundColor', color));
-
-    return partner;
-  }
-
-  clearEvents(){
-    this.calendarComponent.getApi().getEvents()
-      .forEach(e => e.setProp('backgroundColor', '#666666'));
-  }
-
-  colorPartnerEvents(event: EventClickArg, color: string): EventImpl[]{
-    return this.highlightEvents(event.event.title.replace(/ - Group \d+$/, ''), color);
   }
 
   hideHoverDialog(){
@@ -346,9 +379,29 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     ];
 
-    this.contextItems = [{
+    this.contextItems = [
+      {
         label: 'Filter Groups',
-        icon: 'pi pi-filter'
+        icon: 'pi pi-filter',
+        items: [
+          {
+            label: 'VO',
+            command: () => this.renderEventType('VO') },
+          { label: 'VU',
+            command: () => this.renderEventType('VU') },
+          { label: 'PS',
+            command: () => this.renderEventType('PS') },
+          { label: 'SE',
+            command: () => this.renderEventType('SE') },
+          { label: 'SL',
+            command: () => this.renderEventType('SL')},
+          { label: 'PR',
+            command: () => this.renderEventType('PR') },
+          { label: 'Clear',
+            icon: 'pi pi-trash',
+            command: () => this.showAllEvents()
+          },
+        ],
       },
       {
         label: 'Highlight Groups',
@@ -356,17 +409,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'VO',
-            command: () => this.highlightEvents('VO', '#C36049') },
+            command: () => this.colorEventType('VO', '#C36049') },
           { label: 'VU',
-            command: () => this.highlightEvents('VU', '#985F53') },
+            command: () => this.colorEventType('VU', '#985F53') },
           { label: 'PS',
-            command: () => this.highlightEvents('PS', '#ED5432') },
+            command: () => this.colorEventType('PS', '#ED5432') },
           { label: 'SE',
-            command: () => this.highlightEvents('SE', '#6E544E') },
+            command: () => this.colorEventType('SE', '#6E544E') },
           { label: 'SL',
-            command: () => this.highlightEvents('SL', '#433C3B')},
+            command: () => this.colorEventType('SL', '#433C3B')},
           { label: 'PR',
-            command: () => this.highlightEvents('PR', '#332927') },
+            command: () => this.colorEventType('PR', '#332927') },
           { label: 'Clear',
             icon: 'pi pi-trash',
             command: () => this.clearEvents()
@@ -377,6 +430,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         label: 'Lens ',
         icon: 'pi pi-search',
         command: () => this.changeLensStatus()
+      },
+      {
+        label: 'Clear',
+        icon: 'pi pi-trash',
+        command: () => this.clearAll()
       }
     ];
   }

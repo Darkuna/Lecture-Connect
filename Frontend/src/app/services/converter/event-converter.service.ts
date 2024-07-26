@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { EventInput } from '@fullcalendar/core';
+import {Injectable} from '@angular/core';
+import {EventInput} from '@fullcalendar/core';
 import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
@@ -10,18 +10,15 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 })
 export class EventConverterService {
   convertTimingToEventInput(session: CourseSessionDTO): EventInput {
-    let val: EventInput = {
+    return {
       id: session.id.toString(),
       title: session.name,
       description: session.roomTable?.roomId,
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime,
       endTime: session.timing?.endTime!,
-    }
-
-    let combinedGroupId = val.id
-
-    return val;
+      extendedProps: {'type': session.name.slice(0, 2)}
+    };
   }
 
   convertEventInputToTiming(event: EventImpl): TimingDTO {
