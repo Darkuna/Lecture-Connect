@@ -5,7 +5,6 @@ import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
 import {Status} from "../../../../assets/Models/enums/status";
-import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 
 @Component({
   selector: 'app-course-selection',
@@ -14,7 +13,7 @@ import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 })
 
 export class CourseSelectionComponent implements OnDestroy {
-  @Input() globalTable!: TmpTimeTable;
+  @Input() courseTable!: Course[];
 
   courseSub: Subscription;
   availableCourses!: Course[];
@@ -81,12 +80,12 @@ export class CourseSelectionComponent implements OnDestroy {
 
   drop() {
     if (this.draggedCourse) {
-      let idx = this.findIndex(this.draggedCourse, this.globalTable.courseTable);
+      let idx = this.findIndex(this.draggedCourse, this.courseTable);
 
       if (idx !== -1) {
         this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
       } else {
-        this.globalTable.courseTable.push(this.draggedCourse);
+        this.courseTable.push(this.draggedCourse);
         this.draggedCourse = null;
       }
     }
@@ -94,7 +93,6 @@ export class CourseSelectionComponent implements OnDestroy {
 
   dragEnd() {
     this.draggedCourse = null;
-    this.globalTable.status = Status.EDITED;
   }
 
   findIndex(product: Course, list: Course[]): number {
@@ -115,7 +113,7 @@ export class CourseSelectionComponent implements OnDestroy {
       this.selectedCourses.splice(index, 1);
     }
 
-    this.globalTable.courseTable = this.globalTable.courseTable.filter(val => val.id !== course.id);
+    this.courseTable = this.courseTable.filter(val => val.id !== course.id);
   }
 
   coursesSelected() : boolean{

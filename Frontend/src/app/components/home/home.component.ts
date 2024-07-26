@@ -5,7 +5,6 @@ import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
@@ -28,8 +27,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
-  shownTableDD!: TimeTableNames;
-  activateLens: boolean = true;
+  shownTableDD: TimeTableNames | null = null;
+  activateLens: boolean = false;
 
   creationTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTableDTO>;
@@ -58,7 +57,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
   }
 
-
   ngOnDestroy(): void {
     this.availableTableSubs.unsubscribe();
   }
@@ -76,10 +74,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.calendarComponent.getApi().removeAllEvents();
   }
 
+  unselectTable(){
+    this.globalTableService.unselectTable();
+    this.shownTableDD = null;
+
+    this.clearCalendar();
+  }
+
   updateCalendarEvents(){
     this.clearCalendar();
 
     this.selectedTimeTable.subscribe((timeTable: TimeTableDTO) => {
+      console.log(timeTable.status)
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput(),
@@ -95,11 +101,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadSpecificTable() {
-    if(!this.shownTableDD.id){
+    if(!this.shownTableDD!.id){
       return;
     }
 
-    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
+    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
     this.updateCalendarEvents();
   }
 
@@ -131,14 +137,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   applyAlgorithm(){
-    if(this.selectedTimeTable){
-      this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
+    if(this.shownTableDD){
+      this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
       this.updateCalendarEvents();
 
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
     }
     else {
-      this.messageService.add({severity: 'info', summary: 'No Data', detail: 'there is currently no table selected!'});
+      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 
@@ -216,6 +222,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  redirectToSelection(page: string){
+    if(this.shownTableDD){
+      this.router.navigate([page]);
+    } else {
+      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
+    }
+  }
+
   ngOnInit() {
     this.responsiveOptions = [
       {
@@ -275,13 +289,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         label: 'Data',
         items: [
           {
-            label: 'edit Course list',
+            label: 'Edit Course list',
             icon: 'pi pi-book',
-            routerLinkActiveOptions: ['/course-selection']
+            command: () => this.redirectToSelection('/tt-courses')
           },
           {
             label: 'Edit Room list',
-            icon: 'pi pi-warehouse'
+            icon: 'pi pi-warehouse',
+            command: () => this.redirectToSelection('/tt-rooms')
           },
           {
             label: 'Filter',

@@ -59,6 +59,8 @@ import {OverlayPanelModule} from "primeng/overlaypanel";
 import { CalendarExtendedComponent } from './components/calendar-extended/calendar-extended.component';
 import {InputGroupModule} from "primeng/inputgroup";
 import {FloatLabelModule} from "primeng/floatlabel";
+import { RoomSelectionPageComponent } from './components/home/room-selection-page/room-selection-page.component';
+import { CourseSelectionPageComponent } from './components/home/course-selection-page/course-selection-page.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -79,6 +81,8 @@ import {FloatLabelModule} from "primeng/floatlabel";
         RoomSelectionComponent,
         BaseSelectionComponent,
         CalendarExtendedComponent,
+        RoomSelectionPageComponent,
+        CourseSelectionPageComponent,
     ],
     bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,

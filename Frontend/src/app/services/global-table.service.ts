@@ -12,6 +12,7 @@ import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
   providedIn: 'root'
 })
 export class GlobalTableService {
+  currentTimeTable: Observable<TimeTableDTO> | null = null;
   timeApiPath = "/proxy/api/global";
   httpOptions = {
     headers: new HttpHeaders({
@@ -31,9 +32,10 @@ export class GlobalTableService {
     return this.http.get<TimeTableNames[]>(newUrl, this.httpOptions);
   }
 
-  getSpecificTimeTable(id: number) {
+  getSpecificTimeTable(id: number):Observable<TimeTableDTO> {
     let newUrl = `${this.timeApiPath}/${id}`;
-    return this.http.get<TimeTableDTO>(newUrl, this.httpOptions);
+    this.currentTimeTable = this.http.get<TimeTableDTO>(newUrl, this.httpOptions)
+    return this.currentTimeTable;
   }
 
   pushTmpTableObject(table: TmpTimeTableDTO): Promise<[boolean, string]> {
@@ -51,8 +53,13 @@ export class GlobalTableService {
     });
   }
 
-  getScheduledTimeTable(id: number):Observable<TimeTableDTO> {
+  getScheduledTimeTable(id: number): Observable<TimeTableDTO> {
     let newUrl = `${this.timeApiPath}/assignment/${id}`;
-    return this.http.post<TimeTableDTO>(newUrl, this.httpOptions);
+    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, this.httpOptions);
+    return this.currentTimeTable;
+  }
+
+  unselectTable(){
+    this.currentTimeTable = null;
   }
 }

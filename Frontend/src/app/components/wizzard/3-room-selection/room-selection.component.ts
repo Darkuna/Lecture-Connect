@@ -13,7 +13,7 @@ import {Course} from "../../../../assets/Models/course";
   styleUrl: '../wizard.component.css'
 })
 export class RoomSelectionComponent implements OnDestroy {
-  @Input() globalTable!: TmpTimeTable;
+  @Input() roomTables!: Room[];
 
   courseSub: Subscription;
   availableRooms!: Room[];
@@ -21,6 +21,7 @@ export class RoomSelectionComponent implements OnDestroy {
   CreateDialogVisible: boolean = false;
   selectedRooms: Room[] = [];
   draggedRoom: Room | undefined | null;
+
 
   headers: any[];
   stateOptions: any[] = [
@@ -79,12 +80,12 @@ export class RoomSelectionComponent implements OnDestroy {
 
   drop() {
     if (this.draggedRoom) {
-      let idx = this.findIndex(this.draggedRoom, this.globalTable.roomTables);
+      let idx = this.findIndex(this.draggedRoom, this.roomTables);
 
       if (idx !== -1) {
         this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Room is already in List'});
       } else {
-        this.globalTable.roomTables.push(this.draggedRoom);
+        this.roomTables.push(this.draggedRoom);
         this.draggedRoom = null;
       }
     }
@@ -103,7 +104,6 @@ export class RoomSelectionComponent implements OnDestroy {
 
   dragEnd() {
     this.draggedRoom = null;
-    this.globalTable.status = Status.EDITED;
   }
 
   deleteSingleItem(room: Room) {
@@ -113,7 +113,7 @@ export class RoomSelectionComponent implements OnDestroy {
       this.selectedRooms.splice(index, 1);
     }
 
-    this.globalTable.roomTables = this.globalTable.roomTables.filter(val => val.id !== room.id);
+    this.roomTables = this.roomTables.filter(val => val.id !== room.id);
   }
 
   roomsSelected() : boolean{

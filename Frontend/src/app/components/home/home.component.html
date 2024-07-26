@@ -38,10 +38,10 @@
       <div class="p-toolbar-group-center">
         <p-dropdown id="all" [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
                     placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
-                    [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="clearCalendar()">
+                    [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="unselectTable()">
           <ng-template pTemplate="selectedItem">
             <div class="item">
-              <div>{{ shownTableDD.semester }} {{ shownTableDD.year }}</div>
+              <div>{{ shownTableDD!.semester }} {{ shownTableDD!.year }}</div>
             </div>
           </ng-template>
           <ng-template let-item pTemplate="item">
