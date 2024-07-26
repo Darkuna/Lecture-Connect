@@ -52,9 +52,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
   ) {
-    this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe(
-      data => this.availableTables = [...data]
-    );
+    this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
+      next: (data) => {
+        this.availableTables = [...data];
+        this.shownTableDD = this.availableTables[0];
+        this.loadSpecificTable();
+      }
+  });
   }
 
   ngOnDestroy(): void {
@@ -85,7 +89,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.clearCalendar();
 
     this.selectedTimeTable.subscribe((timeTable: TimeTableDTO) => {
-      console.log(timeTable.status)
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput(),
