@@ -37,7 +37,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
   responsiveOptions: any[] | undefined;
-  items: MenuItem[] | undefined;
+  items: MenuItem[] = [];
+  contextItems: MenuItem[] = [];
   showNewTableDialog: boolean = false;
   position: any = 'topleft';
 
@@ -211,18 +212,28 @@ export class HomeComponent implements OnInit, OnDestroy {
     if(this.activateLens){
       this.showHoverDialogBool = true;
       this.hoverEventInfo = event;
-      this.tmpPartners = this.colorPartnerEvents(event.event);
+      this.tmpPartners = this.colorPartnerEvents(event, '#ad7353');
 
       this.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
     }
   }
 
-  colorPartnerEvents(event: EventImpl): EventImpl[]{
-    let key = event.title.replace(/ - Group \d+$/, '');
+  highlightEvents(key: string, color: string): EventImpl[]{
     let partner = this.calendarComponent.getApi().getEvents()
       .filter(e => e.title.includes(key));
-      partner.forEach(e => e.setProp('backgroundColor', '#ad7353'));
-      return partner;
+
+    partner.forEach(e => e.setProp('backgroundColor', color));
+
+    return partner;
+  }
+
+  clearEvents(){
+    this.calendarComponent.getApi().getEvents()
+      .forEach(e => e.setProp('backgroundColor', '#666666'));
+  }
+
+  colorPartnerEvents(event: EventClickArg, color: string): EventImpl[]{
+    return this.highlightEvents(event.event.title.replace(/ - Group \d+$/, ''), color);
   }
 
   hideHoverDialog(){
@@ -320,15 +331,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             label: 'Edit Room list',
             icon: 'pi pi-warehouse',
             command: () => this.redirectToSelection('/tt-rooms')
-          },
-          {
-            label: 'Filter',
-            icon: 'pi pi-filter'
-          },
-          {
-            label: 'Lens ',
-            icon: 'pi pi-search',
-            command: () => this.changeLensStatus()
           }
         ]
       },
@@ -341,6 +343,40 @@ export class HomeComponent implements OnInit, OnDestroy {
             icon: 'pi pi-check-square'
           }
         ]
+      }
+    ];
+
+    this.contextItems = [{
+        label: 'Filter Groups',
+        icon: 'pi pi-filter'
+      },
+      {
+        label: 'Highlight Groups',
+        icon: 'pi pi-filter-fill',
+        items: [
+          {
+            label: 'VO',
+            command: () => this.highlightEvents('VO', '#C36049') },
+          { label: 'VU',
+            command: () => this.highlightEvents('VU', '#985F53') },
+          { label: 'PS',
+            command: () => this.highlightEvents('PS', '#ED5432') },
+          { label: 'SE',
+            command: () => this.highlightEvents('SE', '#6E544E') },
+          { label: 'SL',
+            command: () => this.highlightEvents('SL', '#433C3B')},
+          { label: 'PR',
+            command: () => this.highlightEvents('PR', '#332927') },
+          { label: 'Clear',
+            icon: 'pi pi-trash',
+            command: () => this.clearEvents()
+          },
+        ],
+      },
+      {
+        label: 'Lens ',
+        icon: 'pi pi-search',
+        command: () => this.changeLensStatus()
       }
     ];
   }
