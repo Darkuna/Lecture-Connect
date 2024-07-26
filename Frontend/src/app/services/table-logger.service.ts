@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import {LoginUserInfoService} from "./login-user-info.service";
 import {TableLogDto} from "../../assets/Models/dto/table-log-dto";
-import LocalTime from "ts-time/LocalTime";
 import {LoggerType} from "../../assets/Models/enums/logger-types";
 
 @Injectable({
