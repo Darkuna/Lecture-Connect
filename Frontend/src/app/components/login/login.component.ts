@@ -46,10 +46,10 @@ export class LoginComponent implements OnDestroy {
         next: (token: any) => {
           if (token && token['token']) {
             const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string };
-            this.userInfoService.username = decodedToken['username'];
-            this.userInfoService.userRole = decodedToken['role'];
-            this.userInfoService.userLoggedIn = true;
 
+            this.userInfoService.username = decodedToken['username'];
+            this.userInfoService.role = decodedToken['role'][0];
+            this.userInfoService.userLoggedIn = true;
 
             this.storage.store('jwtToken', token['token']);
 

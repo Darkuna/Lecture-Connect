@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
 import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
-import {TimingDTO} from "../../assets/Models/dto/timing-dto";
-import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
+import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
+import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 
 @Injectable({
   providedIn: 'root'

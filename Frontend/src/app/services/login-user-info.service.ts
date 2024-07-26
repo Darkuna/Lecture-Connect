@@ -6,7 +6,8 @@ import {SessionStorageService} from "ngx-webstorage";
 })
 export class LoginUserInfoService {
   userLoggedIn: boolean = false;
-
+  private _username: string | null = null;
+  private _role: string | null = null;
   constructor(
     private sessionStorageService: SessionStorageService,
   ) {
@@ -14,18 +15,21 @@ export class LoginUserInfoService {
   }
 
   get username(): string {
-    return this.sessionStorageService.retrieve("name") || "";
+    return this._username || "";
   }
 
   set username(value: string) {
     this.sessionStorageService.store("name", value);
+    this._username = value;
   }
 
-  get userRole(): string {
-    return this.sessionStorageService.retrieve("role") || "";
+  get role(): string {
+    this.sessionStorageService.retrieve("role");
+    return this._role || "";
   }
 
-  set userRole(value: string) {
-    this.sessionStorageService.store("role", value.at(0));
+  set role(value: string) {
+    this.sessionStorageService.store("role", value);
+    this._role = value;
   }
 }

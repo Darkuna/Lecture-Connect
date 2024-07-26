@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import {TimingDTO} from "../../assets/Models/dto/timing-dto";
-import {RoomDTO} from "../../assets/Models/dto/room-dto";
+import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
+import {RoomDTO} from "../../../assets/Models/dto/room-dto";
 import {EventConverterService} from "./event-converter.service";
-import {Room} from "../../assets/Models/room";
+import {Room} from "../../../assets/Models/room";
 
 @Injectable({
   providedIn: 'root'
