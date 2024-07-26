@@ -1,7 +1,6 @@
 package com.example.demo.models;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,7 +12,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode
 @ToString
 public class CourseSession implements Persistable<Long>, Serializable {
     @Id
@@ -38,6 +36,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     private RoomTable roomTable;
 
     public static final CourseSession BLOCKED = new CourseSession();
+    public static final CourseSession PREFERRED = new CourseSession();
 
     @Override
     public Long getId() {
@@ -61,6 +60,19 @@ public class CourseSession implements Persistable<Long>, Serializable {
 
     public boolean isSplitCourse(){
         return name.contains("Split");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CourseSession that = (CourseSession) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 
 

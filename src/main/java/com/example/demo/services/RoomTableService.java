@@ -54,6 +54,9 @@ public class RoomTableService {
         for(Timing timing : room.getTimingConstraints()){
             timingConstraints.add(timingService.createTiming(timing));
         }
+        for(Timing timingConstraint : timingConstraints){
+            timingConstraint.setRoomTable(roomTable);
+        }
         roomTable.setTimingConstraints(timingConstraints);
         roomTable = roomTableRepository.save(roomTable);
         log.info("Created roomTable for room {}", room.getId());
