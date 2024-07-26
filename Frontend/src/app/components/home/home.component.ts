@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   tmpRenderSelection : EventImpl[] = [];
   tmpColorSelection : EventImpl[] = [];
 
-  private loadingSubject = new BehaviorSubject<boolean>(true);
+  private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
 
   constructor(
