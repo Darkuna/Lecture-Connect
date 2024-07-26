@@ -4,7 +4,6 @@ import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
-import {Status} from "../../../../assets/Models/enums/status";
 
 @Component({
   selector: 'app-course-selection',
@@ -107,7 +106,6 @@ export class CourseSelectionComponent implements OnDestroy {
   }
 
   deleteSingleItem(course: Course) {
-
     const index = this.selectedCourses.indexOf(course, 0);
     if (index > -1) {
       this.selectedCourses.splice(index, 1);

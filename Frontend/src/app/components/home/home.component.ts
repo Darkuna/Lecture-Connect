@@ -197,7 +197,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
-    eventMouseEnter: this.showHoverDialog.bind(this),
+    eventClick: this.showHoverDialog.bind(this),
     eventMouseLeave: this.hideHoverDialog.bind(this),
     }
   );

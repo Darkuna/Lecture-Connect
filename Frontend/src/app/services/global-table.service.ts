@@ -65,16 +65,16 @@ export class GlobalTableService {
   }
 
   //TODO change with correct api path
-  updateTableRooms(id: number, rooms : Room[]){
+  updateTableRooms(id: number, rooms : Room[], newLogs : TableLogDto[]){
     let newUrl = `${GlobalTableService.API_PATH}/roomupdate/${id}`;
-    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, rooms ,this.httpOptions);
+    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, [rooms, newLogs] ,this.httpOptions);
     return this.currentTimeTable;
   }
 
   //TODO change with correct api path
-  updateTableCourses(id: number, courses : Course[]){
+  updateTableCourses(id: number, courses : Course[], newLogs : TableLogDto[]){
     let newUrl = `${GlobalTableService.API_PATH}/courseupdate/${id}`;
-    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, courses, this.httpOptions);
+    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, [courses, newLogs], this.httpOptions);
     return this.currentTimeTable;
   }
 
