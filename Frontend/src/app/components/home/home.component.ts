@@ -205,10 +205,16 @@ export class HomeComponent implements OnInit, OnDestroy {
   showHoverDialog(event: EventClickArg){
     this.showHoverDialogBool = true;
     this.hoverEventInfo = event;
-  }
+    if(this.activateLens){
+      this.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
+    }
+    }
 
   hideHoverDialog(){
     this.showHoverDialogBool = false;
+    if(this.hoverEventInfo){
+      this.hoverEventInfo.event.setProp("backgroundColor", '#666666');
+    }
     this.hoverEventInfo = null;
   }
 
