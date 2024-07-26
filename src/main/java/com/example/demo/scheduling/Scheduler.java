@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @Scope("session")
 public class Scheduler {
     private final int MAX_NUMBER_OF_TRIES = 10;
+    //TODO: fix usePreferredOnly
     private boolean usePreferredOnly = true;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
@@ -242,7 +243,7 @@ public class Scheduler {
 
     private void processGroupCourseSessions(List<CourseSession> groupCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
         List<Candidate> currentCandidates = new ArrayList<>();
-        List<AvailabilityMatrix> availabilityMatricesToConsider = new ArrayList<>();
+        List<AvailabilityMatrix> availabilityMatricesToConsider;
         String groupId;
         int dayOfAssignment;
         List<CourseSession> currentCourseSessions = new ArrayList<>();
@@ -310,9 +311,11 @@ public class Scheduler {
 
     private void processSingleCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         Candidate currentCandidate;
+        int number_of_tries;
 
         // For each courseSession
         for(CourseSession courseSession : courseSessions){
+            number_of_tries = 0;
             log.debug("Choosing CourseSession {} for assignment", courseSession.getName());
             // If queue is empty or all the current courseSession needs candidates of different duration
             if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
@@ -323,6 +326,15 @@ public class Scheduler {
 
             // Find placement candidate for courseSession
             do{
+                if(number_of_tries >= 10000){
+                    if(usePreferredOnly){
+                        usePreferredOnly = false;
+                        number_of_tries = 0;
+                    }
+                    else{
+                        throw new NotEnoughSpaceAvailableException("failed assignment");
+                    }
+                }
                 //refill the queue if no fitting candidate in queue
                 if(candidateQueue.isEmpty()){
                     fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
@@ -330,6 +342,7 @@ public class Scheduler {
                 //select possible candidate for placement
                 currentCandidate = candidateQueue.poll();
                 log.debug("Selecting candidate {} for assignment", currentCandidate);
+                number_of_tries++;
             }
             while(!checkConstraintsFulfilled(courseSession, currentCandidate));
 
@@ -338,7 +351,9 @@ public class Scheduler {
             Timing timing = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
             courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
             readyForAssignmentSet.put(courseSession, timing);
+            usePreferredOnly = true;
         }
+
     }
 
     private boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
