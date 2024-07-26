@@ -223,6 +223,7 @@ export class BaseSelectionComponent{
     this.globalTableService.pushTmpTableObject(res)
       .then(([status, message]) => {
         if (status) {
+          this.localStorage.clear('tmptimetable');
           this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
           this.router.navigate(['/home']);
         } else {
