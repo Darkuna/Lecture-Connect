@@ -43,14 +43,14 @@ export class GlobalTableService {
     let newUrl = `${GlobalTableService.API_PATH}/create`;
 
     return new Promise((resolve, reject) => {
-      this.http.post<any>(newUrl, table, this.httpOptions).subscribe(
-        response => {
-          resolve([true, 'upload successfully']);
-        },
-        (error: HttpErrorResponse) => {
-          reject([false, error.message]);
-        }
-      );
+      this.http.post<any>(newUrl, table, this.httpOptions).subscribe({
+        next: (response) => {
+        resolve([true, 'upload successfully']);
+      },
+      error: (err: HttpErrorResponse) => {
+        reject([false, err.message]);
+      }
+      });
     });
   }
 

@@ -35,46 +35,25 @@ export class LoginUserInfoService implements OnDestroy{
     }
   }
 
-  loginUser(loginObj: any) :Promise<[boolean, string]>{
-      this.loginSub = this.http.post(LoginUserInfoService.API_PATH, loginObj)
-        .subscribe({
-          next: (token: any) => {
-            if (token && token['token']) {
-              const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string };
-
-              this.username = decodedToken['username'];
-              this.role = decodedToken['role'][0];
-              this.userLoggedIn = true;
-
-              this.storage.store('jwtToken', token['token']);
-
-              this.router.navigate(['/home']);
-            } else {
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Login Error',
-                detail: 'Invalid credentials provided!'
-              });
-            }
-          },
-          error: (err) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Login Error',
-              detail: err
-            });
-          }
-        });
-
+  loginUser(loginObj: any) :Promise<string>{
     return new Promise((resolve, reject) => {
-      this.http.post<any>(LoginUserInfoService.API_PATH, loginObj, this.httpOptions).subscribe(
-        response => {
-          resolve([true, 'upload successfully']);
+      this.http.post<any>(LoginUserInfoService.API_PATH, loginObj, this.httpOptions).subscribe({
+        next: (token) => {
+          if (token && token['token']) {
+            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string };
+
+            this.username = decodedToken['username'];
+            this.role = decodedToken['role'][0];
+            this.userLoggedIn = true;
+            this.storage.store('jwtToken', token['token']);
+          }
+
+          resolve('upload successfully');
         },
-        (error: HttpErrorResponse) => {
-          reject([false, error.message]);
+        error: (err: HttpErrorResponse) => {
+          reject(err.message);
         }
-      );
+      });
     });
   }
 

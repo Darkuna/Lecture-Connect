@@ -31,16 +31,13 @@ export class LoginComponent {
   }
 
   login() {
-    this.userInfoService.loginUser(this.loginObj) .then(([status, message]) => {
-      if (status) {
-        this.messageService.add({severity: 'success',summary: `Welcome back ${decodedToken['username']}`});
+    this.userInfoService.loginUser(this.loginObj)
+      .then(() => {
+        this.messageService.add({severity: 'success',summary: `Welcome back ${this.loginObj.name}!`});
         this.router.navigate(['/home']);
-      } else {
-        this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
-      }
     })
-      .catch(([status, message]) => {
-        this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
+      .catch((error: string) => {
+        this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: error});
       });
   }
 
