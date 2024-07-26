@@ -242,6 +242,7 @@ public class Scheduler {
 
     private void processGroupCourseSessions(List<CourseSession> groupCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
         List<Candidate> currentCandidates = new ArrayList<>();
+        List<AvailabilityMatrix> availabilityMatricesToConsider = new ArrayList<>();
         String groupId;
         int dayOfAssignment;
         List<CourseSession> currentCourseSessions = new ArrayList<>();
@@ -255,12 +256,15 @@ public class Scheduler {
             while(!groupCourseSessions.isEmpty() && groupCourseSessions.getFirst().getCourseId().equals(groupId)){
                 currentCourseSessions.add(groupCourseSessions.removeFirst());
             }
+            availabilityMatricesToConsider = availabilityMatrices.stream()
+                    .filter(a -> checkRoomCapacity(currentCourseSessions.getFirst(),a))
+                    .collect(Collectors.toList());
             numberOfGroups = currentCourseSessions.size();
             dayOfAssignment = random.nextInt(5);
 
             for(int i = 0; i < 5; i++){
                 // find a list of possible candidates for a certain day
-                for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
+                for(AvailabilityMatrix availabilityMatrix : availabilityMatricesToConsider){
                     currentCandidates.addAll(availabilityMatrix.getPossibleCandidatesOfDay(dayOfAssignment,
                             currentCourseSessions.getFirst().getDuration(), usePreferredOnly));
                 }
@@ -309,7 +313,7 @@ public class Scheduler {
 
         // For each courseSession
         for(CourseSession courseSession : courseSessions){
-            log.info("Choosing CourseSession {} for assignment", courseSession.getName());
+            log.debug("Choosing CourseSession {} for assignment", courseSession.getName());
             // If queue is empty or all the current courseSession needs candidates of different duration
             if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
                 // Fill the queue with candidates of appropriate duration
@@ -325,12 +329,12 @@ public class Scheduler {
                 }
                 //select possible candidate for placement
                 currentCandidate = candidateQueue.poll();
-                log.info("Selecting candidate {} for assignment", currentCandidate);
+                log.debug("Selecting candidate {} for assignment", currentCandidate);
             }
             while(!checkConstraintsFulfilled(courseSession, currentCandidate));
 
             //assign courseSession
-            log.info("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
+            log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
             Timing timing = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
             courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
             readyForAssignmentSet.put(courseSession, timing);
@@ -338,10 +342,6 @@ public class Scheduler {
     }
 
     private boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
-        if(!checkRoomCapacity(courseSession, candidate.getAvailabilityMatrix())){
-            log.debug("room capacity exceeded");
-            return false;
-        }
         if(!checkTimingConstraintsFulfilled(courseSession, candidate)){
             log.debug("timing constraints are intersecting with candidate");
             return false;
