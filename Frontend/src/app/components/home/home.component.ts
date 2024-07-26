@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -26,6 +26,7 @@ import {EventImpl} from "@fullcalendar/core/internal";
 })
 export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD: TimeTableNames | null = null;
@@ -47,6 +48,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   tmpPartners : EventImpl[] = [];
   tmpRenderSelection : EventImpl[] = [];
   tmpColorSelection : EventImpl[] = [];
+
+  private loadingSubject = new BehaviorSubject<boolean>(true);
+  loading$ = this.loadingSubject.asObservable();
 
   constructor(
     private router: Router,
@@ -140,8 +144,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.messageService.add({severity: 'info', summary: 'Table saved', detail: 'your table was not deleted'});
       }
     });
-
-
   }
 
   applyAlgorithm(){
@@ -172,75 +174,96 @@ export class HomeComponent implements OnInit, OnDestroy {
     return Object.keys(Semester).filter(k => isNaN(Number(k)));
   }
 
+  loadingOn() {
+    this.loadingSubject.next(true);
+  }
+
+  loadingOff() {
+    this.loadingSubject.next(false);
+  }
+
   calendarVisible = signal(true);
   calendarOptions = signal<CalendarOptions>({
-    snapDuration: undefined,
-    plugins: [
-      interactionPlugin,
-      dayGridPlugin,
-      timeGridPlugin,
-      listPlugin,
-    ],
-    headerToolbar: {
-      left: '',
-      center: '',
-      right: ''
-    },
-    initialView: 'timeGridWeek',
-    weekends: false,
-    editable: false,
-    selectable: false,
-    selectMirror: true,
-    dayMaxEvents: true,
-    allDaySlot: false,
-    height: "auto",
-    eventBackgroundColor: "#666666",
-    eventBorderColor: "#050505",
-    eventTextColor: "var(--system-color-primary-white)",
-    slotMinTime: '07:00:00',
-    slotMaxTime: '23:00:00',
-    slotDuration: '00:15:00',
-    slotLabelInterval: '01:00:00',
-    dayHeaderFormat: {weekday: 'long'},
-    eventOverlap: true,
-    slotEventOverlap: true,
-    nowIndicator: false,
-    eventClick: this.showHoverDialog.bind(this),
-    eventMouseLeave: this.hideHoverDialog.bind(this),
-    }
+      snapDuration: undefined,
+      plugins: [
+        interactionPlugin,
+        dayGridPlugin,
+        timeGridPlugin,
+        listPlugin,
+      ],
+      headerToolbar: {
+        left: '',
+        center: '',
+        right: ''
+      },
+      initialView: 'timeGridWeek',
+      weekends: false,
+      editable: false,
+      selectable: false,
+      selectMirror: true,
+      dayMaxEvents: true,
+      allDaySlot: false,
+      height: "auto",
+      eventBackgroundColor: "#666666",
+      eventBorderColor: "#050505",
+      eventTextColor: "var(--system-color-primary-white)",
+      slotMinTime: '07:00:00',
+      slotMaxTime: '23:00:00',
+      slotDuration: '00:15:00',
+      slotLabelInterval: '01:00:00',
+      dayHeaderFormat: {weekday: 'long'},
+      eventOverlap: true,
+      slotEventOverlap: true,
+      nowIndicator: false,
+      eventClick: this.showHoverDialog.bind(this),
+      eventMouseLeave: this.hideHoverDialog.bind(this),}
   );
 
   renderEventType(type: string){
+    this.loadingOn();
+
     let newItems = this.calendarComponent.getApi().getEvents()
       .filter(e => e.extendedProps['type'] === type);
 
     this.tmpRenderSelection = this.tmpRenderSelection.concat(newItems);
     newItems.forEach(e => e.setProp('display', 'none'));
+
+    this.loadingOff();
   }
 
   showAllEvents(){
+    this.loadingOn();
     this.tmpRenderSelection.forEach(e => {
       e.setProp('display', 'auto');
     });
 
     this.tmpRenderSelection = [];
+
+    this.loadingOff();
   }
 
   colorEventType(type: string, color: string){
+    this.loadingOn();
+
     let newItems = this.calendarComponent.getApi().getEvents()
       .filter(e => e.extendedProps['type'] === type);
 
     this.tmpColorSelection = this.tmpColorSelection.concat(newItems);
     newItems.forEach(e => e.setProp('backgroundColor', color));
+
+    this.loadingOff();
   }
 
   clearEvents(){
+    this.loadingOff();
+
     this.tmpColorSelection
       .forEach(e => {
         e.setProp('backgroundColor', '#666666');
       });
 
     this.tmpColorSelection = [];
+    this.loadingOff();
   }
 
   colorPartnerEvents(event: EventClickArg, color: string): EventImpl[]{

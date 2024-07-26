@@ -61,6 +61,7 @@ import {InputGroupModule} from "primeng/inputgroup";
 import {FloatLabelModule} from "primeng/floatlabel";
 import { RoomSelectionPageComponent } from './components/home/room-selection-page/room-selection-page.component';
 import { CourseSelectionPageComponent } from './components/home/course-selection-page/course-selection-page.component';
+import {ProgressSpinnerModule} from "primeng/progressspinner";
 
 @NgModule({ declarations: [
         AppComponent,
@@ -120,6 +121,6 @@ import { CourseSelectionPageComponent } from './components/home/course-selection
     IconFieldModule,
     InputIconModule,
     ToggleButtonModule,
-    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule], providers: [ConfirmationService, MessageService, provideHttpClient(withInterceptorsFromDi())] })
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule], providers: [ConfirmationService, MessageService, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
 }
