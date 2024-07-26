@@ -17,6 +17,7 @@ import {EventConverterService} from "../../services/converter/event-converter.se
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
+import {EventImpl} from "@fullcalendar/core/internal";
 
 @Component({
   selector: 'app-home',
@@ -42,6 +43,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   showHoverDialogBool: boolean = false;
   hoverEventInfo: EventClickArg |null = null;
+  tmpPartners : EventImpl[] = [];
 
   constructor(
     private router: Router,
@@ -206,17 +208,29 @@ export class HomeComponent implements OnInit, OnDestroy {
   );
 
   showHoverDialog(event: EventClickArg){
-    this.showHoverDialogBool = true;
-    this.hoverEventInfo = event;
     if(this.activateLens){
+      this.showHoverDialogBool = true;
+      this.hoverEventInfo = event;
+      this.tmpPartners = this.colorPartnerEvents(event.event);
+
       this.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
     }
-    }
+  }
+
+  colorPartnerEvents(event: EventImpl): EventImpl[]{
+    let key = event.title.replace(/ - Group \d+$/, '');
+    let partner = this.calendarComponent.getApi().getEvents()
+      .filter(e => e.title.includes(key));
+      partner.forEach(e => e.setProp('backgroundColor', '#ad7353'));
+      return partner;
+  }
 
   hideHoverDialog(){
     this.showHoverDialogBool = false;
+
     if(this.hoverEventInfo){
       this.hoverEventInfo.event.setProp("backgroundColor", '#666666');
+      this.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
     }
     this.hoverEventInfo = null;
   }

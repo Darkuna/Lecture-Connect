@@ -10,14 +10,18 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 })
 export class EventConverterService {
   convertTimingToEventInput(session: CourseSessionDTO): EventInput {
-    return {
+    let val: EventInput = {
       id: session.id.toString(),
       title: session.name,
       description: session.roomTable?.roomId,
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime,
       endTime: session.timing?.endTime!,
-    };
+    }
+
+    let combinedGroupId = val.id
+
+    return val;
   }
 
   convertEventInputToTiming(event: EventImpl): TimingDTO {

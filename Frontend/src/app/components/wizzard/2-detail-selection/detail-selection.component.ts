@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {Course} from "../../../../assets/Models/course";
-import {C} from "@fullcalendar/core/internal-common";
 
 @Component({
   selector: 'app-detail-selection',
