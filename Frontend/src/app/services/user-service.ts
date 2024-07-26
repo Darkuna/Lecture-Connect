@@ -15,22 +15,14 @@ export class UserService {
     private storage: LocalStorageService
   ) {}
 
-  private getHttpOptions() {
-      const token = this.storage.retrieve('jwtToken');
-
-      if (!token) {
-        console.error('Token not found or is null');
-      }
-
-      return {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + this.storage.retrieve('jwtToken')
-        })
-      };
-    }
+  httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.storage.retrieve('jwtToken')
+    })
+  };
 
     getAllUsers(): Observable<Userx[]> {
-    return this.http.get<Userx[]>(this.apiUrl, this.getHttpOptions());
+    return this.http.get<Userx[]>(this.apiUrl, this.httpOptions);
   }
 }
