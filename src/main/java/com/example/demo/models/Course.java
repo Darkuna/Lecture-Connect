@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import com.example.demo.models.base.TimestampedEntity;
 import com.example.demo.models.enums.CourseType;
+import com.example.demo.models.enums.StudyType;
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class Course extends TimestampedEntity implements Persistable<String>, Se
     @Id
     private String id;
     private CourseType courseType;
+    private StudyType studyType;
     private String name;
     private String lecturer;
     private int semester;

@@ -58,6 +58,7 @@ public class CourseSessionService {
             courseSession.setTimingConstraints(course.getTimingConstraints());
             courseSession.setCourseId(course.getId());
             courseSession.setTimeTable(timeTable);
+            courseSession.setStudyType(course.getStudyType());
 
             if(isSplitCourse){
                 courseSession.setDuration(course.getSplitTimes().get(i));

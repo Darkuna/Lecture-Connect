@@ -13,6 +13,8 @@ public class CourseSessionDTO {
     private boolean isAssigned;
     private boolean isFixed;
     private int duration;
+    private int semester;
+    private String studyType;
     private List<TimingDTO> timingConstraints;
     private TimingDTO timing;
     private RoomTableDTO roomTable;

@@ -156,7 +156,7 @@ public class Scheduler {
                 return false;
             }
             if(totalPreferredTimeAvailable < totalTimeNeeded){
-                log.info("using also other free time");
+                log.info("There is not enough preferred time available for courseSessions with {} or more participants", number);
                 usePreferredOnly = false;
             }
         }
@@ -164,10 +164,6 @@ public class Scheduler {
     }
 
     private boolean checkAvailableTimePerSemester(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
-        Set<Integer> semesters = new HashSet<>();
-        for(CourseSession courseSession : courseSessions){
-            semesters.add(courseSession.getSemester());
-        }
         return true;
     }
 
@@ -259,11 +255,17 @@ public class Scheduler {
             }
             availabilityMatricesToConsider = availabilityMatrices.stream()
                     .filter(a -> checkRoomCapacity(currentCourseSessions.getFirst(),a))
-                    .collect(Collectors.toList());
+                    .toList();
             numberOfGroups = currentCourseSessions.size();
             dayOfAssignment = random.nextInt(5);
 
-            for(int i = 0; i < 5; i++){
+            for(int i = 0; i < 10; i++){
+                if(i == 5 && usePreferredOnly){
+                    usePreferredOnly = false;
+                }
+                else if (i == 5){
+                    throw new NotEnoughSpaceAvailableException("Not enough space available to assign all groups of course " + groupId);
+                }
                 // find a list of possible candidates for a certain day
                 for(AvailabilityMatrix availabilityMatrix : availabilityMatricesToConsider){
                     currentCandidates.addAll(availabilityMatrix.getPossibleCandidatesOfDay(dayOfAssignment,
@@ -295,6 +297,7 @@ public class Scheduler {
             }
             currentCourseSessions.clear();
             currentCandidates.clear();
+            usePreferredOnly = true;
         }
     }
 
@@ -328,6 +331,7 @@ public class Scheduler {
             do{
                 if(number_of_tries >= 10000){
                     if(usePreferredOnly){
+                        log.debug("Switching to other free time for assignment of courseSession {}", courseSession.getName());
                         usePreferredOnly = false;
                         number_of_tries = 0;
                     }
@@ -344,7 +348,7 @@ public class Scheduler {
                 log.debug("Selecting candidate {} for assignment", currentCandidate);
                 number_of_tries++;
             }
-            while(!checkConstraintsFulfilled(courseSession, currentCandidate));
+            while(!checkConstraintsFulfilled(courseSession, Objects.requireNonNull(currentCandidate)));
 
             //assign courseSession
             log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
@@ -357,6 +361,10 @@ public class Scheduler {
     }
 
     private boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
+        if(!checkRoomCapacity(courseSession, candidate.getAvailabilityMatrix())){
+            log.debug("room capacity of candidate is not fitting courseSession");
+            return false;
+        }
         if(!checkTimingConstraintsFulfilled(courseSession, candidate)){
             log.debug("timing constraints are intersecting with candidate");
             return false;
@@ -417,8 +425,11 @@ public class Scheduler {
                 }
             }
         }
-        if(candidateQueue.isEmpty()){
+        if(candidateQueue.isEmpty() && !preferredOnly){
             throw new NotEnoughSpaceAvailableException("No candidates found");
+        }
+        else if(candidateQueue.isEmpty()){
+            fillQueue(availabilityMatrices, courseSession, false);
         }
     }
 }

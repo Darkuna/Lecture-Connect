@@ -1,5 +1,6 @@
 package com.example.demo.models;
 
+import com.example.demo.models.enums.StudyType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     private Long id;
     private String name;
     private String lecturer;
+    private StudyType studyType;
     private int semester;
     private int numberOfParticipants;
     private boolean computersNecessary;
