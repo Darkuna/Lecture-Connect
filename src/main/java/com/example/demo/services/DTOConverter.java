@@ -27,6 +27,8 @@ public class DTOConverter {
         dto.setName(courseSession.getName());
         dto.setAssigned(courseSession.isAssigned());
         dto.setFixed(courseSession.isFixed());
+        dto.setStudyType(courseSession.getStudyType().toString());
+        dto.setSemester(courseSession.getSemester());
         if(courseSession.getRoomTable() != null){
             dto.setRoomTable(toRoomTableDTO(courseSession.getRoomTable()));
         }

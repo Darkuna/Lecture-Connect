@@ -105,17 +105,59 @@
       <div id="startTime">
         <label for="start">Start Time</label>
         <input pInputText id="start"
-               [ngModel]="hoverEventInfo?.event!.start!.toLocaleString()" [disabled]="true"/></div>
+               [ngModel]="hoverEventInfo?.event!.start!.toLocaleTimeString()" [disabled]="true"/></div>
       <div id="endTime">
         <label for="end">End Time</label>
         <input pInputText id="end"
-               [ngModel]="hoverEventInfo?.event!.end!.toLocaleString()" [disabled]="true"/></div>
+               [ngModel]="hoverEventInfo?.event!.end!.toLocaleTimeString()" [disabled]="true"/></div>
       <div id="details">
         <label for="room">Room</label>
         <input pInputText id="room"
                [ngModel]="hoverEventInfo?.event!.extendedProps['description']" [disabled]="true"/>
+        <label for="studyType">Degree</label>
+        <input pInputText id="studyType"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['studyType']" [disabled]="true"/>
+        <label for="semester">Semester</label>
+        <input pInputText id="semester"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['semester']" [disabled]="true"/>
       </div>
     </div>
 
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="showSearchDialog" header="Search Menu">
+  <ng-template pTemplate="content">
+    <p-dropdown
+      [options]="getCalendarEvents()"
+      [(ngModel)]="searchedEvent"
+      optionLabel="title"
+      [showClear]="true"
+      placeholder="Search for a Course"
+      styleClass="w-20rem">
+      <ng-template pTemplate="filter" let-options="options">
+        <div class="flex gap-1">
+          <div class="p-inputgroup" (click)="$event.stopPropagation()">
+            <span class="p-inputgroup-addon"><i class="pi pi-search"></i></span>
+            <input
+              type="text"
+              pInputText
+              placeholder="Filter"
+              [(ngModel)]="filterValue"
+              (keyup)="customFilterFunction($event, options)" />
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="selectedItem" let-selectedOption>
+        <div class="flex align-items-center gap-2">
+          <div>{{ selectedOption.title }}</div>
+        </div>
+      </ng-template>
+      <ng-template let-course pTemplate="item">
+        <div class="flex align-items-center gap-2">
+          <div>{{ course.title }}</div>
+        </div>
+      </ng-template>
+    </p-dropdown>
   </ng-template>
 </p-dialog>

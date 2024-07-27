@@ -18,6 +18,7 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventImpl} from "@fullcalendar/core/internal";
+import {DropdownFilterOptions} from "primeng/dropdown";
 
 @Component({
   selector: 'app-home',
@@ -51,6 +52,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
+  showSearchDialog: boolean = false;
+  searchedEvent: EventImpl | null = null;
+  filterValue: string | undefined = '';
 
   constructor(
     private router: Router,
@@ -320,6 +324,22 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  activateSearchDialog(){
+    this.showSearchDialog = true;
+  }
+
+  getCalendarEvents(){
+    return this.calendarComponent.getApi().getEvents();
+  }
+
+  customFilterFunction(event: KeyboardEvent, options: DropdownFilterOptions) {
+    if (options && typeof options.filter === 'function') {
+      options.filter(event);
+    } else {
+      console.warn('Filter function is not defined');
+    }
+  }
+
   ngOnInit() {
     this.responsiveOptions = [
       {
@@ -450,8 +470,13 @@ export class HomeComponent implements OnInit, OnDestroy {
         ],
       },
       {
-        label: 'Lens ',
+        label: 'Seach Course',
         icon: 'pi pi-search',
+        command: () => this.activateSearchDialog()
+      },
+      {
+        label: 'Lens ',
+        icon: 'pi pi-bullseye',
         command: () => this.changeLensStatus()
       },
       {
