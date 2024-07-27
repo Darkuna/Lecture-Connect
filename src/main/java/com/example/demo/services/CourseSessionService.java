@@ -58,6 +58,7 @@ public class CourseSessionService {
             courseSession.setTimingConstraints(course.getTimingConstraints());
             courseSession.setCourseId(course.getId());
             courseSession.setTimeTable(timeTable);
+            courseSession.setStudyType(course.getStudyType());
 
             if(isSplitCourse){
                 courseSession.setDuration(course.getSplitTimes().get(i));
@@ -172,7 +173,7 @@ public class CourseSessionService {
     public List<CourseSession> loadAllAssignedToRoomTable(RoomTable roomTable){
 
         List<CourseSession> courseSessions = courseSessionRepository.findAllByRoomTable(roomTable);
-        log.info("Loaded all courseSessions assigned to roomTable {} ({})", roomTable.getRoomId(),
+        log.debug("Loaded all courseSessions assigned to roomTable {} ({})", roomTable.getRoomId(),
                 courseSessions.size());
         return courseSessions;
     }
