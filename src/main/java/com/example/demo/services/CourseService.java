@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.models.Course;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.CourseType;
+import com.example.demo.models.enums.StudyType;
 import com.example.demo.repositories.CourseRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -60,10 +61,12 @@ public class CourseService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course createCourse(String id, String name, CourseType courseType, String lecturer, int semester, int duration,
-                               int numberOfParticipants, boolean computersNecessary, List<Timing> timingConstraints){
+                               int numberOfParticipants, boolean computersNecessary, List<Timing> timingConstraints,
+                               StudyType studyType){
         Course course = new Course();
         course.setId(id);
         course.setName(name);
+        course.setStudyType(studyType);
         course.setCourseType(courseType);
         course.setLecturer(lecturer);
         course.setSemester(semester);

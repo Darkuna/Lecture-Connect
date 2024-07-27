@@ -14,6 +14,7 @@ import java.util.List;
 public class CourseDTO {
     private String id;
     private String courseType;
+    private String studyType;
     private String name;
     private String lecturer;
     private int semester;

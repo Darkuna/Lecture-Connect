@@ -42,10 +42,11 @@ public class TimeTableService {
 
     /**
      * Creates a new timetable from a TimeTableCreationDto object and saves it to the database.
-     *
+     * @Transacitional is important here because in case of an error the timeTable would be partially created otherwise.
      * @param dto The TimeTableCreationDto object to create the timetable from.
      * @return The newly created and persisted TimeTable object.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable createTimeTable(TimeTableCreationDTO dto){
         Room room;

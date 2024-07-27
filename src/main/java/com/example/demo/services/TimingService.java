@@ -122,7 +122,7 @@ public class TimingService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<Timing> loadTimingConstraintsOfRoomTable(RoomTable roomTable){
         List<Timing> timingConstraints = timingRepository.findAllByRoomTable(roomTable);
-        log.info("Loaded all timingConstraints of roomTable {} ({})", roomTable.getId(), timingConstraints.size());
+        log.debug("Loaded all timingConstraints of roomTable {} ({})", roomTable.getId(), timingConstraints.size());
         return timingConstraints;
     }
 
