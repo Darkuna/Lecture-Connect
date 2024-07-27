@@ -17,7 +17,10 @@ export class EventConverterService {
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime,
       endTime: session.timing?.endTime!,
-      extendedProps: {'type': session.name.slice(0, 2)}
+      extendedProps: {
+        'type': session.name.slice(0, 2),
+        'semester': session.semester,
+        'studyType': session.studyType}
     };
   }
 

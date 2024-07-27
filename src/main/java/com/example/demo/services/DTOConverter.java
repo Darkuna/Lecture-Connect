@@ -71,6 +71,7 @@ public class DTOConverter {
         dto.setId(course.getId());
         dto.setName(course.getName());
         dto.setCourseType(course.getCourseType().toString());
+        dto.setStudyType(course.getStudyType().toString());
         dto.setLecturer(course.getLecturer());
         dto.setSemester(course.getSemester());
         dto.setDuration(course.getDuration());

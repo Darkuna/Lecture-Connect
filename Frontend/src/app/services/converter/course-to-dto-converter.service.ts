@@ -21,6 +21,7 @@ export class CourseToDtoConverterService {
         new CourseDTO(
           c.id,
           c.courseType!.toString(),
+          c.studyType!,
           c.name!,
           c.lecturer!,
           c.semester!,
@@ -28,7 +29,8 @@ export class CourseToDtoConverterService {
           c.numberOfParticipants!,
           c.computersNecessary!,
           this.timingConverter.convertMultiple(c.timingConstraints!),
-          c.createdAt?.toLocaleString()!, c.updatedAt?.toLocaleString()!,
+          c.createdAt?.toLocaleString()!,
+          c.updatedAt?.toLocaleString()!,
           c.numberOfGroups!, c.isSplit!, c.splitTimes!)
       )
     })
