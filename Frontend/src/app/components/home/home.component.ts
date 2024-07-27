@@ -31,7 +31,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD: TimeTableNames | null = null;
-  activateLens: boolean = false;
+  activateLens: boolean = true;
 
   creationTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTableDTO>;
@@ -53,7 +53,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
   showSearchDialog: boolean = false;
-  searchedEvent: EventImpl | null = null;
+  lastSearchedEvent: EventImpl | null = null;
+  firstSearchedEvent: EventImpl | null = null;
   filterValue: string | undefined = '';
 
   constructor(
@@ -270,8 +271,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadingOff();
   }
 
-  colorPartnerEvents(event: EventClickArg, color: string): EventImpl[]{
-    let key = event.event.title.replace(/ - Group \d+$/, '');
+  colorPartnerEvents(event: EventImpl, color: string): EventImpl[]{
+    let key = event.title.replace(/ - Group \d+$/, '');
     let partner = this.calendarComponent
       .getApi().getEvents()
       .filter(e => e.title.includes(key));
@@ -286,12 +287,28 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.activateLens = false;
   }
 
+  colorSpecificEvent(event: EventImpl){
+    this.clearLastEvent();
+
+    this.lastSearchedEvent = this.firstSearchedEvent;
+    this.firstSearchedEvent = event;
+
+    if(this.firstSearchedEvent){
+      this.firstSearchedEvent.setProp("backgroundColor", 'var(--system-color-primary-red)');
+    }
+  }
+
+  clearLastEvent(){
+    if(this.lastSearchedEvent){
+      this.lastSearchedEvent.setProp("backgroundColor", '#666666');
+    }
+  }
+
   showHoverDialog(event: EventClickArg){
     if(this.activateLens){
       this.showHoverDialogBool = true;
       this.hoverEventInfo = event;
-      this.tmpPartners = this.colorPartnerEvents(event, '#ad7353');
-
+      this.tmpPartners = this.colorPartnerEvents(event.event, '#ad7353');
       this.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
     }
   }
@@ -335,6 +352,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   customFilterFunction(event: KeyboardEvent, options: DropdownFilterOptions) {
     if (options && typeof options.filter === 'function') {
       options.filter(event);
+      console.log(event);
     } else {
       console.warn('Filter function is not defined');
     }

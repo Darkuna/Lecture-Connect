@@ -126,28 +126,19 @@
   </ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="showSearchDialog" header="Search Menu">
+<p-dialog [(visible)]="showSearchDialog" header="Search Menu"
+          [closable]="true" (onHide)="clearLastEvent()"
+          [style]="{width: '32rem', height: '25rem', margin: 'auto'}">
   <ng-template pTemplate="content">
     <p-dropdown
       [options]="getCalendarEvents()"
-      [(ngModel)]="searchedEvent"
+      [(ngModel)]="firstSearchedEvent"
+      (ngModelChange)="colorSpecificEvent(firstSearchedEvent!)"
       optionLabel="title"
       [showClear]="true"
+      [filter]="true"
       placeholder="Search for a Course"
       styleClass="w-20rem">
-      <ng-template pTemplate="filter" let-options="options">
-        <div class="flex gap-1">
-          <div class="p-inputgroup" (click)="$event.stopPropagation()">
-            <span class="p-inputgroup-addon"><i class="pi pi-search"></i></span>
-            <input
-              type="text"
-              pInputText
-              placeholder="Filter"
-              [(ngModel)]="filterValue"
-              (keyup)="customFilterFunction($event, options)" />
-          </div>
-        </div>
-      </ng-template>
       <ng-template pTemplate="selectedItem" let-selectedOption>
         <div class="flex align-items-center gap-2">
           <div>{{ selectedOption.title }}</div>
