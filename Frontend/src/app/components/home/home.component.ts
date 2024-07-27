@@ -1,11 +1,10 @@
-import {Component, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import {TimeTable} from "../../../assets/Models/time-table";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
@@ -14,10 +13,11 @@ import {GlobalTableService} from "../../services/global-table.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
 import {LocalStorageService} from "ngx-webstorage";
-import {EventConverterService} from "../../services/event-converter.service";
+import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
+import {EventImpl} from "@fullcalendar/core/internal";
 
 @Component({
   selector: 'app-home',
@@ -26,10 +26,11 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 })
 export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
-  shownTableDD!: TimeTableNames;
-  activateLens: boolean = true;
+  shownTableDD: TimeTableNames | null = null;
+  activateLens: boolean = false;
 
   creationTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTableDTO>;
@@ -37,12 +38,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
   responsiveOptions: any[] | undefined;
-  items: MenuItem[] | undefined;
+  items: MenuItem[] = [];
+  contextItems: MenuItem[] = [];
   showNewTableDialog: boolean = false;
   position: any = 'topleft';
 
   showHoverDialogBool: boolean = false;
   hoverEventInfo: EventClickArg |null = null;
+  tmpPartners : EventImpl[] = [];
+  tmpRenderSelection : EventImpl[] = [];
+  tmpColorSelection : EventImpl[] = [];
+
+  private loadingSubject = new BehaviorSubject<boolean>(false);
+  loading$ = this.loadingSubject.asObservable();
 
   constructor(
     private router: Router,
@@ -53,11 +61,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
   ) {
-    this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe(
-      data => this.availableTables = [...data]
-    );
+    this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
+      next: (data) => {
+        this.availableTables = [...data];
+        this.shownTableDD = this.availableTables[0];
+        this.loadSpecificTable();
+      }
+  });
   }
-
 
   ngOnDestroy(): void {
     this.availableTableSubs.unsubscribe();
@@ -74,6 +85,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   clearCalendar(){
     this.calendarComponent.getApi().removeAllEvents();
+  }
+
+  unselectTable(){
+    this.globalTableService.unselectTable();
+    this.shownTableDD = null;
+
+    this.clearCalendar();
   }
 
   updateCalendarEvents(){
@@ -95,11 +113,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   loadSpecificTable() {
-    if(!this.shownTableDD.id){
+    if(!this.shownTableDD!.id){
       return;
     }
 
-    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD.id);
+    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
     this.updateCalendarEvents();
   }
 
@@ -126,19 +144,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.messageService.add({severity: 'info', summary: 'Table saved', detail: 'your table was not deleted'});
       }
     });
-
-
   }
 
   applyAlgorithm(){
-    if(this.selectedTimeTable){
-      this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD.id);
+    if(this.shownTableDD){
+      this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
       this.updateCalendarEvents();
 
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
     }
     else {
-      this.messageService.add({severity: 'info', summary: 'No Data', detail: 'there is currently no table selected!'});
+      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 
@@ -158,51 +174,131 @@ export class HomeComponent implements OnInit, OnDestroy {
     return Object.keys(Semester).filter(k => isNaN(Number(k)));
   }
 
+  loadingOn() {
+    this.loadingSubject.next(true);
+  }
+
+  loadingOff() {
+    this.loadingSubject.next(false);
+  }
+
   calendarVisible = signal(true);
   calendarOptions = signal<CalendarOptions>({
-    snapDuration: undefined,
-    plugins: [
-      interactionPlugin,
-      dayGridPlugin,
-      timeGridPlugin,
-      listPlugin,
-    ],
-    headerToolbar: {
-      left: '',
-      center: '',
-      right: ''
-    },
-    initialView: 'timeGridWeek',
-    weekends: false,
-    editable: false,
-    selectable: false,
-    selectMirror: true,
-    dayMaxEvents: true,
-    allDaySlot: false,
-    height: "auto",
-    eventBackgroundColor: "#666666",
-    eventBorderColor: "#050505",
-    eventTextColor: "var(--system-color-primary-white)",
-    slotMinTime: '07:00:00',
-    slotMaxTime: '23:00:00',
-    slotDuration: '00:15:00',
-    slotLabelInterval: '01:00:00',
-    dayHeaderFormat: {weekday: 'long'},
-    eventOverlap: true,
-    slotEventOverlap: true,
-    nowIndicator: false,
-    eventMouseEnter: this.showHoverDialog.bind(this),
-    eventMouseLeave: this.hideHoverDialog.bind(this),
-    }
+      snapDuration: undefined,
+      plugins: [
+        interactionPlugin,
+        dayGridPlugin,
+        timeGridPlugin,
+        listPlugin,
+      ],
+      headerToolbar: {
+        left: '',
+        center: '',
+        right: ''
+      },
+      initialView: 'timeGridWeek',
+      weekends: false,
+      editable: false,
+      selectable: false,
+      selectMirror: true,
+      dayMaxEvents: true,
+      allDaySlot: false,
+      height: "auto",
+      eventBackgroundColor: "#666666",
+      eventBorderColor: "#050505",
+      eventTextColor: "var(--system-color-primary-white)",
+      slotMinTime: '07:00:00',
+      slotMaxTime: '23:00:00',
+      slotDuration: '00:15:00',
+      slotLabelInterval: '01:00:00',
+      dayHeaderFormat: {weekday: 'long'},
+      eventOverlap: true,
+      slotEventOverlap: true,
+      nowIndicator: false,
+      eventClick: this.showHoverDialog.bind(this),
+      eventMouseLeave: this.hideHoverDialog.bind(this),}
   );
 
+  renderEventType(type: string){
+    this.loadingOn();
+
+    let newItems = this.calendarComponent.getApi().getEvents()
+      .filter(e => e.extendedProps['type'] === type);
+
+    this.tmpRenderSelection = this.tmpRenderSelection.concat(newItems);
+    newItems.forEach(e => e.setProp('display', 'none'));
+
+    this.loadingOff();
+  }
+
+  showAllEvents(){
+    this.loadingOn();
+    this.tmpRenderSelection.forEach(e => {
+      e.setProp('display', 'auto');
+    });
+
+    this.tmpRenderSelection = [];
+
+    this.loadingOff();
+  }
+
+  colorEventType(type: string, color: string){
+    this.loadingOn();
+
+    let newItems = this.calendarComponent.getApi().getEvents()
+      .filter(e => e.extendedProps['type'] === type);
+
+    this.tmpColorSelection = this.tmpColorSelection.concat(newItems);
+    newItems.forEach(e => e.setProp('backgroundColor', color));
+
+    this.loadingOff();
+  }
+
+  clearEvents(){
+    this.loadingOff();
+
+    this.tmpColorSelection
+      .forEach(e => {
+        e.setProp('backgroundColor', '#666666');
+      });
+
+    this.tmpColorSelection = [];
+    this.loadingOff();
+  }
+
+  colorPartnerEvents(event: EventClickArg, color: string): EventImpl[]{
+    let key = event.event.title.replace(/ - Group \d+$/, '');
+    let partner = this.calendarComponent
+      .getApi().getEvents()
+      .filter(e => e.title.includes(key));
+
+    partner.forEach(e => e.setProp('backgroundColor', color));
+    return partner;
+  }
+
+  clearAll(){
+    this.clearEvents();
+    this.showAllEvents();
+    this.activateLens = false;
+  }
+
   showHoverDialog(event: EventClickArg){
-    this.showHoverDialogBool = true;
-    this.hoverEventInfo = event;
+    if(this.activateLens){
+      this.showHoverDialogBool = true;
+      this.hoverEventInfo = event;
+      this.tmpPartners = this.colorPartnerEvents(event, '#ad7353');
+
+      this.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
+    }
   }
 
   hideHoverDialog(){
     this.showHoverDialogBool = false;
+
+    if(this.hoverEventInfo){
+      this.hoverEventInfo.event.setProp("backgroundColor", '#666666');
+      this.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
+    }
     this.hoverEventInfo = null;
   }
 
@@ -213,6 +309,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.messageService.add({severity: 'success', summary: 'Hover Mode', detail: 'Lens is activated'});
     } else {
       this.messageService.add({severity: 'error', summary: 'Hover Mode', detail: 'Lens is deactivated'});
+    }
+  }
+
+  redirectToSelection(page: string){
+    if(this.shownTableDD){
+      this.router.navigate([page]);
+    } else {
+      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 
@@ -275,22 +379,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         label: 'Data',
         items: [
           {
-            label: 'edit Course list',
+            label: 'Edit Course list',
             icon: 'pi pi-book',
-            routerLinkActiveOptions: ['/course-selection']
+            command: () => this.redirectToSelection('/tt-courses')
           },
           {
             label: 'Edit Room list',
-            icon: 'pi pi-warehouse'
-          },
-          {
-            label: 'Filter',
-            icon: 'pi pi-filter'
-          },
-          {
-            label: 'Lens ',
-            icon: 'pi pi-search',
-            command: () => this.changeLensStatus()
+            icon: 'pi pi-warehouse',
+            command: () => this.redirectToSelection('/tt-rooms')
           }
         ]
       },
@@ -303,6 +399,65 @@ export class HomeComponent implements OnInit, OnDestroy {
             icon: 'pi pi-check-square'
           }
         ]
+      }
+    ];
+
+    this.contextItems = [
+      {
+        label: 'Filter Groups',
+        icon: 'pi pi-filter',
+        items: [
+          {
+            label: 'VO',
+            command: () => this.renderEventType('VO') },
+          { label: 'VU',
+            command: () => this.renderEventType('VU') },
+          { label: 'PS',
+            command: () => this.renderEventType('PS') },
+          { label: 'SE',
+            command: () => this.renderEventType('SE') },
+          { label: 'SL',
+            command: () => this.renderEventType('SL')},
+          { label: 'PR',
+            command: () => this.renderEventType('PR') },
+          { label: 'Clear',
+            icon: 'pi pi-trash',
+            command: () => this.showAllEvents()
+          },
+        ],
+      },
+      {
+        label: 'Highlight Groups',
+        icon: 'pi pi-filter-fill',
+        items: [
+          {
+            label: 'VO',
+            command: () => this.colorEventType('VO', '#C36049') },
+          { label: 'VU',
+            command: () => this.colorEventType('VU', '#985F53') },
+          { label: 'PS',
+            command: () => this.colorEventType('PS', '#ED5432') },
+          { label: 'SE',
+            command: () => this.colorEventType('SE', '#6E544E') },
+          { label: 'SL',
+            command: () => this.colorEventType('SL', '#433C3B')},
+          { label: 'PR',
+            command: () => this.colorEventType('PR', '#332927') },
+          { label: 'Clear',
+            icon: 'pi pi-trash',
+            command: () => this.clearEvents()
+          },
+        ],
+      },
+      {
+        label: 'Lens ',
+        icon: 'pi pi-search',
+        command: () => this.changeLensStatus()
+      },
+      {
+        label: 'Clear',
+        icon: 'pi pi-trash',
+        command: () => this.clearAll()
       }
     ];
   }

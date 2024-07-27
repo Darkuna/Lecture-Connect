@@ -24,7 +24,7 @@ export class HeaderSelfComponent {
   }
 
   hasAdminRole(): boolean {
-    return this.userInfoService.userRole === 'ADMIN';
+    return this.userInfoService.role === 'ADMIN';
   }
 
   redirectToPage(page: string): void {

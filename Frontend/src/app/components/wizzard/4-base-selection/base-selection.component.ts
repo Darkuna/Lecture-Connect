@@ -13,8 +13,8 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {GlobalTableService} from "../../../services/global-table.service";
 import {Router} from "@angular/router";
 import {TmpTimeTableDTO} from "../../../../assets/Models/dto/tmp-time-table-dto";
-import {RoomToDtoConverterService} from "../../../services/room-to-dto-converter.service";
-import {CourseToDtoConverterService} from "../../../services/course-to-dto-converter.service";
+import {RoomToDtoConverterService} from "../../../services/converter/room-to-dto-converter.service";
+import {CourseToDtoConverterService} from "../../../services/converter/course-to-dto-converter.service";
 import {Observable} from "rxjs";
 import {getStatusKey} from "../../../../assets/Models/enums/status";
 import {LocalStorageService} from "ngx-webstorage";
@@ -223,6 +223,7 @@ export class BaseSelectionComponent{
     this.globalTableService.pushTmpTableObject(res)
       .then(([status, message]) => {
         if (status) {
+          this.localStorage.clear('tmptimetable');
           this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
           this.router.navigate(['/home']);
         } else {

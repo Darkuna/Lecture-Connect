@@ -80,8 +80,8 @@
 }
 
 #del {
-  background-color: #AD5353;
-  border-color: #AD5353;
+  background-color: var(--system-color-primary-red);
+  border-color: var(--system-color-primary-red);
 
   height: 2.4rem;
   padding: .35rem;
