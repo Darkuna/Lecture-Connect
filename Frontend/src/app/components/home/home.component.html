@@ -58,8 +58,8 @@
   </div>
 
   <div id="div3">
-    <full-calendar #calendar *ngIf='calendarVisible()' [options]='calendarOptions()'
-    [events]="combinedTableEvents | async"/>
+    <full-calendar #calendar
+      [options]='calendarOptions' [events]="combinedTableEvents | async"/>
   </div>
 </div>
 
@@ -85,4 +85,4 @@
   </ng-template>
 </p-dialog>
 
-<app-calendar-context-menu [calendar]="calendarComponent"/>
+<app-calendar-context-menu #calendarContextMenu/>

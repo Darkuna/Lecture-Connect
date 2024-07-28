@@ -127,7 +127,6 @@ import { CalendarContextMenuComponent } from './components/home/calendar-context
   providers: [
     ConfirmationService,
     MessageService,
-    CalendarContextMenuComponent,
     provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
 }

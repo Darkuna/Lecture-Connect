@@ -1,10 +1,12 @@
-<p-progressSpinner *ngIf="loading$ | async" [style]="{
+@if (loading$ | async) {
+  <p-progressSpinner [style]="{
     position: 'fixed',
     zIndex: 2000,
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)'
   }"/>
+}
 
 <p-contextMenu [global]="true" [model]="contextItems" />
 
@@ -18,21 +20,23 @@
       <div id="startTime">
         <label for="start">Start Time</label>
         <input pInputText id="start"
-               [ngModel]="hoverEventInfo?.event!.start!.toLocaleTimeString()" [disabled]="true"/></div>
+               [ngModel]="hoverEventInfo?.event!.start!.toLocaleTimeString()" [disabled]="true"/>
+        <label for="semester">Semester</label>
+        <input pInputText id="semester"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['semester']" [disabled]="true"/>
+      </div>
       <div id="endTime">
         <label for="end">End Time</label>
         <input pInputText id="end"
-               [ngModel]="hoverEventInfo?.event!.end!.toLocaleTimeString()" [disabled]="true"/></div>
+               [ngModel]="hoverEventInfo?.event!.end!.toLocaleTimeString()" [disabled]="true"/>
+        <label for="studyType">Degree</label>
+        <input pInputText id="studyType"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['studyType']" [disabled]="true"/>
+      </div>
       <div id="details">
         <label for="room">Room</label>
         <input pInputText id="room"
                [ngModel]="hoverEventInfo?.event!.extendedProps['description']" [disabled]="true"/>
-        <label for="studyType">Degree</label>
-        <input pInputText id="studyType"
-               [ngModel]="hoverEventInfo?.event!.extendedProps['studyType']" [disabled]="true"/>
-        <label for="semester">Semester</label>
-        <input pInputText id="semester"
-               [ngModel]="hoverEventInfo?.event!.extendedProps['semester']" [disabled]="true"/>
       </div>
     </div>
 

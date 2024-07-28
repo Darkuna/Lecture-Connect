@@ -1,18 +1,18 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Injectable, Input, OnInit} from '@angular/core';
 import {MenuItem, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {EventClickArg} from "@fullcalendar/core";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {BehaviorSubject} from "rxjs";
-import {DropdownFilterOptions} from "primeng/dropdown";
 
+@Injectable()
 @Component({
   selector: 'app-calendar-context-menu',
   templateUrl: './calendar-context-menu.component.html',
   styleUrl: './calendar-context-menu.component.css'
 })
-export class CalendarContextMenuComponent implements OnInit{
-  @Input('calendar') calendarComponent!: FullCalendarComponent;
+export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
+  private _calendarComponent!: FullCalendarComponent;
 
   contextItems: MenuItem[] = [];
   showHoverDialogBool: boolean = false;
@@ -29,23 +29,15 @@ export class CalendarContextMenuComponent implements OnInit{
     private messageService: MessageService,
   ) { }
 
+  ngAfterViewInit(): void {
+    this.activateLens = true
+  }
+
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
   showSearchDialog: boolean = false;
   lastSearchedEvent: EventImpl | null = null;
   firstSearchedEvent: EventImpl | null = null;
-
-  renderEventType(type: string){
-    this.loadingOn();
-
-    let newItems = this.calendarComponent.getApi().getEvents()
-      .filter(e => e.extendedProps['type'] === type);
-
-    this.tmpRenderSelection = this.tmpRenderSelection.concat(newItems);
-    newItems.forEach(e => e.setProp('display', 'none'));
-
-    this.loadingOff();
-  }
 
   loadingOn() {
     this.loadingSubject.next(true);
@@ -53,6 +45,18 @@ export class CalendarContextMenuComponent implements OnInit{
 
   loadingOff() {
     this.loadingSubject.next(false);
+  }
+
+  renderEventType(type: string){
+    this.loadingOn();
+
+    let newItems = this._calendarComponent.getApi().getEvents()
+      .filter(e => e.extendedProps['type'] === type);
+
+    this.tmpRenderSelection = this.tmpRenderSelection.concat(newItems);
+    newItems.forEach(e => e.setProp('display', 'none'));
+
+    this.loadingOff();
   }
 
   showAllEvents(){
@@ -69,7 +73,7 @@ export class CalendarContextMenuComponent implements OnInit{
   colorEventType(type: string, color: string){
     this.loadingOn();
 
-    let newItems = this.calendarComponent.getApi().getEvents()
+    let newItems = this._calendarComponent.getApi().getEvents()
       .filter(e => e.extendedProps['type'] === type);
 
     this.tmpColorSelection = this.tmpColorSelection.concat(newItems);
@@ -92,7 +96,7 @@ export class CalendarContextMenuComponent implements OnInit{
 
   colorPartnerEvents(event: EventImpl, color: string): EventImpl[]{
     let key = event.title.replace(/ - Group \d+$/, '');
-    let partner = this.calendarComponent
+    let partner = this._calendarComponent
       .getApi().getEvents()
       .filter(e => e.title.includes(key));
 
@@ -123,25 +127,6 @@ export class CalendarContextMenuComponent implements OnInit{
     }
   }
 
-  showHoverDialog(event: EventClickArg){
-    if(this.activateLens){
-      this.showHoverDialogBool = true;
-      this.hoverEventInfo = event;
-      this.tmpPartners = this.colorPartnerEvents(event.event, '#ad7353');
-      this.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
-    }
-  }
-
-  hideHoverDialog(){
-    this.showHoverDialogBool = false;
-
-    if(this.hoverEventInfo){
-      this.hoverEventInfo.event.setProp("backgroundColor", '#666666');
-      this.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
-    }
-    this.hoverEventInfo = null;
-  }
-
   changeLensStatus(){
     this.activateLens = !this.activateLens;
 
@@ -157,10 +142,12 @@ export class CalendarContextMenuComponent implements OnInit{
   }
 
   getCalendarEvents(){
-    return this.calendarComponent.getApi().getEvents();
+    return this._calendarComponent.getApi().getEvents();
   }
 
   ngOnInit(): void {
+    this.activateLens = true;
+
     this.contextItems = [
       {
         label: 'Filter Groups',
@@ -224,5 +211,13 @@ export class CalendarContextMenuComponent implements OnInit{
         command: () => this.clearAll()
       }
     ];
+  }
+
+  get calendarComponent(): FullCalendarComponent {
+    return this._calendarComponent;
+  }
+
+  set calendarComponent(value: FullCalendarComponent) {
+    this._calendarComponent = value;
   }
 }

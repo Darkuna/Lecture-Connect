@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {AfterContentInit, AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -24,8 +24,45 @@ import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-con
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  calendarOptions: CalendarOptions= ({
+      plugins: [
+        interactionPlugin,
+        dayGridPlugin,
+        timeGridPlugin,
+        listPlugin,
+      ],
+      headerToolbar: {
+        left: '',
+        center: '',
+        right: ''
+      },
+      initialView: 'timeGridWeek',
+      weekends: false,
+      editable: false,
+      selectable: false,
+      selectMirror: true,
+      dayMaxEvents: true,
+      allDaySlot: false,
+      height: "auto",
+      eventBackgroundColor: "#666666",
+      eventBorderColor: "#050505",
+      eventTextColor: "var(--system-color-primary-white)",
+      slotMinTime: '07:00:00',
+      slotMaxTime: '23:00:00',
+      slotDuration: '00:15:00',
+      slotLabelInterval: '01:00:00',
+      dayHeaderFormat: {weekday: 'long'},
+      eventOverlap: true,
+      slotEventOverlap: true,
+      nowIndicator: false,
+      eventClick: this.showHoverDialog.bind(this),
+      eventMouseLeave: this.hideHoverDialog.bind(this),
+    }
+  );
+
+  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
 
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
@@ -49,7 +86,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private calendarContextMenu: CalendarContextMenuComponent
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -58,6 +94,10 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.loadSpecificTable();
       }
   });
+  }
+
+  ngAfterViewInit(): void {
+    this.calendarContextMenu.calendarComponent = this.calendarComponent;
   }
 
   ngOnDestroy(): void {
@@ -75,13 +115,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   clearCalendar(){
     this.calendarComponent.getApi().removeAllEvents();
-  }
-
-  unselectTable(){
-    this.globalTableService.unselectTable();
-    this.shownTableDD = null;
-
-    this.clearCalendar();
   }
 
   updateCalendarEvents(){
@@ -109,6 +142,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
     this.updateCalendarEvents();
+  }
+
+  unselectTable(){
+    this.globalTableService.unselectTable();
+    this.shownTableDD = null;
+
+    this.clearCalendar();
   }
 
   isTmpTableAvailable(): TmpTimeTable {
@@ -164,52 +204,31 @@ export class HomeComponent implements OnInit, OnDestroy {
     return Object.keys(Semester).filter(k => isNaN(Number(k)));
   }
 
-
-
-  calendarVisible = signal(true);
-  calendarOptions = signal<CalendarOptions>({
-      snapDuration: undefined,
-      plugins: [
-        interactionPlugin,
-        dayGridPlugin,
-        timeGridPlugin,
-        listPlugin,
-      ],
-      headerToolbar: {
-        left: '',
-        center: '',
-        right: ''
-      },
-      initialView: 'timeGridWeek',
-      weekends: false,
-      editable: false,
-      selectable: false,
-      selectMirror: true,
-      dayMaxEvents: true,
-      allDaySlot: false,
-      height: "auto",
-      eventBackgroundColor: "#666666",
-      eventBorderColor: "#050505",
-      eventTextColor: "var(--system-color-primary-white)",
-      slotMinTime: '07:00:00',
-      slotMaxTime: '23:00:00',
-      slotDuration: '00:15:00',
-      slotLabelInterval: '01:00:00',
-      dayHeaderFormat: {weekday: 'long'},
-      eventOverlap: true,
-      slotEventOverlap: true,
-      nowIndicator: false,
-      eventClick: this.calendarContextMenu.showHoverDialog.bind(this),
-      eventMouseLeave: this.calendarContextMenu.hideHoverDialog.bind(this),
-    }
-  );
-
   redirectToSelection(page: string){
     if(this.shownTableDD){
       this.router.navigate([page]);
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
+  }
+
+  showHoverDialog(event: EventClickArg):void{
+    if(this.calendarContextMenu.activateLens || true){
+      this.calendarContextMenu.showHoverDialogBool = true;
+      this.calendarContextMenu.hoverEventInfo = event;
+      this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
+      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
+    }
+  }
+
+  hideHoverDialog():void{
+    this.calendarContextMenu.showHoverDialogBool = false;
+
+    if(this.calendarContextMenu.hoverEventInfo){
+      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", '#666666');
+      this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
+    }
+    this.calendarContextMenu.hoverEventInfo = null;
   }
 
   ngOnInit() {
