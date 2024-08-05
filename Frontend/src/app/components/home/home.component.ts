@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {AfterContentInit, AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -17,20 +17,56 @@ import {EventConverterService} from "../../services/converter/event-converter.se
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
-import {EventImpl} from "@fullcalendar/core/internal";
+import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  calendarOptions: CalendarOptions= ({
+      plugins: [
+        interactionPlugin,
+        dayGridPlugin,
+        timeGridPlugin,
+        listPlugin,
+      ],
+      headerToolbar: {
+        left: '',
+        center: '',
+        right: ''
+      },
+      initialView: 'timeGridWeek',
+      weekends: false,
+      editable: false,
+      selectable: false,
+      selectMirror: true,
+      dayMaxEvents: true,
+      allDaySlot: false,
+      height: "auto",
+      eventBackgroundColor: "#666666",
+      eventBorderColor: "#050505",
+      eventTextColor: "var(--system-color-primary-white)",
+      slotMinTime: '07:00:00',
+      slotMaxTime: '23:00:00',
+      slotDuration: '00:15:00',
+      slotLabelInterval: '01:00:00',
+      dayHeaderFormat: {weekday: 'long'},
+      eventOverlap: true,
+      slotEventOverlap: true,
+      nowIndicator: false,
+      eventClick: this.showHoverDialog.bind(this),
+      eventMouseLeave: this.hideHoverDialog.bind(this),
+    }
+  );
+
+  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
 
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD: TimeTableNames | null = null;
-  activateLens: boolean = false;
 
   creationTable!: TmpTimeTable;
   selectedTimeTable!: Observable<TimeTableDTO>;
@@ -39,18 +75,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   responsiveOptions: any[] | undefined;
   items: MenuItem[] = [];
-  contextItems: MenuItem[] = [];
   showNewTableDialog: boolean = false;
   position: any = 'topleft';
-
-  showHoverDialogBool: boolean = false;
-  hoverEventInfo: EventClickArg |null = null;
-  tmpPartners : EventImpl[] = [];
-  tmpRenderSelection : EventImpl[] = [];
-  tmpColorSelection : EventImpl[] = [];
-
-  private loadingSubject = new BehaviorSubject<boolean>(false);
-  loading$ = this.loadingSubject.asObservable();
 
   constructor(
     private router: Router,
@@ -70,6 +96,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   });
   }
 
+  ngAfterViewInit(): void {
+    this.calendarContextMenu.calendarComponent = this.calendarComponent;
+  }
+
   ngOnDestroy(): void {
     this.availableTableSubs.unsubscribe();
   }
@@ -85,13 +115,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   clearCalendar(){
     this.calendarComponent.getApi().removeAllEvents();
-  }
-
-  unselectTable(){
-    this.globalTableService.unselectTable();
-    this.shownTableDD = null;
-
-    this.clearCalendar();
   }
 
   updateCalendarEvents(){
@@ -119,6 +142,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
     this.updateCalendarEvents();
+  }
+
+  unselectTable(){
+    this.globalTableService.unselectTable();
+    this.shownTableDD = null;
+
+    this.clearCalendar();
   }
 
   isTmpTableAvailable(): TmpTimeTable {
@@ -174,150 +204,31 @@ export class HomeComponent implements OnInit, OnDestroy {
     return Object.keys(Semester).filter(k => isNaN(Number(k)));
   }
 
-  loadingOn() {
-    this.loadingSubject.next(true);
-  }
-
-  loadingOff() {
-    this.loadingSubject.next(false);
-  }
-
-  calendarVisible = signal(true);
-  calendarOptions = signal<CalendarOptions>({
-      snapDuration: undefined,
-      plugins: [
-        interactionPlugin,
-        dayGridPlugin,
-        timeGridPlugin,
-        listPlugin,
-      ],
-      headerToolbar: {
-        left: '',
-        center: '',
-        right: ''
-      },
-      initialView: 'timeGridWeek',
-      weekends: false,
-      editable: false,
-      selectable: false,
-      selectMirror: true,
-      dayMaxEvents: true,
-      allDaySlot: false,
-      height: "auto",
-      eventBackgroundColor: "#666666",
-      eventBorderColor: "#050505",
-      eventTextColor: "var(--system-color-primary-white)",
-      slotMinTime: '07:00:00',
-      slotMaxTime: '23:00:00',
-      slotDuration: '00:15:00',
-      slotLabelInterval: '01:00:00',
-      dayHeaderFormat: {weekday: 'long'},
-      eventOverlap: true,
-      slotEventOverlap: true,
-      nowIndicator: false,
-      eventClick: this.showHoverDialog.bind(this),
-      eventMouseLeave: this.hideHoverDialog.bind(this),}
-  );
-
-  renderEventType(type: string){
-    this.loadingOn();
-
-    let newItems = this.calendarComponent.getApi().getEvents()
-      .filter(e => e.extendedProps['type'] === type);
-
-    this.tmpRenderSelection = this.tmpRenderSelection.concat(newItems);
-    newItems.forEach(e => e.setProp('display', 'none'));
-
-    this.loadingOff();
-  }
-
-  showAllEvents(){
-    this.loadingOn();
-    this.tmpRenderSelection.forEach(e => {
-      e.setProp('display', 'auto');
-    });
-
-    this.tmpRenderSelection = [];
-
-    this.loadingOff();
-  }
-
-  colorEventType(type: string, color: string){
-    this.loadingOn();
-
-    let newItems = this.calendarComponent.getApi().getEvents()
-      .filter(e => e.extendedProps['type'] === type);
-
-    this.tmpColorSelection = this.tmpColorSelection.concat(newItems);
-    newItems.forEach(e => e.setProp('backgroundColor', color));
-
-    this.loadingOff();
-  }
-
-  clearEvents(){
-    this.loadingOff();
-
-    this.tmpColorSelection
-      .forEach(e => {
-        e.setProp('backgroundColor', '#666666');
-      });
-
-    this.tmpColorSelection = [];
-    this.loadingOff();
-  }
-
-  colorPartnerEvents(event: EventClickArg, color: string): EventImpl[]{
-    let key = event.event.title.replace(/ - Group \d+$/, '');
-    let partner = this.calendarComponent
-      .getApi().getEvents()
-      .filter(e => e.title.includes(key));
-
-    partner.forEach(e => e.setProp('backgroundColor', color));
-    return partner;
-  }
-
-  clearAll(){
-    this.clearEvents();
-    this.showAllEvents();
-    this.activateLens = false;
-  }
-
-  showHoverDialog(event: EventClickArg){
-    if(this.activateLens){
-      this.showHoverDialogBool = true;
-      this.hoverEventInfo = event;
-      this.tmpPartners = this.colorPartnerEvents(event, '#ad7353');
-
-      this.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
-    }
-  }
-
-  hideHoverDialog(){
-    this.showHoverDialogBool = false;
-
-    if(this.hoverEventInfo){
-      this.hoverEventInfo.event.setProp("backgroundColor", '#666666');
-      this.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
-    }
-    this.hoverEventInfo = null;
-  }
-
-  changeLensStatus(){
-    this.activateLens = !this.activateLens;
-
-    if(this.activateLens){
-      this.messageService.add({severity: 'success', summary: 'Hover Mode', detail: 'Lens is activated'});
-    } else {
-      this.messageService.add({severity: 'error', summary: 'Hover Mode', detail: 'Lens is deactivated'});
-    }
-  }
-
   redirectToSelection(page: string){
     if(this.shownTableDD){
       this.router.navigate([page]);
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
+  }
+
+  showHoverDialog(event: EventClickArg):void{
+    if(this.calendarContextMenu.activateLens || true){
+      this.calendarContextMenu.showHoverDialogBool = true;
+      this.calendarContextMenu.hoverEventInfo = event;
+      this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
+      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
+    }
+  }
+
+  hideHoverDialog():void{
+    this.calendarContextMenu.showHoverDialogBool = false;
+
+    if(this.calendarContextMenu.hoverEventInfo){
+      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", '#666666');
+      this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
+    }
+    this.calendarContextMenu.hoverEventInfo = null;
   }
 
   ngOnInit() {
@@ -399,65 +310,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             icon: 'pi pi-check-square'
           }
         ]
-      }
-    ];
-
-    this.contextItems = [
-      {
-        label: 'Filter Groups',
-        icon: 'pi pi-filter',
-        items: [
-          {
-            label: 'VO',
-            command: () => this.renderEventType('VO') },
-          { label: 'VU',
-            command: () => this.renderEventType('VU') },
-          { label: 'PS',
-            command: () => this.renderEventType('PS') },
-          { label: 'SE',
-            command: () => this.renderEventType('SE') },
-          { label: 'SL',
-            command: () => this.renderEventType('SL')},
-          { label: 'PR',
-            command: () => this.renderEventType('PR') },
-          { label: 'Clear',
-            icon: 'pi pi-trash',
-            command: () => this.showAllEvents()
-          },
-        ],
-      },
-      {
-        label: 'Highlight Groups',
-        icon: 'pi pi-filter-fill',
-        items: [
-          {
-            label: 'VO',
-            command: () => this.colorEventType('VO', '#C36049') },
-          { label: 'VU',
-            command: () => this.colorEventType('VU', '#985F53') },
-          { label: 'PS',
-            command: () => this.colorEventType('PS', '#ED5432') },
-          { label: 'SE',
-            command: () => this.colorEventType('SE', '#6E544E') },
-          { label: 'SL',
-            command: () => this.colorEventType('SL', '#433C3B')},
-          { label: 'PR',
-            command: () => this.colorEventType('PR', '#332927') },
-          { label: 'Clear',
-            icon: 'pi pi-trash',
-            command: () => this.clearEvents()
-          },
-        ],
-      },
-      {
-        label: 'Lens ',
-        icon: 'pi pi-search',
-        command: () => this.changeLensStatus()
-      },
-      {
-        label: 'Clear',
-        icon: 'pi pi-trash',
-        command: () => this.clearAll()
       }
     ];
   }

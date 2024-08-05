@@ -1,1 +1,55 @@
-<app-room-selection></app-room-selection>
+<div id="infoGrid">
+  <p-tag id="status" [severity]="selectedTable.status" [value]="getTextFromEnum()"/>
+  <p id="info">{{ selectedTable.semester }} {{ selectedTable.year }}</p>
+</div>
+
+<div id="buttonGrid">
+  <p-button icon="pi pi-info-circle" severity="info" id="changeButton" (onClick)="showLastChanges()"/>
+  <p-button icon="pi pi-save" label="Save" severity="success"
+            (onClick)="updateData()" id="saveButton" [style]="{width: '6rem'}"/>
+  <p-button icon="pi pi-arrow-down" label="Close" severity="danger"
+            (onClick)="goToHomeScreen()" id="deleteButton" [style]="{width: '6rem'}"/>
+</div>
+
+<p-stepper [linear]="true" [(activeStep)]="currentPageIndex" class="stepper-settings">
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
+        <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
+          <i class="pi pi-building" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text" [style]="{'color': getColorBasedOnIndex('t', index)}">
+          Choose Rooms
+        </p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
+      <app-room-selection [roomTables]="selectedTable.roomTables"></app-room-selection>
+
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="prevCallback.emit()" [disabled]="true" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
+        <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
+          <i class="pi pi-table" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text" [style]="{'color': getColorBasedOnIndex('t', index)}">
+          blocked Slots
+        </p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-prevCallback="prevCallback">
+      <app-base-selection [globalTable]="selectedTable"></app-base-selection>
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button [disabled]="true" icon="pi pi-arrow-right" class="NextButton"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+</p-stepper>

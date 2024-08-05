@@ -1,0 +1,73 @@
+@if (loading$ | async) {
+  <p-progressSpinner [style]="{
+    position: 'fixed',
+    zIndex: 2000,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)'
+  }"/>
+}
+
+<p-contextMenu [global]="true" [model]="contextItems" />
+
+<p-dialog [(visible)]="showHoverDialogBool && activateLens" header="{{hoverEventInfo?.event!.title}}"
+          [modal]="false" [closable]="false"
+          [style]="{position:'absolute' ,
+          left:hoverEventInfo?.jsEvent!.screenX - 75 +'px',
+          top: hoverEventInfo?.jsEvent!.screenY - 75 +'px'}">
+  <ng-template pTemplate="content" class="parent">
+    <div id="cssportal-grid">
+      <div id="startTime">
+        <label for="start">Start Time</label>
+        <input pInputText id="start"
+               [ngModel]="hoverEventInfo?.event!.start!.toLocaleTimeString()" [disabled]="true"/>
+        <label for="studyType">Degree</label>
+        <input pInputText id="studyType"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['studyType']" [disabled]="true"/>
+      </div>
+
+      <div id="endTime">
+        <label for="end">End Time</label>
+        <input pInputText id="end"
+               [ngModel]="hoverEventInfo?.event!.end!.toLocaleTimeString()" [disabled]="true"/>
+        <label for="semester">Semester</label>
+        <input pInputText id="semester"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['semester']" [disabled]="true"/>
+      </div>
+
+      <div id="details">
+        <br>
+        <label for="room">Room</label>
+        <input pInputText id="room"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['description']" [disabled]="true"/>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="showSearchDialog" header="Search Menu"
+          [closable]="true" (onHide)="clearLastEvent()"
+          [style]="{width: '32rem', height: '25rem', margin: 'auto'}">
+  <ng-template pTemplate="content">
+    <p-dropdown
+      [options]="getCalendarEvents()"
+      [(ngModel)]="firstSearchedEvent"
+      (ngModelChange)="colorSpecificEvent(firstSearchedEvent!)"
+      optionLabel="title"
+      [showClear]="true"
+      [filter]="true"
+      placeholder="Search for a Course"
+      styleClass="w-20rem">
+      <ng-template pTemplate="selectedItem" let-selectedOption>
+        <div class="flex align-items-center gap-2">
+          <div>{{ selectedOption.title }}</div>
+        </div>
+      </ng-template>
+      <ng-template let-course pTemplate="item">
+        <div class="flex align-items-center gap-2">
+          <div>{{ course.title }}</div>
+        </div>
+      </ng-template>
+    </p-dropdown>
+  </ng-template>
+</p-dialog>

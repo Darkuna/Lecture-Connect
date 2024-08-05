@@ -5,6 +5,7 @@ import {CourseType} from "./enums/course-type";
 export class Course {
   id!: string;
   courseType?: CourseType;
+  studyType?: string;
   name?: string;
   lecturer?: string;
   semester?: number;
@@ -23,6 +24,7 @@ export class Course {
     return [
       {field: 'id', header: 'Id'},
       {field: 'courseType', header: 'Type'},
+      {field: 'studyType', header: 'Degree'},
       {field: 'name', header: 'Name'},
       {field: 'lecturer', header: 'Lecturer'},
       {field: 'semester', header: 'Semester'},
