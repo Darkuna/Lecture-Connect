@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Injectable, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Injectable,  OnInit} from '@angular/core';
 import {MenuItem, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {EventClickArg} from "@fullcalendar/core";
@@ -117,7 +117,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     this.firstSearchedEvent = event;
 
     if(this.firstSearchedEvent){
-      this.firstSearchedEvent.setProp("backgroundColor", 'var(--system-color-primary-red)');
+      this.firstSearchedEvent.setProp("backgroundColor", '#53682e');
     }
   }
 

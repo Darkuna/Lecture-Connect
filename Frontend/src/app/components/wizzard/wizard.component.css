@@ -115,19 +115,19 @@
   gap: 0;
 }
 
-#div1 {
+#changeButton {
   grid-area: 1 / 1 / 3 / 2;
   height: auto;
   width: 3rem;
 }
 
-#div2 {
+#saveButton {
   grid-area: 1/2/2/3;
   width: 6rem;
   padding-bottom: .5rem;
 }
 
-#div3 {
+#deleteButton {
   grid-area: 2/2/3/3;
   width: 6rem;
 }
@@ -208,4 +208,14 @@ p-tag#status {
   align-items: center;
   justify-content: center;
   text-align: center;
+}
+
+.stepper-settings {
+  width: 70%;
+  position: absolute;
+  top: calc(5% + 5px);
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
 }
