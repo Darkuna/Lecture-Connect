@@ -24,7 +24,6 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   tmpRenderSelection : EventImpl[] = [];
   tmpColorSelection : EventImpl[] = [];
 
-
   constructor(
     private messageService: MessageService,
   ) { }
@@ -35,9 +34,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
 
   private loadingSubject = new BehaviorSubject<boolean>(false);
   loading$ = this.loadingSubject.asObservable();
-  showSearchDialog: boolean = false;
-  lastSearchedEvent: EventImpl | null = null;
-  firstSearchedEvent: EventImpl | null = null;
+
 
   loadingOn() {
     this.loadingSubject.next(true);
@@ -110,23 +107,6 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     this.activateLens = false;
   }
 
-  colorSpecificEvent(event: EventImpl){
-    this.clearLastEvent();
-
-    this.lastSearchedEvent = this.firstSearchedEvent;
-    this.firstSearchedEvent = event;
-
-    if(this.firstSearchedEvent){
-      this.firstSearchedEvent.setProp("backgroundColor", '#53682e');
-    }
-  }
-
-  clearLastEvent(){
-    if(this.lastSearchedEvent){
-      this.lastSearchedEvent.setProp("backgroundColor", '#666666');
-    }
-  }
-
   changeLensStatus(){
     this.activateLens = !this.activateLens;
 
@@ -137,9 +117,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     }
   }
 
-  activateSearchDialog(){
-    this.showSearchDialog = true;
-  }
+
 
   getCalendarEvents(){
     return this._calendarComponent.getApi().getEvents();
@@ -194,11 +172,6 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
             command: () => this.clearEvents()
           },
         ],
-      },
-      {
-        label: 'Seach Course',
-        icon: 'pi pi-search',
-        command: () => this.activateSearchDialog()
       },
       {
         label: 'Lens ',

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, Input, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -15,7 +15,6 @@ import {Router} from "@angular/router";
 import {TmpTimeTableDTO} from "../../../../assets/Models/dto/tmp-time-table-dto";
 import {RoomToDtoConverterService} from "../../../services/converter/room-to-dto-converter.service";
 import {CourseToDtoConverterService} from "../../../services/converter/course-to-dto-converter.service";
-import {Observable} from "rxjs";
 import {getStatusKey} from "../../../../assets/Models/enums/status";
 import {LocalStorageService} from "ngx-webstorage";
 
@@ -177,10 +176,8 @@ export class BaseSelectionComponent{
     });
   }
 
-  updateCalendar(calendarOption: string, value: any) {
-    this.calendarOptions.update(val => ({
-      ...val, [calendarOption]: value
-    }));
+  updateCalendar(calendarOption: any, value: any) {
+    this.calendarComponent.getApi().setOption(calendarOption, value);
   }
 
   saveTimeStartSelection(event: Date) {
