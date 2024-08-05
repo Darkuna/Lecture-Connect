@@ -33,9 +33,10 @@
                 pTooltip="delete unfinished table"
                 class="headerButton" (click)="deleteUnfinishedTable()">
         </button>
+
       </div>
 
-      <div class="p-toolbar-group-center">
+      <div class="p-toolbar-group-center" style="  position: absolute; top:4.2%; left: 50%;  transform: translate(-50%, -50%);">
         <p-dropdown id="all" [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
                     placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
                     [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="unselectTable()">
@@ -53,13 +54,32 @@
       </div>
 
       <div class="p-toolbar-group-end">
+        <p-dropdown [style]="{'margin-right': '.5rem'}"
+                    [options]="getCalendarEvents()"
+                    [(ngModel)]="firstSearchedEvent"
+                    (ngModelChange)="colorSpecificEvent(firstSearchedEvent!)"
+                    optionLabel="title"
+                    [showClear]="true"
+                    [filter]="true"
+                    placeholder="Search for a Course">
+          <ng-template pTemplate="selectedItem" let-selectedOption>
+            <div class="flex align-items-center gap-2">
+              <div>{{ selectedOption.title }}</div>
+            </div>
+          </ng-template>
+          <ng-template let-course pTemplate="item">
+            <div class="flex align-items-center gap-2">
+              <div>{{ course.title }}</div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+        <p-button icon="pi pi-cog" (click)="op.show($event, op)" />
       </div>
     </p-toolbar>
   </div>
 
   <div id="div3">
-    <full-calendar #calendar
-      [options]='calendarOptions' [events]="combinedTableEvents | async"/>
+    <full-calendar #calendar [options]='calendarOptions' [events]="combinedTableEvents | async"/>
   </div>
 </div>
 
@@ -84,5 +104,27 @@
     </button>
   </ng-template>
 </p-dialog>
+
+<p-overlayPanel #op showCloseIcon="true">
+  <ng-template pTemplate="content">
+    <label for="start-time" style="padding-right: .7rem; padding-left: .3rem">Start Time</label>
+    <p-calendar id="start-time" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpStartDate"
+                (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
+
+    <label for="end-time" style="padding-right: .7rem; padding-left: .3rem">End Time</label>
+    <p-calendar id="end-time" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpEndDate"
+                (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
+    <label for="duration" style="padding-right: .7rem; padding-left: .3rem">Time Slot Duration</label>
+    <p-calendar id="duration" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
+                (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
+    <label for="interval" style="padding-right: .7rem; padding-left: .3rem">Time Label Interval </label>
+    <p-calendar id="interval" inputId="calendar-timeonly"
+                [timeOnly]="true" [ngModel]="tmpSlotInterval"
+                (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
+  </ng-template>
+</p-overlayPanel>
 
 <app-calendar-context-menu #calendarContextMenu/>

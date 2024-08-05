@@ -1,4 +1,4 @@
-import {AfterContentInit, AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterContentInit, AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -18,6 +18,8 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
+import {OverlayPanel} from "primeng/overlaypanel";
+import {EventImpl} from "@fullcalendar/core/internal";
 
 @Component({
   selector: 'app-home',
@@ -25,6 +27,29 @@ import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-con
   styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+  availableTableSubs: Subscription;
+  availableTables!: TimeTableNames[];
+  shownTableDD: TimeTableNames | null = null;
+
+  creationTable!: TmpTimeTable;
+  selectedTimeTable!: Observable<TimeTableDTO>;
+  private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
+  combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
+
+  responsiveOptions: any[] | undefined;
+  items: MenuItem[] = [];
+  showNewTableDialog: boolean = false;
+  position: any = 'topleft';
+
+  tmpStartDate: Date = new Date('2024-07-10T08:00:00');
+  tmpEndDate: Date = new Date('2024-07-10T22:00:00');
+  tmpDuration: Date = new Date('2024-07-10T00:20:00');
+  tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
+
+  lastSearchedEvent: EventImpl | null = null;
+  firstSearchedEvent: EventImpl | null = null;
+
+  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   calendarOptions: CalendarOptions= ({
       plugins: [
@@ -49,10 +74,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       eventBackgroundColor: "#666666",
       eventBorderColor: "#050505",
       eventTextColor: "var(--system-color-primary-white)",
-      slotMinTime: '07:00:00',
-      slotMaxTime: '23:00:00',
-      slotDuration: '00:15:00',
-      slotLabelInterval: '01:00:00',
+      slotMinTime: this.formatTime(this.tmpStartDate),
+      slotMaxTime: this.formatTime(this.tmpEndDate),
+      slotDuration: this.formatTime(this.tmpDuration),
+      slotLabelInterval: this.formatTime(this.tmpSlotInterval),
       dayHeaderFormat: {weekday: 'long'},
       eventOverlap: true,
       slotEventOverlap: true,
@@ -61,22 +86,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       eventMouseLeave: this.hideHoverDialog.bind(this),
     }
   );
-
-  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
-
-  availableTableSubs: Subscription;
-  availableTables!: TimeTableNames[];
-  shownTableDD: TimeTableNames | null = null;
-
-  creationTable!: TmpTimeTable;
-  selectedTimeTable!: Observable<TimeTableDTO>;
-  private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
-  combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
-
-  responsiveOptions: any[] | undefined;
-  items: MenuItem[] = [];
-  showNewTableDialog: boolean = false;
-  position: any = 'topleft';
 
   constructor(
     private router: Router,
@@ -229,6 +238,44 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
     }
     this.calendarContextMenu.hoverEventInfo = null;
+  }
+
+  formatTime(date: Date): string {
+    // equal returns date as hour:minute:second (00:00:00)
+    return date.toString().split(' ')[4];
+  }
+
+  updateCalendar(calendarOption: any, value: string) {
+    console.log(value);
+    if(value === '00:00:00'){
+      value = '00:00:05';
+    }
+    this.calendarComponent.getApi().setOption(calendarOption, value);
+  }
+
+  getCalendarEvents(): EventImpl[]{
+    if(this.calendarComponent){
+      return this.calendarComponent.getApi().getEvents();
+    } else {
+      return [];
+    }
+  }
+
+  colorSpecificEvent(event: EventImpl){
+    this.clearLastEvent();
+
+    this.lastSearchedEvent = this.firstSearchedEvent;
+    this.firstSearchedEvent = event;
+
+    if(this.firstSearchedEvent){
+      this.firstSearchedEvent.setProp("backgroundColor", '#53682e');
+    }
+  }
+
+  clearLastEvent(){
+    if(this.lastSearchedEvent){
+      this.lastSearchedEvent.setProp("backgroundColor", '#666666');
+    }
   }
 
   ngOnInit() {
