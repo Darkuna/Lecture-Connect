@@ -115,6 +115,10 @@ export class WizardComponent {
 
   closeWizard() {
     this.saveLocal();
-    this.router.navigate(['/home']);
+    this.router.navigate(['/home'])
+      .catch(message => {
+        this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+      }
+    );
   }
 }

@@ -36,8 +36,9 @@
 
       </div>
 
-      <div class="p-toolbar-group-center" style="  position: absolute; top:4.2%; left: 50%;  transform: translate(-50%, -50%);">
-        <p-dropdown id="all" [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
+      <div class="p-toolbar-group-center">
+        <p-dropdown id="all" [style]="{'width': '10rem'}"
+                    [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
                     placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
                     [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="unselectTable()">
           <ng-template pTemplate="selectedItem">
@@ -54,7 +55,7 @@
       </div>
 
       <div class="p-toolbar-group-end">
-        <p-dropdown [style]="{'margin-right': '.5rem'}"
+        <p-dropdown [style]="{'margin-right': '.5rem', 'width': '28rem'}"
                     [options]="getCalendarEvents()"
                     [(ngModel)]="firstSearchedEvent"
                     (ngModelChange)="colorSpecificEvent(firstSearchedEvent!)"

@@ -12,9 +12,8 @@
 
 <p-dialog [(visible)]="showHoverDialogBool && activateLens" header="{{hoverEventInfo?.event!.title}}"
           [modal]="false" [closable]="false"
-          [style]="{position:'absolute' ,
-          left:hoverEventInfo?.jsEvent!.screenX - 75 +'px',
-          top: hoverEventInfo?.jsEvent!.screenY - 75 +'px'}">
+          [style]="{left:hoverEventInfo?.jsEvent!.screenX,
+          top: hoverEventInfo?.jsEvent!.screenY}">
   <ng-template pTemplate="content" class="parent">
     <div id="cssportal-grid">
       <div id="startTime">

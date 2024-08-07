@@ -206,7 +206,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.hideTableDialog();
 
     this.shareService.selectedTable = this.creationTable;
-    this.router.navigate(['/wizard']);
+    this.router.navigate(['/wizard']).catch(message => {
+      this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+    });
   }
 
   getSemesterOptions() {
@@ -215,14 +217,16 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   redirectToSelection(page: string){
     if(this.shownTableDD){
-      this.router.navigate([page]);
+      this.router.navigate([page]).catch(message => {
+        this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+      });
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 
   showHoverDialog(event: EventClickArg):void{
-    if(this.calendarContextMenu.activateLens || true){
+    if(this.calendarContextMenu.activateLens){
       this.calendarContextMenu.showHoverDialogBool = true;
       this.calendarContextMenu.hoverEventInfo = event;
       this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
@@ -354,7 +358,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         items: [
           {
             label: 'define Status',
-            icon: 'pi pi-check-square'
+            icon: 'pi pi-check-square',
+            command: () => this.router.navigate(['/tt-status'])
           }
         ]
       }
