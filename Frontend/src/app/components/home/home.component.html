@@ -37,7 +37,7 @@
       </div>
 
       <div class="p-toolbar-group-center">
-        <p-dropdown id="all" [style]="{'width': '10rem'}"
+        <p-dropdown id="all"
                     [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
                     placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
                     [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="unselectTable()">
@@ -62,6 +62,7 @@
                     optionLabel="title"
                     [showClear]="true"
                     [filter]="true"
+                    [disabled]="tableIsSelected()"
                     placeholder="Search for a Course">
           <ng-template pTemplate="selectedItem" let-selectedOption>
             <div class="flex align-items-center gap-2">

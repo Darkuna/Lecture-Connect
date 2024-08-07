@@ -1,4 +1,4 @@
-import {AfterContentInit, AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -18,7 +18,6 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
-import {OverlayPanel} from "primeng/overlaypanel";
 import {EventImpl} from "@fullcalendar/core/internal";
 
 @Component({
@@ -32,7 +31,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   shownTableDD: TimeTableNames | null = null;
 
   creationTable!: TmpTimeTable;
-  selectedTimeTable!: Observable<TimeTableDTO>;
+  selectedTimeTable: Observable<TimeTableDTO> | null = null;
   private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
@@ -129,7 +128,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   updateCalendarEvents(){
     this.clearCalendar();
 
-    this.selectedTimeTable.subscribe((timeTable: TimeTableDTO) => {
+    this.selectedTimeTable!.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput(),
@@ -156,8 +155,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   unselectTable(){
     this.globalTableService.unselectTable();
     this.shownTableDD = null;
+    this.selectedTimeTable = null;
 
     this.clearCalendar();
+  }
+
+  tableIsSelected():boolean{
+    return this.selectedTimeTable === null;
   }
 
   isTmpTableAvailable(): TmpTimeTable {
