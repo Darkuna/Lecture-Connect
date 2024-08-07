@@ -105,8 +105,9 @@
 #buttonGrid {
   position: absolute;
   top: calc(7% + 5px);
+  width: 8%;
   left: 90%;
-  padding-right: 2rem;
+  padding-right: .5rem;
   place-items: center;
 
   display: grid;
@@ -131,7 +132,6 @@
   grid-area: 2/2/3/3;
   width: 6rem;
 }
-
 
 #infoGrid {
   position: absolute;

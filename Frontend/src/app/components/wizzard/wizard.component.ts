@@ -57,6 +57,14 @@ export class WizardComponent {
     this.currentDialog = this.InfoDialogOptions[this.active];
   }
 
+  checkIfCoursesSelected():boolean{
+    return this.selectedTable.courseTable === undefined || this.selectedTable.courseTable.length == 0;
+  }
+
+  checkIfRoomsSelected(){
+    return this.selectedTable.roomTables === undefined || this.selectedTable.roomTables.length == 0;
+  }
+
 
   getColorBasedOnIndex(type: string, index: number): string {
     if (index > this.active) {

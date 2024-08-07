@@ -4,6 +4,7 @@ import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
+import {co} from "@fullcalendar/core/internal-common";
 
 @Component({
   selector: 'app-course-selection',
@@ -18,7 +19,7 @@ export class CourseSelectionComponent implements OnDestroy {
   availableCourses!: Course[];
 
   CreateDialogVisible: boolean = false;
-  selectedCourses: Course[] = [];
+  selectedCourses: Course[] | null = null;
   draggedCourse: Course | undefined | null;
 
   headers: any[];
@@ -79,9 +80,9 @@ export class CourseSelectionComponent implements OnDestroy {
 
   drop() {
     if (this.draggedCourse) {
-      let idx = this.findIndex(this.draggedCourse, this.courseTable);
+      let idx = this.courseTable.indexOf(this.draggedCourse);
 
-      if (idx !== -1) {
+      if (idx > -1) {
         this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
       } else {
         this.courseTable.push(this.draggedCourse);
@@ -94,36 +95,20 @@ export class CourseSelectionComponent implements OnDestroy {
     this.draggedCourse = null;
   }
 
-  findIndex(product: Course, list: Course[]): number {
-    let index = -1;
-    for (let i = 0; i < (list).length; i++) {
-      if (product.id === (list)[i].id) {
-        index = i;
-        break;
-      }
-    }
-    return index;
-  }
-
   deleteSingleItem(course: Course) {
-    const index = this.selectedCourses.indexOf(course, 0);
-    if (index > -1) {
-      this.selectedCourses.splice(index, 1);
-    }
-
-    this.courseTable = this.courseTable.filter(val => val.id !== course.id);
+    this.courseTable = this.courseTable.filter((val:Course) => val.id !== course.id);
   }
 
   coursesSelected() : boolean{
-    return this.selectedCourses.length !== 0;
+    if(this.selectedCourses){
+      return this.selectedCourses.length === 0 || this.courseTable.length === 0;
+    }
+    return true; //method is called to tell if a button should be disabled or not
   }
 
   deleteMultipleItems() {
-    if(this.coursesSelected()){
-      this.selectedCourses.forEach(
-        c => this.deleteSingleItem(c)
-      );
-    }
+    this.courseTable = this.courseTable.filter((val) => !this.selectedCourses?.includes(val));
+    this.selectedCourses = null;
   }
 
   getRoleOptions() {
