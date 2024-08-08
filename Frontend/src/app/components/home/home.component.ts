@@ -201,7 +201,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.shownTableDD) {
       this.globalTableService.getCollisions(this.shownTableDD.id).subscribe(collision => {
         if (collision.length === 0) {
-          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'bla'});
+          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'});
         } else {
           this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
         }
