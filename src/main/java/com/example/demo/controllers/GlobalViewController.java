@@ -1,8 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dto.TimeTableCreationDTO;
-import com.example.demo.dto.TimeTableDTO;
-import com.example.demo.dto.TimeTableNameDTO;
+import com.example.demo.dto.*;
 import com.example.demo.models.Course;
 import com.example.demo.models.Room;
 import com.example.demo.models.TimeTable;
@@ -85,5 +83,23 @@ public class GlobalViewController {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
         List<Room> rooms = roomService.loadAllRoomsNotInTimeTable(timeTable);
         return ResponseEntity.ok(rooms);
+    }
+
+    @PostMapping("/add-courses-to-timetable")
+    public ResponseEntity<Void> addCoursesToTimeTable(@RequestParam Long timeTableId, @RequestBody List<CourseDTO> courseDTOs) {
+        TimeTable timeTable = timeTableService.loadTimeTable(timeTableId);
+        for(CourseDTO courseDTO : courseDTOs) {
+            timeTableService.createCourseSessions(timeTable, dtoConverter.toCourse(courseDTO));
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/add-rooms-to-timetable")
+    public ResponseEntity<Void> addRoomsToTimeTable(@RequestParam Long timeTableId, @RequestBody List<RoomDTO> roomsDTOs) {
+        TimeTable timeTable = timeTableService.loadTimeTable(timeTableId);
+        for(RoomDTO roomDTO : roomsDTOs) {
+            timeTableService.createRoomTable(timeTable, dtoConverter.toRoom(roomDTO));
+        }
+        return ResponseEntity.ok().build();
     }
 }
