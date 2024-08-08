@@ -36,7 +36,7 @@
 
       </div>
 
-      <div class="p-toolbar-group-center" style=" z-index:2000; position: absolute; top:4.2%; left: 50%;  transform: translate(-50%, -50%);">
+      <div class="p-toolbar-group-center" style=" z-index:80; position: absolute; top:4.2%; left: 50%;  transform: translate(-50%, -50%);">
         <p-dropdown id="all" [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
                     placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
                     [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="unselectTable()">
