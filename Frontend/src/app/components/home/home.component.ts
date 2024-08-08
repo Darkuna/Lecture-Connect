@@ -197,6 +197,20 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  applyCollisionCheck() {
+    if (this.shownTableDD) {
+      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe(collision => {
+        if (collision.length === 0) {
+          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'bla'});
+        } else {
+          this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
+        }
+      }, error => {
+        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: 'bla'});
+      });
+    }
+  }
+
   createNewTable() {
     this.creationTable.id = 999999;
     this.creationTable.status = Status.NEW;
@@ -314,7 +328,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           },
           {
             label: 'Collision Check',
-            icon: 'pi pi-check-circle'
+            icon: 'pi pi-check-circle',
+            command: () => this.applyCollisionCheck()
           }
         ]
       },

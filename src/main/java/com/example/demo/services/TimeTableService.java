@@ -201,4 +201,9 @@ public class TimeTableService {
         timeTableRepository.save(timeTable);
         log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<CourseSession> checkCollisions(TimeTable timeTable){
+        return scheduler.collisionCheck(timeTable);
+    }
 }

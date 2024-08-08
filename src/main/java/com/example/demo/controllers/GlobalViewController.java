@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.dto.*;
 import com.example.demo.models.Course;
+import com.example.demo.models.CourseSession;
 import com.example.demo.models.Room;
 import com.example.demo.models.TimeTable;
 import com.example.demo.services.CourseService;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Scope("session")
@@ -69,6 +71,16 @@ public class GlobalViewController {
         timeTableService.assignCourseSessionsToRooms(timeTable);
         TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok().body(updatedTimeTableDTO);
+    }
+
+    @PostMapping("/collision/{id}")
+    public ResponseEntity<List<CourseSessionDTO>> checkCollision(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+        List<CourseSession> collisions = timeTableService.checkCollisions(timeTable);
+        List<CourseSessionDTO> collisionDTOs = collisions.stream()
+                .map(dtoConverter::toCourseSessionDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(collisionDTOs);
     }
 
     @GetMapping("/courses/{id}")
