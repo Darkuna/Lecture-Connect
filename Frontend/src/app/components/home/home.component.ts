@@ -204,12 +204,32 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'});
         } else {
           this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
+
+          const calendarApi = this.calendarComponent.getApi();
+          const originalColors: { [eventId: string]: string } = {};
+
+          collision.forEach(collisionEvent => {
+            calendarApi.getEvents().forEach(event => {
+              if (event.id === collisionEvent.id.toString()) {
+                originalColors[event.id] = event.backgroundColor;
+                event.setProp("backgroundColor", "red");
+              }
+            });
+          });
+
+          // Zurückfärben nach 3 Sekunden
+          setTimeout(() => {
+            calendarApi.getEvents().forEach(event => {
+                event.setProp("backgroundColor", "#666666");
+            });
+          }, 1000);
         }
       }, error => {
-        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: 'bla'});
+        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: 'Error during collision check'});
       });
     }
   }
+
 
   createNewTable() {
     this.creationTable.id = 999999;
