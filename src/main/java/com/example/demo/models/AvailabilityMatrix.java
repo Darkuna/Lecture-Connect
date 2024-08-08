@@ -220,6 +220,13 @@ public class AvailabilityMatrix {
     }
 
     public boolean semesterIntersects(Candidate candidate, CourseSession courseSession) {
+        //guarantees that collision check works as expected
+        if(matrix[candidate.getDay()][candidate.getSlot()] != null &&
+                matrix[candidate.getDay()][candidate.getSlot()] != CourseSession.BLOCKED &&
+                matrix[candidate.getDay()][candidate.getSlot()] != CourseSession.PREFERRED &&
+                matrix[candidate.getDay()][candidate.getSlot()].equals(courseSession)){
+            return false;
+        }
         for (int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
             if (i >= SLOTS_PER_DAY) {
                 return true;
@@ -233,7 +240,7 @@ public class AvailabilityMatrix {
         return false;
     }
 
-    private int timeToSlotIndex(LocalTime time) {
+    private static int timeToSlotIndex(LocalTime time) {
         time = time.minusHours(START_TIME.getHour());
         time = time.minusMinutes(START_TIME.getMinute());
         return (time.getHour() * 60 + time.getMinute()) / 15;
@@ -256,6 +263,12 @@ public class AvailabilityMatrix {
         timing.setEndTime(startTime.plusMinutes(candidate.getDuration()));
         timing.setDay(Day.values()[candidate.getDay()]);
         return timing;
+    }
+
+    public static Candidate toCandidate(CourseSession courseSession) {
+        return new Candidate(courseSession.getRoomTable().getAvailabilityMatrix(),
+                courseSession.getTiming().getDay().ordinal(),timeToSlotIndex(courseSession.getTiming().getStartTime()),
+                (int) courseSession.getTiming().getDuration());
     }
 
     public void addTimingConstraint(Timing timing) {
