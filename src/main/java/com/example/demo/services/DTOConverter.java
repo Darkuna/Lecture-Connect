@@ -27,12 +27,15 @@ public class DTOConverter {
         dto.setName(courseSession.getName());
         dto.setAssigned(courseSession.isAssigned());
         dto.setFixed(courseSession.isFixed());
-        dto.setStudyType(courseSession.getStudyType().toString());
         dto.setSemester(courseSession.getSemester());
+        dto.setDuration(courseSession.getDuration());
+        if(courseSession.getStudyType() != null){
+            dto.setStudyType(courseSession.getStudyType().toString());
+        }
         if(courseSession.getRoomTable() != null){
             dto.setRoomTable(toRoomTableDTO(courseSession.getRoomTable()));
         }
-        dto.setDuration(courseSession.getDuration());
+
         if(courseSession.getTiming() != null){
             dto.setTiming(toTimingDTO(courseSession.getTiming()));
         }
@@ -56,6 +59,8 @@ public class DTOConverter {
         courseSession.setDuration(dto.getDuration());
         courseSession.setTiming(toTiming(dto.getTiming()));
         courseSession.setRoomTable(toRoomTable(dto.getRoomTable()));
+        courseSession.setSemester(dto.getSemester());
+        courseSession.setStudyType(StudyType.valueOf(dto.getStudyType()));
         return courseSession;
     }
 

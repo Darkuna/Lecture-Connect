@@ -1,6 +1,6 @@
 package com.example.demo.services;
 
-import com.example.demo.models.Room;
+import com.example.demo.models.*;
 import com.example.demo.repositories.RoomRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -10,7 +10,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /**
@@ -131,5 +134,18 @@ public class RoomService {
             deleteRoom(room);
         }
         log.info("Deleted {} rooms", roomIds.size());
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Room> loadAllRoomsNotInTimeTable(TimeTable timeTable){
+        List<Room> rooms = roomRepository.findAll();
+        Set<String> roomIds = new HashSet<>();
+        for(RoomTable roomTable : timeTable.getRoomTables()){
+            roomIds.add(roomTable.getRoomId());
+        }
+        rooms = rooms.stream()
+                .filter(r -> !roomIds.contains(r.getId()))
+                .collect(Collectors.toList());
+        return rooms;
     }
 }
