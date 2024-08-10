@@ -2,8 +2,9 @@ import {Injectable} from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
-import {Observable} from "rxjs";
+import {Observable, switchMap, throwError} from "rxjs";
 import {Course} from "../../assets/Models/course";
+import {GlobalTableService} from "./global-table.service";
 
 @Injectable({
   providedIn: 'root'
@@ -22,12 +23,25 @@ export class CourseService {
     private http: HttpClient,
     private storage: LocalStorageService,
     private messageService: MessageService,
+    private currentTable: GlobalTableService
   ) {
   }
 
   getAllCourses() {
     return this.http.get<Course[]>(this.courseApiPath, this.httpOptions);
   }
+
+  getUnselectedCourses(): Observable<Course[]> {
+    return this.currentTable.currentTimeTable?.pipe(
+      switchMap((data) => {
+        let id = data.id;
+        let newUrl = `/proxy/api/global/courses/${id}`;
+        console.log(newUrl);
+        return this.http.get<Course[]>(newUrl, this.httpOptions);
+      })
+    ) ?? new Observable();
+  }
+
 
   createSingleCourse(course: Course) {
     return this.http.post<Course>(this.courseApiPath, course, this.httpOptions);

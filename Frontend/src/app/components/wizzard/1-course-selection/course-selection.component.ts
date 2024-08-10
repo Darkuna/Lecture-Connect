@@ -1,10 +1,9 @@
-import {Component, Input, OnDestroy} from '@angular/core';
+import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
-import {CourseType, getRoleOptions} from "../../../../assets/Models/enums/course-type";
-import {co} from "@fullcalendar/core/internal-common";
+import {getRoleOptions} from "../../../../assets/Models/enums/course-type";
 import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
 
 @Component({
@@ -13,36 +12,38 @@ import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
   styleUrl: '../wizard.component.css',
 })
 
-export class CourseSelectionComponent implements OnDestroy {
-  @Input() courseTable!: Course[];
+export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
+  @Input() courseTable: Course[] = [];
+  @Input() wizardMode: boolean = true;
 
-  courseSub: Subscription;
+  courseSub!: Subscription;
   availableCourses!: Course[];
 
   CreateDialogVisible: boolean = false;
   selectedCourses: Course[] | null = null;
   draggedCourse: Course | undefined | null;
-
-  headers: any[];
-  stateOptions: any[] = [
-    {label: 'Yes', value: true},
-    {label: 'No', value: false}
+  headers: any[] = [
+    {field: 'id', header: 'Id'},
+    {field: 'courseType', header: 'Type'},
+    {field: 'name', header: 'Name'},
+    {field: 'semester', header: 'Semester'}
   ];
 
   constructor(
     private courseService: CourseService,
     private messageService: MessageService,
-  ) {
-    this.courseSub = this.courseService.getAllCourses().subscribe(
-      (data => this.availableCourses = data)
-    );
+  ) {}
 
-    this.headers = [
-      {field: 'id', header: 'Id'},
-      {field: 'courseType', header: 'Type'},
-      {field: 'name', header: 'Name'},
-      {field: 'semester', header: 'Semester'}
-    ];
+  ngAfterViewInit(): void {
+    if(this.wizardMode){
+      this.courseSub = this.courseService.getAllCourses().subscribe(
+        (data => this.availableCourses = data)
+      );
+    } else {
+      this.courseSub = this.courseService.getUnselectedCourses().subscribe(
+        (data => this.availableCourses = data)
+      );
+    }
   }
 
   ngOnDestroy(): void {
@@ -98,7 +99,6 @@ export class CourseSelectionComponent implements OnDestroy {
         this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
       } else {
         this.courseTable.push(this.draggedCourse);
-        this.draggedCourse = null;
       }
     }
   }

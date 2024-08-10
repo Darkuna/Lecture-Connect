@@ -365,23 +365,35 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       {separator: true},
       {
-        label: 'Data',
+        label: 'Courses',
         items: [
           {
-            label: 'Edit Course list',
+            label: 'Add new Courses',
             icon: 'pi pi-book',
             command: () => this.redirectToSelection('/tt-courses')
           },
           {
-            label: 'Edit Room list',
+            label: 'Edit shown Courses',
+            icon: 'pi pi-book',
+            command: () => this.redirectToSelection('/tt-courses')
+          },
+        ]
+      },
+      {separator: true},
+      {
+        label: 'Rooms',
+        items: [
+          {
+            label: 'Add new Rooms',
             icon: 'pi pi-warehouse',
             command: () => this.redirectToSelection('/tt-rooms')
           },
+
           {
-            label: 'last Changes',
-            icon: 'pi pi-file-edit',
-            command: () => this.redirectToSelection('/tt-status')
-          }
+            label: 'Edit shown Rooms',
+            icon: 'pi pi-warehouse',
+            command: () => this.redirectToSelection('/tt-rooms')
+          },
         ]
       },
       {separator: true},
@@ -391,6 +403,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           {
             label: 'define Status',
             icon: 'pi pi-check-square',
+          },
+          {
+            label: 'last Changes',
+            icon: 'pi pi-comments',
+            command: () => this.redirectToSelection('/tt-status')
           }
         ]
       }

@@ -1,14 +1,10 @@
-<div id="infoGrid">
-  <p-tag id="status" [severity]="selectedTable.status" [value]="getTextFromEnum()"/>
-  <p id="info">{{ selectedTable.semester }} {{ selectedTable.year }}</p>
-</div>
-
 <div id="buttonGrid">
-  <p-button icon="pi pi-info-circle" severity="info" id="div1" (onClick)="showLastChanges()"/>
+  <p-button icon="pi pi-info-circle" severity="info" id="changeButton"
+            (onClick)="showLastChanges()" pTooltip="show last changes" tooltipPosition="left"/>
   <p-button icon="pi pi-save" label="Save" severity="success"
-            (onClick)="updateData()" id="div2" [style]="{width: '6rem'}"/>
+            (onClick)="updateData()" id="saveButton" [style]="{width: '6rem'}"/>
   <p-button icon="pi pi-arrow-down" label="Close" severity="danger"
-            (onClick)="goToHomeScreen()" id="div3" [style]="{width: '6rem'}"/>
+            (onClick)="goToHomeScreen()" id="deleteButton" [style]="{width: '6rem'}"/>
 </div>
 
 <p-stepper [linear]="true" [(activeStep)]="currentPageIndex" class="stepper-settings">
@@ -24,7 +20,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback">
-      <app-course-selection [courseTable]="selectedTable.courseTable"></app-course-selection>
+      <app-course-selection [wizardMode]="false"></app-course-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>
