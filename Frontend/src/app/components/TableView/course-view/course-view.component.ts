@@ -4,6 +4,8 @@ import {Course} from "../../../../assets/Models/course";
 import {CourseType} from "../../../../assets/Models/enums/course-type";
 import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
+import {C} from "@fullcalendar/core/internal-common";
+import {StudyType} from "../../../../assets/Models/enums/study-type";
 
 @Component({
   selector: 'app-course-view',
@@ -43,17 +45,19 @@ export class CourseViewComponent implements OnInit, OnDestroy {
   }
 
   openNew() {
+    this.singleCourse = new Course();
     this.itemDialogVisible = true;
   }
 
   hideDialog() {
     this.itemDialogVisible = false;
+    this. itemIsEdited = false;
   }
 
   editItem(item: Course) {
     this.itemIsEdited = true;
     this.singleCourse = item;
-    this.openNew();
+    this.itemDialogVisible = true;
   }
 
   saveNewItem(): void {
@@ -126,5 +130,10 @@ export class CourseViewComponent implements OnInit, OnDestroy {
 
   getRoleOptions() {
     return Object.keys(CourseType).filter(k => isNaN(Number(k)));
+  }
+
+  getDegreeOptions(){
+    return Object.keys(StudyType).filter(k => isNaN(Number(k)));
+
   }
 }
