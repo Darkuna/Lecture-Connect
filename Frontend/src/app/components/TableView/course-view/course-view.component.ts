@@ -73,12 +73,19 @@ export class CourseViewComponent implements OnInit, OnDestroy {
       this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
     } else {
       this.singleCourse.timingConstraints = [];
-      this.courses.push(this.courseService.createSingleCourse(this.singleCourse));
 
-      this.hideDialog();
-      this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
+      this.courseService.createSingleCourse(this.singleCourse).subscribe({
+        next: value => {
+          this.courses.push(value);
+          this.hideDialog();
+          this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
+        },
+
+        error: err => {
+          this.messageService.add({severity: 'error', summary: 'Upload', detail: err.toString()});
+        }
+      });
     }
-    this.singleCourse = new Course();
   }
 
   deleteSingleItem(course: Course) {

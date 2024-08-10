@@ -30,10 +30,7 @@ export class CourseService {
   }
 
   createSingleCourse(course: Course) {
-    this.http.post<Course>(this.courseApiPath, course, this.httpOptions)
-      .subscribe(data => {course = data
-      }).unsubscribe();
-    return course;
+    return this.http.post<Course>(this.courseApiPath, course, this.httpOptions);
   }
 
   getSingleCourse(courseID: string): Observable<any> {

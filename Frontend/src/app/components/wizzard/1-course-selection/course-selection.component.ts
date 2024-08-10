@@ -64,7 +64,18 @@ export class CourseSelectionComponent implements OnDestroy {
       this.draggedCourse.createdAt = undefined;
       this.draggedCourse.updatedAt = undefined;
 
-      this.availableCourses.push(this.courseService.createSingleCourse(this.draggedCourse!));
+
+      this.courseService.createSingleCourse(this.draggedCourse!).subscribe({
+        next: value => {
+          this.availableCourses.push(value);
+          this.hideDialog();
+          this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
+        },
+
+        error: err => {
+          this.messageService.add({severity: 'error', summary: 'Upload', detail: err.toString()});
+        }
+      });
 
       this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
       this.draggedCourse = null;
