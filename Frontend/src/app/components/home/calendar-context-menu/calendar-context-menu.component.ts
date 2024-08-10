@@ -117,12 +117,6 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     }
   }
 
-
-
-  getCalendarEvents(){
-    return this._calendarComponent.getApi().getEvents();
-  }
-
   ngOnInit(): void {
     this.activateLens = true;
 

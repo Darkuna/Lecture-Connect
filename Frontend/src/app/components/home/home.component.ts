@@ -353,6 +353,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             label: 'Edit Room list',
             icon: 'pi pi-warehouse',
             command: () => this.redirectToSelection('/tt-rooms')
+          },
+          {
+            label: 'last Changes',
+            icon: 'pi pi-file-edit',
+            command: () => this.redirectToSelection('/tt-status')
           }
         ]
       },
@@ -363,7 +368,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           {
             label: 'define Status',
             icon: 'pi pi-check-square',
-            command: () => this.router.navigate(['/tt-status'])
           }
         ]
       }
