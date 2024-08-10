@@ -19,6 +19,7 @@ import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {EventImpl} from "@fullcalendar/core/internal";
+import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 
 @Component({
   selector: 'app-home',
@@ -203,37 +204,24 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
-      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe(collision => {
+      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
+      next: (collision: CourseSessionDTO[]) => {
         if (collision.length === 0) {
-          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'});
-        } else {
+          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
+        else {
+          this.calendarContextMenu.colorCollisionEvents(collision);
           this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
-
-          const calendarApi = this.calendarComponent.getApi();
-          const originalColors: { [eventId: string]: string } = {};
-
-          collision.forEach(collisionEvent => {
-            calendarApi.getEvents().forEach(event => {
-              if (event.id === collisionEvent.id.toString()) {
-                originalColors[event.id] = event.backgroundColor;
-                event.setProp("backgroundColor", "red");
-              }
-            });
-          });
-
-          // Zurückfärben nach 3 Sekunden
-          setTimeout(() => {
-            calendarApi.getEvents().forEach(event => {
-                event.setProp("backgroundColor", "#666666");
-            });
-          }, 1000);
         }
-      }, error => {
-        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: 'Error during collision check'});
+      },
+
+      error: err => {
+        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
+      }
       });
+    } else {
+      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
-
 
   createNewTable() {
     this.creationTable.id = 999999;

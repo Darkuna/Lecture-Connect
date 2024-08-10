@@ -8,13 +8,11 @@
   }"/>
 }
 
-<p-contextMenu [global]="true" [model]="contextItems" />
+<p-contextMenu [global]="true" [model]="contextItems" (mousemove)="onMouseMove($event)"/>
 
 <p-dialog [(visible)]="showHoverDialogBool && activateLens" header="{{hoverEventInfo?.event!.title}}"
           [modal]="false" [closable]="false"
-          [style]="{ width: '30rem',
-          left:hoverEventInfo?.jsEvent!.screenX - 45 + 'px',
-          top: hoverEventInfo?.jsEvent!.screenY - 45 + 'px'}">
+          [style]="{ width: '30rem','top.px': hoverEventInfo?.jsEvent!.screenY, 'left.px': hoverEventInfo?.jsEvent!.screenX}">
   <ng-template pTemplate="content" class="parent">
     <div id="cssportal-grid">
       <div id="startTime">

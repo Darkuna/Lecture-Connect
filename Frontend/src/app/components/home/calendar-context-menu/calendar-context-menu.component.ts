@@ -4,6 +4,7 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {EventClickArg} from "@fullcalendar/core";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {BehaviorSubject} from "rxjs";
+import {CourseSessionDTO} from "../../../../assets/Models/dto/course-session-dto";
 
 @Injectable()
 @Component({
@@ -19,6 +20,8 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
 
   activateLens: boolean = true;
   hoverEventInfo: EventClickArg |null = null;
+  mouseX: number = 0;
+  mouseY: number = 0;
 
   tmpPartners : EventImpl[] = [];
   tmpRenderSelection : EventImpl[] = [];
@@ -27,6 +30,11 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   constructor(
     private messageService: MessageService,
   ) { }
+
+  onMouseMove(event: MouseEvent): void {
+    this.mouseX = event.clientX;
+    this.mouseY = event.clientY;
+  }
 
   ngAfterViewInit(): void {
     this.activateLens = true
@@ -115,6 +123,21 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     } else {
       this.messageService.add({severity: 'error', summary: 'Hover Mode', detail: 'Lens is deactivated'});
     }
+  }
+
+  colorCollisionEvents(collision: CourseSessionDTO[]) {
+    const calendarApi = this.calendarComponent.getApi();
+    const originalColors: { [eventId: string]: string } = {};
+
+    collision.forEach(collisionEvent => {
+      calendarApi.getEvents().forEach(event => {
+        if (event.id === collisionEvent.id.toString()) {
+          this.tmpColorSelection.push(event) //so i can clear the events again
+          originalColors[event.id] = event.backgroundColor;
+          event.setProp("backgroundColor", "#34675C");
+        }
+      });
+    });
   }
 
   ngOnInit(): void {
