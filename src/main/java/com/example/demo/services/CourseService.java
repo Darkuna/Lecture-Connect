@@ -1,6 +1,8 @@
 package com.example.demo.services;
 
 import com.example.demo.models.Course;
+import com.example.demo.models.CourseSession;
+import com.example.demo.models.TimeTable;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.CourseType;
 import com.example.demo.models.enums.StudyType;
@@ -14,7 +16,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing courses.
@@ -180,6 +185,20 @@ public class CourseService {
             course.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(course.getId()));
         }
         log.info("Loaded all courses ({})", courses.size());
+        return courses;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<Course> loadAllCoursesNotInTimeTable(TimeTable timeTable){
+        List<Course> courses = courseRepository.findAll();
+        Set<String> courseIds = new HashSet<>();
+        for(CourseSession courseSession : timeTable.getCourseSessions()){
+            courseIds.add(courseSession.getCourseId());
+        }
+        courses = courses.stream()
+                .filter(c -> !courseIds.contains(c.getId()))
+                .peek((c) -> c.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(c.getId())))
+                .collect(Collectors.toList());
         return courses;
     }
 }

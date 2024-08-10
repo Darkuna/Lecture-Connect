@@ -8,6 +8,7 @@ import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
 import {TableLogDto} from "../../assets/Models/dto/table-log-dto";
 import {Room} from "../../assets/Models/room";
 import {Course} from "../../assets/Models/course";
+import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 
 @Injectable({
   providedIn: 'root'
@@ -58,6 +59,11 @@ export class GlobalTableService {
     let newUrl = `${GlobalTableService.API_PATH}/assignment/${id}`;
     this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, this.httpOptions);
     return this.currentTimeTable;
+  }
+
+  getCollisions(id: number): Observable<CourseSessionDTO[]>{
+    let newUrl = `${GlobalTableService.API_PATH}/collision/${id}`;
+    return this.http.post<CourseSessionDTO[]>(newUrl, this.httpOptions);
   }
 
   unselectTable(){

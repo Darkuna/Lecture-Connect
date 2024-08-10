@@ -26,6 +26,7 @@ public class Scheduler {
     private Queue<Candidate> candidateQueue;
     private final Logger log = LoggerFactory.getLogger(Scheduler.class);
     private final Map<CourseSession, Timing> readyForAssignmentSet = new HashMap<>();
+    private TimeTable timeTable;
     int numberOfCourseSessions;
 
     private final TimingService timingService;
@@ -35,6 +36,7 @@ public class Scheduler {
     }
 
     public void setTimeTable(TimeTable timeTable){
+        this.timeTable = timeTable;
         availabilityMatricesOfRoomsWithComputers = new ArrayList<>();
         availabilityMatricesOfRoomsWithoutComputers = new ArrayList<>();
         allAvailabilityMatrices = new ArrayList<>();
@@ -431,5 +433,19 @@ public class Scheduler {
         else if(candidateQueue.isEmpty()){
             fillQueue(availabilityMatrices, courseSession, false);
         }
+    }
+
+    public List<CourseSession> collisionCheck(TimeTable timeTable){
+        if(!this.timeTable.equals(timeTable)){
+            setTimeTable(timeTable);
+        }
+        List<CourseSession> collisionCandidates = timeTable.getAssignedCourseSessions();
+        List<CourseSession> collisions = new ArrayList<>();
+        for(CourseSession courseSession : collisionCandidates){
+            if(!checkCoursesOfSameSemester(courseSession, AvailabilityMatrix.toCandidate(courseSession))){
+                collisions.add(courseSession);
+            }
+        }
+        return collisions;
     }
 }
