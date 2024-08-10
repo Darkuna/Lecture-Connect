@@ -3,8 +3,9 @@ import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
-import {CourseType} from "../../../../assets/Models/enums/course-type";
+import {CourseType, getRoleOptions} from "../../../../assets/Models/enums/course-type";
 import {co} from "@fullcalendar/core/internal-common";
+import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
 
 @Component({
   selector: 'app-course-selection',
@@ -111,7 +112,6 @@ export class CourseSelectionComponent implements OnDestroy {
     this.selectedCourses = null;
   }
 
-  getRoleOptions() {
-    return Object.keys(CourseType).filter(k => isNaN(Number(k)));
-  }
+  protected readonly getRoleOptions = getRoleOptions;
+  protected readonly getDegreeOptions = getDegreeOptions;
 }

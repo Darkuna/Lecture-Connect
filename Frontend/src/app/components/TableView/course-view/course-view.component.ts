@@ -1,11 +1,12 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {ConfirmationService, MessageService} from "primeng/api";
 import {Course} from "../../../../assets/Models/course";
-import {CourseType} from "../../../../assets/Models/enums/course-type";
 import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
-import {C} from "@fullcalendar/core/internal-common";
-import {StudyType} from "../../../../assets/Models/enums/study-type";
+import {getRoleOptions} from "../../../../assets/Models/enums/course-type";
+import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
+
+
 
 @Component({
   selector: 'app-course-view',
@@ -128,12 +129,6 @@ export class CourseViewComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  getRoleOptions() {
-    return Object.keys(CourseType).filter(k => isNaN(Number(k)));
-  }
-
-  getDegreeOptions(){
-    return Object.keys(StudyType).filter(k => isNaN(Number(k)));
-
-  }
+  readonly roleOptions = getRoleOptions();
+  readonly degreeOptions = getDegreeOptions();
 }

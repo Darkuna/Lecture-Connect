@@ -60,4 +60,23 @@ public class Course extends TimestampedEntity implements Persistable<String>, Se
     public int hashCode() {
         return Objects.hash(id);
     }
+
+    @Override
+    public String toString() {
+        return "Course{" +
+                "id='" + id + '\'' +
+                ", courseType=" + courseType +
+                ", studyType=" + studyType +
+                ", name='" + name + '\'' +
+                ", lecturer='" + lecturer + '\'' +
+                ", semester=" + semester +
+                ", duration=" + duration +
+                ", numberOfParticipants=" + numberOfParticipants +
+                ", computersNecessary=" + computersNecessary +
+                ", timingConstraints=" + timingConstraints +
+                ", numberOfGroups=" + numberOfGroups +
+                ", isSplit=" + isSplit +
+                ", splitTimes=" + splitTimes +
+                '}';
+    }
 }

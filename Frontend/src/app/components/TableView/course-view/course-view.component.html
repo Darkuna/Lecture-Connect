@@ -88,7 +88,7 @@
 
       <div class="rand" style="width: 15%">
         <label for="type">Type</label>
-        <p-dropdown id="type" [options]="getRoleOptions()" [(ngModel)]="singleCourse.courseType"
+        <p-dropdown id="type" [options]="roleOptions" [(ngModel)]="singleCourse.courseType"
                     placeholder="select a Type"/>
       </div>
 
@@ -114,7 +114,7 @@
 
       <div class="rand" style="width: 50%">
         <label for="degree">Study Degree</label>
-        <p-dropdown id="degree" [options]="getDegreeOptions()" [(ngModel)]="singleCourse.studyType"
+        <p-dropdown id="degree" [options]="degreeOptions" [(ngModel)]="singleCourse.studyType"
                     placeholder="select Study degree"/>
       </div>
     </div>
