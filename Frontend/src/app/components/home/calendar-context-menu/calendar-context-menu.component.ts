@@ -3,7 +3,7 @@ import {MenuItem, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {EventClickArg} from "@fullcalendar/core";
 import {EventImpl} from "@fullcalendar/core/internal";
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, window} from "rxjs";
 import {CourseSessionDTO} from "../../../../assets/Models/dto/course-session-dto";
 
 @Injectable()
@@ -20,8 +20,6 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
 
   activateLens: boolean = true;
   hoverEventInfo: EventClickArg |null = null;
-  mouseX: number = 0;
-  mouseY: number = 0;
 
   tmpPartners : EventImpl[] = [];
   tmpRenderSelection : EventImpl[] = [];
@@ -30,11 +28,6 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   constructor(
     private messageService: MessageService,
   ) { }
-
-  onMouseMove(event: MouseEvent): void {
-    this.mouseX = event.clientX;
-    this.mouseY = event.clientY;
-  }
 
   ngAfterViewInit(): void {
     this.activateLens = true
@@ -62,6 +55,10 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     newItems.forEach(e => e.setProp('display', 'none'));
 
     this.loadingOff();
+  }
+
+  calculateDialogPosition(coordinate:number, screenMax:number){
+    return Math.min(coordinate, screenMax*0.65);
   }
 
   showAllEvents(){
@@ -210,4 +207,9 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   set calendarComponent(value: FullCalendarComponent) {
     this._calendarComponent = value;
   }
+
+  protected readonly screenX = screenX;
+  protected readonly Math = Math;
+  protected readonly window = window;
+  protected readonly screen = screen;
 }

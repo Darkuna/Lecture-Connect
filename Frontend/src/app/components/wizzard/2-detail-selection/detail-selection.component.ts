@@ -64,8 +64,6 @@ export class DetailSelectionComponent {
     } else {
       this.timesArray = Array(this.tmpSplitTimes).fill(fillValue);
     }
-
-    console.log(this.timesArray);
   }
 
   getRemainingDuration() {

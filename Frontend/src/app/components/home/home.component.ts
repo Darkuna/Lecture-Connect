@@ -276,7 +276,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateCalendar(calendarOption: any, value: string) {
-    console.log(value);
     if(value === '00:00:00'){
       value = '00:00:05';
     }

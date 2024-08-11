@@ -36,7 +36,6 @@ export class CourseService {
       switchMap((data) => {
         let id = data.id;
         let newUrl = `/proxy/api/global/courses/${id}`;
-        console.log(newUrl);
         return this.http.get<Course[]>(newUrl, this.httpOptions);
       })
     ) ?? new Observable();
