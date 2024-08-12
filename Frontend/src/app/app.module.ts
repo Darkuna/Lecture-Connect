@@ -56,13 +56,13 @@ import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {ContextMenuModule} from "primeng/contextmenu";
 import {InplaceModule} from "primeng/inplace";
 import {OverlayPanelModule} from "primeng/overlaypanel";
-import { CalendarExtendedComponent } from './components/calendar-extended/calendar-extended.component';
 import {InputGroupModule} from "primeng/inputgroup";
 import {FloatLabelModule} from "primeng/floatlabel";
 import { RoomSelectionPageComponent } from './components/home/room-selection-page/room-selection-page.component';
 import { CourseSelectionPageComponent } from './components/home/course-selection-page/course-selection-page.component';
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import { CalendarContextMenuComponent } from './components/home/calendar-context-menu/calendar-context-menu.component';
+import { EditorComponent } from './components/editor/editor.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -82,10 +82,10 @@ import { CalendarContextMenuComponent } from './components/home/calendar-context
         DetailSelectionComponent,
         RoomSelectionComponent,
         BaseSelectionComponent,
-        CalendarExtendedComponent,
         RoomSelectionPageComponent,
         CourseSelectionPageComponent,
         CalendarContextMenuComponent,
+        EditorComponent,
     ],
     bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,
