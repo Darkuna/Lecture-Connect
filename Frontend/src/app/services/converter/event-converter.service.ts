@@ -11,7 +11,7 @@ import {CourseColor} from "../../../assets/Models/enums/lecture-color";
   providedIn: 'root'
 })
 export class EventConverterService {
-  convertTimingToEventInput(session: CourseSessionDTO): EventInput {
+  convertTimingToEventInput(session: CourseSessionDTO, editable: boolean): EventInput {
     return {
       id: session.id.toString(),
       title: session.name,
@@ -19,6 +19,7 @@ export class EventConverterService {
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime,
       endTime: session.timing?.endTime!,
+      editable:editable,
       extendedProps: {
         'type': session.name.slice(0, 2),
         'semester': session.semester,
@@ -38,12 +39,12 @@ export class EventConverterService {
 
   convertTimingEventInput(timing: TimingDTO): EventInput {
     return {
-      description: timing.timingType,
+      title: timing.timingType,
       daysOfWeek: this.weekDayToNumber(timing.day),
       startTime: timing.startTime,
       endTime: timing.endTime,
-      color: CourseColor.COMPUTER_SCIENCE,
-      borderColor: CourseColor.COMPUTER_SCIENCE,
+      color: CourseColor[timing.timingType as keyof typeof CourseColor],
+      borderColor: CourseColor[timing.timingType as keyof typeof CourseColor],
       display: 'background',
       editable: false,
     }
@@ -109,7 +110,7 @@ export class EventConverterService {
   }
 
   convertCourseSessionToEventInput(): OperatorFunction<CourseSessionDTO, EventInput> {
-    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session));
+    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session, false));
   }
 
   convertTimingToBackgroundEventInput(): OperatorFunction<RoomTableDTO, EventInput> {

@@ -4,11 +4,12 @@ import rrulePlugin from "@fullcalendar/rrule";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, combineLatest, from, map, Observable, of, Subject} from "rxjs";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
+import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 
 @Component({
   selector: 'app-editor',
@@ -17,6 +18,12 @@ import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 })
 export class EditorComponent{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+
+  tmpStartDate: Date = new Date('2024-07-10T08:00:00');
+  tmpEndDate: Date = new Date('2024-07-10T22:00:00');
+  tmpDuration: Date = new Date('2024-07-10T00:20:00');
+  tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
+
   calendarOptions = signal<CalendarOptions>({
     plugins: [
       rrulePlugin,
@@ -45,12 +52,10 @@ export class EditorComponent{
     eventBackgroundColor: "#666666",
     eventBorderColor: "#050505",
     eventTextColor: "var(--system-color-primary-white)",
-    /*
     slotMinTime: this.formatTime(this.tmpStartDate),
     slotMaxTime: this.formatTime(this.tmpEndDate),
     slotDuration: this.formatTime(this.tmpDuration),
     slotLabelInterval: this.formatTime(this.tmpSlotInterval),
-     */
     dayHeaderFormat: {weekday: 'long'},
     eventOverlap: false,
     slotEventOverlap: false,
@@ -67,8 +72,7 @@ export class EditorComponent{
   selectedTimeTable: Observable<TimeTableDTO>;
   availableRooms: RoomTableDTO[] = [];
   selectedRoom: RoomTableDTO | null = null;
-  private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
-  combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
+  combinedTableEvents: Observable<EventInput[]> = new Observable<EventInput[]>();
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -78,29 +82,64 @@ export class EditorComponent{
     this.selectedTimeTable.subscribe( r => {
         this.availableRooms = r.roomTables;
         this.selectedRoom = r.roomTables[0];
+
+        this.loadNewRoom();
       }
     );
   }
 
-  reloadNewEvents(){
-    let combinedEvents = [];
-    this.selectedRoom?.timingConstraints?.forEach(t => {
-      combinedEvents.push(this.converter.convertTimingEventInput(t));
-      this.combinedTableEventsSubject.next(combinedEvents);
-    })
+  loadNewRoom(){
+    this.clearCalendar();
+
+    let obs1: Observable<EventInput[]> = this.reloadNewBackgroundEvents();
+    let obs2: Observable<EventInput[]> = this.reloadNewEvents();
+
+    this.combinedTableEvents = combineLatest([obs1, obs2]).pipe(
+      map(([events1, events2]) => [...events1, ...events2])
+    );
+
+
   }
 
+  reloadNewEvents(): Observable<EventInput[]> {
+    let subject = new Subject<EventInput[]>();
 
-  reloadNewBackgroundEvents(){
-    let combinedEvents = [];
+    this.selectedTimeTable.subscribe(t => {
+      let sessions: CourseSessionDTO[] = t.courseSessions
+        .filter(s => s.roomTable?.id === this.selectedRoom?.id);
+
+      let eventInputs: EventInput[] = sessions.map(s =>
+        this.converter.convertTimingToEventInput(s, true)
+      );
+
+      subject.next(eventInputs);
+      subject.complete();
+    });
+
+    return subject.asObservable();
+  }
+
+  reloadNewBackgroundEvents() :Observable<EventInput[]>{
+    let combinedEvents: EventInput[] = [];
     this.selectedRoom?.timingConstraints?.forEach(t => {
       combinedEvents.push(this.converter.convertTimingEventInput(t));
-      this.combinedTableEventsSubject.next(combinedEvents);
-    })
+    });
+
+    return of(combinedEvents);
   }
 
   clearCalendar(){
     this.calendarComponent.getApi().removeAllEvents();
+  }
+
+  unselectRoom(){
+    this.selectedRoom = null;
+    this.clearCalendar();
+  }
+
+  formatTime(date: Date): string {
+    // equal returns date as hour:minute:second (00:00:00)
+    return date.toString().split(' ')[4];
   }
 
   protected readonly JSON = JSON;

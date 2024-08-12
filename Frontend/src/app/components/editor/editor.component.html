@@ -23,11 +23,8 @@
                     placeholder="select room" optionLabel="roomId" filterBy="id"
                     [filter]="true"
                     [showClear]="true"
-                    [options]="availableRooms"
-                    [ngModel]="selectedRoom"
-                    (ngModelChange)="reloadNewBackgroundEvents()"
-                    (onClear)="clearCalendar()"
-        >
+                    [options]="availableRooms" [ngModel]="selectedRoom"
+                    (onChange)="loadNewRoom()" (onClear)="unselectRoom()">
           <ng-template let-item pTemplate="item">
             <div class="flex align-items-center gap-2">
               <div>{{ item.roomId }}</div>
@@ -58,7 +55,8 @@
       </div>
     </p-toolbar>
 
-    <full-calendar #calendar pDroppable [options]='calendarOptions()' [events]="combinedTableEvents | async"/>
+    <full-calendar #calendar pDroppable [options]='calendarOptions()'
+                   [events]="combinedTableEvents | async"/>
   </div>
 
   <div class="col-left" id="external-events" style="width: 15%; margin-right: auto">
