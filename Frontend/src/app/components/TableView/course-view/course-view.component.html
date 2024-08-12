@@ -1,11 +1,10 @@
 <div class="moveDownHeader">
   <p-toolbar styleClass="mb-4 gap-2">
-    <ng-template pTemplate="left"/>
-
     <ng-template pTemplate="left">
       <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
                      selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
-                     placeholder="Choose Columns"></p-multiSelect>
+                     placeholder="Choose Columns">
+      </p-multiSelect>
       <span class="p-input-icon-left">
         <i class="pi pi-search"></i>
         <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
@@ -39,7 +38,7 @@
     <ng-template pTemplate="header">
       <tr>
         <th id="check">
-          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          <p-tableHeaderCheckbox/>
         </th>
         <th class="flex-header"
             *ngFor="let col of selectedHeaders" [pSortableColumn]="col.field"

@@ -1,13 +1,10 @@
 <div class="moveDownHeader">
   <p-toolbar styleClass="mb-4 gap-2">
     <ng-template pTemplate="left">
-
-    </ng-template>
-
-    <ng-template pTemplate="left">
       <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
                      selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
-                     placeholder="Choose Columns"></p-multiSelect>
+                     placeholder="Choose Columns">
+      </p-multiSelect>
       <span class="p-input-icon-left">
         <i class="pi pi-search"></i>
         <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
@@ -26,18 +23,22 @@
   <p-table
     #dt
     [value]="users"
-    [rows]="users.length"
+    [rows]="15"
     [columns]="selectedHeaders"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 15, 25, 50]"
     [paginator]="true"
-    [globalFilterFields]="['id', 'room.capacity', 'room.computersAvailable']"
+    [globalFilterFields]="['id', 'capacity', 'computersAvailable']"
     [tableStyle]="{ 'min-width': '75rem' }"
     [(selection)]="selectedUserxs"
+    [filterDelay]="0"
     [rowHover]="true"
-    dataKey="id">
+    dataKey="username">
     <ng-template pTemplate="header">
       <tr>
         <th id="check">
-          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          <p-tableHeaderCheckbox/>
         </th>
         <th id="" class="flex-header"
             *ngFor="let col of selectedHeaders" [pSortableColumn]="col.field"
@@ -62,10 +63,14 @@
           </ng-container>
         </td>
         <td>
-          <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
-                  (click)="editItem(u)" value="edit"></button>
-          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-error mr-2"
-                  (click)="deleteSingleItem(u)" value="delete"></button>
+          <p-button pButton pRipple
+                    icon="pi pi-pencil" class="mr-2"
+                    [rounded]="true" [outlined]="true" severity="success"
+                    (click)="editItem(u)"/>
+
+          <p-button pButton pRipple icon="pi pi-trash" severity="danger"
+                    [rounded]="true" [outlined]="true"
+                    (click)="deleteSingleItem(u)"/>
         </td>
       </tr>
     </ng-template>
@@ -74,7 +79,7 @@
 
 
 <p-dialog [(visible)]="itemDialogVisible"
-          header="User Creation" [modal]="true" styleClass="p-fluid">
+          header="User Creation" [modal]="true" styleClass="p-fluid" [closable]="false">
   <ng-template pTemplate="content" class="parent">
     <div class="div-container">
       <div class="rand">
@@ -85,31 +90,31 @@
 
       <div class="rand">
         <label for="pwd">Password</label>
-        <input type="password" pInputText id="pwd" [(ngModel)]="singleUserx.password" required autofocus/>
+        <input type="password" pInputText id="pwd" [(ngModel)]="singleUserx.password" required/>
         <small class="p-error" *ngIf="!singleUserx.password">Password is required </small>
       </div>
     </div>
     <div class="div-container">
       <div class="rand">
         <label for="fname">First Name</label>
-        <input type="text" pInputText id="fname" [(ngModel)]="singleUserx.firstName" autofocus/>
+        <input type="text" pInputText id="fname" [(ngModel)]="singleUserx.firstName"/>
       </div>
 
       <div class="rand">
         <label for="lname">Last Name</label>
-        <input type="text" pInputText id="lname" [(ngModel)]="singleUserx.lastName" autofocus/>
+        <input type="text" pInputText id="lname" [(ngModel)]="singleUserx.lastName"/>
       </div>
     </div>
 
     <div class="rand">
       <label for="role">Roles</label>
-      <p-dropdown id="role" [options]="getRoleOptions()" [(ngModel)]="singleUserx.role"
+      <p-dropdown id="role" [options]="roleOptions" [(ngModel)]="singleUserx.role"
                   placeholder="select a Type" [editable]="true"/>
     </div>
 
     <div class="rand">
       <label for="mail">E-Mail</label>
-      <input type="text" pInputText id="mail" [(ngModel)]="singleUserx.email" autofocus/>
+      <input type="text" pInputText id="mail" [(ngModel)]="singleUserx.email"/>
     </div>
     <br>
   </ng-template>

@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
 import {Router} from "@angular/router";
 import {LocalStorageService, SessionStorageService} from "ngx-webstorage";
 import {LoginUserInfoService} from "../../services/login-user-info.service";

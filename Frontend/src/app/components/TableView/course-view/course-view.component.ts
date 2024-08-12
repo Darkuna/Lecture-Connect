@@ -73,7 +73,6 @@ export class CourseViewComponent implements OnInit, OnDestroy {
       this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
     } else {
       this.singleCourse.timingConstraints = [];
-
       this.courseService.createSingleCourse(this.singleCourse).subscribe({
         next: value => {
           this.courses.push(value);
