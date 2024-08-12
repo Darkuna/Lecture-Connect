@@ -1,1 +1,15 @@
-<p>editor works!</p>
+<div class="context">
+  <div class="col-left" style="width: 85%">
+    <full-calendar #calendar pDroppable [options]='calendarOptions()'/>
+  </div>
+
+  <div class="col-left" id="external-events" style="width: 15%">
+    <p>
+      <strong>Draggable Events</strong>
+    </p>
+
+    <div *ngFor="let event of externalEvents" pDraggable class='fc-event' [attr.data-event]='JSON.stringify(event)'>
+      {{ event.title }}
+    </div>
+  </div>
+</div>

@@ -18,7 +18,7 @@ export class UsersViewComponent implements OnInit, OnDestroy{
   selectedHeaders: any[];
   headers: any[];
   private usersSub?: Subscription;
-  private itemIsEdited = false;
+  itemIsEdited = false;
 
   constructor(
     private cd: ChangeDetectorRef,
@@ -70,6 +70,7 @@ export class UsersViewComponent implements OnInit, OnDestroy{
     } else if (this.isInList(this.singleUserx)) {
       this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
     } else {
+      this.singleUserx.serialVersionUID = 5463728;
       this.userService.createSingleUser(this.singleUserx).subscribe({
         next: value => {
           this.users.push(value);

@@ -62,14 +62,6 @@
   border-radius: 15px;
 }
 
-.col-left {
-  display: inline-table;
-  align-content: center;
-  width: 50%;
-  height: 100%;
-  padding: .5rem;
-}
-
 .float-item {
   float: left; /* Float all items to the left by default */
   margin-left: .5rem; /* Add some space between items if necessary */

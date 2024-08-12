@@ -334,7 +334,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           {
             label: 'Edit Mode',
             icon: 'pi pi-pen-to-square',
-            styleClass: 'tst'
+            command: () => this.redirectToSelection('/editor')
           },
           {
             label: 'Auto Fill',
