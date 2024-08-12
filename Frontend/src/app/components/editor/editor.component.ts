@@ -1,15 +1,22 @@
-import {Component, ElementRef, signal, ViewChild} from '@angular/core';
-import {CalendarOptions} from "@fullcalendar/core";
+import {Component, signal, ViewChild} from '@angular/core';
+import {CalendarOptions, EventInput} from "@fullcalendar/core";
 import rrulePlugin from "@fullcalendar/rrule";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import {GlobalTableService} from "../../services/global-table.service";
+import {BehaviorSubject, Observable} from "rxjs";
+import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
+import {EventConverterService} from "../../services/converter/event-converter.service";
+import {FullCalendarComponent} from "@fullcalendar/angular";
+import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.css'
 })
-export class EditorComponent  {
+export class EditorComponent{
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   calendarOptions = signal<CalendarOptions>({
     plugins: [
       rrulePlugin,
@@ -27,17 +34,16 @@ export class EditorComponent  {
     selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
-/*    select: this.handleDateSelect.bind(this),
+/*
+    select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
     eventAdd: this.interactWithModel.bind(this),
     eventRemove: this.interactWithModel.bind(this),
  */
     allDaySlot: false,
     height: "auto",
-    /*
-    eventBackgroundColor: this.lastUsedColor,
-    eventBorderColor: this.lastUsedColor,
-    */
+    eventBackgroundColor: "#666666",
+    eventBorderColor: "#050505",
     eventTextColor: "var(--system-color-primary-white)",
     /*
     slotMinTime: this.formatTime(this.tmpStartDate),
@@ -50,9 +56,7 @@ export class EditorComponent  {
     slotEventOverlap: false,
     nowIndicator: false,
     droppable: true,
-    eventReceive: this.handleEventReceive.bind(this)
   });
-  @ViewChild('calendar') calendarComponent!: ElementRef;
 
   externalEvents = [
     { title: 'Event 1', id: '1', duration: '01:00' },
@@ -60,8 +64,43 @@ export class EditorComponent  {
     { title: 'Event 3', id: '3', duration: '01:30' }
   ];
 
-  handleEventReceive(eventInfo: any) {
-    console.log('Event dropped on calendar:', eventInfo.event);
+  selectedTimeTable: Observable<TimeTableDTO>;
+  availableRooms: RoomTableDTO[] = [];
+  selectedRoom: RoomTableDTO | null = null;
+  private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
+  combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
+
+  constructor(
+    private globalTableService: GlobalTableService,
+    private converter: EventConverterService,
+  ) {
+    this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
+    this.selectedTimeTable.subscribe( r => {
+        this.availableRooms = r.roomTables;
+        this.selectedRoom = r.roomTables[0];
+      }
+    );
+  }
+
+  reloadNewEvents(){
+    let combinedEvents = [];
+    this.selectedRoom?.timingConstraints?.forEach(t => {
+      combinedEvents.push(this.converter.convertTimingEventInput(t));
+      this.combinedTableEventsSubject.next(combinedEvents);
+    })
+  }
+
+
+  reloadNewBackgroundEvents(){
+    let combinedEvents = [];
+    this.selectedRoom?.timingConstraints?.forEach(t => {
+      combinedEvents.push(this.converter.convertTimingEventInput(t));
+      this.combinedTableEventsSubject.next(combinedEvents);
+    })
+  }
+
+  clearCalendar(){
+    this.calendarComponent.getApi().removeAllEvents();
   }
 
   protected readonly JSON = JSON;

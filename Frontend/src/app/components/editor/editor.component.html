@@ -1,9 +1,67 @@
 <div class="context">
   <div class="col-left" style="width: 85%">
-    <full-calendar #calendar pDroppable [options]='calendarOptions()'/>
+    <p-toolbar>
+      <div class="p-toolbar-group-start">
+        <button pButton type="button" icon="pi pi-calendar-plus"
+                class="headerButton" style="margin-right: .5rem"
+                pTooltip="create new Table">
+        </button>
+        <button pButton type="button" icon="pi pi-asterisk"
+                pTooltip="load unfinished Table"
+                class="headerButton">
+        </button>
+        <button pButton type="button" icon="pi pi-trash"
+                pTooltip="delete unfinished table"
+                class="headerButton">
+        </button>
+
+      </div>
+
+      <div class="p-toolbar-group-center">
+        <p-dropdown id="all"
+                     scrollHeight="300px"
+                    placeholder="select room" optionLabel="roomId" filterBy="id"
+                    [filter]="true"
+                    [showClear]="true"
+                    [options]="availableRooms"
+                    [ngModel]="selectedRoom"
+                    (ngModelChange)="reloadNewBackgroundEvents()"
+                    (onClear)="clearCalendar()"
+        >
+          <ng-template let-item pTemplate="item">
+            <div class="flex align-items-center gap-2">
+              <div>{{ item.roomId }}</div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+
+      <div class="p-toolbar-group-end">
+        <p-dropdown [style]="{'margin-right': '.5rem', 'width': '28rem'}"
+                    optionLabel="title"
+                    [showClear]="true"
+                    [filter]="true"
+                    [disabled]="true"
+                    placeholder="Search for a Course">
+          <ng-template pTemplate="selectedItem" let-selectedOption>
+            <div class="flex align-items-center gap-2">
+              <div>{{ selectedOption.roomId }}</div>
+            </div>
+          </ng-template>
+          <ng-template let-course pTemplate="item">
+            <div class="flex align-items-center gap-2">
+              <div>{{ course.roomId }}</div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+        <p-button icon="pi pi-cog" />
+      </div>
+    </p-toolbar>
+
+    <full-calendar #calendar pDroppable [options]='calendarOptions()' [events]="combinedTableEvents | async"/>
   </div>
 
-  <div class="col-left" id="external-events" style="width: 15%">
+  <div class="col-left" id="external-events" style="width: 15%; margin-right: auto">
     <p>
       <strong>Draggable Events</strong>
     </p>

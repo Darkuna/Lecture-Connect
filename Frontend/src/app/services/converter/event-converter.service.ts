@@ -4,6 +4,8 @@ import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
+import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
+import {CourseColor} from "../../../assets/Models/enums/lecture-color";
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +25,29 @@ export class EventConverterService {
         'studyType': session.studyType}
     };
   }
+
+  convertRoomToEventInputs(room: RoomTableDTO): EventInput[] {
+    let finalEvents:EventInput[] = [];
+
+    room.timingConstraints?.forEach(t => {
+      finalEvents.push(this.convertTimingEventInput(t));
+    })
+
+    return finalEvents;
+  }
+
+  convertTimingEventInput(timing: TimingDTO): EventInput {
+    return {
+      description: timing.timingType,
+      daysOfWeek: this.weekDayToNumber(timing.day),
+      startTime: timing.startTime,
+      endTime: timing.endTime,
+      color: CourseColor.COMPUTER_SCIENCE,
+      borderColor: CourseColor.COMPUTER_SCIENCE,
+      display: 'background',
+      editable: false,
+    }
+  };
 
   convertEventInputToTiming(event: EventImpl): TimingDTO {
     let timing = new TimingDTO();
@@ -85,5 +110,9 @@ export class EventConverterService {
 
   convertCourseSessionToEventInput(): OperatorFunction<CourseSessionDTO, EventInput> {
     return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session));
+  }
+
+  convertTimingToBackgroundEventInput(): OperatorFunction<RoomTableDTO, EventInput> {
+    return map((room: RoomTableDTO) => this.convertRoomToEventInputs(room));
   }
 }
