@@ -17,20 +17,25 @@
   display: inline-table;
   align-content: center;
   height: 100%;
-  padding: .5rem;
   border-radius: 15px;
 }
 
 #external-events {
-  padding: 10px;
   border: 1px solid #ccc;
   background-color: #f4f4f4;
 }
 
 #external-events .fc-event {
+  width: 100%;
   margin: 5px 0;
   padding: 5px;
   background-color: #3788d8;
   color: white;
   cursor: pointer;
+}
+
+#calendarScroll{
+  overflow-y: auto;
+  max-height: 86vh;
+  height: 100%;
 }

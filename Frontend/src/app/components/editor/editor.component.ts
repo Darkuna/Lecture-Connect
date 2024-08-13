@@ -1,10 +1,10 @@
-import {Component, signal, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, signal, ViewChild} from '@angular/core';
 import {CalendarOptions, EventInput} from "@fullcalendar/core";
 import rrulePlugin from "@fullcalendar/rrule";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
-import {BehaviorSubject, combineLatest, from, map, Observable, of, Subject} from "rxjs";
+import {Observable, of} from "rxjs";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
@@ -16,7 +16,7 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.css'
 })
-export class EditorComponent{
+export class EditorComponent implements AfterViewInit{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
@@ -39,7 +39,7 @@ export class EditorComponent{
     weekends: false,
     editable: true,
     selectable: true,
-    selectMirror: true,
+    selectMirror: false,
     dayMaxEvents: true,
 /*
     select: this.handleDateSelect.bind(this),
@@ -52,10 +52,10 @@ export class EditorComponent{
     eventBackgroundColor: "#666666",
     eventBorderColor: "#050505",
     eventTextColor: "var(--system-color-primary-white)",
-    slotMinTime: this.formatTime(this.tmpStartDate),
-    slotMaxTime: this.formatTime(this.tmpEndDate),
-    slotDuration: this.formatTime(this.tmpDuration),
-    slotLabelInterval: this.formatTime(this.tmpSlotInterval),
+    slotMinTime: this.converter.formatTime(this.tmpStartDate),
+    slotMaxTime: this.converter.formatTime(this.tmpEndDate),
+    slotDuration: this.converter.formatTime(this.tmpDuration),
+    slotLabelInterval: this.converter.formatTime(this.tmpSlotInterval),
     dayHeaderFormat: {weekday: 'long'},
     eventOverlap: false,
     slotEventOverlap: false,
@@ -74,6 +74,9 @@ export class EditorComponent{
   selectedRoom: RoomTableDTO | null = null;
   combinedTableEvents: Observable<EventInput[]> = new Observable<EventInput[]>();
 
+  nrOfEvents: number = 0;
+  maxEvents: number = 0;
+
   constructor(
     private globalTableService: GlobalTableService,
     private converter: EventConverterService,
@@ -83,63 +86,46 @@ export class EditorComponent{
         this.availableRooms = r.roomTables;
         this.selectedRoom = r.roomTables[0];
 
-        this.loadNewRoom();
       }
     );
   }
 
-  loadNewRoom(){
-    this.clearCalendar();
-
-    let obs1: Observable<EventInput[]> = this.reloadNewBackgroundEvents();
-    let obs2: Observable<EventInput[]> = this.reloadNewEvents();
-
-    this.combinedTableEvents = combineLatest([obs1, obs2]).pipe(
-      map(([events1, events2]) => [...events1, ...events2])
-    );
-
-
+  ngAfterViewInit(): void {
+    this.loadNewRoom(this.selectedRoom!);
   }
 
-  reloadNewEvents(): Observable<EventInput[]> {
-    let subject = new Subject<EventInput[]>();
+  loadNewRoom(newRoom: RoomTableDTO): void {
+    this.clearCalendar();
+    this.selectedRoom = newRoom;
 
     this.selectedTimeTable.subscribe(t => {
-      let sessions: CourseSessionDTO[] = t.courseSessions
-        .filter(s => s.roomTable?.id === this.selectedRoom?.id);
+      this.combinedTableEvents = of([
+        ...this.reloadNewEvents(this.selectedRoom?.id!, t),
+        ...this.reloadNewBackgroundEvents(this.selectedRoom!),
+      ]);
 
-      let eventInputs: EventInput[] = sessions.map(s =>
-        this.converter.convertTimingToEventInput(s, true)
-      );
-
-      subject.next(eventInputs);
-      subject.complete();
-    });
-
-    return subject.asObservable();
+    })
   }
 
-  reloadNewBackgroundEvents() :Observable<EventInput[]>{
+  reloadNewEvents(IdOfRoom: number, table: TimeTableDTO): EventInput[] {
+    return table.courseSessions
+        .filter((s:CourseSessionDTO) => s.roomTable?.id === IdOfRoom)
+        .map(s =>
+          this.converter.convertTimingToEventInput(s, true)
+        );
+  }
+
+  reloadNewBackgroundEvents(room: RoomTableDTO) :EventInput[]{
     let combinedEvents: EventInput[] = [];
-    this.selectedRoom?.timingConstraints?.forEach(t => {
+    room.timingConstraints?.forEach(t => {
       combinedEvents.push(this.converter.convertTimingEventInput(t));
     });
 
-    return of(combinedEvents);
+    return combinedEvents;
   }
 
   clearCalendar(){
     this.calendarComponent.getApi().removeAllEvents();
-  }
-
-  unselectRoom(){
-    this.selectedRoom = null;
-    this.clearCalendar();
-  }
-
-  formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
-    return date.toString().split(' ')[4];
   }
 
   protected readonly JSON = JSON;

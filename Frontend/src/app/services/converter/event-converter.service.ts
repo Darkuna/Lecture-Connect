@@ -116,4 +116,9 @@ export class EventConverterService {
   convertTimingToBackgroundEventInput(): OperatorFunction<RoomTableDTO, EventInput> {
     return map((room: RoomTableDTO) => this.convertRoomToEventInputs(room));
   }
+
+  formatTime(date: Date): string {
+    // equal returns date as hour:minute:second (00:00:00)
+    return date.toString().split(' ')[4];
+  }
 }

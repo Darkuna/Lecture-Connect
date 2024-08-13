@@ -2,19 +2,7 @@
   <div class="col-left" style="width: 85%">
     <p-toolbar>
       <div class="p-toolbar-group-start">
-        <button pButton type="button" icon="pi pi-calendar-plus"
-                class="headerButton" style="margin-right: .5rem"
-                pTooltip="create new Table">
-        </button>
-        <button pButton type="button" icon="pi pi-asterisk"
-                pTooltip="load unfinished Table"
-                class="headerButton">
-        </button>
-        <button pButton type="button" icon="pi pi-trash"
-                pTooltip="delete unfinished table"
-                class="headerButton">
-        </button>
-
+        {{nrOfEvents}} of {{maxEvents}} Events are shown
       </div>
 
       <div class="p-toolbar-group-center">
@@ -22,9 +10,9 @@
                      scrollHeight="300px"
                     placeholder="select room" optionLabel="roomId" filterBy="id"
                     [filter]="true"
-                    [showClear]="true"
+                    [showClear]="false"
                     [options]="availableRooms" [ngModel]="selectedRoom"
-                    (onChange)="loadNewRoom()" (onClear)="unselectRoom()">
+                    (onChange)="loadNewRoom($event.value)">
           <ng-template let-item pTemplate="item">
             <div class="flex align-items-center gap-2">
               <div>{{ item.roomId }}</div>
@@ -54,17 +42,18 @@
         <p-button icon="pi pi-cog" />
       </div>
     </p-toolbar>
-
-    <full-calendar #calendar pDroppable [options]='calendarOptions()'
-                   [events]="combinedTableEvents | async"/>
+    <div id="calendarScroll">
+      <full-calendar #calendar [options]='calendarOptions()'
+                     [events]="combinedTableEvents | async"/>
+    </div>
   </div>
 
-  <div class="col-left" id="external-events" style="width: 15%; margin-right: auto">
+  <div class="col-left" id="external-events" style="width: 15%; padding-right: .5rem; padding-left: .5rem">
     <p>
       <strong>Draggable Events</strong>
     </p>
 
-    <div *ngFor="let event of externalEvents" pDraggable class='fc-event' [attr.data-event]='JSON.stringify(event)'>
+    <div *ngFor="let event of externalEvents" class='fc-event' [attr.data-event]='JSON.stringify(event)'>
       {{ event.title }}
     </div>
   </div>
