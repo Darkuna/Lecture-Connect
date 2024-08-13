@@ -3,6 +3,7 @@
     <p-toolbar>
       <div class="p-toolbar-group-start">
         {{nrOfEvents}} of {{maxEvents}} Events are shown
+
       </div>
 
       <div class="p-toolbar-group-center">
@@ -43,8 +44,7 @@
       </div>
     </p-toolbar>
     <div id="calendarScroll">
-      <full-calendar #calendar [options]='calendarOptions()'
-                     [events]="combinedTableEvents | async"/>
+      <full-calendar #calendar [options]='calendarOptions' [events]="combinedTableEvents | async"/>
     </div>
   </div>
 

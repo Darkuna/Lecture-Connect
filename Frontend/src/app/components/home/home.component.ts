@@ -51,7 +51,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
-  calendarOptions: CalendarOptions= ({
+  calendarOptions: CalendarOptions= {
       plugins: [
         interactionPlugin,
         dayGridPlugin,
@@ -84,8 +84,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       nowIndicator: false,
       eventClick: this.showHoverDialog.bind(this),
       eventMouseLeave: this.hideHoverDialog.bind(this),
-    }
-  );
+    };
 
   constructor(
     private router: Router,

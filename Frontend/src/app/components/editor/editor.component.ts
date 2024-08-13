@@ -10,6 +10,8 @@ import {EventConverterService} from "../../services/converter/event-converter.se
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
+import interactionPlugin from "@fullcalendar/interaction";
+import listPlugin from "@fullcalendar/list";
 
 @Component({
   selector: 'app-editor',
@@ -24,11 +26,12 @@ export class EditorComponent implements AfterViewInit{
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
-  calendarOptions = signal<CalendarOptions>({
+  calendarOptions: CalendarOptions= {
     plugins: [
-      rrulePlugin,
+      interactionPlugin,
       dayGridPlugin,
-      timeGridPlugin
+      timeGridPlugin,
+      listPlugin,
     ],
     headerToolbar: {
       left: '',
@@ -37,16 +40,10 @@ export class EditorComponent implements AfterViewInit{
     },
     initialView: 'timeGridWeek',
     weekends: false,
-    editable: true,
-    selectable: true,
-    selectMirror: false,
+    editable: false,
+    selectable: false,
+    selectMirror: true,
     dayMaxEvents: true,
-/*
-    select: this.handleDateSelect.bind(this),
-    eventClick: this.handleEventClick.bind(this),
-    eventAdd: this.interactWithModel.bind(this),
-    eventRemove: this.interactWithModel.bind(this),
- */
     allDaySlot: false,
     height: "auto",
     eventBackgroundColor: "#666666",
@@ -57,11 +54,11 @@ export class EditorComponent implements AfterViewInit{
     slotDuration: this.converter.formatTime(this.tmpDuration),
     slotLabelInterval: this.converter.formatTime(this.tmpSlotInterval),
     dayHeaderFormat: {weekday: 'long'},
-    eventOverlap: false,
-    slotEventOverlap: false,
+    eventOverlap: true,
+    slotEventOverlap: true,
     nowIndicator: false,
-    droppable: true,
-  });
+    droppable: true
+  };
 
   externalEvents = [
     { title: 'Event 1', id: '1', duration: '01:00' },
@@ -99,20 +96,26 @@ export class EditorComponent implements AfterViewInit{
     this.selectedRoom = newRoom;
 
     this.selectedTimeTable.subscribe(t => {
+      let placedEvents = this.reloadNewEvents(this.selectedRoom?.id!, t);
+      this.nrOfEvents = placedEvents.length;
+      this.maxEvents = placedEvents.length; //add events on right side of page
       this.combinedTableEvents = of([
-        ...this.reloadNewEvents(this.selectedRoom?.id!, t),
+        ...placedEvents,
         ...this.reloadNewBackgroundEvents(this.selectedRoom!),
       ]);
-
     })
   }
 
   reloadNewEvents(IdOfRoom: number, table: TimeTableDTO): EventInput[] {
-    return table.courseSessions
-        .filter((s:CourseSessionDTO) => s.roomTable?.id === IdOfRoom)
-        .map(s =>
+    let val = table.courseSessions
+        .filter(
+          (s:CourseSessionDTO) => s.roomTable?.id === IdOfRoom
+        )
+        .map((s:CourseSessionDTO) =>
           this.converter.convertTimingToEventInput(s, true)
         );
+    val.forEach(i => {console.log(i)});
+    return val;
   }
 
   reloadNewBackgroundEvents(room: RoomTableDTO) :EventInput[]{
