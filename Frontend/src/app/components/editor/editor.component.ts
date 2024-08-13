@@ -1,6 +1,5 @@
-import {AfterViewInit, Component, signal, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ViewChild} from '@angular/core';
 import {CalendarOptions, EventInput} from "@fullcalendar/core";
-import rrulePlugin from "@fullcalendar/rrule";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
