@@ -20,6 +20,7 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
+import {CalendarSettingsComponent} from "../calendar-header/calendar-settings/calendar-settings.component";
 
 @Component({
   selector: 'app-home',
@@ -41,17 +42,35 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   showNewTableDialog: boolean = false;
   position: any = 'topleft';
 
-  tmpStartDate: Date = new Date('2024-07-10T08:00:00');
-  tmpEndDate: Date = new Date('2024-07-10T22:00:00');
-  tmpDuration: Date = new Date('2024-07-10T00:20:00');
-  tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
-
   lastSearchedEvent: EventImpl | null = null;
   firstSearchedEvent: EventImpl | null = null;
 
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
-  calendarOptions: CalendarOptions= {
+  @ViewChild('calendarSettings') calendarSettingsComponent! : CalendarSettingsComponent;
+  calendarOptions!: CalendarOptions;
+
+  constructor(
+    private router: Router,
+    private shareService: TableShareService,
+    private globalTableService: GlobalTableService,
+    private localStorage: LocalStorageService,
+    private converter: EventConverterService,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
+  ) {
+    this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
+      next: (data) => {
+        this.availableTables = [...data];
+        this.shownTableDD = this.availableTables[0];
+        this.loadSpecificTable();
+      }
+  });
+  }
+
+  ngAfterViewInit(): void {
+    this.calendarContextMenu.calendarComponent = this.calendarComponent;
+    this.calendarOptions = {
       plugins: [
         interactionPlugin,
         dayGridPlugin,
@@ -74,10 +93,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       eventBackgroundColor: "#666666",
       eventBorderColor: "#050505",
       eventTextColor: "var(--system-color-primary-white)",
-      slotMinTime: this.formatTime(this.tmpStartDate),
-      slotMaxTime: this.formatTime(this.tmpEndDate),
-      slotDuration: this.formatTime(this.tmpDuration),
-      slotLabelInterval: this.formatTime(this.tmpSlotInterval),
+      slotMinTime: this.calendarSettingsComponent.getStart(),
+      slotMaxTime: this.calendarSettingsComponent.getEnd(),
+      slotDuration: this.calendarSettingsComponent.getDuration(),
+      slotLabelInterval: this.calendarSettingsComponent.getSlotInterval(),
       dayHeaderFormat: {weekday: 'long'},
       eventOverlap: true,
       slotEventOverlap: true,
@@ -85,27 +104,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       eventClick: this.showHoverDialog.bind(this),
       eventMouseLeave: this.hideHoverDialog.bind(this),
     };
-
-  constructor(
-    private router: Router,
-    private shareService: TableShareService,
-    private globalTableService: GlobalTableService,
-    private localStorage: LocalStorageService,
-    private converter: EventConverterService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService,
-  ) {
-    this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
-      next: (data) => {
-        this.availableTables = [...data];
-        this.shownTableDD = this.availableTables[0];
-        this.loadSpecificTable();
-      }
-  });
-  }
-
-  ngAfterViewInit(): void {
-    this.calendarContextMenu.calendarComponent = this.calendarComponent;
   }
 
   ngOnDestroy(): void {
@@ -267,11 +265,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
     }
     this.calendarContextMenu.hoverEventInfo = null;
-  }
-
-  formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
-    return date.toString().split(' ')[4];
   }
 
   updateCalendar(calendarOption: any, value: string) {

@@ -75,7 +75,7 @@
             </div>
           </ng-template>
         </p-dropdown>
-        <p-button icon="pi pi-cog" (click)="op.show($event, op)" />
+        <app-calendar-settings #calendarSettings [calendar]=calendar />
       </div>
     </p-toolbar>
   </div>
@@ -107,26 +107,6 @@
   </ng-template>
 </p-dialog>
 
-<p-overlayPanel #op showCloseIcon="true">
-  <ng-template pTemplate="content">
-    <label for="start-time" style="padding-right: .7rem; padding-left: .3rem">Start Time</label>
-    <p-calendar id="start-time" inputId="calendar-timeonly"
-                [timeOnly]="true" [ngModel]="tmpStartDate"
-                (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
 
-    <label for="end-time" style="padding-right: .7rem; padding-left: .3rem">End Time</label>
-    <p-calendar id="end-time" inputId="calendar-timeonly"
-                [timeOnly]="true" [ngModel]="tmpEndDate"
-                (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
-    <label for="duration" style="padding-right: .7rem; padding-left: .3rem">Time Slot Duration</label>
-    <p-calendar id="duration" inputId="calendar-timeonly"
-                [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
-                (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
-    <label for="interval" style="padding-right: .7rem; padding-left: .3rem">Time Label Interval </label>
-    <p-calendar id="interval" inputId="calendar-timeonly"
-                [timeOnly]="true" [ngModel]="tmpSlotInterval"
-                (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
-  </ng-template>
-</p-overlayPanel>
 
 <app-calendar-context-menu #calendarContextMenu/>
