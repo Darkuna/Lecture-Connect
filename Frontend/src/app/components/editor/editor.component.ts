@@ -11,6 +11,7 @@ import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
+import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
 
 @Component({
   selector: 'app-editor',
@@ -19,6 +20,7 @@ import listPlugin from "@fullcalendar/list";
 })
 export class EditorComponent implements AfterViewInit{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
@@ -88,6 +90,7 @@ export class EditorComponent implements AfterViewInit{
 
   ngAfterViewInit(): void {
     this.loadNewRoom(this.selectedRoom!);
+    this.calendarContextMenu.calendarComponent = this.calendarComponent;
   }
 
   loadNewRoom(newRoom: RoomTableDTO): void {

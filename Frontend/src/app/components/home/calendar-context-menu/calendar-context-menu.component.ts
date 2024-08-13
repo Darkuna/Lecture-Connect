@@ -208,8 +208,5 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     this._calendarComponent = value;
   }
 
-  protected readonly screenX = screenX;
-  protected readonly Math = Math;
-  protected readonly window = window;
   protected readonly screen = screen;
 }
