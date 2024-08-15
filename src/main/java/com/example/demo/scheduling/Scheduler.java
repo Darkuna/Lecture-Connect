@@ -25,7 +25,7 @@ public class Scheduler {
     private final Random random = new Random(System.currentTimeMillis());
     private Queue<Candidate> candidateQueue;
     private final Logger log = LoggerFactory.getLogger(Scheduler.class);
-    private final Map<CourseSession, Timing> readyForAssignmentSet = new HashMap<>();
+    private final Map<CourseSession, Candidate> readyForAssignmentSet = new HashMap<>();
     private TimeTable timeTable;
     int numberOfCourseSessions;
 
@@ -82,10 +82,6 @@ public class Scheduler {
         }
 
         do {
-            if(numberOfTries != 0){
-                availabilityMatrices.replaceAll(availabilityMatrix -> new AvailabilityMatrix(availabilityMatrix.getRoomTable()));
-            }
-
             singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
             groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
             splitCourseSessions = filterAndSortSplitCourseSessions(courseSessions);
@@ -222,7 +218,7 @@ public class Scheduler {
     private boolean finalizeAssignment() {
         if(readyForAssignmentSet.size() == numberOfCourseSessions){
             for(CourseSession courseSession : readyForAssignmentSet.keySet()){
-                Timing timing = readyForAssignmentSet.get(courseSession);
+                Timing timing = AvailabilityMatrix.toTiming(readyForAssignmentSet.get(courseSession));
                 timing = timingService.createTiming(timing);
                 courseSession.setTiming(timing);
                 courseSession.setAssigned(true);
@@ -233,6 +229,8 @@ public class Scheduler {
         else{
             for(CourseSession courseSession : readyForAssignmentSet.keySet()){
                 courseSession.setRoomTable(null);
+                Candidate candidate = readyForAssignmentSet.get(courseSession);
+                candidate.getAvailabilityMatrix().clearCandidate(candidate);
             }
             readyForAssignmentSet.clear();
             return false;
@@ -293,9 +291,9 @@ public class Scheduler {
             for(int i = 0; i < numberOfGroups; i++){
                 candidateToAssign = currentCandidates.get(i);
                 courseSessionToAssign = currentCourseSessions.get(i);
-                Timing timing = candidateToAssign.getAvailabilityMatrix().assignCourseSession(candidateToAssign, courseSessionToAssign);
+                candidateToAssign.getAvailabilityMatrix().assignCourseSession(candidateToAssign, courseSessionToAssign);
                 courseSessionToAssign.setRoomTable(candidateToAssign.getAvailabilityMatrix().getRoomTable());
-                readyForAssignmentSet.put(courseSessionToAssign, timing);
+                readyForAssignmentSet.put(courseSessionToAssign, candidateToAssign);
             }
             currentCourseSessions.clear();
             currentCandidates.clear();
@@ -354,9 +352,9 @@ public class Scheduler {
 
             //assign courseSession
             log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
-            Timing timing = currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
+            currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
             courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
-            readyForAssignmentSet.put(courseSession, timing);
+            readyForAssignmentSet.put(courseSession, currentCandidate);
             usePreferredOnly = true;
         }
 
