@@ -243,12 +243,6 @@ public class AvailabilityMatrix {
         return false;
     }
 
-    private static int timeToSlotIndex(LocalTime time) {
-        time = time.minusHours(START_TIME.getHour());
-        time = time.minusMinutes(START_TIME.getMinute());
-        return (time.getHour() * 60 + time.getMinute()) / 15;
-    }
-
     public void assignCourseSession(Candidate candidate, CourseSession courseSession) {
         for (int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
             matrix[candidate.getDay()][i] = courseSession;
@@ -270,6 +264,17 @@ public class AvailabilityMatrix {
         }
     }
 
+    public void addTimingConstraint(Timing timing) {
+        int startSlot = timeToSlotIndex(timing.getStartTime());
+        int endSlot = timeToSlotIndex(timing.getEndTime());
+        int day = timing.getDay().ordinal();
+
+        for(int i = startSlot; i < endSlot; i++) {
+            matrix[day][i] = CourseSession.BLOCKED;
+        }
+        totalAvailableTime -= timing.getDuration();
+    }
+
     public static Timing toTiming(Candidate candidate) {
         Timing timing = new Timing();
         int minutes = candidate.getSlot() * DURATION_PER_SLOT;
@@ -287,15 +292,10 @@ public class AvailabilityMatrix {
                 (int) courseSession.getTiming().getDuration(), true);
     }
 
-    public void addTimingConstraint(Timing timing) {
-        int startSlot = timeToSlotIndex(timing.getStartTime());
-        int endSlot = timeToSlotIndex(timing.getEndTime());
-        int day = timing.getDay().ordinal();
-
-        for(int i = startSlot; i < endSlot; i++) {
-            matrix[day][i] = CourseSession.BLOCKED;
-        }
-        totalAvailableTime -= timing.getDuration();
+    private static int timeToSlotIndex(LocalTime time) {
+        time = time.minusHours(START_TIME.getHour());
+        time = time.minusMinutes(START_TIME.getMinute());
+        return (time.getHour() * 60 + time.getMinute()) / 15;
     }
 
     public String toString() {
