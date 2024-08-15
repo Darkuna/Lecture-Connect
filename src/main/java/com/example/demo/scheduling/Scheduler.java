@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import com.example.demo.exceptions.scheduler.AssignmentFailedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,7 +16,6 @@ import java.util.stream.Collectors;
 @Scope("session")
 public class Scheduler {
     private final int MAX_NUMBER_OF_TRIES = 10;
-    //TODO: fix usePreferredOnly
     private boolean usePreferredOnly = true;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
@@ -35,6 +35,14 @@ public class Scheduler {
         this.timingService = timingService;
     }
 
+    /**
+     * Initializes the Scheduler with a certain timeTable
+     *
+     * The courseSessions are split into ones that need a room with computers and others that don't need a
+     * room with computers. Also, the availabilityMatrices are split into ones of computer rooms and others
+     * of rooms without computers.
+     * @param timeTable to initialize Scheduler with
+     */
     public void setTimeTable(TimeTable timeTable){
         this.timeTable = timeTable;
         availabilityMatricesOfRoomsWithComputers = new ArrayList<>();
@@ -56,18 +64,30 @@ public class Scheduler {
         this.usePreferredOnly = true;
     }
 
+    /**
+     * Starts the assignment algorithm for all unassigned courseSessions of a timeTable. First, all courseSessions that
+     * don't need rooms with computers are processed, then all courseSessions that need computer rooms.
+     */
     public void assignUnassignedCourseSessions(){
         //Assign courseSessionsWithComputersNeeded
-        log.info("Processing courseSessions that don't need computers ...");
+        log.info("> Processing courseSessions that don't need computers ...");
         assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
-        log.info("Finished processing courseSessions that don't need computers");
+        log.info("> Finished processing courseSessions that don't need computers");
 
         //Assign courseSessionsWithoutComputersNeeded
-        log.info("Processing courseSessions that need computers ...");
+        log.info("> Processing courseSessions that need computers ...");
         assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers);
-        log.info("Finished processing courseSessions that need computers");
+        log.info("> Finished processing courseSessions that need computers");
     }
 
+    /**
+     * This method first checks the preconditions, then splits the courseSessions into single, group and split
+     * courseSessions and processes them. At the end, it checks if there is a assignment candidate for all courseSession.
+     * If yes, the courseSessions are assigned, if not
+     *
+     * @param courseSessions to be processed
+     * @param availabilityMatrices to be used for assigning the courseSessions
+     */
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         int numberOfTries = 0;
         usePreferredOnly = true;
@@ -91,15 +111,23 @@ public class Scheduler {
             processSplitCourseSessions(splitCourseSessions, availabilityMatrices);
 
             if(numberOfTries >= MAX_NUMBER_OF_TRIES){
-                log.error("Assignment of courseSessions {} computers failed after {} tries",
-                        courseSessions.getFirst().isComputersNecessary() ? "with" : "without", numberOfTries);
-                break;
+                throw new AssignmentFailedException(String.format("Assignment of courseSessions %s computers failed after %d tries",
+                        courseSessions.getFirst().isComputersNecessary() ? "with" : "without", numberOfTries));
             }
             numberOfTries++;
         }
         while(!finalizeAssignment());
     }
 
+    /**
+     * Checks preconditions for a certain list of courseSessions and availabilityMatrices before starting assignment.
+     * Precondition checks are used to determine in advance if the assignment is even possible considering time needed
+     * and time available.
+     *
+     * @param courseSessions to be checked
+     * @param availabilityMatrices to be checked
+     * @return true if all checks were successful, false if at least one check failed
+     */
     private boolean checkPreConditions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         log.info("Starting precondition checks ...");
         if(!checkAvailableTime(courseSessions, availabilityMatrices)){
@@ -127,6 +155,16 @@ public class Scheduler {
         return true;
     }
 
+    /**
+     * Checks if there is enough available time for all numbers of participants. Therefore, it begins with the largest
+     * number of participants n and checks if there is enough available time in availabilityMatrices with capacity >= n.
+     * This continues for all numbers of participants in descending order.
+     *
+     * @param courseSessions to be checked
+     * @param availabilityMatrices to be checked
+     * @return true if there is enough available time for all numbers of participants, false if at least one does not
+     * have enough space
+     */
     private boolean checkAvailableTimePerRoomCapacity(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         Set<Integer> numbersOfParticipants = new HashSet<>();
         List<Integer> numbersOfParticipantsSorted = new ArrayList<>();
@@ -165,6 +203,13 @@ public class Scheduler {
         return true;
     }
 
+    /**
+     * Checks if there is enough total available time to assign all courseSessions to the availabilityMatrices.
+     *
+     * @param courseSessions to be checked
+     * @param availabilityMatrices to be checked
+     * @return true if there is enough space to assign all courseSessions, false if not
+     */
     private boolean checkAvailableTime(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         int totalTimeNeeded = 0;
         int totalTimeAvailable = 0;
@@ -191,6 +236,12 @@ public class Scheduler {
         return true;
     }
 
+    /**
+     * Filters and sorts a list of courseSessions to obtain only single courseSessions sorted descending by duration and
+     * descending by numberOfParticipants.
+     * @param courseSessions to be filtered and sorted
+     * @return sorted list of single courseSessions
+     */
     private List<CourseSession> filterAndSortSingleCourseSessions(List<CourseSession> courseSessions){
         return courseSessions.stream()
                 .filter(c -> !c.isSplitCourse() && !c.isGroupCourse())
@@ -199,6 +250,12 @@ public class Scheduler {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Filters and sorts a list of courseSessions to obtain only group courseSessions sorted descending by duration and
+     * ascending by groupID.
+     * @param courseSessions to be filtered and sorted
+     * @return sorted list of group courseSessions
+     */
     private List<CourseSession> filterAndSortGroupCourseSessions(List<CourseSession> courseSessions){
         return courseSessions.stream()
                 .filter(CourseSession::isGroupCourse)
@@ -207,14 +264,26 @@ public class Scheduler {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Filters and sorts a list of courseSessions to obtain only split courseSessions sorted ascending by courseID and
+     * descending by duration.
+     * @param courseSessions to be filtered and sorted
+     * @return sorted list of split courseSessions
+     */
     private List<CourseSession> filterAndSortSplitCourseSessions(List<CourseSession> courseSessions){
         return courseSessions.stream()
                 .filter(CourseSession::isSplitCourse)
                 .sorted(Comparator.comparing(CourseSession::getCourseId)
-                        .thenComparingInt(CourseSession::getDuration))
+                        .thenComparingInt(CourseSession::getDuration).reversed())
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Checks if all courseSessions are ready for assignment. If yes, it finalizes the assignment by creating all timings
+     * and assigning them to the courseSessions. If not, resets the candidate slots in the availabilityMatrices.
+     *
+     * @return true if assignment was successful, false if not.
+     */
     private boolean finalizeAssignment() {
         if(readyForAssignmentSet.size() == numberOfCourseSessions){
             for(CourseSession courseSession : readyForAssignmentSet.keySet()){
@@ -237,7 +306,84 @@ public class Scheduler {
         }
     }
 
+    /**
+     * This method processes all single courseSessions by trying to find an assignment candidate for all courseSessions
+     * in the list. If a candidate for a certain courseSession is found, the courseSession is assigned in the candidate's
+     * availabilityMatrix.
+     *
+     * @param singleCourseSessions to be processed
+     * @param availabilityMatrices to be searched for candidates
+     */
+    private void processSingleCourseSessions(List<CourseSession> singleCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        if(singleCourseSessions.isEmpty()){
+            log.info("> > There are no single courses to assign.");
+            return;
+        } else {
+            log.info("> > Trying to assign {} single course sessions ...", singleCourseSessions.size());
+        }
+        Candidate currentCandidate;
+        int number_of_tries;
+
+        // For each courseSession
+        for(CourseSession courseSession : singleCourseSessions){
+            number_of_tries = 0;
+            log.debug("Choosing CourseSession {} for assignment", courseSession.getName());
+            // If queue is empty or all the current courseSession needs candidates of different duration
+            if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
+                // Fill the queue with candidates of appropriate duration
+                fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
+
+            }
+
+            // Find placement candidate for courseSession
+            do{
+                if(number_of_tries >= 10000){
+                    if(usePreferredOnly){
+                        log.debug("Switching to other free time for assignment of courseSession {}", courseSession.getName());
+                        usePreferredOnly = false;
+                        number_of_tries = 0;
+                    }
+                    else{
+                        throw new NotEnoughSpaceAvailableException("failed assignment");
+                    }
+                }
+                //refill the queue if no fitting candidate in queue
+                if(candidateQueue.isEmpty()){
+                    fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
+                }
+                //select possible candidate for placement
+                currentCandidate = candidateQueue.poll();
+                log.debug("Selecting candidate {} for assignment", currentCandidate);
+                number_of_tries++;
+            }
+            while(!checkConstraintsFulfilled(courseSession, Objects.requireNonNull(currentCandidate)));
+
+            //assign courseSession
+            log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
+            currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
+            courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
+            readyForAssignmentSet.put(courseSession, currentCandidate);
+            usePreferredOnly = true;
+        }
+        log.info("> > Finished assigning single course sessions.");
+    }
+
+    /**
+     * This method processes all group courseSessions. For all courseSessions of the same group, it tries to find
+     * enough assignment candidates to assign them on the same day. If this is not possible, it adds candidates of the
+     * next day and so on, until enough candidates are found to assign of courseSessions of that group.
+     *
+     * @param groupCourseSessions to be processed
+     * @param availabilityMatrices to be searched for candidates
+     */
     private void processGroupCourseSessions(List<CourseSession> groupCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        if(groupCourseSessions.isEmpty()){
+            log.info("> > There are no group courses to assign.");
+            return;
+        } else {
+            log.info("> > Trying to assign {} group course sessions ...", groupCourseSessions.size());
+        }
+
         List<Candidate> currentCandidates = new ArrayList<>();
         List<AvailabilityMatrix> availabilityMatricesToConsider;
         String groupId;
@@ -299,9 +445,17 @@ public class Scheduler {
             currentCandidates.clear();
             usePreferredOnly = true;
         }
+        log.info("> > Finished assigning group course sessions.");
     }
 
     private void processSplitCourseSessions(List<CourseSession> splitCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        if(splitCourseSessions.isEmpty()){
+            log.info("> > There are no split courses to assign.");
+            return;
+        } else {
+            log.info("> > Trying to assign {} split course sessions ...", splitCourseSessions.size());
+        }
+
         List<CourseSession> currentCourseSessions = new ArrayList<>();
         String groupId;
         while (!splitCourseSessions.isEmpty()){
@@ -310,56 +464,15 @@ public class Scheduler {
                 currentCourseSessions.add(splitCourseSessions.removeFirst());
             }
         }
+        log.info("> > Finished assigning split course sessions.");
     }
 
-    private void processSingleCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        Candidate currentCandidate;
-        int number_of_tries;
-
-        // For each courseSession
-        for(CourseSession courseSession : courseSessions){
-            number_of_tries = 0;
-            log.debug("Choosing CourseSession {} for assignment", courseSession.getName());
-            // If queue is empty or all the current courseSession needs candidates of different duration
-            if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
-                // Fill the queue with candidates of appropriate duration
-                fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
-
-            }
-
-            // Find placement candidate for courseSession
-            do{
-                if(number_of_tries >= 10000){
-                    if(usePreferredOnly){
-                        log.debug("Switching to other free time for assignment of courseSession {}", courseSession.getName());
-                        usePreferredOnly = false;
-                        number_of_tries = 0;
-                    }
-                    else{
-                        throw new NotEnoughSpaceAvailableException("failed assignment");
-                    }
-                }
-                //refill the queue if no fitting candidate in queue
-                if(candidateQueue.isEmpty()){
-                    fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
-                }
-                //select possible candidate for placement
-                currentCandidate = candidateQueue.poll();
-                log.debug("Selecting candidate {} for assignment", currentCandidate);
-                number_of_tries++;
-            }
-            while(!checkConstraintsFulfilled(courseSession, Objects.requireNonNull(currentCandidate)));
-
-            //assign courseSession
-            log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
-            currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
-            courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
-            readyForAssignmentSet.put(courseSession, currentCandidate);
-            usePreferredOnly = true;
-        }
-
-    }
-
+    /**
+     * Checks if all constraints are fulfilled to assign a courseSession to a certain candidate.
+     * @param courseSession to be checked
+     * @param candidate where the courseSession might be assigned
+     * @return true if all checks are successful, false if at least one was not
+     */
     private boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
         if(!checkRoomCapacity(courseSession, candidate.getAvailabilityMatrix())){
             log.debug("room capacity of candidate is not fitting courseSession");
@@ -376,11 +489,26 @@ public class Scheduler {
         return true;
     }
 
+    /**
+     * Checks if the room capacity is greater or equals the courseSession's number of participants. It also checks that
+     * the room capacity is not too large, as we don't want to assign a courseSession with e.g. 25 participants to a
+     * room with a capacity of 300 people.
+     *
+     * @param courseSession to be checked
+     * @param availabilityMatrix of the room to be checked
+     * @return true if the check was successful, false if not
+     */
     private boolean checkRoomCapacity(CourseSession courseSession, AvailabilityMatrix availabilityMatrix){
         return availabilityMatrix.getCapacity() >= courseSession.getNumberOfParticipants()
                     && availabilityMatrix.getCapacity() / 2 <= courseSession.getNumberOfParticipants();
     }
 
+    /**
+     * Checks if the candidate's timing of assignment intersects with one of the courseSession's timing constraints.
+     * @param courseSession to be checked
+     * @param candidate to be checked
+     * @return true if there is no intersection, false if there is.
+     */
     private boolean checkTimingConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
         Timing timing = AvailabilityMatrix.toTiming(candidate);
         for(Timing timingConstraint : courseSession.getTimingConstraints()){
@@ -391,6 +519,15 @@ public class Scheduler {
         return true;
     }
 
+    /**
+     * Checks if the candidate's timing intersects with the timing of any other courseSession already assigned that is
+     * from the same semester.
+     *
+     * @param courseSession to be checked
+     * @param candidate to be checked
+     * @return true if there is no intersection with any other courseSession of the same semester, false if there is
+     * at least one intersection
+     */
     private boolean checkCoursesOfSameSemester(CourseSession courseSession, Candidate candidate){
         for(AvailabilityMatrix availabilityMatrix : allAvailabilityMatrices){
             if(availabilityMatrix.semesterIntersects(candidate, courseSession)){
@@ -400,6 +537,14 @@ public class Scheduler {
         return true;
     }
 
+    /**
+     * Fills a queue with possible candidates for the assignment of single courseSessions. The queue always stores two
+     * candidates of each availabilityMatrix, one earliest and one random candidate.
+     *
+     * @param availabilityMatrices to collect candidates from
+     * @param courseSession for duration and numberOfParticipants
+     * @param preferredOnly to determine if only preferred slots or also empty slots may be considered
+     */
     private void fillQueue(List<AvailabilityMatrix> availabilityMatrices, CourseSession courseSession, boolean preferredOnly){
         Candidate firstCandidate = null;
         Candidate randomCandidate = null;
@@ -433,6 +578,11 @@ public class Scheduler {
         }
     }
 
+    /**
+     * Checks already assigned courseSessions for collisions
+     * @param timeTable to be checked
+     * @return a list of courseSessions that are in collision
+     */
     public List<CourseSession> collisionCheck(TimeTable timeTable){
         if(!this.timeTable.equals(timeTable)){
             setTimeTable(timeTable);
