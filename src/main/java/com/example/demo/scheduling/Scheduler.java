@@ -36,8 +36,7 @@ public class Scheduler {
     }
 
     /**
-     * Initializes the Scheduler with a certain timeTable
-     *
+     * Initializes the Scheduler with a certain timeTable.
      * The courseSessions are split into ones that need a room with computers and others that don't need a
      * room with computers. Also, the availabilityMatrices are split into ones of computer rooms and others
      * of rooms without computers.
@@ -82,7 +81,7 @@ public class Scheduler {
 
     /**
      * This method first checks the preconditions, then splits the courseSessions into single, group and split
-     * courseSessions and processes them. At the end, it checks if there is a assignment candidate for all courseSession.
+     * courseSessions and processes them. At the end, it checks if there is an assignment candidate for all courseSessions.
      * If yes, the courseSessions are assigned, if not
      *
      * @param courseSessions to be processed
@@ -306,6 +305,51 @@ public class Scheduler {
         }
     }
 
+    public Candidate findCandidateForCourseSession(CourseSession courseSession, List<AvailabilityMatrix> availabilityMatrices, int dayFilter){
+        int numberOfTries = 0;
+        Candidate currentCandidate;
+        // Find placement candidate for courseSession
+
+        if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
+            // Fill the queue with candidates of appropriate duration
+            fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
+            if(dayFilter != -1){
+                candidateQueue = candidateQueue.stream()
+                        .filter(c -> c.getDay() != dayFilter)
+                        .collect(Collectors.toCollection(() -> new PriorityQueue<>(Comparator.comparingInt(Candidate::getSlot))));
+            }
+        }
+
+        do{
+            if(numberOfTries >= 10000){
+                if(usePreferredOnly){
+                    log.debug("Switching to other free time for assignment of courseSession {}", courseSession.getName());
+                    usePreferredOnly = false;
+                    numberOfTries = 0;
+                }
+                else{
+                    throw new NotEnoughSpaceAvailableException("failed assignment");
+                }
+            }
+            //refill the queue if no fitting candidate in queue
+            if(candidateQueue.isEmpty()){
+                fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
+                if(dayFilter != -1){
+                    candidateQueue = candidateQueue.stream()
+                            .filter(c -> c.getDay() != dayFilter)
+                            .collect(Collectors.toCollection(() -> new PriorityQueue<>(Comparator.comparingInt(Candidate::getSlot))));
+                }
+            }
+            //select possible candidate for placement
+            currentCandidate = candidateQueue.poll();
+            log.debug("Selecting candidate {} for assignment", currentCandidate);
+            numberOfTries++;
+        }
+        while(!checkConstraintsFulfilled(courseSession, Objects.requireNonNull(currentCandidate)));
+
+        return currentCandidate;
+    }
+
     /**
      * This method processes all single courseSessions by trying to find an assignment candidate for all courseSessions
      * in the list. If a candidate for a certain courseSession is found, the courseSession is assigned in the candidate's
@@ -322,41 +366,11 @@ public class Scheduler {
             log.info("> > Trying to assign {} single course sessions ...", singleCourseSessions.size());
         }
         Candidate currentCandidate;
-        int number_of_tries;
 
         // For each courseSession
         for(CourseSession courseSession : singleCourseSessions){
-            number_of_tries = 0;
             log.debug("Choosing CourseSession {} for assignment", courseSession.getName());
-            // If queue is empty or all the current courseSession needs candidates of different duration
-            if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
-                // Fill the queue with candidates of appropriate duration
-                fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
-
-            }
-
-            // Find placement candidate for courseSession
-            do{
-                if(number_of_tries >= 10000){
-                    if(usePreferredOnly){
-                        log.debug("Switching to other free time for assignment of courseSession {}", courseSession.getName());
-                        usePreferredOnly = false;
-                        number_of_tries = 0;
-                    }
-                    else{
-                        throw new NotEnoughSpaceAvailableException("failed assignment");
-                    }
-                }
-                //refill the queue if no fitting candidate in queue
-                if(candidateQueue.isEmpty()){
-                    fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
-                }
-                //select possible candidate for placement
-                currentCandidate = candidateQueue.poll();
-                log.debug("Selecting candidate {} for assignment", currentCandidate);
-                number_of_tries++;
-            }
-            while(!checkConstraintsFulfilled(courseSession, Objects.requireNonNull(currentCandidate)));
+            currentCandidate = findCandidateForCourseSession(courseSession, availabilityMatrices, -1);
 
             //assign courseSession
             log.debug("Successfully assigned CourseSession {} to {}", courseSession.getName(), currentCandidate);
@@ -449,20 +463,43 @@ public class Scheduler {
     }
 
     private void processSplitCourseSessions(List<CourseSession> splitCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        Candidate currentCandidate;
+        Map<String, Integer> courseIdToDayMap = new HashMap<>();
+
         if(splitCourseSessions.isEmpty()){
             log.info("> > There are no split courses to assign.");
             return;
         } else {
             log.info("> > Trying to assign {} split course sessions ...", splitCourseSessions.size());
         }
+        List<CourseSession> firstSplits = splitCourseSessions.stream()
+                        .filter(c -> c.getName().contains("Split 1"))
+                        .toList();
 
-        List<CourseSession> currentCourseSessions = new ArrayList<>();
-        String groupId;
-        while (!splitCourseSessions.isEmpty()){
-            groupId = splitCourseSessions.getFirst().getCourseId();
-            while(!splitCourseSessions.isEmpty() && splitCourseSessions.getFirst().getCourseId().equals(groupId)){
-                currentCourseSessions.add(splitCourseSessions.removeFirst());
-            }
+        for(CourseSession courseSession : firstSplits){
+            currentCandidate = findCandidateForCourseSession(courseSession, availabilityMatrices, -1);
+            //assign courseSession
+            log.debug("Successfully assigned Split 1 of CourseSession {} to {}", courseSession.getName(), currentCandidate);
+            currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
+            courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
+            readyForAssignmentSet.put(courseSession, currentCandidate);
+
+            courseIdToDayMap.put(courseSession.getCourseId(), courseSession.getTiming().getDay().ordinal());
+
+            usePreferredOnly = true;
+        }
+
+        splitCourseSessions.removeAll(firstSplits);
+
+        for(CourseSession courseSession : splitCourseSessions){
+            int dayFilter = courseIdToDayMap.getOrDefault(courseSession.getCourseId(), -1);
+            currentCandidate = findCandidateForCourseSession(courseSession, availabilityMatrices, dayFilter);
+            //assign courseSession
+            log.debug("Successfully assigned Split 2 of CourseSession {} to {}", courseSession.getName(), currentCandidate);
+            currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
+            courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
+            readyForAssignmentSet.put(courseSession, currentCandidate);
+            usePreferredOnly = true;
         }
         log.info("> > Finished assigning split course sessions.");
     }
