@@ -20,6 +20,8 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {OverlayPanel} from "primeng/overlaypanel";
 import {EventImpl} from "@fullcalendar/core/internal";
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-home',
@@ -51,6 +53,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
   calendarOptions: CalendarOptions= ({
       plugins: [
         interactionPlugin,
@@ -202,6 +205,18 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
       this.updateCalendarEvents();
     }
+  }
+
+  exportCalendarAsPDF() {
+    const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
+    html2canvas(calendarHTMLElement).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('landscape', 'mm', 'a4');
+      const imgWidth = 297; // A4 width in mm for landscape
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save('fullcalendar.pdf');
+    });
   }
 
   applyCollisionCheck() {
@@ -371,7 +386,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         items: [
           {
             label: 'Export Plan (all)',
-            icon: 'pi pi-folder-open'
+            icon: 'pi pi-folder-open',
+            command: () => this.exportCalendarAsPDF()
           },
           {
             label: 'Export Plan (each)',

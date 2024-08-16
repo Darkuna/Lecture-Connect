@@ -158,4 +158,10 @@
   top: 6%;
 }
 
+.fc-event-title {
+  white-space: normal !important; /* Erlaubt den Textumbruch */
+  overflow: visible !important;  /* Verhindert das Abschneiden des Textes */
+  font-size: 10px; /* Schriftgröße reduzieren */
+}
+
 
