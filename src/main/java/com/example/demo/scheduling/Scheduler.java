@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @Service
 @Scope("session")
 public class Scheduler {
-    private final int MAX_NUMBER_OF_TRIES = 10;
     private boolean usePreferredOnly = true;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
@@ -88,6 +87,7 @@ public class Scheduler {
      * @param availabilityMatrices to be used for assigning the courseSessions
      */
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        final int MAX_NUMBER_OF_TRIES = 10;
         int numberOfTries = 0;
         usePreferredOnly = true;
         numberOfCourseSessions = courseSessions.size();
@@ -305,6 +305,13 @@ public class Scheduler {
         }
     }
 
+    /**
+     * Finds a candidate for a certain courseSession from a list of availabilityMatrices
+     * @param courseSession to find a candidate for
+     * @param availabilityMatrices where the candidate is searched
+     * @param dayFilter additional parameter for split courseSessions to exclude candidates of a specific day
+     * @return candidate fulfilling all constraints for successful assignment
+     */
     public Candidate findCandidateForCourseSession(CourseSession courseSession, List<AvailabilityMatrix> availabilityMatrices, int dayFilter){
         int numberOfTries = 0;
         Candidate currentCandidate;
@@ -332,7 +339,7 @@ public class Scheduler {
                 }
             }
             //refill the queue if no fitting candidate in queue
-            if(candidateQueue.isEmpty()){
+            while(candidateQueue.isEmpty()){
                 fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
                 if(dayFilter != -1){
                     candidateQueue = candidateQueue.stream()
@@ -342,6 +349,9 @@ public class Scheduler {
             }
             //select possible candidate for placement
             currentCandidate = candidateQueue.poll();
+            if(currentCandidate == null){
+                continue;
+            }
             log.debug("Selecting candidate {} for assignment", currentCandidate);
             numberOfTries++;
         }
@@ -462,6 +472,14 @@ public class Scheduler {
         log.info("> > Finished assigning group course sessions.");
     }
 
+    /**
+     * This method processes all split courseSessions. All first splits are processed like single courseSessions, while
+     * the second splits are processed with the additional variable dayFilter, that ensures that potential assignment
+     * candidates for the second splits are not located on the same day as the candidate of the corresponding first split.
+     *
+     * @param splitCourseSessions to be processed
+     * @param availabilityMatrices to be searched for candidates
+     */
     private void processSplitCourseSessions(List<CourseSession> splitCourseSessions, List<AvailabilityMatrix> availabilityMatrices){
         Candidate currentCandidate;
         Map<String, Integer> courseIdToDayMap = new HashMap<>();
@@ -484,7 +502,7 @@ public class Scheduler {
             courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
             readyForAssignmentSet.put(courseSession, currentCandidate);
 
-            courseIdToDayMap.put(courseSession.getCourseId(), courseSession.getTiming().getDay().ordinal());
+            courseIdToDayMap.put(courseSession.getCourseId(), currentCandidate.getDay());
 
             usePreferredOnly = true;
         }
