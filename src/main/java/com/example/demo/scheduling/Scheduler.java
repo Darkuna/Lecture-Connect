@@ -67,36 +67,13 @@ public class Scheduler {
      * don't need rooms with computers are processed, then all courseSessions that need computer rooms.
      */
     public void assignUnassignedCourseSessions(){
-        int numberOfTries = 10;
-        int counter = 0;
-        while(counter < numberOfTries){
             log.info("> Processing courseSessions that need computers ...");
-            try {
-                assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
-                log.info("> Finished processing courseSessions that need computers");
-                break;
-            } catch (Exception e){
-                log.warn("Expection {} was thrown while trying to assign courseSessions with computers needed", e.getMessage());
-                log.warn("Trying again");
-                counter++;
-                Collections.shuffle(availabilityMatricesOfRoomsWithComputers);
-            }
-        }
-        counter = 0;
-        while(counter < numberOfTries){
+            assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
+            log.info("Finished processing courseSessions that need computers");
             log.info("> Processing courseSessions that don't need computers ...");
-            try {
-                assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers);
-                log.info("> Finished processing courseSessions that don't need computers");
-                break;
-            } catch (Exception e){
-                log.warn("Expection {} was thrown while trying to assign courseSessions without computers needed", e.getMessage());
-                log.warn("Trying again");
-                counter++;
-                Collections.shuffle(availabilityMatricesOfRoomsWithoutComputers);
-            }
+            assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers);
+            log.info("Finished processing courseSessions that don't need computers");
         }
-    }
 
     /**
      * This method first checks the preconditions, then splits the courseSessions into single, group and split
