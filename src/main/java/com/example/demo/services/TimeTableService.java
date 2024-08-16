@@ -194,12 +194,12 @@ public class TimeTableService {
      *
      * @param timeTable The timetable for executing the algorithm
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void assignCourseSessionsToRooms(TimeTable timeTable){
         log.info("Starting assignment algorithm for timeTable with id {}", timeTable.getId());
         scheduler.setTimeTable(timeTable);
         scheduler.assignUnassignedCourseSessions();
-        timeTable.setCourseSessions(courseSessionService.saveAll(timeTable.getCourseSessions()));
         timeTableRepository.save(timeTable);
         log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
     }

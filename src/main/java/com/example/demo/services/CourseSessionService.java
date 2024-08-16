@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Service class for managing course sessions.
@@ -211,7 +212,9 @@ public class CourseSessionService {
         return courseSession;
     }
 
-    public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
-        return courseSessionRepository.saveAll(courseSessions);
+    public List<CourseSession> saveAll(Set<CourseSession> courseSessions) {
+        List<CourseSession> courseSessionsToSave = courseSessions.stream()
+                .toList();
+        return courseSessionRepository.saveAll(courseSessionsToSave);
     }
 }

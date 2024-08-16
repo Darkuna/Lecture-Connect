@@ -2,6 +2,7 @@ package com.example.demo.scheduling;
 
 import com.example.demo.exceptions.roomTable.NotEnoughSpaceAvailableException;
 import com.example.demo.models.*;
+import com.example.demo.services.CourseSessionService;
 import com.example.demo.services.TimingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,9 +30,11 @@ public class Scheduler {
     int numberOfCourseSessions;
 
     private final TimingService timingService;
+    private final CourseSessionService courseSessionService;
 
-    public Scheduler(TimingService timingService) {
+    public Scheduler(TimingService timingService, CourseSessionService courseSessionService) {
         this.timingService = timingService;
+        this.courseSessionService = courseSessionService;
     }
 
     /**
@@ -271,12 +274,14 @@ public class Scheduler {
      */
     private boolean finalizeAssignment() {
         if(readyForAssignmentSet.size() == numberOfCourseSessions){
+            Set<CourseSession> courseSessionsToAssign = readyForAssignmentSet.keySet();
             for(CourseSession courseSession : readyForAssignmentSet.keySet()){
                 Timing timing = AvailabilityMatrix.toTiming(readyForAssignmentSet.get(courseSession));
                 timing = timingService.createTiming(timing);
                 courseSession.setTiming(timing);
                 courseSession.setAssigned(true);
             }
+            courseSessionService.saveAll(courseSessionsToAssign);
             readyForAssignmentSet.clear();
             return true;
         }
