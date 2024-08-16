@@ -92,6 +92,42 @@ public class AvailabilityMatrix {
         }
     }
 
+    public List<Candidate> getEarliestAvailableSlotsForDuration(int minutes, boolean preferredOnly) {
+        int numberOfSlots = minutes / DURATION_PER_SLOT;
+        List<Candidate> earliestCandidates = new ArrayList<>();
+        if(preferredOnly){
+            for(int i = 0; i < DAYS_IN_WEEK; i++){
+                for(int j = 0; j < SLOTS_PER_DAY; j++){
+                    if (matrix[i][j] == CourseSession.PREFERRED){
+                        if(isSlotsAvailable(i,j,numberOfSlots,true))
+                        {
+                            earliestCandidates.add(new Candidate(this,i,j,minutes,true));
+                            j += numberOfSlots;
+                        }
+
+                    }
+                }
+            }
+        }
+        else{
+            for(int i = 0; i < DAYS_IN_WEEK; i++){
+                for(int j = 0; j < SLOTS_PER_DAY; j++){
+                    if (matrix[i][j] == null || matrix[j][i] == CourseSession.PREFERRED){
+                        if(isSlotsAvailable(i,j,numberOfSlots,false))
+                        {
+                            earliestCandidates.add(new Candidate(this,i,j,minutes,true));
+                            j += numberOfSlots;
+                        }
+                    }
+                }
+            }
+        }
+        if(!earliestCandidates.isEmpty()){
+            return earliestCandidates;
+        }
+        throw new NotEnoughSpaceAvailableException("Not enough space in availability matrix");
+    }
+
     public Candidate getEarliestAvailableSlotForDuration(int minutes, boolean preferredOnly) {
         int numberOfSlots = minutes / DURATION_PER_SLOT;
         if(preferredOnly){
@@ -205,6 +241,9 @@ public class AvailabilityMatrix {
     }
 
     private boolean isSlotsAvailable(int dayIndex, int slotIndex, int numberOfSlots, boolean preferredOnly) {
+        if(slotIndex + numberOfSlots >= SLOTS_PER_DAY){
+            return false;
+        }
         if(preferredOnly){
             for (int i = slotIndex; i < slotIndex + numberOfSlots; i++) {
                 if (matrix[dayIndex][i] != CourseSession.PREFERRED) {

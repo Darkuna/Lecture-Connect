@@ -67,15 +67,35 @@ public class Scheduler {
      * don't need rooms with computers are processed, then all courseSessions that need computer rooms.
      */
     public void assignUnassignedCourseSessions(){
-        //Assign courseSessionsWithComputersNeeded
-        log.info("> Processing courseSessions that don't need computers ...");
-        assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
-        log.info("> Finished processing courseSessions that don't need computers");
-
-        //Assign courseSessionsWithoutComputersNeeded
-        log.info("> Processing courseSessions that need computers ...");
-        assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers);
-        log.info("> Finished processing courseSessions that need computers");
+        int numberOfTries = 10;
+        int counter = 0;
+        while(counter < numberOfTries){
+            log.info("> Processing courseSessions that need computers ...");
+            try {
+                assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
+                log.info("> Finished processing courseSessions that need computers");
+                break;
+            } catch (Exception e){
+                log.warn("Expection {} was thrown while trying to assign courseSessions with computers needed", e.getMessage());
+                log.warn("Trying again");
+                counter++;
+                Collections.shuffle(availabilityMatricesOfRoomsWithComputers);
+            }
+        }
+        counter = 0;
+        while(counter < numberOfTries){
+            log.info("> Processing courseSessions that don't need computers ...");
+            try {
+                assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers);
+                log.info("> Finished processing courseSessions that don't need computers");
+                break;
+            } catch (Exception e){
+                log.warn("Expection {} was thrown while trying to assign courseSessions without computers needed", e.getMessage());
+                log.warn("Trying again");
+                counter++;
+                Collections.shuffle(availabilityMatricesOfRoomsWithoutComputers);
+            }
+        }
     }
 
     /**
@@ -136,13 +156,6 @@ public class Scheduler {
         else{
             log.info("+ Available time check successful");
         }
-        if(!checkAvailableTimePerSemester(courseSessions, availabilityMatrices)){
-            log.error("Not enough time available to assign all courseSessions of each semester without intersecting courseSessions");
-            return false;
-        }
-        else{
-            log.info("+ Available time per semester check successful");
-        }
         if(!checkAvailableTimePerRoomCapacity(courseSessions, availabilityMatrices)){
             log.error("- Not enough time available to assign all courseSessions based on their numberOfParticipants");
             return false;
@@ -195,10 +208,6 @@ public class Scheduler {
                 usePreferredOnly = false;
             }
         }
-        return true;
-    }
-
-    private boolean checkAvailableTimePerSemester(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         return true;
     }
 
@@ -328,6 +337,9 @@ public class Scheduler {
         }
 
         do{
+            if(numberOfTries == 2500){
+                System.out.println("x");
+            }
             if(numberOfTries >= 10000){
                 if(usePreferredOnly){
                     log.debug("Switching to other free time for assignment of courseSession {}", courseSession.getName());
@@ -339,7 +351,7 @@ public class Scheduler {
                 }
             }
             //refill the queue if no fitting candidate in queue
-            while(candidateQueue.isEmpty()){
+            if(candidateQueue.isEmpty()){
                 fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
                 if(dayFilter != -1){
                     candidateQueue = candidateQueue.stream()
@@ -604,27 +616,17 @@ public class Scheduler {
      * @param preferredOnly to determine if only preferred slots or also empty slots may be considered
      */
     private void fillQueue(List<AvailabilityMatrix> availabilityMatrices, CourseSession courseSession, boolean preferredOnly){
-        Candidate firstCandidate = null;
-        Candidate randomCandidate = null;
         // remove all candidates with different durations when refilling queue
         candidateQueue.stream().filter(c -> c.getDuration() == courseSession.getDuration()).forEach(c -> {});
+        List<Candidate> candidates;
         // always fill the queue with the first available and one random candidate
         for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
             if(checkRoomCapacity(courseSession, availabilityMatrix)){
-                do {
-                    try{
-                        firstCandidate = availabilityMatrix.getEarliestAvailableSlotForDuration(courseSession.getDuration(), preferredOnly);
-                        randomCandidate = availabilityMatrix.getRandomAvailableSlot(courseSession.getDuration(), preferredOnly);
-                    }
-                    catch(Exception e){
-                        break;
-                    }
-                } while (AvailabilityMatrix.toTiming(randomCandidate).intersects(AvailabilityMatrix.toTiming(firstCandidate)));
-                if(firstCandidate != null){
-                    candidateQueue.add(firstCandidate);
+                try{
+                    candidates = availabilityMatrix.getEarliestAvailableSlotsForDuration(courseSession.getDuration(), preferredOnly);
+                    candidateQueue.addAll(candidates);
                 }
-                if(randomCandidate != null){
-                    candidateQueue.add(randomCandidate);
+                catch(Exception ignored){
                 }
             }
         }

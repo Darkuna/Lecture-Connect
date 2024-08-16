@@ -68,7 +68,7 @@ public class Timing implements Persistable<Long>, Serializable{
     }
 
     public boolean intersects(Timing timing) {
-        if (this.day != timing.day) {
+        if (!this.day.equals(timing.day)) {
             return false;
         }
 
