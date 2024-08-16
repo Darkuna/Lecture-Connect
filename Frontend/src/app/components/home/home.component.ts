@@ -209,15 +209,38 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   exportCalendarAsPDF() {
     const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
-    html2canvas(calendarHTMLElement).then(canvas => {
+
+    this.adjustEventFontSize('8px');
+
+    html2canvas(calendarHTMLElement, { scale: 2 }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('landscape', 'mm', 'a4');
-      const imgWidth = 297; // A4 width in mm for landscape
+
+      const pdf = new jsPDF('landscape', 'mm', 'a3');
+      const imgWidth = 420;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save('fullcalendar.pdf');
+      pdf.save('fullcalendar_a3.pdf');
+
+      // Zurücksetzen der Schriftgröße und des CSS nach dem Export
+      this.adjustEventFontSize('');
+
     });
   }
+
+  adjustEventFontSize(fontSize: string) {
+    const eventElements = document.querySelectorAll('.fc-event-title, .fc-event-time');
+
+    eventElements.forEach((element: any) => {
+      element.style.fontSize = fontSize || '12px';
+      element.style.lineHeight = fontSize ? '1.2' : '';
+      element.style.whiteSpace = 'pre-wrap';
+      element.style.wordWrap = 'break-word';
+    });
+  }
+
+
+
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
