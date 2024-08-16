@@ -120,7 +120,7 @@ public class RoomTableService {
      * @param roomTable The roomTable to initialize the availability matrix for.
      * @return An initialized AvailabilityMatrix object.
      */
-    private AvailabilityMatrix initializeAvailabilityMatrix(RoomTable roomTable){
+    public AvailabilityMatrix initializeAvailabilityMatrix(RoomTable roomTable){
         return new AvailabilityMatrix(roomTable);
     }
 
