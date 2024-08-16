@@ -451,6 +451,8 @@ public class Scheduler {
                 throw new NotEnoughSpaceAvailableException("Not enough space available to assign all groups of course " + groupId);
             }
 
+            Collections.shuffle(currentCandidates);
+
             // assign all courseSessions of the group to the list
             for(int i = 0; i < numberOfGroups; i++){
                 candidateToAssign = currentCandidates.get(i);
