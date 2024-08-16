@@ -231,11 +231,9 @@ public class AvailabilityMatrix {
             return false;
         }
         for (int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
-            if (i >= SLOTS_PER_DAY) {
-                return true;
-            }
             if (matrix[candidate.getDay()][i] != null &&
                     matrix[candidate.getDay()][i].getSemester() == courseSession.getSemester() &&
+                    matrix[candidate.getDay()][i].getStudyType().equals(courseSession.getStudyType()) &&
                     !matrix[candidate.getDay()][i].isSamePS(courseSession)) {
                 return true;
             }
