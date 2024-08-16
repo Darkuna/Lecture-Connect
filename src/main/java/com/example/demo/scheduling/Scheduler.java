@@ -566,9 +566,12 @@ public class Scheduler {
      */
     private boolean checkTimingConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
         Timing timing = AvailabilityMatrix.toTiming(candidate);
-        for(Timing timingConstraint : courseSession.getTimingConstraints()){
-            if(timing.intersects(timingConstraint)){
-                return false;
+        List<Timing> timingConstraints = courseSession.getTimingConstraints();
+        if(timingConstraints != null){
+            for(Timing timingConstraint : courseSession.getTimingConstraints()){
+                if(timing.intersects(timingConstraint)){
+                    return false;
+                }
             }
         }
         return true;

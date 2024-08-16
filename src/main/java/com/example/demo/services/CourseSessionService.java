@@ -175,6 +175,9 @@ public class CourseSessionService {
         List<CourseSession> courseSessions = courseSessionRepository.findAllByRoomTable(roomTable);
         log.debug("Loaded all courseSessions assigned to roomTable {} ({})", roomTable.getRoomId(),
                 courseSessions.size());
+        for(CourseSession courseSession : courseSessions){
+            courseSession.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(courseSession.getCourseId()));
+        }
         return courseSessions;
     }
 
@@ -204,6 +207,7 @@ public class CourseSessionService {
         CourseSession courseSession = courseSessionRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("CourseSession not found for ID: " + id));
         log.info("Loaded course session {}", courseSession.getName());
+        courseSession.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(courseSession.getCourseId()));
         return courseSession;
     }
 

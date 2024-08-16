@@ -30,14 +30,16 @@ public class TimeTableService {
     private final DTOConverter dtoConverter;
     private final Scheduler scheduler;
     private static final Logger log = LoggerFactory.getLogger(TimeTableService.class);
+    private final TimingService timingService;
 
     public TimeTableService(TimeTableRepository timeTableRepository, RoomTableService roomTableService,
-                            CourseSessionService courseSessionService, DTOConverter dtoConverter, Scheduler scheduler) {
+                            CourseSessionService courseSessionService, DTOConverter dtoConverter, Scheduler scheduler, TimingService timingService) {
         this.timeTableRepository = timeTableRepository;
         this.roomTableService = roomTableService;
         this.courseSessionService = courseSessionService;
         this.dtoConverter = dtoConverter;
         this.scheduler = scheduler;
+        this.timingService = timingService;
     }
 
     /**
@@ -205,5 +207,13 @@ public class TimeTableService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> checkCollisions(TimeTable timeTable){
         return scheduler.collisionCheck(timeTable);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public TimeTable unassignAllCourseSessions(TimeTable timeTable){
+        courseSessionService.unassignCourseSessions(timeTable.getAssignedCourseSessions());
+        log.info("Unassigned all assigned courseSessions of timeTable {}", timeTable.getId());
+        timeTable.setRoomTables(roomTableService.loadAllOfTimeTable(timeTable));
+        return timeTable;
     }
 }
