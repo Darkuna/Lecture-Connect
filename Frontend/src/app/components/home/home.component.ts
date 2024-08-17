@@ -207,6 +207,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  /**
+   * This method transforms the fullcalendar html to canvas and creates a pdf out of it. In order to get a better output
+   * some properties of the calendar are adjusted before pdf creation and reset afterward.
+   */
   exportCalendarAsPDF() {
     const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
 
@@ -222,12 +226,16 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       pdf.save('fullcalendar_a3.pdf');
 
-      // Zurücksetzen der Schriftgröße und des CSS nach dem Export
       this.adjustEventFontSize('');
 
     });
   }
 
+  /**
+   * This method adjusts the properties of all calendar events to improve the readability when exporting the global
+   * calendar to pdf
+   * @param fontSize of the calendar events in the pdf output
+   */
   adjustEventFontSize(fontSize: string) {
     const eventElements = document.querySelectorAll('.fc-event-title, .fc-event-time');
 
