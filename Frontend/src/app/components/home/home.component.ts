@@ -20,6 +20,8 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {OverlayPanel} from "primeng/overlaypanel";
 import {EventImpl} from "@fullcalendar/core/internal";
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-home',
@@ -51,6 +53,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
   calendarOptions: CalendarOptions= ({
       plugins: [
         interactionPlugin,
@@ -203,6 +206,49 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updateCalendarEvents();
     }
   }
+
+  /**
+   * This method transforms the fullcalendar html to canvas and creates a pdf out of it. In order to get a better output
+   * some properties of the calendar are adjusted before pdf creation and reset afterward.
+   */
+  exportCalendarAsPDF() {
+    const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
+
+    this.adjustEventFontSize('8px');
+
+    html2canvas(calendarHTMLElement, { scale: 2 }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF('landscape', 'mm', 'a3');
+      const imgWidth = 420;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save('fullcalendar_a3.pdf');
+
+      this.adjustEventFontSize('');
+
+    });
+  }
+
+  /**
+   * This method adjusts the properties of all calendar events to improve the readability when exporting the global
+   * calendar to pdf
+   * @param fontSize of the calendar events in the pdf output
+   */
+  adjustEventFontSize(fontSize: string) {
+    const eventElements = document.querySelectorAll('.fc-event-title, .fc-event-time');
+
+    eventElements.forEach((element: any) => {
+      element.style.fontSize = fontSize || '12px';
+      element.style.lineHeight = fontSize ? '1.2' : '';
+      element.style.whiteSpace = 'pre-wrap';
+      element.style.wordWrap = 'break-word';
+    });
+  }
+
+
+
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
@@ -371,7 +417,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         items: [
           {
             label: 'Export Plan (all)',
-            icon: 'pi pi-folder-open'
+            icon: 'pi pi-folder-open',
+            command: () => this.exportCalendarAsPDF()
           },
           {
             label: 'Export Plan (each)',
