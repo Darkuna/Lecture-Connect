@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -20,7 +20,8 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
-import * as jsPDF from "jspdf";
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
   selector: 'app-home',
@@ -45,6 +46,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   lastSearchedEvent: EventImpl | null = null;
   firstSearchedEvent: EventImpl | null = null;
 
+  @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
@@ -393,7 +395,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         items: [
           {
             label: 'Export Plan (all)',
-            icon: 'pi pi-folder-open'
+            icon: 'pi pi-folder-open',
+            command: () => this.exportCalendarAsPDF()
           },
           {
             label: 'Export Plan (each)',
