@@ -20,6 +20,7 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
+import * as jsPDF from "jspdf";
 
 @Component({
   selector: 'app-home',
@@ -124,8 +125,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.calendarComponent.getApi().removeAllEvents();
   }
 
-
-
   updateCalendarEvents(){
     this.clearCalendar();
 
@@ -221,6 +220,46 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
+  }
+
+  /**
+   * This method transforms the fullcalendar html to canvas and creates a pdf out of it. In order to get a better output
+   * some properties of the calendar are adjusted before pdf creation and reset afterward.
+   */
+  exportCalendarAsPDF() {
+    const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
+
+    this.adjustEventFontSize('8px');
+
+    html2canvas(calendarHTMLElement, { scale: 2 }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF('landscape', 'mm', 'a3');
+      const imgWidth = 420;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      pdf.save('fullcalendar_a3.pdf');
+
+      this.adjustEventFontSize('');
+
+    });
+  }
+
+  /**
+   * This method adjusts the properties of all calendar events to improve the readability when exporting the global
+   * calendar to pdf
+   * @param fontSize of the calendar events in the pdf output
+   */
+  adjustEventFontSize(fontSize: string) {
+    const eventElements = document.querySelectorAll('.fc-event-title, .fc-event-time');
+
+    eventElements.forEach((element: any) => {
+      element.style.fontSize = fontSize || '12px';
+      element.style.lineHeight = fontSize ? '1.2' : '';
+      element.style.whiteSpace = 'pre-wrap';
+      element.style.wordWrap = 'break-word';
+    });
   }
 
   createNewTable() {
