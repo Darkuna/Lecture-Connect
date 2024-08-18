@@ -124,4 +124,7 @@ export class RoomSelectionComponent implements OnDestroy {
       );
     }
   }
+
+    protected readonly String = String;
+  protected readonly screen = screen;
 }

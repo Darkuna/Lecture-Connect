@@ -125,4 +125,7 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
 
   protected readonly getRoleOptions = getRoleOptions;
   protected readonly getDegreeOptions = getDegreeOptions;
+    protected readonly window = window;
+  protected readonly screen = screen;
+  protected readonly String = String;
 }

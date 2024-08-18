@@ -19,7 +19,7 @@
              [rowsPerPageOptions]="[10, 15, 20]"
              [globalFilterFields]="['id', 'lecturer', 'name']"
              [rowHover]="true"
-             [scrollable]="true" scrollHeight="535px">
+             [scrollable]="true" [scrollHeight]="String(screen.height * 0.5).concat('px')">
       <ng-template pTemplate="header">
         <tr>
           <th id="header" class="flex-header"
@@ -73,7 +73,7 @@
              [rowsPerPageOptions]="[10, 15, 20]"
              [globalFilterFields]="['id', 'lecturer', 'name']"
              [rowHover]="true"
-             [scrollable]="true" scrollHeight="535px">
+             [scrollable]="true" [scrollHeight]="String(screen.height * 0.5).concat('px')">
       <ng-template pTemplate="header">
         <tr>
           <th id="checkbox">
