@@ -147,7 +147,7 @@ export class BaseSelectionComponent{
       color: this.lastUsedColor,
       borderColor: '#D8D8D8',
       start: this.dataSelectStart,
-      end: this.dataSelectEnd
+      end: this.dataSelectEnd,
     };
 
     this.calendarComponent.getApi().addEvent(newEvent);
