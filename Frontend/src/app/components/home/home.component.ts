@@ -20,7 +20,6 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
-import {CalendarSettingsComponent} from "../calendar-header/calendar-settings/calendar-settings.component";
 
 @Component({
   selector: 'app-home',
@@ -47,8 +46,44 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
-  @ViewChild('calendarSettings') calendarSettingsComponent! : CalendarSettingsComponent;
-  calendarOptions!: CalendarOptions;
+  tmpStartDate: Date = new Date('2024-07-10T08:00:00');
+  tmpEndDate: Date = new Date('2024-07-10T22:00:00');
+  tmpDuration: Date = new Date('2024-07-10T00:20:00');
+  tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
+  calendarOptions :CalendarOptions = {
+    plugins: [
+      interactionPlugin,
+      dayGridPlugin,
+      timeGridPlugin,
+      listPlugin,
+    ],
+    headerToolbar: {
+      left: '',
+      center: '',
+      right: ''
+    },
+    initialView: 'timeGridWeek',
+    weekends: false,
+    editable: false,
+    selectable: false,
+    selectMirror: true,
+    dayMaxEvents: true,
+    allDaySlot: false,
+    height: "auto",
+    eventBackgroundColor: "#666666",
+    eventBorderColor: "#050505",
+    eventTextColor: "var(--system-color-primary-white)",
+    slotMinTime: this.formatTime(this.tmpStartDate),
+    slotMaxTime: this.formatTime(this.tmpEndDate),
+    slotDuration: this.formatTime(this.tmpDuration),
+    slotLabelInterval: this.formatTime(this.tmpSlotInterval),
+    dayHeaderFormat: {weekday: 'long'},
+    eventOverlap: true,
+    slotEventOverlap: true,
+    nowIndicator: false,
+    eventClick: this.showHoverDialog.bind(this),
+    eventMouseLeave: this.hideHoverDialog.bind(this),
+  };
 
   constructor(
     private router: Router,
@@ -70,40 +105,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.calendarContextMenu.calendarComponent = this.calendarComponent;
-    this.calendarOptions = {
-      plugins: [
-        interactionPlugin,
-        dayGridPlugin,
-        timeGridPlugin,
-        listPlugin,
-      ],
-      headerToolbar: {
-        left: '',
-        center: '',
-        right: ''
-      },
-      initialView: 'timeGridWeek',
-      weekends: false,
-      editable: false,
-      selectable: false,
-      selectMirror: true,
-      dayMaxEvents: true,
-      allDaySlot: false,
-      height: "auto",
-      eventBackgroundColor: "#666666",
-      eventBorderColor: "#050505",
-      eventTextColor: "var(--system-color-primary-white)",
-      slotMinTime: this.calendarSettingsComponent.getStart(),
-      slotMaxTime: this.calendarSettingsComponent.getEnd(),
-      slotDuration: this.calendarSettingsComponent.getDuration(),
-      slotLabelInterval: this.calendarSettingsComponent.getSlotInterval(),
-      dayHeaderFormat: {weekday: 'long'},
-      eventOverlap: true,
-      slotEventOverlap: true,
-      nowIndicator: false,
-      eventClick: this.showHoverDialog.bind(this),
-      eventMouseLeave: this.hideHoverDialog.bind(this),
-    };
   }
 
   ngOnDestroy(): void {
@@ -122,6 +123,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   clearCalendar(){
     this.calendarComponent.getApi().removeAllEvents();
   }
+
+
 
   updateCalendarEvents(){
     this.clearCalendar();
@@ -272,6 +275,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       value = '00:00:05';
     }
     this.calendarComponent.getApi().setOption(calendarOption, value);
+  }
+
+  formatTime(date: Date): string {
+    // equal returns date as hour:minute:second (00:00:00)
+    return date.toString().split(' ')[4];
   }
 
   getCalendarEvents(): EventImpl[]{

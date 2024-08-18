@@ -63,7 +63,6 @@ import { CourseSelectionPageComponent } from './components/home/course-selection
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import { CalendarContextMenuComponent } from './components/home/calendar-context-menu/calendar-context-menu.component';
 import { EditorComponent } from './components/editor/editor.component';
-import { CalendarSettingsComponent } from './components/calendar-header/calendar-settings/calendar-settings.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -87,7 +86,6 @@ import { CalendarSettingsComponent } from './components/calendar-header/calendar
         CourseSelectionPageComponent,
         CalendarContextMenuComponent,
         EditorComponent,
-        CalendarSettingsComponent,
     ],
     bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,
