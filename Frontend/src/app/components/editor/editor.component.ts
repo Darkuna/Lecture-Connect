@@ -27,7 +27,7 @@ export class EditorComponent implements AfterViewInit{
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
-  calendarOptions: CalendarOptions= {
+  destCalendarOptions: CalendarOptions= {
     plugins: [
       interactionPlugin,
       dayGridPlugin,
@@ -61,11 +61,18 @@ export class EditorComponent implements AfterViewInit{
     droppable: true
   };
 
-  externalEvents = [
-    { title: 'Event 1', id: '1', duration: '01:00' },
-    { title: 'Event 2', id: '2', duration: '02:00' },
-    { title: 'Event 3', id: '3', duration: '01:30' }
-  ];
+sourceCalendarOptions: CalendarOptions = {
+  plugins: [
+    listPlugin,
+  ],
+  headerToolbar: {
+    left: '',
+    center: '',
+    right: ''
+  },
+  initialView: 'listWeek',
+  height: '100%'
+};
 
   selectedTimeTable: Observable<TimeTableDTO>;
   availableRooms: RoomTableDTO[] = [];

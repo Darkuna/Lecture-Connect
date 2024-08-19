@@ -14,7 +14,7 @@
 }
 
 .col-left {
-  display: inline-table;
+  display: inline-block;
   align-content: center;
   height: 100%;
   border-radius: 15px;

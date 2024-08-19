@@ -44,18 +44,12 @@
       </div>
     </p-toolbar>
     <div id="calendarScroll">
-      <full-calendar #calendar [options]='calendarOptions' [events]="combinedTableEvents | async"/>
+      <full-calendar #calendar [options]='destCalendarOptions' [events]="combinedTableEvents | async"/>
     </div>
   </div>
 
-  <div class="col-left" id="external-events" style="width: 15%; padding-right: .5rem; padding-left: .5rem">
-    <p>
-      <strong>Draggable Events</strong>
-    </p>
-
-    <div *ngFor="let event of externalEvents" class='fc-event' [attr.data-event]='JSON.stringify(event)'>
-      {{ event.title }}
-    </div>
+  <div class="col-left" id="external-events" style="width: 15%; height: 100%">
+    <full-calendar #sourcecalendar [options]='sourceCalendarOptions' [events]="combinedTableEvents | async"/>
   </div>
 
   <app-calendar-context-menu #calendarContextMenu/></div>
