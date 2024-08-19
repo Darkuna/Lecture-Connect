@@ -129,6 +129,9 @@ export class BaseSelectionComponent{
     eventOverlap: false,
     slotEventOverlap: false,
     nowIndicator: false,
+    eventDurationEditable: true,
+    eventStartEditable: true,
+
   });
 
   handleDateSelect(selectInfo: DateSelectArg) {
