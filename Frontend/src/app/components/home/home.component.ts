@@ -375,9 +375,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     ];
 
     this.items = [
-      {separator: true},
       {
         label: 'Editor',
+        expanded: true,
         items: [
           {
             label: 'Edit Mode',
@@ -391,7 +391,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           },
           {
             label: 'Remove all',
-            icon: 'pi pi-microchip',
+            icon: 'pi pi-delete-left',
             command: () => this.removeAll()
           },
           {
@@ -401,7 +401,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         ]
       },
-      {separator: true},
       {
         label: 'Print',
         items: [
@@ -416,9 +415,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         ]
       },
-      {separator: true},
       {
         label: 'Courses',
+        expanded: true,
         items: [
           {
             label: 'Add new Courses',
@@ -432,9 +431,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           },
         ]
       },
-      {separator: true},
       {
         label: 'Rooms',
+        expanded: true,
         items: [
           {
             label: 'Add new Rooms',
@@ -449,7 +448,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           },
         ]
       },
-      {separator: true},
       {
         label: 'Scheduling',
         items: [

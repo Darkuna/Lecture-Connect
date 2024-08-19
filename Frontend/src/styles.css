@@ -104,4 +104,10 @@
   background-color: transparent;
 }
 
+.p-panelmenu .p-panelmenu-header .p-panelmenu-header-content .p-panelmenu-header-action {
+  color: var(--system-color-primary-white);
+  padding: 1rem;
+  font-weight: 600;
+  background: var(--system-color-primary-blue);
+}
 

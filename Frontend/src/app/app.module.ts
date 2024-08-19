@@ -63,6 +63,7 @@ import { CourseSelectionPageComponent } from './components/home/course-selection
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import { CalendarContextMenuComponent } from './components/home/calendar-context-menu/calendar-context-menu.component';
 import { EditorComponent } from './components/editor/editor.component';
+import {PanelMenuModule} from "primeng/panelmenu";
 
 @NgModule({ declarations: [
         AppComponent,
@@ -123,7 +124,7 @@ import { EditorComponent } from './components/editor/editor.component';
     IconFieldModule,
     InputIconModule,
     ToggleButtonModule,
-    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule],
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule],
   providers: [
     ConfirmationService,
     MessageService,
