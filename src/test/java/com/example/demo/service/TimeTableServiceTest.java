@@ -44,12 +44,11 @@ public class TimeTableServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testAddRoomTableToTimeTable(){
+    public void testCreateRoomTableToTimeTable(){
         TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024);
         Room room = roomService.loadRoomByID("HS A");
-        RoomTable roomTable = timeTableService.addRoomTable(timeTable, room);
+        RoomTable roomTable = timeTableService.createRoomTable(timeTable, room);
 
-        assertEquals(room, roomTable.getRoom());
         assertEquals(timeTable, roomTable.getTimeTable());
     }
 
@@ -61,7 +60,7 @@ public class TimeTableServiceTest {
         course.setNumberOfGroups(6);
         course.setSplit(false);
         course.setSplitTimes(null);
-        List<CourseSession> courseSessions = timeTableService.addCourseSessions(timeTable, course);
+        List<CourseSession> courseSessions = timeTableService.createCourseSessions(timeTable, course);
 
         assertEquals(course.getNumberOfGroups(), courseSessions.size());
     }
@@ -76,14 +75,6 @@ public class TimeTableServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testRemoveCourseSessionFromTimeTable(){
         //TODO: create a test for removing a courseSession from a timeTable
-    }
-
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testLoadTimeTables(){
-        List<TimeTable> timeTables = timeTableService.loadAllTimeTables();
-
-        assertEquals(3, timeTables.size());
     }
 
     @Test
@@ -120,7 +111,7 @@ public class TimeTableServiceTest {
             if(course.getCourseType().equals(CourseType.PS)){
                 course.setNumberOfGroups(random.nextInt(3,9));
             }
-            timeTableService.addCourseSessions(timeTable, course);
+            timeTableService.createCourseSessions(timeTable, course);
         }
         for(CourseSession courseSession : timeTable.getCourseSessions()){
             System.out.println(courseSession);

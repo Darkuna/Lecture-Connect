@@ -1,7 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {Course} from "../../../../assets/Models/course";
-import {C} from "@fullcalendar/core/internal-common";
 
 @Component({
   selector: 'app-detail-selection',
@@ -22,7 +21,7 @@ export class DetailSelectionComponent {
       {field: 'courseType', header: 'Type'},
       {field: 'name', header: 'Name'},
       {field: 'semester', header: 'Semester'},
-      {field: 'numberOfGroups', header: 'Groups'},
+      {field: 'numberOfGroups', header: 'Groups(PS) / Splits(VO)'},
     ];
   }
 
@@ -33,6 +32,10 @@ export class DetailSelectionComponent {
 
   hasPsType() {
     return this.selectedCourse!.courseType?.toString() === 'PS';
+  }
+
+  hasVoType() {
+    return this.selectedCourse!.courseType?.toString() === 'VO';
   }
 
   getHeaderText(): string {
@@ -56,7 +59,22 @@ export class DetailSelectionComponent {
   }
 
   updateTimesArray(fillValue: number) {
-    this.timesArray = Array(this.tmpSplitTimes).fill(fillValue);
+    if(this.hasVoType()){
+      this.timesArray = Array(this.tmpSplitTimes + 1).fill(fillValue);
+    } else {
+      this.timesArray = Array(this.tmpSplitTimes).fill(fillValue);
+    }
+  }
+
+  getRemainingDuration() {
+    this.timesArray[this.timesArray.length - 1] =
+      this.timesArray
+        .slice(0, this.timesArray.length - 1)
+        .reduce((acc, time) => acc - time, this.selectedCourse.duration!);
+  }
+
+  checkTimesArray(){
+    return this.timesArray[this.timesArray.length -1] < 0;
   }
 
   showDialog() {
@@ -78,4 +96,7 @@ export class DetailSelectionComponent {
       return accumulation + current;
     }, 0);
   }
+
+    protected readonly String = String;
+    protected readonly screen = screen;
 }

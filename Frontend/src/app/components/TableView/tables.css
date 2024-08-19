@@ -15,8 +15,8 @@
 }
 
 #del {
-  background-color: #AD5353;
-  border-color: #AD5353;
+  background-color: var(--system-color-primary-red);
+  border-color: var(--system-color-primary-red);
 }
 
 .parent {
@@ -31,4 +31,19 @@
 
 .rand {
   margin: .4rem .4rem .4rem .4rem;
+}
+
+.input-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-between; /* Optional: adjust space between blocks */
+}
+.input-block {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Optional: to make input blocks take equal space */
+  margin-right: 1rem; /* Optional: to add space between blocks */
+}
+.input-block:last-child {
+  margin-right: 0; /* Optional: remove the margin for the last block */
 }

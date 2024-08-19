@@ -27,10 +27,15 @@ public class DTOConverter {
         dto.setName(courseSession.getName());
         dto.setAssigned(courseSession.isAssigned());
         dto.setFixed(courseSession.isFixed());
-        if(courseSession.getRoomTable() != null){
-            dto.setRoomTableId(courseSession.getRoomTable().getId());
-        }
+        dto.setSemester(courseSession.getSemester());
         dto.setDuration(courseSession.getDuration());
+        if(courseSession.getStudyType() != null){
+            dto.setStudyType(courseSession.getStudyType().toString());
+        }
+        if(courseSession.getRoomTable() != null){
+            dto.setRoomTable(toRoomTableDTO(courseSession.getRoomTable()));
+        }
+
         if(courseSession.getTiming() != null){
             dto.setTiming(toTimingDTO(courseSession.getTiming()));
         }
@@ -53,6 +58,9 @@ public class DTOConverter {
         courseSession.setFixed(dto.isFixed());
         courseSession.setDuration(dto.getDuration());
         courseSession.setTiming(toTiming(dto.getTiming()));
+        courseSession.setRoomTable(toRoomTable(dto.getRoomTable()));
+        courseSession.setSemester(dto.getSemester());
+        courseSession.setStudyType(StudyType.valueOf(dto.getStudyType()));
         return courseSession;
     }
 
@@ -70,6 +78,7 @@ public class DTOConverter {
         dto.setId(course.getId());
         dto.setName(course.getName());
         dto.setCourseType(course.getCourseType().toString());
+        dto.setStudyType(course.getStudyType().toString());
         dto.setLecturer(course.getLecturer());
         dto.setSemester(course.getSemester());
         dto.setDuration(course.getDuration());
@@ -171,7 +180,14 @@ public class DTOConverter {
         }
         RoomTableDTO dto = new RoomTableDTO();
         dto.setId(roomTable.getId());
-        dto.setRoomId(roomTable.getRoom().getId());
+        dto.setRoomId(roomTable.getRoomId());
+        dto.setCapacity(roomTable.getCapacity());
+        dto.setComputersAvailable(roomTable.isComputersAvailable());
+        if(roomTable.getTimingConstraints() != null){
+            dto.setTimingConstraints(roomTable.getTimingConstraints().stream()
+                    .map(this::toTimingDTO)
+                    .collect(Collectors.toList()));
+        }
         return dto;
     }
 
@@ -188,6 +204,13 @@ public class DTOConverter {
         }
         RoomTable roomTable = new RoomTable();
         roomTable.setId(dto.getId());
+        roomTable.setCapacity(dto.getCapacity());
+        roomTable.setComputersAvailable(dto.isComputersAvailable());
+        if(dto.getTimingConstraints() != null){
+            roomTable.setTimingConstraints(dto.getTimingConstraints().stream()
+                    .map(this::toTiming)
+                    .collect(Collectors.toList()));
+        }
         return roomTable;
     }
 
@@ -266,7 +289,6 @@ public class DTOConverter {
         if(timing.getTimingType() != null){
             timingDTO.setTimingType(timing.getTimingType().toString());
         }
-
         return timingDTO;
     }
 

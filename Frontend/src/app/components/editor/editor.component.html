@@ -1,0 +1,61 @@
+<div class="context">
+  <div class="col-left" style="width: 85%">
+    <p-toolbar>
+      <div class="p-toolbar-group-start">
+        {{nrOfEvents}} of {{maxEvents}} Events are shown
+
+      </div>
+
+      <div class="p-toolbar-group-center">
+        <p-dropdown id="all"
+                     scrollHeight="300px"
+                    placeholder="select room" optionLabel="roomId" filterBy="id"
+                    [filter]="true"
+                    [showClear]="false"
+                    [options]="availableRooms" [ngModel]="selectedRoom"
+                    (onChange)="loadNewRoom($event.value)">
+          <ng-template let-item pTemplate="item">
+            <div class="flex align-items-center gap-2">
+              <div>{{ item.roomId }}</div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+
+      <div class="p-toolbar-group-end">
+        <p-dropdown [style]="{'margin-right': '.5rem', 'width': '28rem'}"
+                    optionLabel="title"
+                    [showClear]="true"
+                    [filter]="true"
+                    [disabled]="true"
+                    placeholder="Search for a Course">
+          <ng-template pTemplate="selectedItem" let-selectedOption>
+            <div class="flex align-items-center gap-2">
+              <div>{{ selectedOption.roomId }}</div>
+            </div>
+          </ng-template>
+          <ng-template let-course pTemplate="item">
+            <div class="flex align-items-center gap-2">
+              <div>{{ course.roomId }}</div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+        <p-button icon="pi pi-cog" />
+      </div>
+    </p-toolbar>
+    <div id="calendarScroll">
+      <full-calendar #calendar [options]='calendarOptions' [events]="combinedTableEvents | async"/>
+    </div>
+  </div>
+
+  <div class="col-left" id="external-events" style="width: 15%; padding-right: .5rem; padding-left: .5rem">
+    <p>
+      <strong>Draggable Events</strong>
+    </p>
+
+    <div *ngFor="let event of externalEvents" class='fc-event' [attr.data-event]='JSON.stringify(event)'>
+      {{ event.title }}
+    </div>
+  </div>
+
+  <app-calendar-context-menu #calendarContextMenu/></div>

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, signal, ViewChild} from '@angular/core';
+import {Component, Input, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg, EventClickArg} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -13,10 +13,10 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {GlobalTableService} from "../../../services/global-table.service";
 import {Router} from "@angular/router";
 import {TmpTimeTableDTO} from "../../../../assets/Models/dto/tmp-time-table-dto";
-import {RoomToDtoConverterService} from "../../../services/room-to-dto-converter.service";
-import {CourseToDtoConverterService} from "../../../services/course-to-dto-converter.service";
-import {Observable} from "rxjs";
+import {RoomToDtoConverterService} from "../../../services/converter/room-to-dto-converter.service";
+import {CourseToDtoConverterService} from "../../../services/converter/course-to-dto-converter.service";
 import {getStatusKey} from "../../../../assets/Models/enums/status";
+import {LocalStorageService} from "ngx-webstorage";
 
 @Component({
   selector: 'app-base-selection',
@@ -48,7 +48,8 @@ export class BaseSelectionComponent{
     private globalTableService: GlobalTableService,
     private router: Router,
     private roomConverter: RoomToDtoConverterService,
-    private courseConverter: CourseToDtoConverterService
+    private courseConverter: CourseToDtoConverterService,
+    private localStorage: LocalStorageService
   ) { }
 
   formatTime(date: Date): string {
@@ -146,7 +147,7 @@ export class BaseSelectionComponent{
       color: this.lastUsedColor,
       borderColor: '#D8D8D8',
       start: this.dataSelectStart,
-      end: this.dataSelectEnd
+      end: this.dataSelectEnd,
     };
 
     this.calendarComponent.getApi().addEvent(newEvent);
@@ -175,10 +176,8 @@ export class BaseSelectionComponent{
     });
   }
 
-  updateCalendar(calendarOption: string, value: any) {
-    this.calendarOptions.update(val => ({
-      ...val, [calendarOption]: value
-    }));
+  updateCalendar(calendarOption: any, value: any) {
+    this.calendarComponent.getApi().setOption(calendarOption, value);
   }
 
   saveTimeStartSelection(event: Date) {
@@ -216,16 +215,22 @@ export class BaseSelectionComponent{
     return dto;
   }
 
-  sendToBackend(){
+  sendToBackend() {
     let res = this.convertGlobalTableItems();
-    let response = this.globalTableService.pushTmpTableObject(res);
-
-    if(response[0]){ //true bei http 200 response
-      this.messageService.add({severity: 'success', summary: 'Upload Success', detail: 'Element saved to DB'});
-      this.router.navigate(['/home']);
-    }
-    else {
-      this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: response[1]});
-    }
+    this.globalTableService.pushTmpTableObject(res)
+      .then(([status, message]) => {
+        if (status) {
+          this.localStorage.clear('tmptimetable');
+          this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
+          this.router.navigate(['/home']).catch(message => {
+            this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+          });
+        } else {
+          this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
+        }
+      })
+      .catch(([status, message]) => {
+        this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
+      });
   }
 }

@@ -1,6 +1,5 @@
 package com.example.demo.dto;
 
-import com.example.demo.models.enums.CourseType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +13,7 @@ import java.util.List;
 public class CourseDTO {
     private String id;
     private String courseType;
+    private String studyType;
     private String name;
     private String lecturer;
     private int semester;
@@ -28,4 +28,25 @@ public class CourseDTO {
     private int numberOfGroups;
     private boolean isSplit;
     private List<Integer> splitTimes;
+
+    @Override
+    public String toString() {
+        return "CourseDTO{" +
+                "id='" + id + '\'' +
+                ", courseType='" + courseType + '\'' +
+                ", studyType='" + studyType + '\'' +
+                ", name='" + name + '\'' +
+                ", lecturer='" + lecturer + '\'' +
+                ", semester=" + semester +
+                ", duration=" + duration +
+                ", numberOfParticipants=" + numberOfParticipants +
+                ", computersNecessary=" + computersNecessary +
+                ", timingConstraints=" + timingConstraints +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", numberOfGroups=" + numberOfGroups +
+                ", isSplit=" + isSplit +
+                ", splitTimes=" + splitTimes +
+                '}';
+    }
 }

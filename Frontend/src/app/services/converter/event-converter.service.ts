@@ -1,27 +1,54 @@
-import { Injectable } from '@angular/core';
-import { EventInput } from '@fullcalendar/core';
-import { CourseSession } from '../../assets/Models/course-session';
-
-import LocalTime from "ts-time/LocalTime";
+import {Injectable} from '@angular/core';
+import {EventInput} from '@fullcalendar/core';
 import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
-import {TimingDTO} from "../../assets/Models/dto/timing-dto";
-import LocalDate from "ts-time/LocalDate";
+import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
+import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
+import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
+import {CourseColor} from "../../../assets/Models/enums/lecture-color";
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventConverterService {
-  convertTimingToEventInput(session: CourseSession): EventInput {
+  convertTimingToEventInput(session: CourseSessionDTO, editable: boolean): EventInput {
     return {
       id: session.id.toString(),
       title: session.name,
-      description: session.name,
+      description: session.roomTable?.roomId,
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
-      startTime: this.convertArrayToTime(session.timing?.startTime!),
-      endTime: this.convertArrayToTime(session.timing?.endTime!),
+      startTime: session.timing?.startTime,
+      endTime: session.timing?.endTime!,
+      editable:editable,
+      extendedProps: {
+        'type': session.name.slice(0, 2),
+        'semester': session.semester,
+        'studyType': session.studyType}
     };
   }
+
+  convertRoomToEventInputs(room: RoomTableDTO): EventInput[] {
+    let finalEvents:EventInput[] = [];
+
+    room.timingConstraints?.forEach(t => {
+      finalEvents.push(this.convertTimingEventInput(t));
+    })
+
+    return finalEvents;
+  }
+
+  convertTimingEventInput(timing: TimingDTO): EventInput {
+    return {
+      title: timing.timingType,
+      daysOfWeek: this.weekDayToNumber(timing.day),
+      startTime: timing.startTime,
+      endTime: timing.endTime,
+      color: CourseColor[timing.timingType as keyof typeof CourseColor],
+      borderColor: CourseColor[timing.timingType as keyof typeof CourseColor],
+      display: 'background',
+      editable: false,
+    }
+  };
 
   convertEventInputToTiming(event: EventImpl): TimingDTO {
     let timing = new TimingDTO();
@@ -82,12 +109,16 @@ export class EventConverterService {
     }
   }
 
-  //TODO change date to date: LocalTime and apply to function
-  private convertArrayToTime(date: LocalTime): string {
-    return date.toString();
+  convertCourseSessionToEventInput(): OperatorFunction<CourseSessionDTO, EventInput> {
+    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session, false));
   }
 
-  convertCourseSessionToEventInput(): OperatorFunction<CourseSession, EventInput> {
-    return map((session: CourseSession) => this.convertTimingToEventInput(session));
+  convertTimingToBackgroundEventInput(): OperatorFunction<RoomTableDTO, EventInput> {
+    return map((room: RoomTableDTO) => this.convertRoomToEventInputs(room));
+  }
+
+  formatTime(date: Date): string {
+    // equal returns date as hour:minute:second (00:00:00)
+    return date.toString().split(' ')[4];
   }
 }

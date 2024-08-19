@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import {CourseDTO} from "../../assets/Models/dto/course-dto";
-import {Course} from "../../assets/Models/course";
-import {TimingDTO} from "../../assets/Models/dto/timing-dto";
+import {CourseDTO} from "../../../assets/Models/dto/course-dto";
+import {Course} from "../../../assets/Models/course";
+import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {TimingToDtoConverterService} from "./timing-to-dto-converter.service";
 
 @Injectable({
@@ -21,6 +21,7 @@ export class CourseToDtoConverterService {
         new CourseDTO(
           c.id,
           c.courseType!.toString(),
+          c.studyType!,
           c.name!,
           c.lecturer!,
           c.semester!,
@@ -28,7 +29,8 @@ export class CourseToDtoConverterService {
           c.numberOfParticipants!,
           c.computersNecessary!,
           this.timingConverter.convertMultiple(c.timingConstraints!),
-          c.createdAt?.toLocaleString()!, c.updatedAt?.toLocaleString()!,
+          c.createdAt?.toLocaleString()!,
+          c.updatedAt?.toLocaleString()!,
           c.numberOfGroups!, c.isSplit!, c.splitTimes!)
       )
     })

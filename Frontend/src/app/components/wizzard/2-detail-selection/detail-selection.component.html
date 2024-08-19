@@ -23,7 +23,7 @@
     [paginator]="true"
     [globalFilterFields]="['id', 'lecturer', 'name']"
     [filterDelay]="0"
-    [rowHover]="true" [scrollable]="true" scrollHeight="700px">
+    [rowHover]="true" [scrollable]="true" [scrollHeight]="String(screen.height * 0.5).concat('px')">
     <ng-template pTemplate="header">
       <tr>
         <th class="flex-header"
@@ -89,25 +89,31 @@
 
     <ng-template #splitsTemplate>
       <small class="p-error" *ngIf="splitsSumUpToDuration()">Sum of splits ({{sumOfSplits()}}) differs to duration</small>
-      <ng-container *ngFor="let time of timesArray; let i = index">
+
+      <label for="durVO">Duration (minutes)</label>
+      <p-inputNumber pInputText type="number" id="durVO" [(ngModel)]="selectedCourse.duration" [disabled]="true"
+                     [showButtons]="false" buttonLayout="horizontal" inputId="horizontal"/>
+
+      <ng-container *ngFor="let time of timesArray.slice(0, timesArray.length - 1); let i = index">
         <div class="rand">
           <label for="time-{{i}}">Split Nr {{ i + 1 }} Duration (minutes)</label>
-
-          <label for="durVO">Duration (minutes)</label>
-          <p-inputNumber pInputText type="number" id="durVO" [(ngModel)]="selectedCourse.duration" [disabled]="true"
-                         [showButtons]="false" buttonLayout="horizontal" inputId="horizontal"/>
-
-          <label for="durVO">partial Duration (minutes)</label>
-          <p-inputNumber pInputText type="number" id="time-{{i}}" [(ngModel)]="timesArray[i]"
+          <p-inputNumber pInputText type="number" id="time-{{i}}" [(ngModel)]="timesArray[i]" (ngModelChange)="getRemainingDuration()"
                          [showButtons]="true" buttonLayout="horizontal" inputId="horizontal" [step]="15"
                          incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"/>
         </div>
       </ng-container>
+
+      <label for="time-{{timesArray[timesArray.length - 1]}}">Split Nr {{ timesArray.length }} Duration (minutes)</label>
+      <p-inputNumber pInputText type="number" id="time-{{timesArray[timesArray.length - 1]}}"
+                     [(ngModel)]="timesArray[timesArray.length - 1]" [disabled]="true"
+                     [showButtons]="false" buttonLayout="horizontal" inputId="horizontal"
+                     incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus"/>
     </ng-template>
   </ng-template>
 
   <ng-template pTemplate="footer">
     <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveCourse()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+            (click)="saveCourse()" [disabled]="checkTimesArray()"></button>
   </ng-template>
 </p-dialog>

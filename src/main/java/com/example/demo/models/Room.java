@@ -20,8 +20,6 @@ public class Room extends TimestampedEntity implements Persistable<String>, Seri
     private boolean computersAvailable;
     @Transient
     private List<Timing> timingConstraints;
-    @OneToMany(mappedBy="room", fetch = FetchType.LAZY)
-    private List<RoomTable> roomTables;
 
     public Room() {
     }

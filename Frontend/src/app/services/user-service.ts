@@ -3,34 +3,53 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Userx } from '../../assets/Models/userx';
 import { LocalStorageService } from "ngx-webstorage";
+import {MessageService} from "primeng/api";
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = '/proxy/api/users';
+  userApiPath = '/proxy/api/users';
 
   constructor(
     private http: HttpClient,
-    private storage: LocalStorageService
+    private storage: LocalStorageService,
+    private messageService: MessageService,
   ) {}
 
-  private getHttpOptions() {
-      const token = this.storage.retrieve('jwtToken');
-
-      if (!token) {
-        console.error('Token not found or is null');
-      }
-
-      return {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + this.storage.retrieve('jwtToken')
-        })
-      };
-    }
+  httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.storage.retrieve('jwtToken')
+    })
+  };
 
     getAllUsers(): Observable<Userx[]> {
-    return this.http.get<Userx[]>(this.apiUrl, this.getHttpOptions());
+    return this.http.get<Userx[]>(this.userApiPath, this.httpOptions);
   }
-}
+
+  createSingleUser(user: Userx) {
+    return this.http.post<Userx>(this.userApiPath, user, this.httpOptions);
+  }
+
+  getSingleUser(userID: string): Observable<any> {
+    let newUrl = `${this.userApiPath}/${userID}`;
+    return this.http.get(newUrl, this.httpOptions);
+  }
+
+  updateSingleUser(user: Userx): Userx {
+    let newUrl = `${this.userApiPath}/${user.serialVersionUID}`;
+    this.http.put<Userx>(newUrl, user, this.httpOptions)
+      .subscribe(res => { user = res }
+      ).unsubscribe();
+    return user;
+  }
+
+  deleteSingleUser(userID: number) {
+    let newUrl = `${this.userApiPath}/${userID}`;
+    this.http.delete(newUrl, this.httpOptions).subscribe({
+      error: error => {
+        this.messageService.add({severity: 'failure', summary: 'Failure', detail: error.toString()});
+      }
+    }).unsubscribe();
+  }}

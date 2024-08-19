@@ -17,9 +17,7 @@ interface LoginObj {
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnDestroy {
-  private loginSub: Subscription | null = null;
-
+export class LoginComponent {
   loginObj: LoginObj = {
     name: "",
     password: ""
@@ -27,49 +25,24 @@ export class LoginComponent implements OnDestroy {
 
   constructor(
     private router: Router,
-    private http: HttpClient,
-    private storage: LocalStorageService,
     private messageService: MessageService,
     private userInfoService: LoginUserInfoService
   ) {
   }
 
-  ngOnDestroy(): void {
-    if (!this.loginSub?.closed) {
-      this.loginSub?.unsubscribe();
-    }
-  }
-
   login() {
-    this.loginSub = this.http.post('/proxy/auth/login', this.loginObj)
-      .subscribe({
-        next: (token: any) => {
-          if (token && token['token']) {
-            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string };
-            this.userInfoService.username = decodedToken['username'];
-            this.userInfoService.userRole = decodedToken['role'];
-            this.userInfoService.userLoggedIn = true;
-
-
-            this.storage.store('jwtToken', token['token']);
-
-            this.messageService.add({severity: 'success',summary: `Welcome back ${decodedToken['username']}`});
-            this.router.navigate(['/home']);
-          } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Login Error',
-              detail: 'Invalid credentials provided!'
-            });
-          }
-        },
-        error: (err) => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Login Error',
-            detail: err
-          });
-        }
+    this.userInfoService.loginUser(this.loginObj)
+      .then(() => {
+        this.messageService.add({severity: 'success',summary: `Welcome back ${this.loginObj.name}!`});
+        this.router.navigate(['/home'])
+          .catch(message => {
+            this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+        })
+    })
+      .catch((error: string) => {
+        this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: error});
       });
   }
+
+
 }

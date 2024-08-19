@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import com.example.demo.models.base.TimestampedEntity;
 import com.example.demo.models.enums.CourseType;
+import com.example.demo.models.enums.StudyType;
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class Course extends TimestampedEntity implements Persistable<String>, Se
     @Id
     private String id;
     private CourseType courseType;
+    private StudyType studyType;
     private String name;
     private String lecturer;
     private int semester;
@@ -57,5 +59,24 @@ public class Course extends TimestampedEntity implements Persistable<String>, Se
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Course{" +
+                "id='" + id + '\'' +
+                ", courseType=" + courseType +
+                ", studyType=" + studyType +
+                ", name='" + name + '\'' +
+                ", lecturer='" + lecturer + '\'' +
+                ", semester=" + semester +
+                ", duration=" + duration +
+                ", numberOfParticipants=" + numberOfParticipants +
+                ", computersNecessary=" + computersNecessary +
+                ", timingConstraints=" + timingConstraints +
+                ", numberOfGroups=" + numberOfGroups +
+                ", isSplit=" + isSplit +
+                ", splitTimes=" + splitTimes +
+                '}';
     }
 }

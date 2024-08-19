@@ -17,9 +17,11 @@
              [rows]="15"
              [paginator]="true"
              [rowsPerPageOptions]="[10, 15, 20]"
+
+
              [globalFilterFields]="['id']"
              [rowHover]="true"
-             [scrollable]="true" scrollHeight="535px">
+             [scrollable]="true" [scrollHeight]="String(screen.height * 0.5).concat('px')">
       <ng-template pTemplate="header">
         <tr>
           <th id="header" class="flex-header"
@@ -51,8 +53,7 @@
 
   <div class="col-left"
        pDroppable="products"
-       (onDrop)="drop()"
-  >
+       (onDrop)="drop()">
     <div style="overflow: hidden">
       <p class="float-item">Selected Rooms</p>
       <span class="float-item">
@@ -65,7 +66,7 @@
     </div>
     <p-table class="tableOnTop"
              #dtR dataKey="id"
-             [value]="globalTable.roomTables"
+             [value]="roomTables"
              [(selection)]="selectedRooms"
              [columns]="headers"
              [rows]="15"
@@ -73,7 +74,7 @@
              [rowsPerPageOptions]="[10, 15, 20]"
              [globalFilterFields]="['id']"
              [rowHover]="true"
-             [scrollable]="true" scrollHeight="535px">
+             [scrollable]="true" [scrollHeight]="String(screen.height * 0.5).concat('px')">
       <ng-template pTemplate="header">
         <tr>
           <th id="checkbox">

@@ -5,6 +5,8 @@ import com.example.demo.models.*;
 import com.example.demo.repositories.CourseSessionRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Service class for managing course sessions.
@@ -21,10 +24,16 @@ import java.util.List;
 @Service
 @Scope("session")
 public class CourseSessionService {
-    @Autowired
+
     CourseSessionRepository courseSessionRepository;
-    @Autowired
     TimingService timingService;
+    private static final Logger log = LoggerFactory.getLogger(CourseSessionService.class);
+
+    @Autowired
+    public CourseSessionService(CourseSessionRepository courseSessionRepository, TimingService timingService) {
+        this.courseSessionRepository = courseSessionRepository;
+        this.timingService = timingService;
+    }
 
     /**
      * Creates course sessions for a given course based on its split and group settings.
@@ -50,6 +59,7 @@ public class CourseSessionService {
             courseSession.setTimingConstraints(course.getTimingConstraints());
             courseSession.setCourseId(course.getId());
             courseSession.setTimeTable(timeTable);
+            courseSession.setStudyType(course.getStudyType());
 
             if(isSplitCourse){
                 courseSession.setDuration(course.getSplitTimes().get(i));
@@ -63,7 +73,9 @@ public class CourseSessionService {
             }
             courseSessions.add(courseSession);
         }
-        return courseSessionRepository.saveAll(courseSessions);
+        courseSessions = courseSessionRepository.saveAll(courseSessions);
+        log.info("Created {} courseSessions from course {}", courseSessions.size(), course.getName());
+        return courseSessions;
     }
 
     /**
@@ -77,6 +89,7 @@ public class CourseSessionService {
     public CourseSession fixCourseSession(CourseSession courseSession) throws CourseSessionNotAssignedException {
         if(courseSession.isAssigned()){
             courseSession.setFixed(true);
+            log.info("Fixed course session {}", courseSession.getName());
             return courseSessionRepository.save(courseSession);
         }
         else{
@@ -93,6 +106,7 @@ public class CourseSessionService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourseSession(CourseSession courseSession){
         courseSessionRepository.delete(courseSession);
+        log.info("Deleted course session {}", courseSession.getName());
     }
 
     /**
@@ -108,7 +122,9 @@ public class CourseSessionService {
         courseSession.setRoomTable(roomTable);
         courseSession.setTiming(timing);
         courseSession.setAssigned(true);
-        return courseSessionRepository.save(courseSession);
+        courseSession = courseSessionRepository.save(courseSession);
+        log.info("Assigned course session {} to roomTable {} at timing {}", courseSession.getName(), roomTable, timing);
+        return courseSession;
     }
 
     /**
@@ -125,6 +141,7 @@ public class CourseSessionService {
         courseSession.setTiming(null);
         timingService.deleteTiming(timing);
         courseSession.setAssigned(false);
+        log.info("Unassigned course session {}", courseSession.getName());
         return courseSessionRepository.save(courseSession);
     }
 
@@ -144,6 +161,7 @@ public class CourseSessionService {
             timingService.deleteTiming(timing);
             courseSession.setAssigned(false);
         }
+        log.info("Unassigned {} course sessions", courseSessions.size());
         return courseSessionRepository.saveAll(courseSessions);
     }
 
@@ -154,7 +172,14 @@ public class CourseSessionService {
      * @return The list of course sessions assigned to the room table.
      */
     public List<CourseSession> loadAllAssignedToRoomTable(RoomTable roomTable){
-        return courseSessionRepository.findAllByRoomTable(roomTable);
+
+        List<CourseSession> courseSessions = courseSessionRepository.findAllByRoomTable(roomTable);
+        log.debug("Loaded all courseSessions assigned to roomTable {} ({})", roomTable.getRoomId(),
+                courseSessions.size());
+        for(CourseSession courseSession : courseSessions){
+            courseSession.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(courseSession.getCourseId()));
+        }
+        return courseSessions;
     }
 
     /**
@@ -168,6 +193,7 @@ public class CourseSessionService {
         for(CourseSession courseSession : courseSessions){
             courseSession.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(courseSession.getCourseId()));
         }
+        log.info("Loaded all courseSessions from timeTable {} ({})", timeTable, courseSessions.size());
         return courseSessions;
     }
 
@@ -179,11 +205,16 @@ public class CourseSessionService {
      * @throws EntityNotFoundException if the course session could not be found in the database.
      */
     public CourseSession loadCourseSessionByID(long id){
-        return courseSessionRepository.findById(id).orElseThrow(
+        CourseSession courseSession = courseSessionRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("CourseSession not found for ID: " + id));
+        log.info("Loaded course session {}", courseSession.getName());
+        courseSession.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(courseSession.getCourseId()));
+        return courseSession;
     }
 
-    public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
-        return courseSessionRepository.saveAll(courseSessions);
+    public List<CourseSession> saveAll(Set<CourseSession> courseSessions) {
+        List<CourseSession> courseSessionsToSave = courseSessions.stream()
+                .toList();
+        return courseSessionRepository.saveAll(courseSessionsToSave);
     }
 }

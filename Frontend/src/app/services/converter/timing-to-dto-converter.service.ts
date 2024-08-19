@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import {Timing} from "../../assets/Models/timing";
-import {TimingDTO} from "../../assets/Models/dto/timing-dto";
+import {Timing} from "../../../assets/Models/timing";
+import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 
 @Injectable({
   providedIn: 'root'

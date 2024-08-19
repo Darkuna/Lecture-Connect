@@ -1,10 +1,14 @@
 package com.example.demo.service;
 
 import com.example.demo.models.Course;
+import com.example.demo.models.TimeTable;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.CourseType;
 import com.example.demo.models.enums.Day;
+import com.example.demo.models.enums.StudyType;
+import com.example.demo.models.enums.TimingType;
 import com.example.demo.services.CourseService;
+import com.example.demo.services.TimeTableService;
 import com.example.demo.services.TimingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +32,8 @@ public class CourseServiceTest {
     private CourseService courseService;
     @Autowired
     private TimingService timingService;
+    @Autowired
+    private TimeTableService timeTableService;
 
     @Test
     @DirtiesContext
@@ -41,11 +47,13 @@ public class CourseServiceTest {
         int semester = 1;
         int numberOfParticipants = 35;
         boolean computersNecessary = false;
-        Timing constraint = timingService.createTiming(LocalTime.of(12,0), LocalTime.of(14,30), Day.MONDAY);
+        StudyType studyType = StudyType.BACHELOR_CS;
+        Timing constraint = timingService.createTiming(LocalTime.of(12,0), LocalTime.of(14,30),
+                Day.MONDAY, TimingType.BLOCKED);
         List<Timing> timingConstraints = List.of(constraint);
 
         Course course = courseService.createCourse(id, name, courseType, lecturer, semester, duration, numberOfParticipants,
-                computersNecessary, timingConstraints);
+                computersNecessary, timingConstraints, studyType);
 
         assertEquals(id, course.getId());
         assertEquals(name, course.getName());
@@ -109,5 +117,14 @@ public class CourseServiceTest {
     public void testLoadAllCourses() {
         List<Course> courses = courseService.loadAllCourses();
         assertEquals(56, courses.size());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadAllCoursesNotInTimeTable() {
+        TimeTable timeTable = timeTableService.loadTimeTable(-5);
+        List<Course> courses = courseService.loadAllCoursesNotInTimeTable(timeTable);
+        int expected = courseService.loadAllCourses().size() - 2;
+        assertEquals(expected, courses.size());
     }
 }

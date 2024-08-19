@@ -1,0 +1,53 @@
+<div id="buttonGrid">
+  <p-button icon="pi pi-info-circle" severity="info" id="changeButton"
+            (onClick)="showLastChanges()" pTooltip="show last changes" tooltipPosition="left"/>
+  <p-button icon="pi pi-save" label="Save" severity="success"
+            (onClick)="updateData()" id="saveButton" [style]="{width: '6rem'}"/>
+  <p-button icon="pi pi-arrow-down" label="Close" severity="danger"
+            (onClick)="goToHomeScreen()" id="deleteButton" [style]="{width: '6rem'}"/>
+</div>
+
+<p-stepper [linear]="true" [(activeStep)]="currentPageIndex" class="stepper-settings">
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
+        <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
+          <i class="pi pi-briefcase" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text" [style]="{'color': getColorBasedOnIndex('t', index)}">
+          Choose Courses
+        </p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-nextCallback="nextCallback">
+      <app-course-selection [wizardMode]="false"></app-course-selection>
+
+      <div class="flex pt-4 justify-content-between">
+        <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button (onClick)="nextCallback.emit()" (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
+
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+
+  <p-stepperPanel>
+    <ng-template pTemplate="header" let-index="index">
+      <div class="box">
+        <div class="icon-box" [style]="{'background': getColorBasedOnIndex('i', index)}">
+          <i class="pi pi-sitemap" style="font-size: 1.5rem;"></i>
+        </div>
+        <p class="box-around-text" [style]="{'color': getColorBasedOnIndex('t', index)}">
+          Define Details
+        </p>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="content" let-prevCallback="prevCallback">
+      <app-detail-selection [globalTable]="selectedTable"></app-detail-selection>
+
+      <div class="flex pt-4 justify-content-between">
+        <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
+        <p-button [disabled]="true" icon="pi pi-arrow-right" class="NextButton"/>
+      </div>
+    </ng-template>
+  </p-stepperPanel>
+</p-stepper>

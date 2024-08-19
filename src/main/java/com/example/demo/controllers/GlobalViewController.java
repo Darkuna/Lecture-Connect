@@ -1,10 +1,13 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dto.TimeTableCreationDTO;
-import com.example.demo.dto.TimeTableDTO;
-import com.example.demo.dto.TimeTableNameDTO;
+import com.example.demo.dto.*;
+import com.example.demo.models.Course;
+import com.example.demo.models.CourseSession;
+import com.example.demo.models.Room;
 import com.example.demo.models.TimeTable;
+import com.example.demo.services.CourseService;
 import com.example.demo.services.DTOConverter;
+import com.example.demo.services.RoomService;
 import com.example.demo.services.TimeTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -12,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Scope("session")
@@ -19,11 +23,17 @@ import java.util.List;
 public class GlobalViewController {
     private final TimeTableService timeTableService;
     private final DTOConverter dtoConverter;
+    private final RoomService roomService;
+    private final CourseService courseService;
+    private TimeTable timeTable;
 
     @Autowired
-    public GlobalViewController(TimeTableService timeTableService, DTOConverter dtoConverter) {
+    public GlobalViewController(TimeTableService timeTableService, DTOConverter dtoConverter, RoomService roomService,
+                                CourseService courseService) {
         this.timeTableService = timeTableService;
         this.dtoConverter = dtoConverter;
+        this.roomService = roomService;
+        this.courseService = courseService;
     }
 
     /**
@@ -38,7 +48,8 @@ public class GlobalViewController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TimeTableDTO> getTimeTableById(@PathVariable Long id){
-        TimeTableDTO timeTableDTO = dtoConverter.toTimeTableDTO(timeTableService.loadTimeTable(id));
+        timeTable = timeTableService.loadTimeTable(id);
+        TimeTableDTO timeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok(timeTableDTO);
     }
 
@@ -57,17 +68,61 @@ public class GlobalViewController {
 
     @PostMapping("/assignment/{id}")
     public ResponseEntity<TimeTableDTO> calculateAndUpdateTimeTable(@PathVariable Long id) {
-        TimeTable timeTable = timeTableService.loadTimeTable(id);
-        if (timeTable == null) {
-            return ResponseEntity.notFound().build();
-        }
-        System.out.println(timeTable);
         timeTableService.assignCourseSessionsToRooms(timeTable);
-        System.out.println("completed");
         TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
-        System.out.println(updatedTimeTableDTO);
-        ResponseEntity res = ResponseEntity.ok().body(updatedTimeTableDTO);
-        System.out.println(res);
-        return res;
+        return ResponseEntity.ok().body(updatedTimeTableDTO);
+    }
+
+    @PostMapping("/assignment/remove/{id}")
+    public ResponseEntity<TimeTableDTO> removeAllAssignedCourseSessionsFromTimeTable(@PathVariable Long id) {
+        timeTable = timeTableService.unassignAllCourseSessions(timeTable);
+        TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
+        return ResponseEntity.ok().body(updatedTimeTableDTO);
+    }
+
+    @PostMapping("/collision/{id}")
+    public ResponseEntity<List<CourseSessionDTO>> checkCollision(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+        List<CourseSession> collisions = timeTableService.checkCollisions(timeTable);
+        List<CourseSessionDTO> collisionDTOs = collisions.stream()
+                .map(dtoConverter::toCourseSessionDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok().body(collisionDTOs);
+    }
+
+    @GetMapping("/courses/{id}")
+    public ResponseEntity<List<CourseDTO>> getCoursesNotInTimeTable(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+        List<CourseDTO> courses = courseService.loadAllCoursesNotInTimeTable(timeTable).stream()
+                .map(dtoConverter::toCourseDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("/rooms/{id}")
+    public ResponseEntity<List<RoomDTO>> getRoomsNotInTimeTable(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+        List<RoomDTO> rooms = roomService.loadAllRoomsNotInTimeTable(timeTable).stream()
+                .map(dtoConverter::toRoomDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(rooms);
+    }
+
+    @PostMapping("/add-courses-to-timetable")
+    public ResponseEntity<Void> addCoursesToTimeTable(@RequestParam Long timeTableId, @RequestBody List<CourseDTO> courseDTOs) {
+        TimeTable timeTable = timeTableService.loadTimeTable(timeTableId);
+        for(CourseDTO courseDTO : courseDTOs) {
+            timeTableService.createCourseSessions(timeTable, dtoConverter.toCourse(courseDTO));
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/add-rooms-to-timetable")
+    public ResponseEntity<Void> addRoomsToTimeTable(@RequestParam Long timeTableId, @RequestBody List<RoomDTO> roomsDTOs) {
+        TimeTable timeTable = timeTableService.loadTimeTable(timeTableId);
+        for(RoomDTO roomDTO : roomsDTOs) {
+            timeTableService.createRoomTable(timeTable, dtoConverter.toRoom(roomDTO));
+        }
+        return ResponseEntity.ok().build();
     }
 }

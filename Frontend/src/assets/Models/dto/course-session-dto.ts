@@ -1,4 +1,5 @@
 import { TimingDTO } from './timing-dto';
+import {RoomTableDTO} from "./room-table-dto";
 
 export interface CourseSessionDTO {
   id: number;
@@ -6,7 +7,9 @@ export interface CourseSessionDTO {
   isAssigned: boolean;
   isFixed: boolean;
   duration: number;
+  semester: number;
+  studyType: string;
   timingConstraints: TimingDTO[];
   timing?: TimingDTO;
-  roomTableId?: number;
+  roomTable?: RoomTableDTO;
 }

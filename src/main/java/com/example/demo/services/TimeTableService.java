@@ -8,7 +8,8 @@ import com.example.demo.repositories.TimeTableRepository;
 import com.example.demo.scheduling.Scheduler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -23,31 +24,37 @@ import java.util.List;
 @Service
 @Scope("session")
 public class TimeTableService {
-    @Autowired
-    private TimeTableRepository timeTableRepository;
-    @Autowired
-    private RoomTableService roomTableService;
-    @Autowired
-    private CourseSessionService courseSessionService;
-    @Autowired
-    private TimingService timingService;
-    @Autowired
-    private DTOConverter dtoConverter;
-    @Autowired
-    private Scheduler scheduler;
+    private final TimeTableRepository timeTableRepository;
+    private final RoomTableService roomTableService;
+    private final CourseSessionService courseSessionService;
+    private final DTOConverter dtoConverter;
+    private final Scheduler scheduler;
+    private static final Logger log = LoggerFactory.getLogger(TimeTableService.class);
+    private final TimingService timingService;
+
+    public TimeTableService(TimeTableRepository timeTableRepository, RoomTableService roomTableService,
+                            CourseSessionService courseSessionService, DTOConverter dtoConverter, Scheduler scheduler, TimingService timingService) {
+        this.timeTableRepository = timeTableRepository;
+        this.roomTableService = roomTableService;
+        this.courseSessionService = courseSessionService;
+        this.dtoConverter = dtoConverter;
+        this.scheduler = scheduler;
+        this.timingService = timingService;
+    }
 
     /**
      * Creates a new timetable from a TimeTableCreationDto object and saves it to the database.
-     *
+     * @Transacitional is important here because in case of an error the timeTable would be partially created otherwise.
      * @param dto The TimeTableCreationDto object to create the timetable from.
      * @return The newly created and persisted TimeTable object.
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable createTimeTable(TimeTableCreationDTO dto){
         Room room;
         Course course;
         TimeTable timeTable = new TimeTable();
-        timeTable.setStatus(Status.valueOf(dto.getStatus()));
+        timeTable.setStatus(Status.NEW);
         timeTable.setSemester(Semester.valueOf(dto.getSemester()));
         timeTable.setYear(dto.getYear());
 
@@ -55,12 +62,14 @@ public class TimeTableService {
 
         for(RoomDTO roomDTO : dto.getRooms()){
             room = dtoConverter.toRoom(roomDTO);
-            timeTable.addRoomTable(addRoomTable(timeTable, room));
+            createRoomTable(timeTable, room);
         }
         for(CourseDTO courseDTO : dto.getCourses()){
             course = dtoConverter.toCourse(courseDTO);
-            timeTable.addCourseSessions(addCourseSessions(timeTable, course));
+            createCourseSessions(timeTable, course);
         }
+        log.info("Created timeTable with id {}. Added {} roomTables and {} courseSessions", timeTable.getId(),
+                timeTable.getRoomTables().size(), timeTable.getCourseSessions().size());
         return timeTableRepository.save(timeTable);
     }
 
@@ -70,7 +79,9 @@ public class TimeTableService {
         timeTable.setSemester(semester);
         timeTable.setYear(year);
         timeTable.setStatus(Status.NEW);
-        return timeTableRepository.save(timeTable);
+        timeTable = timeTableRepository.save(timeTable);
+        log.info("Created timeTable with id {}", timeTable.getId());
+        return timeTable;
     }
 
     /**
@@ -82,10 +93,9 @@ public class TimeTableService {
      * @return The newly created RoomTable object.
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public RoomTable addRoomTable(TimeTable timeTable, Room room){
+    public RoomTable createRoomTable(TimeTable timeTable, Room room){
         RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
         timeTable.addRoomTable(roomTable);
-
         return roomTable;
     }
 
@@ -98,10 +108,9 @@ public class TimeTableService {
      * @return A list of the newly created CourseSession objects.
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<CourseSession> addCourseSessions(TimeTable timeTable, Course course){
+    public List<CourseSession> createCourseSessions(TimeTable timeTable, Course course){
         List<CourseSession> courseSessions = courseSessionService.createCourseSessionsFromCourse(timeTable, course);
         timeTable.addCourseSessions(courseSessions);
-
         return courseSessions;
     }
 
@@ -115,6 +124,7 @@ public class TimeTableService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void removeRoomTable(TimeTable timeTable, RoomTable roomTable){
         timeTable.removeRoomTable(roomTable);
+        log.info("Removed roomTable with id {} from timeTable {}", roomTable.getId(), timeTable.getId());
         roomTableService.deleteRoomTable(roomTable);
     }
 
@@ -128,17 +138,8 @@ public class TimeTableService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void removeCourseSession(TimeTable timeTable, CourseSession courseSession){
         timeTable.removeCourseSession(courseSession);
+        log.info("Removed courseSession with id {} from timeTable {}", courseSession.getId(), timeTable.getId());
         courseSessionService.deleteCourseSession(courseSession);
-    }
-
-    /**
-     * Loads all timetables available in the database.
-     *
-     * @return A list of all TimeTable objects.
-     */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<TimeTable> loadAllTimeTables(){
-        return timeTableRepository.findAll();
     }
 
     /**
@@ -156,6 +157,7 @@ public class TimeTableService {
         timeTable.setRoomTables(roomTables);
         timeTable.setCourseSessions(courseSessions);
         scheduler.setTimeTable(timeTable);
+        log.info("Loaded timeTable with id {} ", id);
         return timeTable;
     }
 
@@ -167,22 +169,23 @@ public class TimeTableService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteTimeTable(TimeTable timeTable){
-        for(CourseSession courseSession : List.copyOf(timeTable.getCourseSessions())){
+        for(CourseSession courseSession : timeTable.getCourseSessions()){
             removeCourseSession(timeTable, courseSession);
+            courseSessionService.deleteCourseSession(courseSession);
         }
 
-        for(RoomTable roomTable : List.copyOf(timeTable.getRoomTables())){
+        for(RoomTable roomTable : timeTable.getRoomTables()){
             removeRoomTable(timeTable, roomTable);
+            roomTableService.deleteRoomTable(roomTable);
         }
-        //TODO: fix why is there a new courseSession with ID 1 associated with timetable
-        courseSessionService.deleteCourseSession(courseSessionService.loadCourseSessionByID(1));
-
         timeTableRepository.delete(timeTable);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<TimeTableNameDTO> loadTimeTableNames(){
-        return timeTableRepository.findAllTimeTableDTOs();
+        List<TimeTableNameDTO> timeTableNameDTOS = timeTableRepository.findAllTimeTableDTOs();
+        log.info("Loaded names of all available timeTables ({})", timeTableNameDTOS.size());
+        return timeTableNameDTOS;
     }
 
     /**
@@ -191,11 +194,26 @@ public class TimeTableService {
      *
      * @param timeTable The timetable for executing the algorithm
      */
+    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void assignCourseSessionsToRooms(TimeTable timeTable){
+        log.info("Starting assignment algorithm for timeTable with id {}", timeTable.getId());
         scheduler.setTimeTable(timeTable);
         scheduler.assignUnassignedCourseSessions();
-        timeTable.setCourseSessions(courseSessionService.saveAll(timeTable.getCourseSessions()));
         timeTableRepository.save(timeTable);
+        log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public List<CourseSession> checkCollisions(TimeTable timeTable){
+        return scheduler.collisionCheck(timeTable);
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public TimeTable unassignAllCourseSessions(TimeTable timeTable){
+        courseSessionService.unassignCourseSessions(timeTable.getAssignedCourseSessions());
+        log.info("Unassigned all assigned courseSessions of timeTable {}", timeTable.getId());
+        timeTable.setRoomTables(roomTableService.loadAllOfTimeTable(timeTable));
+        return timeTable;
     }
 }

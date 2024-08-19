@@ -1,0 +1,46 @@
+@if (loading$ | async) {
+  <p-progressSpinner [style]="{
+    position: 'fixed',
+    zIndex: 2000,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)'
+  }"/>
+}
+
+<p-contextMenu [global]="true" [model]="contextItems"/>
+
+<p-dialog [(visible)]="showHoverDialogBool && activateLens" header="{{hoverEventInfo?.event!.title}}"
+          [modal]="false" [closable]="false"
+          [style]="{ width: '30rem','position':'absolute',
+          'top.px': calculateDialogPosition(hoverEventInfo?.jsEvent!.clientY, screen.height),
+          'left.px': calculateDialogPosition(hoverEventInfo?.jsEvent!.clientX, screen.width)}">
+  <ng-template pTemplate="content" class="parent">
+    <div id="cssportal-grid">
+      <div id="startTime">
+        <label for="start">Start Time</label>
+        <input pInputText id="start"
+               [ngModel]="hoverEventInfo?.event!.start!.toLocaleTimeString()" [disabled]="true"/>
+        <label for="studyType">Degree</label>
+        <input pInputText id="studyType"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['studyType']" [disabled]="true"/>
+      </div>
+
+      <div id="endTime">
+        <label for="end">End Time</label>
+        <input pInputText id="end"
+               [ngModel]="hoverEventInfo?.event!.end!.toLocaleTimeString()" [disabled]="true"/>
+        <label for="semester">Semester</label>
+        <input pInputText id="semester"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['semester']" [disabled]="true"/>
+      </div>
+
+      <div id="details">
+        <br>
+        <label for="room">Room</label>
+        <input pInputText id="room"
+               [ngModel]="hoverEventInfo?.event!.extendedProps['description']" [disabled]="true"/>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>

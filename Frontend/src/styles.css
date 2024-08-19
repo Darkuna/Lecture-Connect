@@ -8,7 +8,8 @@
   --system-color-primary-blue: #003361;
   --system-color-primary-orange: #F39200;
   --system-color-primary-white: #f4f4f4;
-
+  --system-color-primary-red: #AD5353;
+  --system-color-primary-grey: #A8A8A8;
 
   --fc-small-font-size: .85em;
   --fc-page-bg-color: var(--system-color-primary-blue);

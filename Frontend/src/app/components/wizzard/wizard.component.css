@@ -62,14 +62,6 @@
   border-radius: 15px;
 }
 
-.col-left {
-  display: inline-table;
-  align-content: center;
-  width: 50%;
-  height: 100%;
-  padding: .5rem;
-}
-
 .float-item {
   float: left; /* Float all items to the left by default */
   margin-left: .5rem; /* Add some space between items if necessary */
@@ -80,8 +72,8 @@
 }
 
 #del {
-  background-color: #AD5353;
-  border-color: #AD5353;
+  background-color: var(--system-color-primary-red);
+  border-color: var(--system-color-primary-red);
 
   height: 2.4rem;
   padding: .35rem;
@@ -105,8 +97,9 @@
 #buttonGrid {
   position: absolute;
   top: calc(7% + 5px);
+  width: 8%;
   left: 90%;
-  padding-right: 2rem;
+  padding-right: .5rem;
   place-items: center;
 
   display: grid;
@@ -115,23 +108,22 @@
   gap: 0;
 }
 
-#div1 {
+#changeButton {
   grid-area: 1 / 1 / 3 / 2;
   height: auto;
   width: 3rem;
 }
 
-#div2 {
+#saveButton {
   grid-area: 1/2/2/3;
   width: 6rem;
   padding-bottom: .5rem;
 }
 
-#div3 {
+#deleteButton {
   grid-area: 2/2/3/3;
   width: 6rem;
 }
-
 
 #infoGrid {
   position: absolute;
@@ -208,4 +200,22 @@ p-tag#status {
   align-items: center;
   justify-content: center;
   text-align: center;
+}
+
+.stepper-settings {
+  width: 70%;
+  position: absolute;
+  top: calc(5% + 5px);
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.col-left {
+  width:50%;
+  display: inline-table;
+  align-content: center;
+  height: 100%;
+  padding: .5rem;
 }

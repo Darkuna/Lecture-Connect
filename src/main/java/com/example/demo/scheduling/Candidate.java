@@ -9,16 +9,20 @@ import lombok.Setter;
 @Setter
 public class Candidate {
     private AvailabilityMatrix availabilityMatrix;
-    private Pair position;
+    private int day;
+    private int slot;
     private int duration;
+    private boolean preferredSlots;
 
-    public Candidate(AvailabilityMatrix availabilityMatrix, Pair position, int duration) {
+    public Candidate(AvailabilityMatrix availabilityMatrix, int day, int slot, int duration, boolean preferredSlots) {
         this.availabilityMatrix = availabilityMatrix;
-        this.position = position;
+        this.day = day;
+        this.slot = slot;
         this.duration = duration;
+        this.preferredSlots = preferredSlots;
     }
 
     public String toString(){
-        return String.format("Candidate %s, Day: %d, Slot: %d", availabilityMatrix.getRoomTable().getRoom().getId(), position.getDay(), position.getSlot());
+        return String.format("Candidate %s, Day: %d, Slot: %d", availabilityMatrix.getRoomTable().getRoomId(), day, slot);
     }
 }

@@ -25,6 +25,9 @@
     "@fullcalendar/list": "^6.1.14",
     "@fullcalendar/rrule": "^6.1.14",
     "@fullcalendar/timegrid": "^6.1.14",
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.3",
+    "jspdf": "^2.5.1",
     "jwt-decode": "^4.0.0",
     "ngx-webstorage": "^13.0.1",
     "primeicons": "^7.0.0",
@@ -51,6 +54,7 @@
     "rxjs": "~7.8.0",
     "tslib": "^2.6.3",
     "typescript": "~5.4.2",
-    "zone.js": "^0.14.7"
+    "zone.js": "^0.14.7",
+    "jspdf": "^2.5.1"
   }
 }
