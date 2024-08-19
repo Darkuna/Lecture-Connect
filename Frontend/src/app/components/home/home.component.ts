@@ -203,6 +203,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  removeAll(){
+    if(this.shownTableDD){
+      this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
+      this.updateCalendarEvents();
+    }
+  }
+
   applyCollisionCheck() {
     if (this.shownTableDD) {
       this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
@@ -381,6 +388,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             label: 'Auto Fill',
             icon: 'pi pi-microchip',
             command: () => this.applyAlgorithm()
+          },
+          {
+            label: 'Remove all',
+            icon: 'pi pi-microchip',
+            command: () => this.removeAll()
           },
           {
             label: 'Collision Check',
