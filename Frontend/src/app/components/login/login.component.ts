@@ -34,7 +34,10 @@ export class LoginComponent {
     this.userInfoService.loginUser(this.loginObj)
       .then(() => {
         this.messageService.add({severity: 'success',summary: `Welcome back ${this.loginObj.name}!`});
-        this.router.navigate(['/home']);
+        this.router.navigate(['/home'])
+          .catch(message => {
+            this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+        })
     })
       .catch((error: string) => {
         this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: error});

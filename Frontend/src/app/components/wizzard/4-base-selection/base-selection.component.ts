@@ -222,7 +222,9 @@ export class BaseSelectionComponent{
         if (status) {
           this.localStorage.clear('tmptimetable');
           this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
-          this.router.navigate(['/home']);
+          this.router.navigate(['/home']).catch(message => {
+            this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+          });
         } else {
           this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
         }

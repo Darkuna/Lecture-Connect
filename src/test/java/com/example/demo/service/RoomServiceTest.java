@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
 import com.example.demo.models.Room;
+import com.example.demo.models.TimeTable;
 import com.example.demo.services.RoomService;
+import com.example.demo.services.TimeTableService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RoomServiceTest {
     @Autowired
     private RoomService roomService;
+    @Autowired
+    private TimeTableService timeTableService;
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
@@ -87,5 +91,14 @@ public class RoomServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> roomService.loadRoomByID("Rechnerraum 20"));
         assertThrows(EntityNotFoundException.class, () -> roomService.loadRoomByID("Rechnerraum 21"));
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadRoomsNotInTimeTable(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-5);
+        int expected = roomService.loadAllRooms().size() - 2;
+        List<Room> rooms = roomService.loadAllRoomsNotInTimeTable(timeTable);
+        assertEquals(expected, rooms.size());
     }
 }

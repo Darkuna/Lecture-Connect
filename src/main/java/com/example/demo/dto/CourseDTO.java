@@ -28,4 +28,25 @@ public class CourseDTO {
     private int numberOfGroups;
     private boolean isSplit;
     private List<Integer> splitTimes;
+
+    @Override
+    public String toString() {
+        return "CourseDTO{" +
+                "id='" + id + '\'' +
+                ", courseType='" + courseType + '\'' +
+                ", studyType='" + studyType + '\'' +
+                ", name='" + name + '\'' +
+                ", lecturer='" + lecturer + '\'' +
+                ", semester=" + semester +
+                ", duration=" + duration +
+                ", numberOfParticipants=" + numberOfParticipants +
+                ", computersNecessary=" + computersNecessary +
+                ", timingConstraints=" + timingConstraints +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", numberOfGroups=" + numberOfGroups +
+                ", isSplit=" + isSplit +
+                ", splitTimes=" + splitTimes +
+                '}';
+    }
 }

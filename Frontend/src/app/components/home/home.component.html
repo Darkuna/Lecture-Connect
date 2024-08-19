@@ -36,8 +36,9 @@
 
       </div>
 
-      <div class="p-toolbar-group-center" style=" z-index:80; position: absolute; top:4.2%; left: 50%;  transform: translate(-50%, -50%);">
-        <p-dropdown id="all" [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
+      <div class="p-toolbar-group-center">
+        <p-dropdown id="all"
+                    [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
                     placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
                     [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="unselectTable()">
           <ng-template pTemplate="selectedItem">
@@ -54,13 +55,14 @@
       </div>
 
       <div class="p-toolbar-group-end">
-        <p-dropdown [style]="{'margin-right': '.5rem'}"
+        <p-dropdown [style]="{'margin-right': '.5rem', 'width': '28rem'}"
                     [options]="getCalendarEvents()"
                     [(ngModel)]="firstSearchedEvent"
                     (ngModelChange)="colorSpecificEvent(firstSearchedEvent!)"
                     optionLabel="title"
                     [showClear]="true"
                     [filter]="true"
+                    [disabled]="tableIsSelected()"
                     placeholder="Search for a Course">
           <ng-template pTemplate="selectedItem" let-selectedOption>
             <div class="flex align-items-center gap-2">
@@ -73,8 +75,9 @@
             </div>
           </ng-template>
         </p-dropdown>
-        <p-button icon="pi pi-cog" (click)="op.show($event, op)" />
       </div>
+
+      <p-button icon="pi pi-cog" (click)="op.show($event, op)" />
     </p-toolbar>
   </div>
 

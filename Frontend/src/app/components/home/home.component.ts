@@ -1,4 +1,4 @@
-import {AfterContentInit, AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -18,8 +18,8 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
-import {OverlayPanel} from "primeng/overlaypanel";
 import {EventImpl} from "@fullcalendar/core/internal";
+import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -34,7 +34,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   shownTableDD: TimeTableNames | null = null;
 
   creationTable!: TmpTimeTable;
-  selectedTimeTable!: Observable<TimeTableDTO>;
+  selectedTimeTable: Observable<TimeTableDTO> | null = null;
   private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
@@ -43,52 +43,50 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   showNewTableDialog: boolean = false;
   position: any = 'topleft';
 
+  lastSearchedEvent: EventImpl | null = null;
+  firstSearchedEvent: EventImpl | null = null;
+
+  @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
+  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
-
-  lastSearchedEvent: EventImpl | null = null;
-  firstSearchedEvent: EventImpl | null = null;
-
-  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
-  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
-  @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
-  calendarOptions: CalendarOptions= ({
-      plugins: [
-        interactionPlugin,
-        dayGridPlugin,
-        timeGridPlugin,
-        listPlugin,
-      ],
-      headerToolbar: {
-        left: '',
-        center: '',
-        right: ''
-      },
-      initialView: 'timeGridWeek',
-      weekends: false,
-      editable: false,
-      selectable: false,
-      selectMirror: true,
-      dayMaxEvents: true,
-      allDaySlot: false,
-      height: "auto",
-      eventBackgroundColor: "#666666",
-      eventBorderColor: "#050505",
-      eventTextColor: "var(--system-color-primary-white)",
-      slotMinTime: this.formatTime(this.tmpStartDate),
-      slotMaxTime: this.formatTime(this.tmpEndDate),
-      slotDuration: this.formatTime(this.tmpDuration),
-      slotLabelInterval: this.formatTime(this.tmpSlotInterval),
-      dayHeaderFormat: {weekday: 'long'},
-      eventOverlap: true,
-      slotEventOverlap: true,
-      nowIndicator: false,
-      eventClick: this.showHoverDialog.bind(this),
-      eventMouseLeave: this.hideHoverDialog.bind(this),
-    }
-  );
+  calendarOptions :CalendarOptions = {
+    plugins: [
+      interactionPlugin,
+      dayGridPlugin,
+      timeGridPlugin,
+      listPlugin,
+    ],
+    headerToolbar: {
+      left: '',
+      center: '',
+      right: ''
+    },
+    initialView: 'timeGridWeek',
+    weekends: false,
+    editable: false,
+    selectable: false,
+    selectMirror: true,
+    dayMaxEvents: true,
+    allDaySlot: false,
+    height: "auto",
+    eventBackgroundColor: "#666666",
+    eventBorderColor: "#050505",
+    eventTextColor: "var(--system-color-primary-white)",
+    slotMinTime: this.formatTime(this.tmpStartDate),
+    slotMaxTime: this.formatTime(this.tmpEndDate),
+    slotDuration: this.formatTime(this.tmpDuration),
+    slotLabelInterval: this.formatTime(this.tmpSlotInterval),
+    dayHeaderFormat: {weekday: 'long'},
+    eventOverlap: true,
+    slotEventOverlap: true,
+    nowIndicator: false,
+    eventClick: this.showHoverDialog.bind(this),
+    eventMouseLeave: this.hideHoverDialog.bind(this),
+  };
 
   constructor(
     private router: Router,
@@ -132,7 +130,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   updateCalendarEvents(){
     this.clearCalendar();
 
-    this.selectedTimeTable.subscribe((timeTable: TimeTableDTO) => {
+    this.selectedTimeTable!.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput(),
@@ -159,8 +157,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   unselectTable(){
     this.globalTableService.unselectTable();
     this.shownTableDD = null;
+    this.selectedTimeTable = null;
 
     this.clearCalendar();
+  }
+
+  tableIsSelected():boolean{
+    return this.selectedTimeTable === null;
   }
 
   isTmpTableAvailable(): TmpTimeTable {
@@ -200,10 +203,24 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  removeAll(){
-    if(this.shownTableDD){
-      this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
-      this.updateCalendarEvents();
+  applyCollisionCheck() {
+    if (this.shownTableDD) {
+      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
+      next: (collision: CourseSessionDTO[]) => {
+        if (collision.length === 0) {
+          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
+        else {
+          this.calendarContextMenu.colorCollisionEvents(collision);
+          this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
+        }
+      },
+
+      error: err => {
+        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
+      }
+      });
+    } else {
+      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 
@@ -247,43 +264,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-
-
-
-  applyCollisionCheck() {
-    if (this.shownTableDD) {
-      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe(collision => {
-        if (collision.length === 0) {
-          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'});
-        } else {
-          this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
-
-          const calendarApi = this.calendarComponent.getApi();
-          const originalColors: { [eventId: string]: string } = {};
-
-          collision.forEach(collisionEvent => {
-            calendarApi.getEvents().forEach(event => {
-              if (event.id === collisionEvent.id.toString()) {
-                originalColors[event.id] = event.backgroundColor;
-                event.setProp("backgroundColor", "red");
-              }
-            });
-          });
-
-          // Zurückfärben nach 3 Sekunden
-          setTimeout(() => {
-            calendarApi.getEvents().forEach(event => {
-                event.setProp("backgroundColor", "#666666");
-            });
-          }, 1000);
-        }
-      }, error => {
-        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: 'Error during collision check'});
-      });
-    }
-  }
-
-
   createNewTable() {
     this.creationTable.id = 999999;
     this.creationTable.status = Status.NEW;
@@ -293,7 +273,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.hideTableDialog();
 
     this.shareService.selectedTable = this.creationTable;
-    this.router.navigate(['/wizard']);
+    this.router.navigate(['/wizard']).catch(message => {
+      this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+    });
   }
 
   getSemesterOptions() {
@@ -302,14 +284,16 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   redirectToSelection(page: string){
     if(this.shownTableDD){
-      this.router.navigate([page]);
+      this.router.navigate([page]).catch(message => {
+        this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+      });
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 
   showHoverDialog(event: EventClickArg):void{
-    if(this.calendarContextMenu.activateLens || true){
+    if(this.calendarContextMenu.activateLens){
       this.calendarContextMenu.showHoverDialogBool = true;
       this.calendarContextMenu.hoverEventInfo = event;
       this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
@@ -327,17 +311,16 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.calendarContextMenu.hoverEventInfo = null;
   }
 
-  formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
-    return date.toString().split(' ')[4];
-  }
-
   updateCalendar(calendarOption: any, value: string) {
-    console.log(value);
     if(value === '00:00:00'){
       value = '00:00:05';
     }
     this.calendarComponent.getApi().setOption(calendarOption, value);
+  }
+
+  formatTime(date: Date): string {
+    // equal returns date as hour:minute:second (00:00:00)
+    return date.toString().split(' ')[4];
   }
 
   getCalendarEvents(): EventImpl[]{
@@ -392,17 +375,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           {
             label: 'Edit Mode',
             icon: 'pi pi-pen-to-square',
-            styleClass: 'tst'
+            command: () => this.redirectToSelection('/editor')
           },
           {
             label: 'Auto Fill',
             icon: 'pi pi-microchip',
             command: () => this.applyAlgorithm()
-          },
-          {
-            label: 'Remove all',
-            icon: 'pi pi-microchip',
-            command: () => this.removeAll()
           },
           {
             label: 'Collision Check',
@@ -428,18 +406,35 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       {separator: true},
       {
-        label: 'Data',
+        label: 'Courses',
         items: [
           {
-            label: 'Edit Course list',
+            label: 'Add new Courses',
             icon: 'pi pi-book',
             command: () => this.redirectToSelection('/tt-courses')
           },
           {
-            label: 'Edit Room list',
+            label: 'Edit shown Courses',
+            icon: 'pi pi-book',
+            command: () => this.redirectToSelection('/tt-courses')
+          },
+        ]
+      },
+      {separator: true},
+      {
+        label: 'Rooms',
+        items: [
+          {
+            label: 'Add new Rooms',
             icon: 'pi pi-warehouse',
             command: () => this.redirectToSelection('/tt-rooms')
-          }
+          },
+
+          {
+            label: 'Edit shown Rooms',
+            icon: 'pi pi-warehouse',
+            command: () => this.redirectToSelection('/tt-rooms')
+          },
         ]
       },
       {separator: true},
@@ -448,7 +443,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         items: [
           {
             label: 'define Status',
-            icon: 'pi pi-check-square'
+            icon: 'pi pi-check-square',
+          },
+          {
+            label: 'last Changes',
+            icon: 'pi pi-comments',
+            command: () => this.redirectToSelection('/tt-status')
           }
         ]
       }

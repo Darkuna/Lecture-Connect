@@ -4,12 +4,14 @@ import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
+import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
+import {CourseColor} from "../../../assets/Models/enums/lecture-color";
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventConverterService {
-  convertTimingToEventInput(session: CourseSessionDTO): EventInput {
+  convertTimingToEventInput(session: CourseSessionDTO, editable: boolean): EventInput {
     return {
       id: session.id.toString(),
       title: session.name,
@@ -17,12 +19,36 @@ export class EventConverterService {
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime,
       endTime: session.timing?.endTime!,
+      editable:editable,
       extendedProps: {
         'type': session.name.slice(0, 2),
         'semester': session.semester,
         'studyType': session.studyType}
     };
   }
+
+  convertRoomToEventInputs(room: RoomTableDTO): EventInput[] {
+    let finalEvents:EventInput[] = [];
+
+    room.timingConstraints?.forEach(t => {
+      finalEvents.push(this.convertTimingEventInput(t));
+    })
+
+    return finalEvents;
+  }
+
+  convertTimingEventInput(timing: TimingDTO): EventInput {
+    return {
+      title: timing.timingType,
+      daysOfWeek: this.weekDayToNumber(timing.day),
+      startTime: timing.startTime,
+      endTime: timing.endTime,
+      color: CourseColor[timing.timingType as keyof typeof CourseColor],
+      borderColor: CourseColor[timing.timingType as keyof typeof CourseColor],
+      display: 'background',
+      editable: false,
+    }
+  };
 
   convertEventInputToTiming(event: EventImpl): TimingDTO {
     let timing = new TimingDTO();
@@ -84,6 +110,15 @@ export class EventConverterService {
   }
 
   convertCourseSessionToEventInput(): OperatorFunction<CourseSessionDTO, EventInput> {
-    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session));
+    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session, false));
+  }
+
+  convertTimingToBackgroundEventInput(): OperatorFunction<RoomTableDTO, EventInput> {
+    return map((room: RoomTableDTO) => this.convertRoomToEventInputs(room));
+  }
+
+  formatTime(date: Date): string {
+    // equal returns date as hour:minute:second (00:00:00)
+    return date.toString().split(' ')[4];
   }
 }

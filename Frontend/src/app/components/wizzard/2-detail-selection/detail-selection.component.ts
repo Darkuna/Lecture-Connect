@@ -64,8 +64,6 @@ export class DetailSelectionComponent {
     } else {
       this.timesArray = Array(this.tmpSplitTimes).fill(fillValue);
     }
-
-    console.log(this.timesArray);
   }
 
   getRemainingDuration() {
@@ -98,4 +96,7 @@ export class DetailSelectionComponent {
       return accumulation + current;
     }, 0);
   }
+
+    protected readonly String = String;
+    protected readonly screen = screen;
 }

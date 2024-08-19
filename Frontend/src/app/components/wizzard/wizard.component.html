@@ -4,11 +4,11 @@
 </div>
 
 <div id="buttonGrid">
-  <p-button icon="pi pi-info-circle" severity="info" id="div1" (onClick)="showDialog()"/>
+  <p-button icon="pi pi-info-circle" severity="info" id="changeButton" (onClick)="showDialog()"/>
   <p-button icon="pi pi-save" label="Save" severity="success"
-            (onClick)="saveLocal()" id="div2" [style]="{width: '6rem'}"/>
+            (onClick)="saveLocal()" id="saveButton" [style]="{width: '6rem'}"/>
   <p-button icon="pi pi-arrow-down" label="Close" severity="danger"
-            (onClick)="closeWizard()" id="div3" [style]="{width: '6rem'}"/>
+            (onClick)="closeWizard()" id="deleteButton" [style]="{width: '6rem'}"/>
 </div>
 
 <p-stepper [linear]="true" [(activeStep)]="active" class="stepper-settings">
@@ -24,11 +24,12 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback">
-      <app-course-selection [courseTable]="selectedTable.courseTable"></app-course-selection>
+      <app-course-selection [courseTable]="this.selectedTable.courseTable"></app-course-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>
-        <p-button (onClick)="nextCallback.emit()" (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
+        <p-button (onClick)="nextCallback.emit()" [disabled]="checkIfCoursesSelected()"
+                  (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
 
       </div>
     </ng-template>
@@ -71,7 +72,8 @@
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
-        <p-button (onClick)="nextCallback.emit()" (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
+        <p-button (onClick)="nextCallback.emit()" [disabled]="checkIfRoomsSelected()"
+                  (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
       </div>
     </ng-template>
   </p-stepperPanel>

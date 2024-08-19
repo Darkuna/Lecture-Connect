@@ -3,7 +3,8 @@ import {MenuItem, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {EventClickArg} from "@fullcalendar/core";
 import {EventImpl} from "@fullcalendar/core/internal";
-import {BehaviorSubject} from "rxjs";
+import {BehaviorSubject, window} from "rxjs";
+import {CourseSessionDTO} from "../../../../assets/Models/dto/course-session-dto";
 
 @Injectable()
 @Component({
@@ -54,6 +55,10 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     newItems.forEach(e => e.setProp('display', 'none'));
 
     this.loadingOff();
+  }
+
+  calculateDialogPosition(coordinate:number, screenMax:number){
+    return Math.min(coordinate, screenMax*0.65);
   }
 
   showAllEvents(){
@@ -117,10 +122,19 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     }
   }
 
+  colorCollisionEvents(collision: CourseSessionDTO[]) {
+    const calendarApi = this.calendarComponent.getApi();
+    const originalColors: { [eventId: string]: string } = {};
 
-
-  getCalendarEvents(){
-    return this._calendarComponent.getApi().getEvents();
+    collision.forEach(collisionEvent => {
+      calendarApi.getEvents().forEach(event => {
+        if (event.id === collisionEvent.id.toString()) {
+          this.tmpColorSelection.push(event) //so i can clear the events again
+          originalColors[event.id] = event.backgroundColor;
+          event.setProp("backgroundColor", "#34675C");
+        }
+      });
+    });
   }
 
   ngOnInit(): void {
@@ -193,4 +207,6 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   set calendarComponent(value: FullCalendarComponent) {
     this._calendarComponent = value;
   }
+
+  protected readonly screen = screen;
 }

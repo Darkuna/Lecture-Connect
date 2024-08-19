@@ -1,11 +1,8 @@
 import {Component, Input, OnDestroy} from '@angular/core';
-import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
-import {Status} from "../../../../assets/Models/enums/status";
 import {RoomService} from "../../../services/room-service";
 import {Room} from "../../../../assets/Models/room";
-import {Course} from "../../../../assets/Models/course";
 
 @Component({
   selector: 'app-room-selection',
@@ -127,4 +124,7 @@ export class RoomSelectionComponent implements OnDestroy {
       );
     }
   }
+
+    protected readonly String = String;
+  protected readonly screen = screen;
 }

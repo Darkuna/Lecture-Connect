@@ -91,16 +91,20 @@ public class GlobalViewController {
     }
 
     @GetMapping("/courses/{id}")
-    public ResponseEntity<List<Course>> getCoursesNotInTimeTable(@PathVariable Long id) {
+    public ResponseEntity<List<CourseDTO>> getCoursesNotInTimeTable(@PathVariable Long id) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
-        List<Course> courses = courseService.loadAllCoursesNotInTimeTable(timeTable);
+        List<CourseDTO> courses = courseService.loadAllCoursesNotInTimeTable(timeTable).stream()
+                .map(dtoConverter::toCourseDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(courses);
     }
 
     @GetMapping("/rooms/{id}")
-    public ResponseEntity<List<Room>> getRoomsNotInTimeTable(@PathVariable Long id) {
+    public ResponseEntity<List<RoomDTO>> getRoomsNotInTimeTable(@PathVariable Long id) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
-        List<Room> rooms = roomService.loadAllRoomsNotInTimeTable(timeTable);
+        List<RoomDTO> rooms = roomService.loadAllRoomsNotInTimeTable(timeTable).stream()
+                .map(dtoConverter::toRoomDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(rooms);
     }
 

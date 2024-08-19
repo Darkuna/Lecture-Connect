@@ -6,6 +6,7 @@ import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
 import {Status} from "../../../../assets/Models/enums/status";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-course-selection-page',
@@ -20,7 +21,8 @@ export class CourseSelectionPageComponent {
   constructor(
     private globalTableService: GlobalTableService,
     private localStorage: LocalStorageService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private router: Router
   ) {
     this.currentTable = this.globalTableService.currentTimeTable;
     this.selectedTable = new TmpTimeTable();
@@ -32,7 +34,9 @@ export class CourseSelectionPageComponent {
   };
 
   goToHomeScreen():void {
-
+    this.router.navigate(['/home']).catch(message => {
+      this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+    });
   }
 
   showLastChanges():void {

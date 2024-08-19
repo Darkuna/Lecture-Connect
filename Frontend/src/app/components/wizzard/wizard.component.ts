@@ -57,6 +57,14 @@ export class WizardComponent {
     this.currentDialog = this.InfoDialogOptions[this.active];
   }
 
+  checkIfCoursesSelected():boolean{
+    return this.selectedTable.courseTable === undefined || this.selectedTable.courseTable.length == 0;
+  }
+
+  checkIfRoomsSelected(){
+    return this.selectedTable.roomTables === undefined || this.selectedTable.roomTables.length == 0;
+  }
+
 
   getColorBasedOnIndex(type: string, index: number): string {
     if (index > this.active) {
@@ -115,6 +123,10 @@ export class WizardComponent {
 
   closeWizard() {
     this.saveLocal();
-    this.router.navigate(['/home']);
+    this.router.navigate(['/home'])
+      .catch(message => {
+        this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+      }
+    );
   }
 }

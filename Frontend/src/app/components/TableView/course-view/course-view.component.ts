@@ -1,9 +1,12 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {ConfirmationService, MessageService} from "primeng/api";
 import {Course} from "../../../../assets/Models/course";
-import {CourseType} from "../../../../assets/Models/enums/course-type";
 import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
+import {getRoleOptions} from "../../../../assets/Models/enums/course-type";
+import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
+
+
 
 @Component({
   selector: 'app-course-view',
@@ -43,17 +46,19 @@ export class CourseViewComponent implements OnInit, OnDestroy {
   }
 
   openNew() {
+    this.singleCourse = new Course();
     this.itemDialogVisible = true;
   }
 
   hideDialog() {
     this.itemDialogVisible = false;
+    this. itemIsEdited = false;
   }
 
   editItem(item: Course) {
     this.itemIsEdited = true;
     this.singleCourse = item;
-    this.openNew();
+    this.itemDialogVisible = true;
   }
 
   saveNewItem(): void {
@@ -68,12 +73,18 @@ export class CourseViewComponent implements OnInit, OnDestroy {
       this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
     } else {
       this.singleCourse.timingConstraints = [];
-      this.courses.push(this.courseService.createSingleCourse(this.singleCourse));
+      this.courseService.createSingleCourse(this.singleCourse).subscribe({
+        next: value => {
+          this.courses.push(value);
+          this.hideDialog();
+          this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
+        },
 
-      this.hideDialog();
-      this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
+        error: err => {
+          this.messageService.add({severity: 'error', summary: 'Upload', detail: err.toString()});
+        }
+      });
     }
-    this.singleCourse = new Course();
   }
 
   deleteSingleItem(course: Course) {
@@ -124,7 +135,6 @@ export class CourseViewComponent implements OnInit, OnDestroy {
     return index;
   }
 
-  getRoleOptions() {
-    return Object.keys(CourseType).filter(k => isNaN(Number(k)));
-  }
+  readonly roleOptions = getRoleOptions();
+  readonly degreeOptions = getDegreeOptions();
 }
