@@ -387,7 +387,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           {
             label: 'Auto Fill',
             icon: 'pi pi-microchip',
-            command: () => this.applyAlgorithm()
+            badge: '3',
+            command: () => this.applyAlgorithm(),
           },
           {
             label: 'Remove all',

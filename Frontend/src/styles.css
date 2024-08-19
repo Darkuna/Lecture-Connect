@@ -109,5 +109,13 @@
   padding: 1rem;
   font-weight: 600;
   background: var(--system-color-primary-blue);
+  position: relative; /* Allows us to position the badge */
+}
+
+.p-panelmenu .p-panelmenu-content .p-menuitem > .p-menuitem-content .p-menuitem-link {
+  color: #4c566a;
+  padding: 0.75rem 1rem;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
