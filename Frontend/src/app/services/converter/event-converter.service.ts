@@ -20,6 +20,7 @@ export class EventConverterService {
       startTime: session.timing?.startTime,
       endTime: session.timing?.endTime!,
       editable:editable,
+      droppable: true,
       extendedProps: {
         'type': session.name.slice(0, 2),
         'semester': session.semester,

@@ -58,12 +58,12 @@ export class EditorComponent implements AfterViewInit{
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
-    droppable: true
   };
 
 sourceCalendarOptions: CalendarOptions = {
   plugins: [
     listPlugin,
+    interactionPlugin
   ],
   headerToolbar: {
     left: '',
@@ -71,13 +71,16 @@ sourceCalendarOptions: CalendarOptions = {
     right: ''
   },
   initialView: 'listWeek',
-  height: '100%'
+  height: '100%',
+  editable: true,
+  droppable: true
 };
 
   selectedTimeTable: Observable<TimeTableDTO>;
   availableRooms: RoomTableDTO[] = [];
   selectedRoom: RoomTableDTO | null = null;
   combinedTableEvents: Observable<EventInput[]> = new Observable<EventInput[]>();
+  dragTableEvents: Observable<EventInput[]> = of([]);
 
   nrOfEvents: number = 0;
   maxEvents: number = 0;
