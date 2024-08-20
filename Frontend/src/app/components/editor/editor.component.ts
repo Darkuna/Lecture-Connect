@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {CalendarOptions, EventInput} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -9,7 +9,7 @@ import {EventConverterService} from "../../services/converter/event-converter.se
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
-import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin, {Draggable} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
 
@@ -21,6 +21,7 @@ import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calend
 export class EditorComponent implements AfterViewInit{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
+  @ViewChild('external') external!: ElementRef;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
@@ -60,22 +61,6 @@ export class EditorComponent implements AfterViewInit{
     nowIndicator: false,
   };
 
-sourceCalendarOptions: CalendarOptions = {
-  plugins: [
-    listPlugin,
-    interactionPlugin
-  ],
-  headerToolbar: {
-    left: '',
-    center: '',
-    right: ''
-  },
-  initialView: 'listWeek',
-  height: '100%',
-  editable: true,
-  droppable: true
-};
-
   selectedTimeTable: Observable<TimeTableDTO>;
   availableRooms: RoomTableDTO[] = [];
   selectedRoom: RoomTableDTO | null = null;
@@ -101,6 +86,15 @@ sourceCalendarOptions: CalendarOptions = {
   ngAfterViewInit(): void {
     this.loadNewRoom(this.selectedRoom!);
     this.calendarContextMenu.calendarComponent = this.calendarComponent;
+
+    new Draggable(this.external.nativeElement, {
+      itemSelector: '.fc-event',
+      eventData: function(eventEl) {
+        return {
+          title: eventEl.innerText
+        };
+      }
+    });
   }
 
   loadNewRoom(newRoom: RoomTableDTO): void {
@@ -119,15 +113,13 @@ sourceCalendarOptions: CalendarOptions = {
   }
 
   reloadNewEvents(IdOfRoom: number, table: TimeTableDTO): EventInput[] {
-    let val = table.courseSessions
+    return table.courseSessions
         .filter(
           (s:CourseSessionDTO) => s.roomTable?.id === IdOfRoom
         )
         .map((s:CourseSessionDTO) =>
           this.converter.convertTimingToEventInput(s, true)
         );
-    val.forEach(i => {console.log(i)});
-    return val;
   }
 
   reloadNewBackgroundEvents(room: RoomTableDTO) :EventInput[]{

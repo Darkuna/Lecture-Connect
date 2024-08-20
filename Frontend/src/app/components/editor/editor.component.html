@@ -44,12 +44,21 @@
       </div>
     </p-toolbar>
     <div id="calendarScroll">
-      <full-calendar #calendar [options]='destCalendarOptions' [events]="combinedTableEvents | async"/>
+      <full-calendar #calendar
+                     [options]='destCalendarOptions'
+                     [events]="combinedTableEvents | async"/>
     </div>
   </div>
 
-  <div class="col-left" id="external-events" style="width: 15%; height: 100%">
-    <full-calendar #sourcecalendar [options]='sourceCalendarOptions' [events]="dragTableEvents | async"/>
+  <div class="col-left" id="external-events" #external style="width: 15%; height: 100%">
+    <p>
+      <strong>Draggable Events</strong>
+    </p>
+    <div class='fc-event'>My Event 1</div>
+    <div class='fc-event'>My Event 2</div>
+    <div class='fc-event'>My Event 3</div>
+    <div class='fc-event'>My Event 4</div>
+    <div class='fc-event'>My Event 5</div>
   </div>
 
   <app-calendar-context-menu #calendarContextMenu/></div>

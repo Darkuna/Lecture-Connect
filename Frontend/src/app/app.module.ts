@@ -88,7 +88,7 @@ import {PanelMenuModule} from "primeng/panelmenu";
         CalendarContextMenuComponent,
         EditorComponent,
     ],
-    bootstrap: [AppComponent],
+  bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,
     BrowserModule,
     AppRoutingModule,
