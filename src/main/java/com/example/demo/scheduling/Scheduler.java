@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @Service
 @Scope("session")
 public class Scheduler {
-    private boolean usePreferredOnly = true;
+    private boolean usePreferredOnly;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
     private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
     private List<AvailabilityMatrix> allAvailabilityMatrices;
@@ -89,7 +89,6 @@ public class Scheduler {
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         final int MAX_NUMBER_OF_TRIES = 10;
         int numberOfTries = 0;
-        usePreferredOnly = true;
         numberOfCourseSessions = courseSessions.size();
         List<CourseSession> singleCourseSessions;
         List<CourseSession> groupCourseSessions;
@@ -114,8 +113,44 @@ public class Scheduler {
                         courseSessions.getFirst().isComputersNecessary() ? "with" : "without", numberOfTries));
             }
             numberOfTries++;
+
+            if(readyToFinalize()){
+                finalizeAssignment();
+                break;
+            }
+            else{
+                resetReadyForAssignmentSet();
+            }
         }
-        while(!finalizeAssignment());
+        while(true);
+    }
+
+    public boolean readyToFinalize(){
+        return readyForAssignmentSet.size() == numberOfCourseSessions;
+    }
+
+    public void resetReadyForAssignmentSet(){
+        for(CourseSession courseSession : readyForAssignmentSet.keySet()){
+            courseSession.setRoomTable(null);
+            Candidate candidate = readyForAssignmentSet.get(courseSession);
+            candidate.getAvailabilityMatrix().clearCandidate(candidate);
+        }
+        readyForAssignmentSet.clear();
+    }
+
+    /**
+     * Finalizes the assignment by creating all timings and assigning them to the courseSessions.
+     */
+    private void finalizeAssignment() {
+        Set<CourseSession> courseSessionsToAssign = readyForAssignmentSet.keySet();
+        for(CourseSession courseSession : readyForAssignmentSet.keySet()){
+            Timing timing = AvailabilityMatrix.toTiming(readyForAssignmentSet.get(courseSession));
+            timing = timingService.createTiming(timing);
+            courseSession.setTiming(timing);
+            courseSession.setAssigned(true);
+        }
+        courseSessionService.saveAll(courseSessionsToAssign);
+        readyForAssignmentSet.clear();
     }
 
     /**
@@ -185,7 +220,6 @@ public class Scheduler {
             }
             if(totalPreferredTimeAvailable < totalTimeNeeded){
                 log.info("There is not enough preferred time available for courseSessions with {} or more participants", number);
-                usePreferredOnly = false;
             }
         }
         return true;
@@ -219,7 +253,6 @@ public class Scheduler {
             log.warn("There is not enough space reserved for COMPUTER_SCIENCE. " +
                             "{} more minutes will be used from other free space",
                     totalTimeNeeded - totalPreferredTimeAvailable);
-            usePreferredOnly = false;
         }
         return true;
     }
@@ -264,36 +297,6 @@ public class Scheduler {
                 .sorted(Comparator.comparing(CourseSession::getCourseId)
                         .thenComparingInt(CourseSession::getDuration).reversed())
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Checks if all courseSessions are ready for assignment. If yes, it finalizes the assignment by creating all timings
-     * and assigning them to the courseSessions. If not, resets the candidate slots in the availabilityMatrices.
-     *
-     * @return true if assignment was successful, false if not.
-     */
-    private boolean finalizeAssignment() {
-        if(readyForAssignmentSet.size() == numberOfCourseSessions){
-            Set<CourseSession> courseSessionsToAssign = readyForAssignmentSet.keySet();
-            for(CourseSession courseSession : readyForAssignmentSet.keySet()){
-                Timing timing = AvailabilityMatrix.toTiming(readyForAssignmentSet.get(courseSession));
-                timing = timingService.createTiming(timing);
-                courseSession.setTiming(timing);
-                courseSession.setAssigned(true);
-            }
-            courseSessionService.saveAll(courseSessionsToAssign);
-            readyForAssignmentSet.clear();
-            return true;
-        }
-        else{
-            for(CourseSession courseSession : readyForAssignmentSet.keySet()){
-                courseSession.setRoomTable(null);
-                Candidate candidate = readyForAssignmentSet.get(courseSession);
-                candidate.getAvailabilityMatrix().clearCandidate(candidate);
-            }
-            readyForAssignmentSet.clear();
-            return false;
-        }
     }
 
     /**
@@ -351,6 +354,12 @@ public class Scheduler {
         }
         while(!checkConstraintsFulfilled(courseSession, Objects.requireNonNull(currentCandidate)));
 
+        Timing timing = AvailabilityMatrix.toTiming(currentCandidate);
+
+        candidateQueue = candidateQueue.stream()
+                .filter(c -> !AvailabilityMatrix.toTiming(c).intersects(timing))
+                .collect(Collectors.toCollection(() -> new PriorityQueue<>(Comparator.comparingInt(Candidate::getSlot))));
+
         return currentCandidate;
     }
 
@@ -381,7 +390,6 @@ public class Scheduler {
             currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
             courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
             readyForAssignmentSet.put(courseSession, currentCandidate);
-            usePreferredOnly = true;
         }
         log.info("> > Finished assigning single course sessions.");
     }
@@ -615,7 +623,7 @@ public class Scheduler {
             }
         }
         if(candidateQueue.isEmpty() && !preferredOnly){
-            throw new NotEnoughSpaceAvailableException("No candidates found");
+            throw new NotEnoughSpaceAvailableException("No candidates found for courseSession " + courseSession.getName());
         }
         else if(candidateQueue.isEmpty()){
             fillQueue(availabilityMatrices, courseSession, false);
