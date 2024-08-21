@@ -214,6 +214,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if(this.shownTableDD){
       this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
       this.updateCalendarEvents();
+
+      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
+    } else {
+      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 

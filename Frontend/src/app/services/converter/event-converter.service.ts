@@ -17,8 +17,8 @@ export class EventConverterService {
       title: session.name,
       description: session.roomTable?.roomId,
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
-      startTime: session.timing?.startTime,
-      endTime: session.timing?.endTime!,
+      startTime: session.timing!.startTime,
+      endTime: session.timing!.endTime,
       editable:editable,
       droppable: true,
       extendedProps: {

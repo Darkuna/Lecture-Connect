@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
 import {CalendarOptions, EventInput} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -59,13 +59,20 @@ export class EditorComponent implements AfterViewInit{
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
+    drop: this.drop.bind(this)
   };
 
   selectedTimeTable: Observable<TimeTableDTO>;
   availableRooms: RoomTableDTO[] = [];
   selectedRoom: RoomTableDTO | null = null;
   combinedTableEvents: Observable<EventInput[]> = new Observable<EventInput[]>();
-  dragTableEvents: Observable<EventInput[]> = of([]);
+  dragTableEvents: EventInput[] =
+    [{ title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
+      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
+      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
+      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
+      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
+      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' }];
 
   nrOfEvents: number = 0;
   maxEvents: number = 0;
@@ -78,7 +85,6 @@ export class EditorComponent implements AfterViewInit{
     this.selectedTimeTable.subscribe( r => {
         this.availableRooms = r.roomTables;
         this.selectedRoom = r.roomTables[0];
-
       }
     );
   }
@@ -102,9 +108,12 @@ export class EditorComponent implements AfterViewInit{
     this.selectedRoom = newRoom;
 
     this.selectedTimeTable.subscribe(t => {
-      let placedEvents = this.reloadNewEvents(this.selectedRoom?.id!, t);
+      const placedEvents: EventInput[] = this.reloadNewEvents(this.selectedRoom?.id!, t);
+      this.dragTableEvents = placedEvents; //only for testing!!
+      //const unusedEvents: EventInput[] = placedEvents.filter(event => event;
       this.nrOfEvents = placedEvents.length;
       this.maxEvents = placedEvents.length; //add events on right side of page
+
       this.combinedTableEvents = of([
         ...placedEvents,
         ...this.reloadNewBackgroundEvents(this.selectedRoom!),
@@ -134,6 +143,11 @@ export class EditorComponent implements AfterViewInit{
   clearCalendar(){
     this.calendarComponent.getApi().removeAllEvents();
   }
+
+  drop(arg: any) {
+    console.log(arg);
+  arg.draggedEl.parentNode.removeChild(arg.draggedEl);
+}
 
   protected readonly JSON = JSON;
 }
