@@ -104,7 +104,6 @@ public class AvailabilityMatrix {
                             earliestCandidates.add(new Candidate(this,i,j,minutes,true));
                             j += numberOfSlots;
                         }
-
                     }
                 }
             }
@@ -282,6 +281,9 @@ public class AvailabilityMatrix {
 
     public void assignCourseSession(Candidate candidate, CourseSession courseSession) {
         for (int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
+            if(matrix[candidate.getDay()][i] != null && matrix[candidate.getDay()][i] != CourseSession.PREFERRED){
+                throw new RuntimeException("Slot already assigned");
+            }
             matrix[candidate.getDay()][i] = courseSession;
         }
         totalAvailableTime -= candidate.getDuration();
