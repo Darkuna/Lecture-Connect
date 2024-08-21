@@ -4,6 +4,7 @@ import com.example.demo.exceptions.roomTable.NotEnoughSpaceAvailableException;
 import com.example.demo.models.*;
 import com.example.demo.services.CourseSessionService;
 import com.example.demo.services.TimingService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -69,6 +70,7 @@ public class Scheduler {
      * Starts the assignment algorithm for all unassigned courseSessions of a timeTable. First, all courseSessions that
      * don't need rooms with computers are processed, then all courseSessions that need computer rooms.
      */
+    @Transactional
     public void assignUnassignedCourseSessions(){
             log.info("> Processing courseSessions that need computers ...");
             assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
@@ -87,7 +89,7 @@ public class Scheduler {
      * @param availabilityMatrices to be used for assigning the courseSessions
      */
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        final int MAX_NUMBER_OF_TRIES = 10;
+        final int MAX_NUMBER_OF_TRIES = 100;
         int numberOfTries = 0;
         numberOfCourseSessions = courseSessions.size();
         List<CourseSession> singleCourseSessions;
@@ -104,9 +106,18 @@ public class Scheduler {
             groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
             splitCourseSessions = filterAndSortSplitCourseSessions(courseSessions);
 
-            processSingleCourseSessions(singleCourseSessions, availabilityMatrices);
-            processGroupCourseSessions(groupCourseSessions, availabilityMatrices);
-            processSplitCourseSessions(splitCourseSessions, availabilityMatrices);
+            Collections.shuffle(availabilityMatrices);
+
+            try{
+                processSingleCourseSessions(singleCourseSessions, availabilityMatrices);
+                processGroupCourseSessions(groupCourseSessions, availabilityMatrices);
+                processSplitCourseSessions(splitCourseSessions, availabilityMatrices);
+            }
+            catch(Exception e){
+                log.error(e.getMessage());
+                resetReadyForAssignmentSet();
+            }
+
 
             if(numberOfTries >= MAX_NUMBER_OF_TRIES){
                 throw new AssignmentFailedException(String.format("Assignment of courseSessions %s computers failed after %d tries",
@@ -116,6 +127,7 @@ public class Scheduler {
 
             if(readyToFinalize()){
                 finalizeAssignment();
+                log.info("Finished assignment after {} tries", numberOfTries);
                 break;
             }
             else{
@@ -125,11 +137,11 @@ public class Scheduler {
         while(true);
     }
 
-    public boolean readyToFinalize(){
+    private boolean readyToFinalize(){
         return readyForAssignmentSet.size() == numberOfCourseSessions;
     }
 
-    public void resetReadyForAssignmentSet(){
+    private void resetReadyForAssignmentSet(){
         for(CourseSession courseSession : readyForAssignmentSet.keySet()){
             courseSession.setRoomTable(null);
             Candidate candidate = readyForAssignmentSet.get(courseSession);
@@ -322,9 +334,6 @@ public class Scheduler {
         }
 
         do{
-            if(numberOfTries == 2500){
-                System.out.println("x");
-            }
             if(numberOfTries >= 10000){
                 if(usePreferredOnly){
                     log.debug("Switching to other free time for assignment of courseSession {}", courseSession.getName());
@@ -622,6 +631,11 @@ public class Scheduler {
                 }
             }
         }
+
+        candidateQueue = candidateQueue.stream()
+                .filter(c -> checkConstraintsFulfilled(courseSession,c))
+                .collect(Collectors.toCollection(() -> new PriorityQueue<>(Comparator.comparingInt(Candidate::getSlot))));
+
         if(candidateQueue.isEmpty() && !preferredOnly){
             throw new NotEnoughSpaceAvailableException("No candidates found for courseSession " + courseSession.getName());
         }
