@@ -74,6 +74,10 @@
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+		</dependency>
 		<!-- Lombok for getters and setters -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
