@@ -67,12 +67,13 @@ export class EditorComponent implements AfterViewInit{
   selectedRoom: RoomTableDTO | null = null;
   combinedTableEvents: Observable<EventInput[]> = new Observable<EventInput[]>();
   dragTableEvents: EventInput[] =
-    [{ title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
-      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
-      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
-      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
-      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' },
-      { title: 'Event 1', start: '10:40:00', end: '11:40:00', description: 'Description for Event 1' }];
+    [
+      { title: 'Event 1', description: 'Description for Event 1', duration: "02:00" },
+      { title: 'Event 2', description: 'Description for Event 1', duration: "04:00"},
+      { title: 'Event 3', description: 'Description for Event 1',duration: "06:00" },
+      { title: 'Event 4', description: 'Description for Event 1', duration: "01:00" },
+      { title: 'Event 5', description: 'Description for Event 1',duration: "03:00" },
+      { title: 'Event 6', description: 'Description for Event 1', duration: "02:00" }];
 
   nrOfEvents: number = 0;
   maxEvents: number = 0;
@@ -97,7 +98,10 @@ export class EditorComponent implements AfterViewInit{
       itemSelector: '.fc-event',
       eventData: function(eventEl) {
         return {
-          title: eventEl.innerText
+          id: eventEl.id,
+          title: eventEl.title,
+          duration: '02:00',
+          editable: true,
         };
       }
     });
@@ -145,7 +149,6 @@ export class EditorComponent implements AfterViewInit{
   }
 
   drop(arg: any) {
-    console.log(arg);
   arg.draggedEl.parentNode.removeChild(arg.draggedEl);
 }
 

@@ -52,13 +52,11 @@
 
     <div class="col-left" id="external-events" #external style="width: 15%; position: fixed; padding: 5px">
     <div *ngFor="let event of dragTableEvents" class="fc-event">
-      <div class="event-time">{{ event['start'] }} - {{ event['end'] }}</div>
-      <br>
+      <div class="event-title">{{ event['id'] }}</div>
       <div class="event-title">{{ event['title'] }}</div>
-      <div class="event-title">{{ event['description'] }}</div>
+      <div class="event-title">{{ event['duration'] }}</div>
     </div>
   </div>
-
 
   <app-calendar-context-menu #calendarContextMenu/>
 </div>
