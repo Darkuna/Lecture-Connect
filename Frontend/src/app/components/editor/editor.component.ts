@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
-import {CalendarOptions, EventInput} from "@fullcalendar/core";
+import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -9,7 +9,7 @@ import {EventConverterService} from "../../services/converter/event-converter.se
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
-import interactionPlugin, {Draggable} from "@fullcalendar/interaction";
+import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
 
@@ -60,6 +60,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     slotEventOverlap: true,
     nowIndicator: false,
     drop: this.drop.bind(this),
+    eventClick: this.eventClick.bind(this),
   };
 
   selectedTimeTable: Observable<TimeTableDTO>;
@@ -95,7 +96,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
         return {
           id: eventEl.getAttribute('data-id'),
           title: eventEl.getAttribute('data-title'),
-          duration: eventEl.getAttribute('data-duration')
+          duration: eventEl.getAttribute('data-duration'),
+          editable: true
         };
       }
     });
@@ -116,7 +118,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
       this.maxEvents = placedEvents.length;
       this.dragTableEvents = placedEvents.filter(s => !s.extendedProps?.['assigned']);
-      console.log(this.dragTableEvents);
       this.nrOfEvents = this.maxEvents - this.dragTableEvents.length;
 
       this.combinedTableEvents = of([
@@ -146,8 +147,16 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.calendarComponent.getApi().removeAllEvents();
   }
 
-  drop(arg: any) {
-  arg.draggedEl.parentNode.removeChild(arg.draggedEl);
+  drop(arg: DropArg) {
+    console.log("drop event", arg);
+    this.dragTableEvents =
+      this.dragTableEvents.filter(
+        e => e.id !== arg.draggedEl.getAttribute('data-id'))
+  }
+
+  eventClick(arg: EventClickArg) {
+    this.dragTableEvents.push(this.converter.convertImplToInput(arg.event));
+    arg.event.remove();
   }
 
   protected readonly JSON = JSON;

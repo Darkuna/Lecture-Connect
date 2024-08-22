@@ -138,4 +138,12 @@ export class EventConverterService {
     // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
   }
+
+  convertImplToInput(event: EventImpl): EventInput {
+    return {
+      id: event.id,
+      title: event.title,
+      extendedProps: event.extendedProps,
+    }
+  }
 }
