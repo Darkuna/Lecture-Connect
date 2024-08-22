@@ -34,7 +34,7 @@ public class Course extends TimestampedEntity implements Persistable<String>, Se
     @Transient
     private int numberOfGroups;
     @Transient
-    private boolean isSplit;
+    private boolean split;
     @Transient
     private List<Integer> splitTimes;
 
@@ -75,7 +75,7 @@ public class Course extends TimestampedEntity implements Persistable<String>, Se
                 ", computersNecessary=" + computersNecessary +
                 ", timingConstraints=" + timingConstraints +
                 ", numberOfGroups=" + numberOfGroups +
-                ", isSplit=" + isSplit +
+                ", isSplit=" + split +
                 ", splitTimes=" + splitTimes +
                 '}';
     }

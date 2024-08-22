@@ -24,7 +24,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback">
-      <app-course-selection [courseTable]="this.selectedTable.courseTable"></app-course-selection>
+      <app-course-selection [courseTable]="selectedTable.courseTable"></app-course-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>
@@ -47,7 +47,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      <app-detail-selection [globalTable]="selectedTable"></app-detail-selection>
+      <app-detail-selection [globalTable]="selectedTable.courseTable"></app-detail-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>

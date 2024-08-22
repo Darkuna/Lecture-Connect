@@ -12,6 +12,7 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import interactionPlugin, {Draggable} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
+import {Time} from "@angular/common";
 
 @Component({
   selector: 'app-editor',
@@ -63,17 +64,11 @@ export class EditorComponent implements AfterViewInit{
   };
 
   selectedTimeTable: Observable<TimeTableDTO>;
+  timeTable!: TimeTableDTO;
   availableRooms: RoomTableDTO[] = [];
   selectedRoom: RoomTableDTO | null = null;
   combinedTableEvents: Observable<EventInput[]> = new Observable<EventInput[]>();
-  dragTableEvents: EventInput[] =
-    [
-      { title: 'Event 1', description: 'Description for Event 1', duration: "02:00" },
-      { title: 'Event 2', description: 'Description for Event 1', duration: "04:00"},
-      { title: 'Event 3', description: 'Description for Event 1',duration: "06:00" },
-      { title: 'Event 4', description: 'Description for Event 1', duration: "01:00" },
-      { title: 'Event 5', description: 'Description for Event 1',duration: "03:00" },
-      { title: 'Event 6', description: 'Description for Event 1', duration: "02:00" }];
+  dragTableEvents: EventInput[] = [];
 
   nrOfEvents: number = 0;
   maxEvents: number = 0;

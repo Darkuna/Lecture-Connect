@@ -209,7 +209,7 @@ export class BaseSelectionComponent{
     let dto = new TmpTimeTableDTO();
 
     dto.rooms = this.roomConverter.convertRoomsToDto(this.globalTable.roomTables);
-    dto.courses = this.courseConverter.convertCourseToDto(this.globalTable.courseTable);
+    dto.courses = this.courseConverter.convertListToDto(this.globalTable.courseTable);
 
     dto.year = this.globalTable.year;
     dto.semester = this.globalTable.semester;

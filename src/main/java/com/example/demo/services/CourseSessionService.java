@@ -43,10 +43,11 @@ public class CourseSessionService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> createCourseSessionsFromCourse(TimeTable timeTable, Course course){
+        log.info("Course: split: {}, nrGroups: {}, splitTimes: {}", course.isSplit(), course.getNumberOfGroups(), course.getSplitTimes());
         List<CourseSession> courseSessions = new ArrayList<>();
         boolean isSplitCourse = course.isSplit();
         boolean hasGroups = course.getNumberOfGroups() > 1;
-        int numberOfCourseSessionsToCreate = hasGroups ? course.getNumberOfGroups() : (isSplitCourse ? 2 : 1);
+        int numberOfCourseSessionsToCreate = hasGroups ? course.getNumberOfGroups() : (isSplitCourse ? course.getSplitTimes().size() : 1);
 
         for(int i = 0; i < numberOfCourseSessionsToCreate; i++){
             CourseSession courseSession = new CourseSession();

@@ -8,7 +8,7 @@ import {Course} from "../../../../assets/Models/course";
   styleUrl: '../wizard.component.css'
 })
 export class DetailSelectionComponent {
-  @Input() globalTable!: TmpTimeTable;
+  @Input() globalTable!: Course[];
   showEditDialog: boolean = false;
   headers: any[];
   selectedCourse!: Course;
@@ -47,13 +47,24 @@ export class DetailSelectionComponent {
   }
 
   saveCourse() {
-    if (this.hasPsType()) {
-      this.updateTimesArray(this.selectedCourse.duration!);
-    }
-
     this.selectedCourse!.numberOfGroups = this.tmpSplitTimes;
     this.selectedCourse!.splitTimes = this.timesArray;
     this.selectedCourse!.isSplit = true;
+
+    if (this.hasPsType()) {
+      this.selectedCourse.isSplit = false;
+      //this.updateTimesArray(this.selectedCourse.duration!);
+    }
+
+    if (this.hasVoType()){
+      if(this.selectedCourse.numberOfGroups === 0){
+        this.selectedCourse.isSplit = false;
+        this.selectedCourse.splitTimes = [this.selectedCourse.duration!]
+      } else {
+        this.selectedCourse.numberOfGroups = 0;
+      }
+
+    }
 
     this.hideDialog();
   }
