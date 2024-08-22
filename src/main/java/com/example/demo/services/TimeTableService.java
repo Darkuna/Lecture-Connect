@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.dto.*;
+import com.example.demo.exceptions.scheduler.AssignmentFailedException;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
@@ -30,16 +31,14 @@ public class TimeTableService {
     private final DTOConverter dtoConverter;
     private final Scheduler scheduler;
     private static final Logger log = LoggerFactory.getLogger(TimeTableService.class);
-    private final TimingService timingService;
 
     public TimeTableService(TimeTableRepository timeTableRepository, RoomTableService roomTableService,
-                            CourseSessionService courseSessionService, DTOConverter dtoConverter, Scheduler scheduler, TimingService timingService) {
+                            CourseSessionService courseSessionService, DTOConverter dtoConverter, Scheduler scheduler) {
         this.timeTableRepository = timeTableRepository;
         this.roomTableService = roomTableService;
         this.courseSessionService = courseSessionService;
         this.dtoConverter = dtoConverter;
         this.scheduler = scheduler;
-        this.timingService = timingService;
     }
 
     /**
@@ -194,14 +193,21 @@ public class TimeTableService {
      *
      * @param timeTable The timetable for executing the algorithm
      */
-    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void assignCourseSessionsToRooms(TimeTable timeTable){
         log.info("Starting assignment algorithm for timeTable with id {}", timeTable.getId());
         scheduler.setTimeTable(timeTable);
-        scheduler.assignUnassignedCourseSessions();
-        timeTableRepository.save(timeTable);
-        log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
+        try{
+            scheduler.assignUnassignedCourseSessions();
+            timeTableRepository.save(timeTable);
+            log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
+        }
+        catch(AssignmentFailedException e){
+            log.error("Assignment failed for timeTable with id {}. Unassigning all courseSessions ...", timeTable.getId());
+            unassignAllCourseSessions(timeTable);
+        }
+
+
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
