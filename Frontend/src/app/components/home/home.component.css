@@ -173,3 +173,18 @@
   -webkit-user-select: none;
   user-select: none;
 }
+
+div {
+}
+.divTable .divTableCell, .divTable .divTableHead {
+}
+.divTable{ display: table; }
+.divTableRow {
+  display: table-row;
+  padding-bottom: .5rem;
+}
+.divTableHeading { display: table-header-group;}
+.divTableCell, .divTableHead { display: table-cell;}
+.divTableHeading { display: table-header-group;}
+.divTableFoot { display: table-footer-group;}
+.divTableBody { display: table-row-group;}

@@ -42,7 +42,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-prevCallback="prevCallback">
-      <app-detail-selection [globalTable]="selectedTable"></app-detail-selection>
+      <app-detail-selection [globalTable]="selectedTable.courseTable"></app-detail-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>

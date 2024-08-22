@@ -2,9 +2,9 @@ import {AfterViewInit, Component, Injectable,  OnInit} from '@angular/core';
 import {MenuItem, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {EventClickArg} from "@fullcalendar/core";
-import {EventImpl} from "@fullcalendar/core/internal";
-import {BehaviorSubject, window} from "rxjs";
+import {BehaviorSubject} from "rxjs";
 import {CourseSessionDTO} from "../../../../assets/Models/dto/course-session-dto";
+import {EventImpl} from "@fullcalendar/core/internal";
 
 @Injectable()
 @Component({
@@ -64,7 +64,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   showAllEvents(){
     this.loadingOn();
     this.tmpRenderSelection.forEach(e => {
-      e.setProp('display', 'auto');
+      e.setProp('display','auto');
     });
 
     this.tmpRenderSelection = [];
@@ -97,7 +97,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   }
 
   colorPartnerEvents(event: EventImpl, color: string): EventImpl[]{
-    let key = event.title.replace(/ - Group \d+$/, '');
+    let key = event.title!.replace(/ - (?:Group|Split) \d+$/, '');
     let partner = this._calendarComponent
       .getApi().getEvents()
       .filter(e => e.title.includes(key));

@@ -15,15 +15,19 @@ export class EventConverterService {
     return {
       id: session.id.toString(),
       title: session.name,
-      description: session.roomTable?.roomId,
+      description: '',
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
-      startTime: session.timing?.startTime,
-      endTime: session.timing?.endTime!,
+      startTime: session.timing?.startTime ?? '',
+      endTime: session.timing?.endTime,
       editable:editable,
+      droppable: true,
       extendedProps: {
         'type': session.name.slice(0, 2),
         'semester': session.semester,
-        'studyType': session.studyType}
+        'studyType': session.studyType,
+        'assigned': session.assigned,
+        'duration': this.convertDurationToHours(session.duration)
+      }
     };
   }
 
@@ -82,6 +86,19 @@ export class EventConverterService {
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
   }
 
+  convertDurationToHours(duration: number): string {
+    // Calculate hours and remaining minutes
+    const hours = Math.floor(duration / 60);
+    const mins = duration % 60;
+
+    // Format with leading zero if needed
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = mins.toString().padStart(2, '0');
+
+    // Return formatted time string
+    return `${formattedHours}:${formattedMinutes}`;
+  }
+
 
   weekDayToNumber(day: string): string[] {
     switch (day) {
@@ -120,5 +137,13 @@ export class EventConverterService {
   formatTime(date: Date): string {
     // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
+  }
+
+  convertImplToInput(event: EventImpl): EventInput {
+    return {
+      id: event.id,
+      title: event.title,
+      extendedProps: event.extendedProps,
+    }
   }
 }

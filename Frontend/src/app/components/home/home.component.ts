@@ -53,6 +53,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
+  changeCalendarView: boolean = false;
   calendarOptions :CalendarOptions = {
     plugins: [
       interactionPlugin,
@@ -162,8 +163,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.clearCalendar();
   }
 
-  tableIsSelected():boolean{
-    return this.selectedTimeTable === null;
+  changeCalenderEventView(){
+    let eventMaxValue: string = '2';
+
+    if (this.changeCalendarView){
+      eventMaxValue = 'false';
+    }
+
+    this.updateCalendar('eventMaxStack', eventMaxValue);
   }
 
   isTmpTableAvailable(): TmpTimeTable {
@@ -207,6 +214,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     if(this.shownTableDD){
       this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
       this.updateCalendarEvents();
+
+      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
+    } else {
+      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 

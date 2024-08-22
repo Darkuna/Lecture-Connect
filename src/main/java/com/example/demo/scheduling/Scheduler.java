@@ -323,15 +323,13 @@ public class Scheduler {
         Candidate currentCandidate;
         // Find placement candidate for courseSession
 
-        if(candidateQueue.isEmpty() || courseSession.getDuration() != candidateQueue.peek().getDuration()){
-            // Fill the queue with candidates of appropriate duration
-            fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
-            if(dayFilter != -1){
-                candidateQueue = candidateQueue.stream()
-                        .filter(c -> c.getDay() != dayFilter)
-                        .collect(Collectors.toCollection(() -> new PriorityQueue<>(Comparator.comparingInt(Candidate::getSlot))));
+
+        fillQueue(availabilityMatrices, courseSession, usePreferredOnly);
+        if(dayFilter != -1){
+            candidateQueue = candidateQueue.stream()
+                    .filter(c -> c.getDay() != dayFilter)
+                    .collect(Collectors.toCollection(() -> new PriorityQueue<>(Comparator.comparingInt(Candidate::getSlot))));
             }
-        }
 
         do{
             if(numberOfTries >= 10000){
@@ -618,7 +616,9 @@ public class Scheduler {
      */
     private void fillQueue(List<AvailabilityMatrix> availabilityMatrices, CourseSession courseSession, boolean preferredOnly){
         // remove all candidates with different durations when refilling queue
-        candidateQueue.stream().filter(c -> c.getDuration() == courseSession.getDuration()).forEach(c -> {});
+        candidateQueue = candidateQueue.stream()
+                .filter(c -> c.getDuration() == courseSession.getDuration())
+                .collect(Collectors.toCollection(() -> new PriorityQueue<>(Comparator.comparingInt(Candidate::getSlot))));
         List<Candidate> candidates;
         // always fill the queue with the first available and one random candidate
         for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){

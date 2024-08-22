@@ -26,7 +26,7 @@ public class CourseDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
     private int numberOfGroups;
-    private boolean isSplit;
+    private boolean split;
     private List<Integer> splitTimes;
 
     @Override
@@ -45,7 +45,7 @@ public class CourseDTO {
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", numberOfGroups=" + numberOfGroups +
-                ", isSplit=" + isSplit +
+                ", isSplit=" + split +
                 ", splitTimes=" + splitTimes +
                 '}';
     }
