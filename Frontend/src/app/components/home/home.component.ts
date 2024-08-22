@@ -133,6 +133,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.selectedTimeTable!.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
+      console.log('#event: ')
+      console.log(sessions.length);
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput(),
         toArray(),
@@ -142,6 +144,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         })
       ).subscribe(events => {
         this.combinedTableEventsSubject.next(events);
+        console.log('#event: ')
+        console.log(events.length)
       });
     });
   }
