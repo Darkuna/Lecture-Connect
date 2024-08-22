@@ -4,7 +4,7 @@ import {RoomTableDTO} from "./room-table-dto";
 export interface CourseSessionDTO {
   id: number;
   name: string;
-  isAssigned: boolean;
+  assigned: boolean;
   isFixed: boolean;
   duration: number;
   semester: number;

@@ -50,11 +50,12 @@
     </div>
   </div>
 
-    <div class="col-left" id="external-events" #external style="width: 15%; position: fixed; padding: 5px">
-    <div *ngFor="let event of dragTableEvents" class="fc-event">
-      <div class="event-title">{{ event['id'] }}</div>
-      <div class="event-title">{{ event['title'] }}</div>
-      <div class="event-title">{{ event['duration'] }}</div>
+  <div class="col-left" id="external-events" #external style="width: 15%; position: fixed; padding: 5px">
+      <div *ngFor="let event of dragTableEvents" class="fc-event"
+           [attr.data-id]="event['id']"
+           [attr.data-title]="event['title']"
+           [attr.data-duration]="event.extendedProps?.['duration']">
+      {{ event['title'] }}
     </div>
   </div>
 

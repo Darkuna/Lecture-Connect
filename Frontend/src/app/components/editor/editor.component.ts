@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
 import {CalendarOptions, EventInput} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -12,14 +12,13 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import interactionPlugin, {Draggable} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
-import {Time} from "@angular/common";
 
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.css'
 })
-export class EditorComponent implements AfterViewInit{
+export class EditorComponent implements AfterViewInit, OnDestroy{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('external') external!: ElementRef;
@@ -60,7 +59,7 @@ export class EditorComponent implements AfterViewInit{
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
-    drop: this.drop.bind(this)
+    drop: this.drop.bind(this),
   };
 
   selectedTimeTable: Observable<TimeTableDTO>;
@@ -69,6 +68,7 @@ export class EditorComponent implements AfterViewInit{
   selectedRoom: RoomTableDTO | null = null;
   combinedTableEvents: Observable<EventInput[]> = new Observable<EventInput[]>();
   dragTableEvents: EventInput[] = [];
+  draggable!: Draggable;
 
   nrOfEvents: number = 0;
   maxEvents: number = 0;
@@ -89,17 +89,22 @@ export class EditorComponent implements AfterViewInit{
     this.loadNewRoom(this.selectedRoom!);
     this.calendarContextMenu.calendarComponent = this.calendarComponent;
 
-    new Draggable(this.external.nativeElement, {
+    this.draggable = new Draggable(this.external.nativeElement, {
       itemSelector: '.fc-event',
-      eventData: function(eventEl) {
+      eventData: (eventEl) => {
         return {
-          id: eventEl.id,
-          title: eventEl.title,
-          duration: '02:00',
-          editable: true,
+          id: eventEl.getAttribute('data-id'),
+          title: eventEl.getAttribute('data-title'),
+          duration: eventEl.getAttribute('data-duration')
         };
       }
     });
+  }
+
+
+
+  ngOnDestroy(): void {
+    this.draggable.destroy()
   }
 
   loadNewRoom(newRoom: RoomTableDTO): void {
@@ -107,24 +112,22 @@ export class EditorComponent implements AfterViewInit{
     this.selectedRoom = newRoom;
 
     this.selectedTimeTable.subscribe(t => {
-      const placedEvents: EventInput[] = this.reloadNewEvents(this.selectedRoom?.id!, t);
-      this.dragTableEvents = placedEvents; //only for testing!!
-      //const unusedEvents: EventInput[] = placedEvents.filter(event => event;
-      this.nrOfEvents = placedEvents.length;
-      this.maxEvents = placedEvents.length; //add events on right side of page
+      const placedEvents: EventInput[] = this.reloadNewEvents(t);
+
+      this.maxEvents = placedEvents.length;
+      this.dragTableEvents = placedEvents.filter(s => !s.extendedProps?.['assigned']);
+      console.log(this.dragTableEvents);
+      this.nrOfEvents = this.maxEvents - this.dragTableEvents.length;
 
       this.combinedTableEvents = of([
-        ...placedEvents,
+        ...placedEvents.filter(s => s.extendedProps?.['assigned']),
         ...this.reloadNewBackgroundEvents(this.selectedRoom!),
       ]);
     })
   }
 
-  reloadNewEvents(IdOfRoom: number, table: TimeTableDTO): EventInput[] {
+  reloadNewEvents(table: TimeTableDTO): EventInput[] {
     return table.courseSessions
-        .filter(
-          (s:CourseSessionDTO) => s.roomTable?.id === IdOfRoom
-        )
         .map((s:CourseSessionDTO) =>
           this.converter.convertTimingToEventInput(s, true)
         );
@@ -145,7 +148,7 @@ export class EditorComponent implements AfterViewInit{
 
   drop(arg: any) {
   arg.draggedEl.parentNode.removeChild(arg.draggedEl);
-}
+  }
 
   protected readonly JSON = JSON;
 }

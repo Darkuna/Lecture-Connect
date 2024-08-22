@@ -15,7 +15,7 @@ export class EventConverterService {
     return {
       id: session.id.toString(),
       title: session.name,
-      description: session.roomTable?.roomId,
+      description: '',
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime ?? '',
       endTime: session.timing?.endTime,
@@ -24,7 +24,10 @@ export class EventConverterService {
       extendedProps: {
         'type': session.name.slice(0, 2),
         'semester': session.semester,
-        'studyType': session.studyType}
+        'studyType': session.studyType,
+        'assigned': session.assigned,
+        'duration': this.convertDurationToHours(session.duration)
+      }
     };
   }
 
@@ -81,6 +84,19 @@ export class EventConverterService {
 
     // Combine into a string of 'hh:mm:ss' format
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+  }
+
+  convertDurationToHours(duration: number): string {
+    // Calculate hours and remaining minutes
+    const hours = Math.floor(duration / 60);
+    const mins = duration % 60;
+
+    // Format with leading zero if needed
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = mins.toString().padStart(2, '0');
+
+    // Return formatted time string
+    return `${formattedHours}:${formattedMinutes}`;
   }
 
 
