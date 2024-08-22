@@ -1,8 +1,8 @@
 import {AfterViewInit, Component, Injectable,  OnInit} from '@angular/core';
 import {MenuItem, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
-import {EventClickArg, EventInput} from "@fullcalendar/core";
-import {BehaviorSubject, window} from "rxjs";
+import {EventClickArg} from "@fullcalendar/core";
+import {BehaviorSubject} from "rxjs";
 import {CourseSessionDTO} from "../../../../assets/Models/dto/course-session-dto";
 import {EventImpl} from "@fullcalendar/core/internal";
 
