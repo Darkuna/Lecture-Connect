@@ -22,6 +22,10 @@ public class Candidate {
         this.preferredSlots = preferredSlots;
     }
 
+    public boolean intersects(Candidate candidate) {
+        return AvailabilityMatrix.toTiming(this).intersects(AvailabilityMatrix.toTiming(candidate));
+    }
+
     public String toString(){
         return String.format("Candidate %s, Day: %d, Slot: %d", availabilityMatrix.getRoomTable().getRoomId(), day, slot);
     }

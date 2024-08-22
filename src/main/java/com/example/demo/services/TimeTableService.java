@@ -8,6 +8,7 @@ import com.example.demo.models.enums.Status;
 import com.example.demo.repositories.TimeTableRepository;
 import com.example.demo.scheduling.FirstScheduler;
 import com.example.demo.scheduling.Scheduler;
+import com.example.demo.scheduling.SecondScheduler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -34,7 +35,7 @@ public class TimeTableService {
     private static final Logger log = LoggerFactory.getLogger(TimeTableService.class);
 
     public TimeTableService(TimeTableRepository timeTableRepository, RoomTableService roomTableService,
-                            CourseSessionService courseSessionService, DTOConverter dtoConverter, FirstScheduler scheduler) {
+                            CourseSessionService courseSessionService, DTOConverter dtoConverter, SecondScheduler scheduler) {
         this.timeTableRepository = timeTableRepository;
         this.roomTableService = roomTableService;
         this.courseSessionService = courseSessionService;

@@ -51,40 +51,76 @@ public class SecondScheduler extends Scheduler {
             return;
         }
 
-        do {
-            singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
-            groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
-            splitCourseSessions = filterAndSortSplitCourseSessions(courseSessions);
+        singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
+        groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
+        splitCourseSessions = filterAndSortSplitCourseSessions(courseSessions);
 
-            prepareSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
-            prepareGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
-            prepareSplitCourseSessions(possibleCandidatesForCourseSessions, splitCourseSessions, availabilityMatrices);
+        prepareSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
+        prepareGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
+        prepareSplitCourseSessions(possibleCandidatesForCourseSessions, splitCourseSessions, availabilityMatrices);
 
-            processAssignment(possibleCandidatesForCourseSessions);
+        processAssignment(possibleCandidatesForCourseSessions);
 
-            if(readyToFinalize()){
-                finalizeAssignment();
-                log.info("Finished assignment.");
-                break;
-            }
-            else{
-                resetReadyForAssignmentSet();
-            }
+        if(readyToFinalize()){
+            finalizeAssignment();
+            log.info("Finished assignment.");
         }
-        while(true);
+        else{
+            resetReadyForAssignmentSet();
+        }
     }
 
     private void processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
+        //backup of original
+        Map<CourseSession, List<Candidate>> backup = new HashMap<>(possibleCandidatesForCourseSessions);
         Candidate currentCandidate;
+        CourseSession currentCourseSession;
+        List<CourseSession> courseSessions;
+        List<Candidate> currentCandidates;
 
-        //Copy the map for later use
+        do{
+            //sort
+            Map<CourseSession, List<Candidate>> finalPossibleCandidatesForCourseSessions = possibleCandidatesForCourseSessions;
+            courseSessions = possibleCandidatesForCourseSessions.keySet().stream()
+                    .sorted(Comparator.comparingInt(c -> finalPossibleCandidatesForCourseSessions.get(c).size()).reversed())
+                    .collect(Collectors.toList());
+            //choose first
+            currentCourseSession = courseSessions.removeFirst();
+            currentCandidates = possibleCandidatesForCourseSessions.get(currentCourseSession)
+                    .stream().sorted(Comparator.comparingInt(Candidate::getSlot))
+                    .collect(Collectors.toList());
+            //get random index
+            int x = possibleCandidatesForCourseSessions.get(currentCourseSession).size();
+            if(x == 0){
+                possibleCandidatesForCourseSessions = backup;
+                backup = new HashMap<>(backup);
+                resetReadyForAssignmentSet();
+            }
+            //choose random
+            currentCandidate = currentCandidates.getFirst();
+            //assign random
+            currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, currentCourseSession);
+            currentCourseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
+            readyForAssignmentSet.put(currentCourseSession, currentCandidate);
 
-        //Sort map by candidate list size ascending
-
-        //Choose one candidate of the first courseSession and assign it in availabilty matrix and put it in readyForAssignmentSet
-        //currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, courseSession);
-        //courseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
-        //readyForAssignmentSet.put(courseSession, currentCandidate);
+            for(CourseSession courseSession : courseSessions){
+                currentCandidates = possibleCandidatesForCourseSessions.get(courseSession);
+                Candidate finalCurrentCandidate = currentCandidate;
+                currentCandidates = currentCandidates.stream()
+                        .filter(c -> !c.intersects(finalCurrentCandidate))
+                        .sorted(Comparator.comparingInt(Candidate::getSlot))
+                        .collect(Collectors.toList());
+                possibleCandidatesForCourseSessions.put(courseSession, currentCandidates);
+                if(currentCandidates.isEmpty()){
+                    possibleCandidatesForCourseSessions = backup;
+                    backup = new HashMap<>(backup);
+                    resetReadyForAssignmentSet();
+                    log.info("another round");
+                }
+            }
+            possibleCandidatesForCourseSessions.remove(currentCourseSession);
+        }
+        while(!courseSessions.isEmpty());
     }
 
     private void prepareSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
@@ -100,21 +136,28 @@ public class SecondScheduler extends Scheduler {
     }
 
     private void prepareGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        String currentGroup = courseSessions.getFirst().getCourseId();
+        String currentGroup;
+        if(courseSessions == null || courseSessions.isEmpty()){
+            return;
+        }
+        currentGroup = courseSessions.getFirst().getCourseId();
         int day = 0;
         for(CourseSession courseSession: courseSessions){
             List<Candidate> candidates = new ArrayList<>();
             if(!courseSession.getCourseId().equals(currentGroup)){
+                currentGroup = courseSession.getCourseId();
                 day = day == 4 ?  0 : day + 1;
             }
             for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                candidates.addAll(availabilityMatrix.getAllAvailableCandidatesOfDay(courseSession, day));
+                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
             }
-            candidates.stream().filter(c -> checkConstraintsFulfilled(courseSession, c))
+            List<Candidate> filteredCandidates = candidates.stream()
+                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
                     .collect(Collectors.toList());
-            map.put(courseSession, candidates);
+            map.put(courseSession, filteredCandidates);
         }
     }
+
 
     private void prepareSplitCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         for(CourseSession courseSession : courseSessions){
@@ -122,11 +165,13 @@ public class SecondScheduler extends Scheduler {
             for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
                 candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
             }
-            candidates.stream().filter(c -> checkConstraintsFulfilled(courseSession, c))
+            List<Candidate> filteredCandidates = candidates.stream()
+                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
                     .collect(Collectors.toList());
-            map.put(courseSession, candidates);
+            map.put(courseSession, filteredCandidates);
         }
     }
+
 
     /**
      * Filters and sorts a list of courseSessions to obtain only single courseSessions sorted descending by duration and
