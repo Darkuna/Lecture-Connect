@@ -59,7 +59,10 @@ public class SecondScheduler extends Scheduler {
         prepareGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
         prepareSplitCourseSessions(possibleCandidatesForCourseSessions, splitCourseSessions, availabilityMatrices);
 
-        processAssignment(possibleCandidatesForCourseSessions);
+        log.info("Starting assignment");
+        if(processAssignment(possibleCandidatesForCourseSessions)){
+            log.info("Finished processing assignment");
+        }
 
         if(readyToFinalize()){
             finalizeAssignment();
@@ -70,6 +73,73 @@ public class SecondScheduler extends Scheduler {
         }
     }
 
+
+    private boolean processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
+        log.info("map entries currently processed: {}", possibleCandidatesForCourseSessions.size());
+
+        // If no more course sessions, assignment is complete
+        if (possibleCandidatesForCourseSessions.isEmpty()) {
+            return true;
+        }
+
+        // Sort CourseSessions based on the number of available candidates (smallest first)
+        CourseSession currentCourseSession = possibleCandidatesForCourseSessions.keySet().stream()
+                .min(Comparator.comparingInt(c -> possibleCandidatesForCourseSessions.get(c).size()))
+                .orElseThrow();
+
+        // Get the list of candidates for this course session
+        List<Candidate> currentCandidates = new ArrayList<>(possibleCandidatesForCourseSessions.get(currentCourseSession));
+
+        // Backup the current state of the map
+        Map<CourseSession, List<Candidate>> backup = new HashMap<>(possibleCandidatesForCourseSessions);
+
+        // Try each candidate for the current course session
+        for (Candidate currentCandidate : currentCandidates) {
+            // Assign the current candidate
+            currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, currentCourseSession);
+            currentCourseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
+            readyForAssignmentSet.put(currentCourseSession, currentCandidate);
+
+            // Filter all candidate lists for other course sessions
+            Map<CourseSession, List<Candidate>> filteredCandidates = new HashMap<>();
+            boolean isFeasible = true;
+
+            for (Map.Entry<CourseSession, List<Candidate>> entry : possibleCandidatesForCourseSessions.entrySet()) {
+                CourseSession cs = entry.getKey();
+                if (cs.equals(currentCourseSession)) continue;
+
+                List<Candidate> candidates = entry.getValue().stream()
+                        .filter(c -> !c.intersects(currentCandidate))
+                        .collect(Collectors.toList());
+
+                if (candidates.isEmpty()) {
+                    isFeasible = false;
+                    break;
+                }
+                filteredCandidates.put(cs, candidates);
+            }
+
+            if (isFeasible) {
+                // Recursively attempt to assign remaining sessions
+                if (processAssignment(filteredCandidates)) {
+                    return true;
+                }
+            }
+
+            // Undo the assignment
+            currentCandidate.getAvailabilityMatrix().clearCandidate(currentCandidate);
+            currentCourseSession.setRoomTable(null);
+            readyForAssignmentSet.remove(currentCourseSession);
+        }
+
+        // If no valid assignment was found, reset the map and try again
+        possibleCandidatesForCourseSessions.clear();
+        possibleCandidatesForCourseSessions.putAll(backup);
+        return false;
+    }
+
+
+    /*
     private void processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
         //backup of original
         Map<CourseSession, List<Candidate>> backup = new HashMap<>(possibleCandidatesForCourseSessions);
@@ -89,20 +159,14 @@ public class SecondScheduler extends Scheduler {
             currentCandidates = possibleCandidatesForCourseSessions.get(currentCourseSession)
                     .stream().sorted(Comparator.comparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
-            //get random index
-            int x = possibleCandidatesForCourseSessions.get(currentCourseSession).size();
-            if(x == 0){
-                possibleCandidatesForCourseSessions = backup;
-                backup = new HashMap<>(backup);
-                resetReadyForAssignmentSet();
-            }
-            //choose random
+
+           // choose first candidate
             currentCandidate = currentCandidates.getFirst();
-            //assign random
+            //assign
             currentCandidate.getAvailabilityMatrix().assignCourseSession(currentCandidate, currentCourseSession);
             currentCourseSession.setRoomTable(currentCandidate.getAvailabilityMatrix().getRoomTable());
             readyForAssignmentSet.put(currentCourseSession, currentCandidate);
-
+            //filter all candidate lists in possibleCandidatesForCourseSessions
             for(CourseSession courseSession : courseSessions){
                 currentCandidates = possibleCandidatesForCourseSessions.get(courseSession);
                 Candidate finalCurrentCandidate = currentCandidate;
@@ -122,6 +186,7 @@ public class SecondScheduler extends Scheduler {
         }
         while(!courseSessions.isEmpty());
     }
+    */
 
     private void prepareSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         for(CourseSession courseSession : courseSessions){
