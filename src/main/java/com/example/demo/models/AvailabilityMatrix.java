@@ -10,7 +10,6 @@ import lombok.Getter;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -273,7 +272,7 @@ public class AvailabilityMatrix {
             if (matrix[candidate.getDay()][i] != null &&
                     matrix[candidate.getDay()][i].getSemester() == courseSession.getSemester() &&
                     matrix[candidate.getDay()][i].getStudyType().equals(courseSession.getStudyType()) &&
-                    !matrix[candidate.getDay()][i].isSamePS(courseSession)) {
+                    !matrix[candidate.getDay()][i].isFromSameCourse(courseSession)) {
                 return true;
             }
         }

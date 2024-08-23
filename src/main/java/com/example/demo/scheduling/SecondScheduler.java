@@ -1,5 +1,6 @@
 package com.example.demo.scheduling;
 
+import com.example.demo.exceptions.scheduler.AssignmentFailedException;
 import com.example.demo.models.*;
 import com.example.demo.services.CourseSessionService;
 import com.example.demo.services.TimingService;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 @Service
 @Scope("session")
 public class SecondScheduler extends Scheduler {
+    int numberOfRecursionSteps = 0;
 
     public SecondScheduler(TimingService timingService, CourseSessionService courseSessionService) {
         super(timingService, courseSessionService);
@@ -23,6 +25,7 @@ public class SecondScheduler extends Scheduler {
      */
     @Transactional
     public void assignUnassignedCourseSessions(){
+        numberOfRecursionSteps = 0;
         log.info("> Processing courseSessions that need computers ...");
         assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
         log.info("Finished processing courseSessions that need computers");
@@ -60,8 +63,13 @@ public class SecondScheduler extends Scheduler {
         prepareSplitCourseSessions(possibleCandidatesForCourseSessions, splitCourseSessions, availabilityMatrices);
 
         log.info("Starting assignment");
-        if(processAssignment(possibleCandidatesForCourseSessions)){
-            log.info("Finished processing assignment");
+        try {
+            if (processAssignment(possibleCandidatesForCourseSessions)) {
+                log.info("Finished processing assignment after {} recursion steps", numberOfRecursionSteps);
+                numberOfRecursionSteps = 0;
+            }
+        } catch (AssignmentFailedException e) {
+            log.error(e.getMessage());
         }
 
         if(readyToFinalize()){
@@ -70,11 +78,16 @@ public class SecondScheduler extends Scheduler {
         }
         else{
             resetReadyForAssignmentSet();
+            log.info("Reset for some reason");
         }
     }
 
 
     private boolean processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
+        numberOfRecursionSteps++;
+        if(numberOfRecursionSteps > 500){
+            throw new AssignmentFailedException("Failed after 500 recursion steps");
+        }
         log.info("map entries currently processed: {}", possibleCandidatesForCourseSessions.size());
 
         // If no more course sessions, assignment is complete
@@ -110,23 +123,35 @@ public class SecondScheduler extends Scheduler {
                     continue;
                 }
                 List<Candidate> candidates = entry.getValue();
-                if (!cs.getCourseId().equals(currentCourseSession.getCourseId())) {
+                //if the cs is from the same degree and same semester as the current cs
+                if (!cs.isAllowedToIntersectWith(currentCourseSession)) {
+                    //if the cs is not part of the same course as the current cs
+                    //filter all candidates with intersecting timing
+                    if (!cs.isFromSameCourse(currentCourseSession)) {
+                        candidates = candidates.stream()
+                                .filter(c -> !c.intersects(currentCandidate))
+                                .collect(Collectors.toList());
+                    }
+                    //if it is part of the same course, and it is a group course
+                    //filter all candidates intersecting in the same roomTable
+                    else if (cs.isGroupCourse()) {
+                        candidates = candidates.stream()
+                                .filter(c -> !c.intersects(currentCandidate) || !c.isInSameRoom(currentCandidate))
+                                .collect(Collectors.toList());
+                    }
+                    //if it is part of the same course, and it is a split course
+                    //filter all candidates at the same day
+                    else if (cs.isSplitCourse()) {
+                        candidates = candidates.stream()
+                                .filter((c) -> (!c.intersects(currentCandidate) && !c.hasSameDay(currentCandidate)) ||
+                                        (!c.isInSameRoom(currentCandidate) && !c.hasSameDay(currentCandidate)))
+                                .collect(Collectors.toList());
+                    }
+                }
+
                 candidates = candidates.stream()
                         .filter(c -> !c.intersects(currentCandidate))
                         .collect(Collectors.toList());
-                }
-                else if (cs.isGroupCourse()){
-                    candidates = candidates.stream()
-                            .filter(c -> !c.intersects(currentCandidate) || !c.getAvailabilityMatrix().getRoomTable().equals(currentCandidate.getAvailabilityMatrix().getRoomTable()))
-                            .collect(Collectors.toList());
-                }
-                else if (cs.isSplitCourse()){
-                    candidates = candidates.stream()
-                            .filter((c) -> !c.intersects(currentCandidate) && c.getDay() != currentCandidate.getDay() ||
-                                    !c.getAvailabilityMatrix().getRoomTable().equals(currentCandidate.getAvailabilityMatrix().getRoomTable()) &&
-                                            c.getDay() != currentCandidate.getDay())
-                            .collect(Collectors.toList());
-                }
 
                 if (candidates.isEmpty()) {
                     isFeasible = false;
@@ -181,7 +206,7 @@ public class SecondScheduler extends Scheduler {
                 day = day == 4 ?  0 : day + 1;
             }
             for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                candidates.addAll(availabilityMatrix.getAllAvailableCandidatesOfDay(courseSession, day));
+                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
             }
             List<Candidate> filteredCandidates = candidates.stream()
                     .filter(c -> checkConstraintsFulfilled(courseSession, c))

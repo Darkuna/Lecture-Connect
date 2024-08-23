@@ -26,6 +26,14 @@ public class Candidate {
         return AvailabilityMatrix.toTiming(this).intersects(AvailabilityMatrix.toTiming(candidate));
     }
 
+    public boolean isInSameRoom(Candidate candidate) {
+        return this.availabilityMatrix.getRoomTable().equals(candidate.getAvailabilityMatrix().getRoomTable());
+    }
+
+    public boolean hasSameDay(Candidate candidate) {
+        return this.day == candidate.getDay();
+    }
+
     public String toString(){
         return String.format("Candidate %s, Day: %d, Slot: %d", availabilityMatrix.getRoomTable().getRoomId(), day, slot);
     }
