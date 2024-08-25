@@ -167,7 +167,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     let eventMaxValue: string = '2';
 
     if (this.changeCalendarView){
-      eventMaxValue = 'false';
+      eventMaxValue = 'null';
     }
 
     this.updateCalendar('eventMaxStack', eventMaxValue);
@@ -414,20 +414,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         ]
       },
       {
-        label: 'Print',
-        items: [
-          {
-            label: 'Export Plan (all)',
-            icon: 'pi pi-folder-open',
-            command: () => this.exportCalendarAsPDF()
-          },
-          {
-            label: 'Export Plan (each)',
-            icon: 'pi pi-folder'
-          }
-        ]
-      },
-      {
         label: 'Courses',
         expanded: true,
         items: [
@@ -473,7 +459,21 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             command: () => this.redirectToSelection('/tt-status')
           }
         ]
-      }
+      },
+      {
+        label: 'Print',
+        items: [
+          {
+            label: 'Export Plan (all)',
+            icon: 'pi pi-folder-open',
+            command: () => this.exportCalendarAsPDF()
+          },
+          {
+            label: 'Export Plan (each)',
+            icon: 'pi pi-folder'
+          }
+        ]
+      },
     ];
   }
 }
