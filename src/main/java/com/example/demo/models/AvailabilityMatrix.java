@@ -376,8 +376,11 @@ public class AvailabilityMatrix {
         for (int i = 0; i < DAYS_IN_WEEK; i++) {
             for (int j = 0; j < SLOTS_PER_DAY; j++) {
                 if (matrix[i][j] == CourseSession.PREFERRED || matrix[i][j] == null) {
-                    if (isSlotsAvailable(i, j, numberOfSlots, false)) {
+                    if (isSlotsAvailable(i, j, numberOfSlots, true)) {
                         possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), true));
+                    }
+                    else if (isSlotsAvailable(i, j, numberOfSlots, false)) {
+                        possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), false));
                     }
                 }
             }
