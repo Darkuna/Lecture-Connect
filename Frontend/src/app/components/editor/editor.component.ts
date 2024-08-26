@@ -12,6 +12,7 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
+import {CourseType} from "../../../assets/Models/enums/course-type";
 
 @Component({
   selector: 'app-editor',
@@ -63,6 +64,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     eventClick: this.eventClick.bind(this),
   };
 
+  changedCourses: EventInput[] = [];
   selectedTimeTable: Observable<TimeTableDTO>;
   timeTable!: TimeTableDTO;
   availableRooms: RoomTableDTO[] = [];
@@ -121,7 +123,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       this.nrOfEvents = this.maxEvents - this.dragTableEvents.length;
 
       this.combinedTableEvents = of([
-        ...placedEvents,
+        ...placedEvents.filter(s => s.extendedProps?.['assigned']),
         ...this.reloadNewBackgroundEvents(this.selectedRoom!),
       ]);
     })
@@ -156,8 +158,10 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   eventClick(arg: EventClickArg) {
-    this.dragTableEvents.push(this.converter.convertImplToInput(arg.event));
-    arg.event.remove();
+    if(arg.event.title !== 'BLOCKED' && arg.event.title !== 'COMPUTER_SCIENCE'){
+      this.dragTableEvents.push(this.converter.convertImplToInput(arg.event));
+      arg.event.remove();
+    }
   }
 
   protected readonly JSON = JSON;

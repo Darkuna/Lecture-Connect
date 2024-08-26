@@ -212,10 +212,24 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   removeAll(){
     if(this.shownTableDD){
-      this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
-      this.updateCalendarEvents();
+      this.confirmationService.confirm(
+        {
+          message: 'Are you sure that you want to proceed?',
+          header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+          acceptIcon:"none",
+          rejectIcon:"none",
+          accept: () => {
+            this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
+            this.updateCalendarEvents();
 
-      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
+            this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
+          },
+          reject: () => {
+            this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
+          }
+        }
+      );
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
