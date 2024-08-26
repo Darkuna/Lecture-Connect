@@ -22,7 +22,7 @@ public abstract class Scheduler {
     protected final Random random = new Random(System.currentTimeMillis());
     protected Queue<Candidate> candidateQueue;
     protected final Logger log = LoggerFactory.getLogger(Scheduler.class);
-    protected final Map<CourseSession, Candidate> readyForAssignmentSet = new HashMap<>();
+    protected Map<CourseSession, Candidate> readyForAssignmentSet = new HashMap<>();
     protected TimeTable timeTable;
     protected int numberOfCourseSessions;
 
