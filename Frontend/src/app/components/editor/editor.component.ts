@@ -8,10 +8,12 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
-import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
-import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
+import interactionPlugin, {Draggable, DropArg, EventReceiveArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
+import {ConfirmationService} from "primeng/api";
+import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
+import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 
 @Component({
   selector: 'app-editor',
@@ -61,9 +63,10 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     nowIndicator: false,
     drop: this.drop.bind(this),
     eventClick: this.eventClick.bind(this),
+    eventReceive: this.eventReceive.bind(this),
   };
 
-  changedCourses: EventInput[] = [];
+  changedCourses: CourseSessionDTO[] = [];
   selectedTimeTable: Observable<TimeTableDTO>;
   timeTable!: TimeTableDTO;
   availableRooms: RoomTableDTO[] = [];
@@ -79,14 +82,17 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   constructor(
     private globalTableService: GlobalTableService,
     private converter: EventConverterService,
+    private confirmationService: ConfirmationService
   ) {
     this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
     this.selectedTimeTable.subscribe( r => {
         this.availableRooms = r.roomTables;
         this.selectedRoom = r.roomTables[0];
-        this.allEvents = this.convertMultipleCourseSessions(r.courseSessions);
+
+        this.allEvents = this.converter.convertMultipleCourseSessions(r.courseSessions);
         this.maxEvents = this.allEvents.length;
         this.loadNewRoom(this.selectedRoom!);
+        this.timeTable = r;
       }
     );
   }
@@ -101,20 +107,18 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
           id: eventEl.getAttribute('data-id'),
           title: eventEl.getAttribute('data-title'),
           duration: eventEl.getAttribute('data-duration'),
-          editable: true
+          editable: true,
         };
       }
     });
   }
-
-
 
   ngOnDestroy(): void {
     this.draggable.destroy()
   }
 
   loadNewRoom(newRoom: RoomTableDTO): void {
-    this.clearCalendar();
+    this.saveChanges();
     this.selectedRoom = newRoom;
 
     this.dragTableEvents = this.allEvents.filter(s => !s.extendedProps?.['assigned']);
@@ -126,16 +130,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     ]
   }
 
-  convertMultipleCourseSessions(sessions: CourseSessionDTO[]){
-    return sessions
-      .map((s:CourseSessionDTO) =>
-        this.converter.convertTimingToEventInput(s, true)
-      );
-  }
-
   reloadNewEvents(roomId: string): EventInput[] {
-    console.log(roomId)
-    console.log(this.allEvents);
     return this.allEvents.filter(e => e['description'] === roomId);
   }
 
@@ -148,8 +143,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return combinedEvents;
   }
 
-  clearCalendar(){
-    this.calendarComponent.getApi().removeAllEvents();
+  saveChanges(){
+    this.changedCourses.map(c => {});
   }
 
   drop(arg: DropArg) {
@@ -161,10 +156,31 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   eventClick(arg: EventClickArg) {
     if(arg.event.title !== 'BLOCKED' && arg.event.title !== 'COMPUTER_SCIENCE'){
-      this.dragTableEvents.push(this.converter.convertImplToInput(arg.event));
-      arg.event.remove();
-      this.nrOfEvents -= 1;
+      this.confirmationService.confirm({
+        header: 'Remove selected Course',
+        message: 'Are you sure you want to remove the selected Room?',
+        accept: () => {
+          this.dragTableEvents.push(this.converter.convertImplToInput(arg.event));
+          arg.event.remove();
+          this.nrOfEvents -= 1;
+          },
+        reject: () => {}
+      })
     }
+  }
+
+  eventReceive(args: EventReceiveArg){
+    const session = this.timeTable.courseSessions
+      .find(s=> s.id.toString() === args.event.id);
+
+    console.log(session);
+    session!.roomTable = this.selectedRoom!;
+    session!.timing = new TimingDTO();
+    session!.timing!.startTime = this.converter.convertLocalDateToString(args.event.start!);
+    session!.timing!.endTime = this.converter.convertLocalDateToString(args.event.end!);
+    session!.timing!.day = this.converter.weekNumberToDay(args.event.start?.getDay() || 1);
+
+    this.changedCourses.push(session!);
   }
 
   updateCalendar(calendarOption: any, value: string) {

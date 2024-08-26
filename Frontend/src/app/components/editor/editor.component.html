@@ -51,6 +51,8 @@
   </div>
 
   <div class="col-left" id="external-events" #external style="width: 15%; position: fixed; padding: 5px">
+    <p-button label='finished' (onClick)="saveChanges()"/>
+
       <div *ngFor="let event of dragTableEvents" class="fc-event"
            [attr.data-id]="event['id']"
            [attr.data-title]="event['title']"

@@ -4,7 +4,6 @@ import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
-import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import {CourseColor} from "../../../assets/Models/enums/lecture-color";
 
 @Injectable({
@@ -29,16 +28,6 @@ export class EventConverterService {
         'duration': this.convertDurationToHours(session.duration)
       }
     };
-  }
-
-  convertRoomToEventInputs(room: RoomTableDTO): EventInput[] {
-    let finalEvents:EventInput[] = [];
-
-    room.timingConstraints?.forEach(t => {
-      finalEvents.push(this.convertTimingEventInput(t));
-    })
-
-    return finalEvents;
   }
 
   convertTimingEventInput(timing: TimingDTO): EventInput {
@@ -72,7 +61,7 @@ export class EventConverterService {
     return timing;
   }
 
-  private convertLocalDateToString(date: Date):string{
+  convertLocalDateToString(date: Date):string{
     let hours: number = date.getHours();
     let minutes: number = date.getMinutes();
     let seconds: number = date.getSeconds();
@@ -99,6 +88,12 @@ export class EventConverterService {
     return `${formattedHours}:${formattedMinutes}`;
   }
 
+  convertMultipleCourseSessions(sessions: CourseSessionDTO[]){
+    return sessions
+      .map((s:CourseSessionDTO) =>
+        this.convertTimingToEventInput(s, true)
+      );
+  }
 
   weekDayToNumber(day: string): string[] {
     switch (day) {
@@ -128,10 +123,6 @@ export class EventConverterService {
 
   convertCourseSessionToEventInput(): OperatorFunction<CourseSessionDTO, EventInput> {
     return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session, false));
-  }
-
-  convertTimingToBackgroundEventInput(): OperatorFunction<RoomTableDTO, EventInput> {
-    return map((room: RoomTableDTO) => this.convertRoomToEventInputs(room));
   }
 
   formatTime(date: Date): string {
