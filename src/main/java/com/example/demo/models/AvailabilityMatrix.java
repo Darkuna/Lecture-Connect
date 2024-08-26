@@ -337,6 +337,37 @@ public class AvailabilityMatrix {
         return (time.getHour() * 60 + time.getMinute()) / 15;
     }
 
+    public List<Candidate> getAllAvailableCandidates(CourseSession courseSession) {
+        int numberOfSlots = courseSession.getDuration() / DURATION_PER_SLOT;
+        List<Candidate> possibleCandidates = new ArrayList<>();
+        for (int i = 0; i < DAYS_IN_WEEK; i++) {
+            for (int j = 0; j < SLOTS_PER_DAY; j++) {
+                if (matrix[i][j] == CourseSession.PREFERRED || matrix[i][j] == null) {
+                    if (isSlotsAvailable(i, j, numberOfSlots, true)) {
+                        possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), true));
+                    }
+                    else if (isSlotsAvailable(i, j, numberOfSlots, false)) {
+                        possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), false));
+                    }
+                }
+            }
+        }
+        return possibleCandidates;
+    }
+
+    public List<Candidate> getAllAvailableCandidatesOfDay(CourseSession courseSession, int day) {
+        int numberOfSlots = courseSession.getDuration() / DURATION_PER_SLOT;
+        List<Candidate> possibleCandidates = new ArrayList<>();
+        for (int i = 0; i < SLOTS_PER_DAY; i++) {
+            if (matrix[day][i] == CourseSession.PREFERRED || matrix[day][i] == null) {
+                if (isSlotsAvailable(day, i, numberOfSlots, false)) {
+                    possibleCandidates.add(new Candidate(this, day, i, courseSession.getDuration(), true));
+                }
+            }
+        }
+        return possibleCandidates;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         int time = START_TIME.getHour();
@@ -368,37 +399,6 @@ public class AvailabilityMatrix {
             sb.append("|\n");
         }
         return sb.toString();
-    }
-
-    public List<Candidate> getAllAvailableCandidates(CourseSession courseSession) {
-        int numberOfSlots = courseSession.getDuration() / DURATION_PER_SLOT;
-        List<Candidate> possibleCandidates = new ArrayList<>();
-        for (int i = 0; i < DAYS_IN_WEEK; i++) {
-            for (int j = 0; j < SLOTS_PER_DAY; j++) {
-                if (matrix[i][j] == CourseSession.PREFERRED || matrix[i][j] == null) {
-                    if (isSlotsAvailable(i, j, numberOfSlots, true)) {
-                        possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), true));
-                    }
-                    else if (isSlotsAvailable(i, j, numberOfSlots, false)) {
-                        possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), false));
-                    }
-                }
-            }
-        }
-        return possibleCandidates;
-    }
-
-    public List<Candidate> getAllAvailableCandidatesOfDay(CourseSession courseSession, int day) {
-        int numberOfSlots = courseSession.getDuration() / DURATION_PER_SLOT;
-        List<Candidate> possibleCandidates = new ArrayList<>();
-        for (int i = 0; i < SLOTS_PER_DAY; i++) {
-            if (matrix[day][i] == CourseSession.PREFERRED || matrix[day][i] == null) {
-                if (isSlotsAvailable(day, i, numberOfSlots, false)) {
-                    possibleCandidates.add(new Candidate(this, day, i, courseSession.getDuration(), true));
-                }
-            }
-        }
-        return possibleCandidates;
     }
 }
 

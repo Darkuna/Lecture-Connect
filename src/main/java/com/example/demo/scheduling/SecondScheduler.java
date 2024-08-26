@@ -109,6 +109,9 @@ public class SecondScheduler extends Scheduler {
             //if all candidates of the current state are iterated
             if(currentIndex >= candidateSize){
                 unassignLatestEntry();
+                if(stack.isEmpty()){
+                    return false;
+                }
                 currentState = stack.pop();
                 currentState.index++;
                 continue;
