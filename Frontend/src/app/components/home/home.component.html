@@ -57,7 +57,7 @@
             </div>
           </ng-template>
         </p-dropdown>
-        <p-button icon="pi pi-cog" #cog (click)="op.show($event, op)" />
+        <p-button icon="pi pi-cog" (click)="op.show($event, op)" />
       </div>
     </p-toolbar>
   </div>
@@ -89,7 +89,7 @@
   </ng-template>
 </p-dialog>
 
-<p-overlayPanel #op showCloseIcon="true" [appendTo]="cog">
+<p-overlayPanel #op showCloseIcon="true" [dismissable]="true">
   <ng-template pTemplate="content">
     <div class="divTable">
       <div class="divTableBody">
