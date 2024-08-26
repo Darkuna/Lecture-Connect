@@ -1,6 +1,7 @@
 package com.example.demo.scheduling;
 
 import com.example.demo.models.AvailabilityMatrix;
+import com.example.demo.models.CourseSession;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,6 +33,10 @@ public class Candidate {
 
     public boolean hasSameDay(Candidate candidate) {
         return this.day == candidate.getDay();
+    }
+
+    public void assignToCourseSession(CourseSession courseSession){
+        availabilityMatrix.assignCourseSession(this, courseSession);
     }
 
     public String toString(){
