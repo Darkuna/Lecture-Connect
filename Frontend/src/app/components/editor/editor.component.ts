@@ -114,22 +114,23 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.selectedRoom = newRoom;
 
     this.selectedTimeTable.subscribe(t => {
-      const placedEvents: EventInput[] = this.reloadNewEvents(t);
+      const placedEvents: EventInput[] = this.reloadNewEvents(newRoom.roomId, t);
 
       this.maxEvents = placedEvents.length;
       this.dragTableEvents = placedEvents.filter(s => !s.extendedProps?.['assigned']);
       this.nrOfEvents = this.maxEvents - this.dragTableEvents.length;
 
       this.combinedTableEvents = of([
-        ...placedEvents.filter(s => s.extendedProps?.['assigned']),
+        ...placedEvents,
         ...this.reloadNewBackgroundEvents(this.selectedRoom!),
       ]);
     })
   }
 
-  reloadNewEvents(table: TimeTableDTO): EventInput[] {
+  reloadNewEvents(roodId: string, table: TimeTableDTO): EventInput[] {
     return table.courseSessions
-        .map((s:CourseSessionDTO) =>
+      .filter(s => s.roomTable?.roomId === roodId)
+      .map((s:CourseSessionDTO) =>
           this.converter.convertTimingToEventInput(s, true)
         );
   }

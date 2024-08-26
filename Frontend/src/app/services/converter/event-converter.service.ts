@@ -15,7 +15,7 @@ export class EventConverterService {
     return {
       id: session.id.toString(),
       title: session.name,
-      description: '',
+      description: session.roomTable?.roomId,
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime ?? '',
       endTime: session.timing?.endTime,
