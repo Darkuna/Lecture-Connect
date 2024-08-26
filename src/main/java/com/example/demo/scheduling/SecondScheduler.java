@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @Service
 @Scope("session")
 public class SecondScheduler extends Scheduler {
-    int numberOfRecursionSteps = 0;
 
     public SecondScheduler(TimingService timingService, CourseSessionService courseSessionService) {
         super(timingService, courseSessionService);
@@ -39,13 +38,12 @@ public class SecondScheduler extends Scheduler {
      */
     @Transactional
     public void assignUnassignedCourseSessions(){
-        numberOfRecursionSteps = 0;
-        log.info("> Processing courseSessions that need computers ...");
-        assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
-        log.info("Finished processing courseSessions that need computers");
         log.info("> Processing courseSessions that don't need computers ...");
         assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers);
         log.info("Finished processing courseSessions that don't need computers");
+        log.info("> Processing courseSessions that need computers ...");
+        assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
+        log.info("Finished processing courseSessions that need computers");
     }
 
     /**
