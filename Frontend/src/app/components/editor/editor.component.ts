@@ -25,7 +25,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
-  tmpDuration: Date = new Date('2024-07-10T00:20:00');
+  tmpDuration: Date = new Date('2024-07-10T00:15:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
   destCalendarOptions: CalendarOptions= {
@@ -165,6 +165,18 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       arg.event.remove();
       this.nrOfEvents -= 1;
     }
+  }
+
+  updateCalendar(calendarOption: any, value: string) {
+    if(value === '00:00:00'){
+      value = '00:00:05';
+    }
+    this.calendarComponent.getApi().setOption(calendarOption, value);
+  }
+
+  formatTime(date: Date): string {
+    // equal returns date as hour:minute:second (00:00:00)
+    return date.toString().split(' ')[4];
   }
 
   protected readonly JSON = JSON;
