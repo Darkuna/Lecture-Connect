@@ -3,7 +3,7 @@ import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
-import {Observable, of} from "rxjs";
+import {Observable} from "rxjs";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
@@ -12,7 +12,6 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
-import {CourseType} from "../../../assets/Models/enums/course-type";
 
 @Component({
   selector: 'app-editor',
@@ -69,7 +68,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   timeTable!: TimeTableDTO;
   availableRooms: RoomTableDTO[] = [];
   selectedRoom: RoomTableDTO | null = null;
-  combinedTableEvents: Observable<EventInput[]> = new Observable<EventInput[]>();
+  allEvents: EventInput[] = [];
+  combinedTableEvents: EventInput[] = [];
   dragTableEvents: EventInput[] = [];
   draggable!: Draggable;
 
@@ -84,12 +84,14 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.selectedTimeTable.subscribe( r => {
         this.availableRooms = r.roomTables;
         this.selectedRoom = r.roomTables[0];
+        this.allEvents = this.convertMultipleCourseSessions(r.courseSessions);
+        this.maxEvents = this.allEvents.length;
+        this.loadNewRoom(this.selectedRoom!);
       }
     );
   }
 
   ngAfterViewInit(): void {
-    this.loadNewRoom(this.selectedRoom!);
     this.calendarContextMenu.calendarComponent = this.calendarComponent;
 
     this.draggable = new Draggable(this.external.nativeElement, {
@@ -115,26 +117,26 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.clearCalendar();
     this.selectedRoom = newRoom;
 
-    this.selectedTimeTable.subscribe(t => {
-      const placedEvents: EventInput[] = this.reloadNewEvents(newRoom.roomId, t);
+    this.dragTableEvents = this.allEvents.filter(s => !s.extendedProps?.['assigned']);
+    this.nrOfEvents = this.maxEvents - this.dragTableEvents.length;
 
-      this.maxEvents = placedEvents.length;
-      this.dragTableEvents = placedEvents.filter(s => !s.extendedProps?.['assigned']);
-      this.nrOfEvents = this.maxEvents - this.dragTableEvents.length;
-
-      this.combinedTableEvents = of([
-        ...placedEvents.filter(s => s.extendedProps?.['assigned']),
-        ...this.reloadNewBackgroundEvents(this.selectedRoom!),
-      ]);
-    })
+    this.combinedTableEvents = [
+      ... this.reloadNewEvents(newRoom.roomId),
+      ...this.reloadNewBackgroundEvents(this.selectedRoom!),
+    ]
   }
 
-  reloadNewEvents(roodId: string, table: TimeTableDTO): EventInput[] {
-    return table.courseSessions
-      .filter(s => s.roomTable?.roomId === roodId)
+  convertMultipleCourseSessions(sessions: CourseSessionDTO[]){
+    return sessions
       .map((s:CourseSessionDTO) =>
-          this.converter.convertTimingToEventInput(s, true)
-        );
+        this.converter.convertTimingToEventInput(s, true)
+      );
+  }
+
+  reloadNewEvents(roomId: string): EventInput[] {
+    console.log(roomId)
+    console.log(this.allEvents);
+    return this.allEvents.filter(e => e['description'] === roomId);
   }
 
   reloadNewBackgroundEvents(room: RoomTableDTO) :EventInput[]{
@@ -151,16 +153,17 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   drop(arg: DropArg) {
-    console.log("drop event", arg);
     this.dragTableEvents =
       this.dragTableEvents.filter(
         e => e.id !== arg.draggedEl.getAttribute('data-id'))
+    this.nrOfEvents += 1;
   }
 
   eventClick(arg: EventClickArg) {
     if(arg.event.title !== 'BLOCKED' && arg.event.title !== 'COMPUTER_SCIENCE'){
       this.dragTableEvents.push(this.converter.convertImplToInput(arg.event));
       arg.event.remove();
+      this.nrOfEvents -= 1;
     }
   }
 
