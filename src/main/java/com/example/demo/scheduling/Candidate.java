@@ -2,6 +2,7 @@ package com.example.demo.scheduling;
 
 import com.example.demo.models.AvailabilityMatrix;
 import com.example.demo.models.CourseSession;
+import com.example.demo.models.RoomTable;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,6 +38,14 @@ public class Candidate {
 
     public void assignToCourseSession(CourseSession courseSession){
         availabilityMatrix.assignCourseSession(this, courseSession);
+    }
+
+    public void clearInAvailabilityMatrix(){
+        availabilityMatrix.clearCandidate(this);
+    }
+
+    public RoomTable getRoomTable(){
+        return availabilityMatrix.getRoomTable();
     }
 
     public String toString(){

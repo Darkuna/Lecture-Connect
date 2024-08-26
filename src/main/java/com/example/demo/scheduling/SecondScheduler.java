@@ -14,10 +14,23 @@ import java.util.stream.Collectors;
 @Scope("session")
 public class SecondScheduler extends Scheduler {
     int numberOfRecursionSteps = 0;
-    Stack<AssignmentStackEntry> assignmentStack = new Stack<>();
 
     public SecondScheduler(TimingService timingService, CourseSessionService courseSessionService) {
         super(timingService, courseSessionService);
+    }
+
+    /**
+     * This class is used to save the current state of the map with all possible candidates during execution of the
+     * backtracking assignment algorithm
+     */
+    private static class AssignmentState {
+        Map<CourseSession, List<Candidate>> possibleCandidateMap;
+        int index;
+
+        AssignmentState(Map<CourseSession, List<Candidate>> possibleCandidateMap, int index) {
+            this.possibleCandidateMap = new HashMap<>(possibleCandidateMap);
+            this.index = index;
+        }
     }
 
     /**
@@ -66,21 +79,236 @@ public class SecondScheduler extends Scheduler {
         log.info("Starting assignment");
         try {
             if (processAssignment(possibleCandidatesForCourseSessions)) {
-                log.info("Finished processing assignment after {} recursion steps", numberOfRecursionSteps);
-                numberOfRecursionSteps = 0;
+                log.info("Finished processing assignment.");
             }
         } catch (AssignmentFailedException e) {
             log.error(e.getMessage());
         }
+    }
 
-        if(readyToFinalize()){
-            finalizeAssignment();
-            log.info("Finished assignment.");
+    private boolean processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions){
+        Stack<AssignmentState> stack = new Stack<>();
+        AssignmentState currentState = new AssignmentState(possibleCandidatesForCourseSessions, 0);
+        stack.push(currentState);
+
+        Map<CourseSession, List<Candidate>> currentCourseSessionMap;
+        int currentIndex;
+        int candidateSize;
+        Map<CourseSession, List<Candidate>> filteredCourseSessions;
+
+        while(true){
+            currentCourseSessionMap = currentState.possibleCandidateMap;
+            currentIndex = currentState.index;
+
+            Map<CourseSession, List<Candidate>> finalCurrentCourseSessionMap = currentCourseSessionMap;
+            CourseSession currentCourseSession = currentCourseSessionMap.keySet().stream()
+                    .min(Comparator.comparingInt(c -> finalCurrentCourseSessionMap.get(c).size()))
+                    .orElseThrow();
+            candidateSize = currentCourseSessionMap.get(currentCourseSession).size();
+            //if all candidates of the current state are iterated
+            if(currentIndex >= candidateSize){
+                unassignLatestEntry();
+                currentState = stack.pop();
+                currentState.index++;
+                continue;
+            }
+            //assign candidate
+            Candidate currentCandidate = currentCourseSessionMap.get(currentCourseSession).get(currentIndex);
+            currentCandidate.assignToCourseSession(currentCourseSession);
+            assignmentStack.push(new AssignmentStackEntry(currentCourseSession, currentCandidate));
+
+            //filter candidates
+            filteredCourseSessions = filterCandidates(currentCourseSessionMap, currentCourseSession, currentCandidate);
+
+            // check if assignment is finished
+            if(filteredCourseSessions.isEmpty()){
+                break;
+            }
+
+            //check if one of the courseSessions has no candidates after filtering. if yes pop the previous state
+            for(Map.Entry<CourseSession, List<Candidate>> entry : filteredCourseSessions.entrySet()){
+                if(entry.getValue().isEmpty()){
+                    unassignLatestEntry();
+                    currentState = stack.pop();
+                    currentState.index++;
+                }
+            }
+
+            AssignmentState newState = new AssignmentState(filteredCourseSessions, 0);
+            stack.push(newState);
+            currentState = newState;
         }
-        else{
-            resetReadyForAssignmentSet();
-            log.info("Reset for some reason");
+
+        //if all courseSessions have been processed, finish assignment
+        finishAssignment();
+        return true;
+    }
+
+    private void unassignLatestEntry(){
+        AssignmentStackEntry entry = assignmentStack.pop();
+        entry.candidate.clearInAvailabilityMatrix();
+        entry.courseSession.setRoomTable(null);
+    }
+
+    private void finishAssignment(){
+        Iterator<AssignmentStackEntry> iterator = assignmentStack.iterator();
+        List<CourseSession> courseSessionsToAssign = new ArrayList<>();
+        while(iterator.hasNext()){
+            AssignmentStackEntry assignmentStackEntry = iterator.next();
+            courseSessionsToAssign.add(assignmentStackEntry.courseSession);
+            Timing timing = AvailabilityMatrix.toTiming(assignmentStackEntry.candidate);
+            timing = timingService.createTiming(timing);
+            assignmentStackEntry.courseSession.setRoomTable(assignmentStackEntry.candidate.getRoomTable());
+            assignmentStackEntry.courseSession.setTiming(timing);
+            assignmentStackEntry.courseSession.setAssigned(true);
         }
+        courseSessionService.saveAll(courseSessionsToAssign);
+        assignmentStack.clear();
+    }
+
+    private Map<CourseSession, List<Candidate>> filterCandidates(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions,
+                                                                 CourseSession currentCourseSession, Candidate currentCandidate){
+        Map<CourseSession, List<Candidate>> filteredCandidates = new HashMap<>();
+
+        for (Map.Entry<CourseSession, List<Candidate>> entry : possibleCandidatesForCourseSessions.entrySet()) {
+            CourseSession cs = entry.getKey();
+            if (cs.equals(currentCourseSession)) {
+                continue;
+            }
+            List<Candidate> candidates = entry.getValue();
+            //if the cs is from the same degree and same semester as the current cs
+            if (!cs.isAllowedToIntersectWith(currentCourseSession)) {
+                //if the cs is not part of the same course as the current cs
+                //filter all candidates with intersecting timing
+                if (!cs.isFromSameCourse(currentCourseSession)) {
+                    candidates = candidates.stream()
+                            .filter(c -> !c.intersects(currentCandidate))
+                            .collect(Collectors.toList());
+                }
+                //if it is part of the same course, and it is a group course
+                //filter all candidates intersecting in the same roomTable
+                else if (cs.isGroupCourse()) {
+                    candidates = candidates.stream()
+                            .filter(c -> !c.intersects(currentCandidate) || !c.isInSameRoom(currentCandidate))
+                            .sorted(Comparator.comparingInt(Candidate::getSlot))
+                            .collect(Collectors.toList());
+                }
+                //if it is part of the same course, and it is a split course
+                //filter all candidates at the same day
+                else if (cs.isSplitCourse()) {
+                    candidates = candidates.stream()
+                            .filter((c) -> (!c.intersects(currentCandidate) && !c.hasSameDay(currentCandidate)) ||
+                                    (!c.isInSameRoom(currentCandidate) && !c.hasSameDay(currentCandidate)))
+                            .collect(Collectors.toList());
+                }
+            }
+
+            candidates = candidates.stream()
+                    .filter(c -> !c.intersects(currentCandidate))
+                    .collect(Collectors.toList());
+
+            if (candidates.isEmpty()) {
+                break;
+            }
+            filteredCandidates.put(cs, candidates);
+        }
+        return filteredCandidates;
+    }
+
+    private void prepareSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        for(CourseSession courseSession : courseSessions){
+            List<Candidate> candidates = new ArrayList<>();
+            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
+                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
+            }
+            List<Candidate> filteredCandidates = candidates.stream()
+                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
+                    .collect(Collectors.toList());
+            map.put(courseSession, filteredCandidates);
+        }
+    }
+
+    private void prepareGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        String currentGroup;
+        if(courseSessions == null || courseSessions.isEmpty()){
+            return;
+        }
+        currentGroup = courseSessions.getFirst().getCourseId();
+        int day = 0;
+        for(CourseSession courseSession: courseSessions){
+            List<Candidate> candidates = new ArrayList<>();
+            if(!courseSession.getCourseId().equals(currentGroup)){
+                currentGroup = courseSession.getCourseId();
+                day = day == 4 ?  0 : day + 1;
+            }
+            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
+                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
+            }
+            List<Candidate> filteredCandidates = candidates.stream()
+                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
+                    .sorted(Comparator.comparingInt(Candidate::getSlot))
+                    .collect(Collectors.toList());
+            map.put(courseSession, filteredCandidates);
+        }
+    }
+
+
+    private void prepareSplitCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        for(CourseSession courseSession : courseSessions){
+            List<Candidate> candidates = new ArrayList<>();
+            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
+                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
+            }
+            List<Candidate> filteredCandidates = candidates.stream()
+                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
+                    .collect(Collectors.toList());
+            map.put(courseSession, filteredCandidates);
+        }
+    }
+
+
+    /**
+     * Filters and sorts a list of courseSessions to obtain only single courseSessions sorted descending by duration and
+     * descending by numberOfParticipants.
+     * @param courseSessions to be filtered and sorted
+     * @return sorted list of single courseSessions
+     */
+    private List<CourseSession> filterAndSortSingleCourseSessions(List<CourseSession> courseSessions){
+        return courseSessions.stream()
+                .filter(c -> !c.isSplitCourse() && !c.isGroupCourse())
+                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
+                        .thenComparing(CourseSession::getNumberOfParticipants).reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Filters and sorts a list of courseSessions to obtain only group courseSessions sorted descending by duration and
+     * ascending by groupID.
+     * @param courseSessions to be filtered and sorted
+     * @return sorted list of group courseSessions
+     */
+    private List<CourseSession> filterAndSortGroupCourseSessions(List<CourseSession> courseSessions){
+        return courseSessions.stream()
+                .filter(CourseSession::isGroupCourse)
+                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
+                        .thenComparing(CourseSession::getStudyType).reversed()
+                        .thenComparing(CourseSession::getSemester).reversed()
+                        .thenComparing(CourseSession::getCourseId))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Filters and sorts a list of courseSessions to obtain only split courseSessions sorted ascending by courseID and
+     * descending by duration.
+     * @param courseSessions to be filtered and sorted
+     * @return sorted list of split courseSessions
+     */
+    private List<CourseSession> filterAndSortSplitCourseSessions(List<CourseSession> courseSessions){
+        return courseSessions.stream()
+                .filter(CourseSession::isSplitCourse)
+                .sorted(Comparator.comparing(CourseSession::getCourseId)
+                        .thenComparingInt(CourseSession::getDuration).reversed())
+                .collect(Collectors.toList());
     }
 
     /*
@@ -182,121 +410,6 @@ public class SecondScheduler extends Scheduler {
 
      */
 
-    private boolean processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions){
-        Stack<AssignmentState> stack = new Stack<>();
-        AssignmentState currentState = new AssignmentState(possibleCandidatesForCourseSessions, 0);
-        stack.push(currentState);
-
-        Map<CourseSession, List<Candidate>> currentCourseSessionMap;
-        int currentIndex;
-        int candidateSize;
-        Map<CourseSession, List<Candidate>> filteredCourseSessions;
-
-        while(true){
-            currentCourseSessionMap = currentState.possibleCandidateMap;
-            currentIndex = currentState.index;
-
-            Map<CourseSession, List<Candidate>> finalCurrentCourseSessionMap = currentCourseSessionMap;
-            CourseSession currentCourseSession = currentCourseSessionMap.keySet().stream()
-                    .min(Comparator.comparingInt(c -> finalCurrentCourseSessionMap.get(c).size()))
-                    .orElseThrow();
-            candidateSize = currentCourseSessionMap.get(currentCourseSession).size();
-            if(currentIndex >= candidateSize){
-                currentState = stack.pop();
-                continue;
-            }
-            Candidate currentCandidate = currentCourseSessionMap.get(currentCourseSession).get(currentIndex);
-            currentCandidate.assignToCourseSession(currentCourseSession);
-
-            //filter candidates
-            filteredCourseSessions = filterCandidates(possibleCandidatesForCourseSessions, currentCourseSession, currentCandidate);
-
-            // check if assignment is finished
-            if(filteredCourseSessions.isEmpty()){
-                break;
-            }
-
-            //check if one of the courseSessions has no candidates after filtering. if yes pop the previous state
-            for(Map.Entry<CourseSession, List<Candidate>> entry : filteredCourseSessions.entrySet()){
-                if(entry.getValue().isEmpty()){
-                    currentState = stack.pop();
-                    currentState.index++;
-                }
-            }
-
-            AssignmentState newState = new AssignmentState(filteredCourseSessions, currentIndex);
-            stack.push(newState);
-            currentState = newState;
-        }
-
-        //if all courseSessions have been processed, finish assignment
-        finishAssignment();
-        return true;
-    }
-
-    private void finishAssignment(){
-        Iterator<AssignmentStackEntry> iterator = assignmentStack.iterator();
-        List<CourseSession> courseSessionsToAssign = new ArrayList<>();
-        while(iterator.hasNext()){
-            AssignmentStackEntry assignmentStackEntry = iterator.next();
-            courseSessionsToAssign.add(assignmentStackEntry.courseSession);
-            Timing timing = AvailabilityMatrix.toTiming(assignmentStackEntry.candidate);
-            timing = timingService.createTiming(timing);
-            assignmentStackEntry.courseSession.setRoomTable(assignmentStackEntry.candidate.getAvailabilityMatrix().getRoomTable());
-            assignmentStackEntry.courseSession.setTiming(timing);
-            assignmentStackEntry.courseSession.setAssigned(true);
-        }
-        courseSessionService.saveAll(courseSessionsToAssign);
-    }
-
-    private Map<CourseSession, List<Candidate>> filterCandidates(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions,
-                                                                 CourseSession currentCourseSession, Candidate currentCandidate){
-        Map<CourseSession, List<Candidate>> filteredCandidates = new HashMap<>();
-
-        for (Map.Entry<CourseSession, List<Candidate>> entry : possibleCandidatesForCourseSessions.entrySet()) {
-            CourseSession cs = entry.getKey();
-            if (cs.equals(currentCourseSession)) {
-                continue;
-            }
-            List<Candidate> candidates = entry.getValue();
-            //if the cs is from the same degree and same semester as the current cs
-            if (!cs.isAllowedToIntersectWith(currentCourseSession)) {
-                //if the cs is not part of the same course as the current cs
-                //filter all candidates with intersecting timing
-                if (!cs.isFromSameCourse(currentCourseSession)) {
-                    candidates = candidates.stream()
-                            .filter(c -> !c.intersects(currentCandidate))
-                            .collect(Collectors.toList());
-                }
-                //if it is part of the same course, and it is a group course
-                //filter all candidates intersecting in the same roomTable
-                else if (cs.isGroupCourse()) {
-                    candidates = candidates.stream()
-                            .filter(c -> !c.intersects(currentCandidate) || !c.isInSameRoom(currentCandidate))
-                            .collect(Collectors.toList());
-                }
-                //if it is part of the same course, and it is a split course
-                //filter all candidates at the same day
-                else if (cs.isSplitCourse()) {
-                    candidates = candidates.stream()
-                            .filter((c) -> (!c.intersects(currentCandidate) && !c.hasSameDay(currentCandidate)) ||
-                                    (!c.isInSameRoom(currentCandidate) && !c.hasSameDay(currentCandidate)))
-                            .collect(Collectors.toList());
-                }
-            }
-
-            candidates = candidates.stream()
-                    .filter(c -> !c.intersects(currentCandidate))
-                    .collect(Collectors.toList());
-
-            if (candidates.isEmpty()) {
-                break;
-            }
-            filteredCandidates.put(cs, candidates);
-        }
-        return filteredCandidates;
-    }
-
     /*
     private boolean processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
         numberOfRecursionSteps = 0;
@@ -391,119 +504,4 @@ public class SecondScheduler extends Scheduler {
         return false;
     }
      */
-
-    private static class AssignmentState {
-        Map<CourseSession, List<Candidate>> possibleCandidateMap;
-        int index;
-
-        AssignmentState(Map<CourseSession, List<Candidate>> possibleCandidateMap, int index) {
-            this.possibleCandidateMap = new HashMap<>(possibleCandidateMap);
-            this.index = index;
-        }
-    }
-
-    private static class AssignmentStackEntry{
-        CourseSession courseSession;
-        Candidate candidate;
-        public AssignmentStackEntry(CourseSession courseSession, Candidate candidate) {
-            this.courseSession = courseSession;
-            this.candidate = candidate;
-        }
-    }
-
-
-    private void prepareSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        for(CourseSession courseSession : courseSessions){
-            List<Candidate> candidates = new ArrayList<>();
-            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
-            }
-            List<Candidate> filteredCandidates = candidates.stream()
-                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
-                    .collect(Collectors.toList());
-            map.put(courseSession, filteredCandidates);
-        }
-    }
-
-    private void prepareGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        String currentGroup;
-        if(courseSessions == null || courseSessions.isEmpty()){
-            return;
-        }
-        currentGroup = courseSessions.getFirst().getCourseId();
-        int day = 0;
-        for(CourseSession courseSession: courseSessions){
-            List<Candidate> candidates = new ArrayList<>();
-            if(!courseSession.getCourseId().equals(currentGroup)){
-                currentGroup = courseSession.getCourseId();
-                day = day == 4 ?  0 : day + 1;
-            }
-            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                candidates.addAll(availabilityMatrix.getAllAvailableCandidatesOfDay(courseSession, day));
-            }
-            List<Candidate> filteredCandidates = candidates.stream()
-                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
-                    .collect(Collectors.toList());
-            map.put(courseSession, filteredCandidates);
-        }
-    }
-
-
-    private void prepareSplitCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        for(CourseSession courseSession : courseSessions){
-            List<Candidate> candidates = new ArrayList<>();
-            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
-            }
-            List<Candidate> filteredCandidates = candidates.stream()
-                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
-                    .collect(Collectors.toList());
-            map.put(courseSession, filteredCandidates);
-        }
-    }
-
-
-    /**
-     * Filters and sorts a list of courseSessions to obtain only single courseSessions sorted descending by duration and
-     * descending by numberOfParticipants.
-     * @param courseSessions to be filtered and sorted
-     * @return sorted list of single courseSessions
-     */
-    private List<CourseSession> filterAndSortSingleCourseSessions(List<CourseSession> courseSessions){
-        return courseSessions.stream()
-                .filter(c -> !c.isSplitCourse() && !c.isGroupCourse())
-                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
-                        .thenComparing(CourseSession::getNumberOfParticipants).reversed())
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Filters and sorts a list of courseSessions to obtain only group courseSessions sorted descending by duration and
-     * ascending by groupID.
-     * @param courseSessions to be filtered and sorted
-     * @return sorted list of group courseSessions
-     */
-    private List<CourseSession> filterAndSortGroupCourseSessions(List<CourseSession> courseSessions){
-        return courseSessions.stream()
-                .filter(CourseSession::isGroupCourse)
-                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
-                        .thenComparing(CourseSession::getStudyType).reversed()
-                        .thenComparing(CourseSession::getSemester).reversed()
-                        .thenComparing(CourseSession::getCourseId))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Filters and sorts a list of courseSessions to obtain only split courseSessions sorted ascending by courseID and
-     * descending by duration.
-     * @param courseSessions to be filtered and sorted
-     * @return sorted list of split courseSessions
-     */
-    private List<CourseSession> filterAndSortSplitCourseSessions(List<CourseSession> courseSessions){
-        return courseSessions.stream()
-                .filter(CourseSession::isSplitCourse)
-                .sorted(Comparator.comparing(CourseSession::getCourseId)
-                        .thenComparingInt(CourseSession::getDuration).reversed())
-                .collect(Collectors.toList());
-    }
 }

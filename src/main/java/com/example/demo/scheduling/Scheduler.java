@@ -25,6 +25,7 @@ public abstract class Scheduler {
     protected Map<CourseSession, Candidate> readyForAssignmentSet = new HashMap<>();
     protected TimeTable timeTable;
     protected int numberOfCourseSessions;
+    Stack<AssignmentStackEntry> assignmentStack;
 
     protected final TimingService timingService;
     protected final CourseSessionService courseSessionService;
@@ -62,6 +63,7 @@ public abstract class Scheduler {
         this.courseSessionsWithoutComputersNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithoutComputersNeeded());
         this.candidateQueue = new PriorityQueue<>(Comparator.comparingInt(Candidate::getSlot));
         this.usePreferredOnly = true;
+        this.assignmentStack = new Stack<>();
     }
 
     /**
