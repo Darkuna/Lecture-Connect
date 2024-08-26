@@ -202,9 +202,8 @@ public class SecondScheduler extends Scheduler {
                             .collect(Collectors.toList());
                 }
             }
-
             candidates = candidates.stream()
-                    .filter(c -> !c.intersects(currentCandidate))
+                    .filter(c -> !c.intersects(currentCandidate) || !c.isInSameRoom(currentCandidate))
                     .collect(Collectors.toList());
 
             if (candidates.isEmpty()) {
