@@ -218,4 +218,8 @@ public class CourseSessionService {
                 .toList();
         return courseSessionRepository.saveAll(courseSessionsToSave);
     }
+
+    public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
+        return courseSessionRepository.saveAll(courseSessions);
+    }
 }
