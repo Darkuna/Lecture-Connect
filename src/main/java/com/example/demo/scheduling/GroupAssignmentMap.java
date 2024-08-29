@@ -24,13 +24,10 @@ public class GroupAssignmentMap {
         if(!assignedGroupCourseSessions.containsKey(courseSession.getCourseId())){
             return false;
         }
-        System.out.println(courseSession.getCourseId() + ": " + assignedGroupCourseSessions.get(courseSession.getCourseId()));
 
-        boolean limitExceeded = assignedGroupCourseSessions.get(courseSession.getCourseId()).stream()
+        return assignedGroupCourseSessions.get(courseSession.getCourseId()).stream()
                 .filter(t -> t == candidate.getDay() * 100 + candidate.getSlot())
                 .count() >= numberOfAllowedOverlapsPerCourse;
-        System.out.println("limit exceeded? " + limitExceeded);
-        return limitExceeded;
     }
 
     public void addEntry(CourseSession courseSession, Candidate candidate) {
