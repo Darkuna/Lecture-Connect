@@ -81,6 +81,12 @@ public class SecondScheduler extends Scheduler {
         }
     }
 
+    /**
+     * This method executes the backtracking algorithm to find an assignment for all courseSessions that fits all
+     * constraints.
+     * @param possibleCandidatesForCourseSessions map to start the backtracking algorithm from
+     * @return true, if the assignment was successful, else false
+     */
     private boolean processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions){
         if(possibleCandidatesForCourseSessions.isEmpty()){
             return true;
@@ -149,13 +155,20 @@ public class SecondScheduler extends Scheduler {
         return true;
     }
 
+    /**
+     * This method removes the latest entry from the assignmentStack, the AvailabilityMatrix and the groupAssignmentMap
+     */
     private void unassignLatestEntry(){
         AssignmentStackEntry entry = assignmentStack.pop();
         entry.candidate.clearInAvailabilityMatrix();
-        entry.courseSession.setRoomTable(null);
         groupAssignmentMap.removeEntry(entry.courseSession);
     }
 
+    /**
+     * If all courseSessions are present as a AssignmentStackEntry together with a candidate to assign to, the assignment
+     * is finalized by creating the timing objects and assigning them to the corresponding courseSession together with
+     * the roomTable.
+     */
     private void finishAssignment(){
         Iterator<AssignmentStackEntry> iterator = assignmentStack.iterator();
         List<CourseSession> courseSessionsToAssign = new ArrayList<>();
@@ -172,6 +185,13 @@ public class SecondScheduler extends Scheduler {
         assignmentStack.clear();
     }
 
+    /**
+     * This method is used to filter all possible candidates after every step of the backtracking algorithm.
+     * @param possibleCandidatesForCourseSessions current state of the courseSession map
+     * @param currentCourseSession courseSession that was assigned is this step
+     * @param currentCandidate candidate the currentCourseSession was assigned to
+     * @return the filtered map of courseSessions and their corresponding possible candidates
+     */
     private Map<CourseSession, List<Candidate>> filterCandidates(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions,
                                                                  CourseSession currentCourseSession, Candidate currentCandidate){
         Map<CourseSession, List<Candidate>> filteredCandidates = new HashMap<>();
@@ -226,6 +246,12 @@ public class SecondScheduler extends Scheduler {
         return filteredCandidates;
     }
 
+    /**
+     * This method finds all possible candidates for the single and split courseSessions and collects them in a map
+     * @param map to collect courseSessions and their corresponding candidates
+     * @param courseSessions to be prepared
+     * @param availabilityMatrices to find possible candidates in
+     */
     private void prepareSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         for(CourseSession courseSession : courseSessions){
             List<Candidate> candidates = new ArrayList<>();
@@ -239,6 +265,12 @@ public class SecondScheduler extends Scheduler {
         }
     }
 
+    /**
+     * This method finds all possible candidates for the group courseSessions and collects them in a map
+     * @param map to collect courseSessions and their corresponding candidates
+     * @param courseSessions to be prepared
+     * @param availabilityMatrices to find possible candidates in
+     */
     private void prepareGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         String currentGroup;
         if(courseSessions == null || courseSessions.isEmpty()){
@@ -246,13 +278,11 @@ public class SecondScheduler extends Scheduler {
         }
         currentGroup = courseSessions.getFirst().getCourseId();
         groupAssignmentMap.initGroup(currentGroup);
-        int day = 0;
         for(CourseSession courseSession: courseSessions){
             List<Candidate> candidates = new ArrayList<>();
             if(!courseSession.getCourseId().equals(currentGroup)){
                 currentGroup = courseSession.getCourseId();
                 groupAssignmentMap.initGroup(currentGroup);
-                day = day == 4 ?  0 : day + 1;
             }
             for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
                 candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
@@ -266,8 +296,8 @@ public class SecondScheduler extends Scheduler {
     }
 
     /**
-     * Filters and sorts a list of courseSessions to obtain only single courseSessions sorted descending by duration and
-     * descending by numberOfParticipants.
+     * Filters and sorts a list of courseSessions to obtain only single and split courseSessions sorted descending by
+     * duration and descending by numberOfParticipants.
      * @param courseSessions to be filtered and sorted
      * @return sorted list of single courseSessions
      */

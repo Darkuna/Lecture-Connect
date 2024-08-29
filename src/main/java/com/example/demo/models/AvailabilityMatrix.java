@@ -11,7 +11,6 @@ import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Getter
 public class AvailabilityMatrix {
@@ -125,74 +124,6 @@ public class AvailabilityMatrix {
             return earliestCandidates;
         }
         throw new NotEnoughSpaceAvailableException("Not enough space in availability matrix");
-    }
-
-    public Candidate getEarliestAvailableSlotForDuration(int minutes, boolean preferredOnly) {
-        int numberOfSlots = minutes / DURATION_PER_SLOT;
-        if(preferredOnly){
-            for (int i = 0; i < SLOTS_PER_DAY; i++) {
-                for (int j = 0; j < DAYS_IN_WEEK; j++) {
-                    if (matrix[j][i] == CourseSession.PREFERRED) {
-                        if(isSlotsAvailable(j,i,numberOfSlots, true)) {
-                            return new Candidate(this, j, i, minutes, true);
-                        }
-                    }
-                }
-            }
-        }
-        else {
-            for (int i = 0; i < SLOTS_PER_DAY; i++) {
-                for (int j = 0; j < DAYS_IN_WEEK; j++) {
-                    if (matrix[j][i] == null || matrix[j][i] == CourseSession.PREFERRED) {
-                        if(isSlotsAvailable(j,i,numberOfSlots, false)) {
-                            return new Candidate(this, j, i, minutes, false);
-                        }
-                    }
-                }
-            }
-        }
-        throw new NotEnoughSpaceAvailableException("Not enough space in availability matrix");
-    }
-
-    public Candidate getRandomAvailableSlot(int minutes, boolean preferredOnly) {
-        Random random = new Random();
-        int numberOfSlots = minutes / DURATION_PER_SLOT;
-        int numberOfTries = 0;
-        int dayIndex = 0;
-        int slotIndex = 0;
-        boolean randomSlotFound = false;
-        boolean preferredSlot;
-
-        if(preferredOnly){
-            while (!randomSlotFound) {
-                dayIndex = random.nextInt(DAYS_IN_WEEK);
-                slotIndex = random.nextInt(SLOTS_PER_DAY - numberOfSlots - 8);
-                if (matrix[dayIndex][slotIndex] == CourseSession.PREFERRED) {
-                    randomSlotFound = isSlotsAvailable(dayIndex, slotIndex, numberOfSlots, true);
-                }
-                numberOfTries++;
-                if(numberOfTries >= 50) {
-                    throw new NotEnoughSpaceAvailableException("No random candidate found");
-                }
-            }
-            preferredSlot = true;
-        }
-        else{
-            while (!randomSlotFound) {
-                dayIndex = random.nextInt(DAYS_IN_WEEK);
-                slotIndex = random.nextInt(SLOTS_PER_DAY - numberOfSlots - 8);
-                if (matrix[dayIndex][slotIndex] == null || matrix[dayIndex][slotIndex] == CourseSession.PREFERRED) {
-                    randomSlotFound = isSlotsAvailable(dayIndex, slotIndex, numberOfSlots, false);
-                }
-                numberOfTries++;
-                if(numberOfTries >= 50) {
-                    throw new NotEnoughSpaceAvailableException("No random candidate found");
-                }
-            }
-            preferredSlot = false;
-        }
-
-        return new Candidate(this, dayIndex, slotIndex, minutes, preferredSlot);
     }
 
     public List<Candidate> getPossibleCandidatesOfDay(int dayOfAssignment, int duration, boolean preferredOnly) {
@@ -349,19 +280,6 @@ public class AvailabilityMatrix {
                     else if (isSlotsAvailable(i, j, numberOfSlots, false)) {
                         possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), false));
                     }
-                }
-            }
-        }
-        return possibleCandidates;
-    }
-
-    public List<Candidate> getAllAvailableCandidatesOfDay(CourseSession courseSession, int day) {
-        int numberOfSlots = courseSession.getDuration() / DURATION_PER_SLOT;
-        List<Candidate> possibleCandidates = new ArrayList<>();
-        for (int i = 0; i < SLOTS_PER_DAY; i++) {
-            if (matrix[day][i] == CourseSession.PREFERRED || matrix[day][i] == null) {
-                if (isSlotsAvailable(day, i, numberOfSlots, false)) {
-                    possibleCandidates.add(new Candidate(this, day, i, courseSession.getDuration(), true));
                 }
             }
         }
