@@ -13,9 +13,10 @@ import java.util.stream.Collectors;
 @Service
 @Scope("session")
 public class SecondScheduler extends Scheduler {
-
+    private final GroupAssignmentMap groupAssignmentMap;
     public SecondScheduler(TimingService timingService, CourseSessionService courseSessionService) {
         super(timingService, courseSessionService);
+        this.groupAssignmentMap = new GroupAssignmentMap(3);
     }
 
     /**
@@ -118,6 +119,7 @@ public class SecondScheduler extends Scheduler {
             Candidate currentCandidate = currentCourseSessionMap.get(currentCourseSession).get(currentIndex);
             currentCandidate.assignToCourseSession(currentCourseSession);
             assignmentStack.push(new AssignmentStackEntry(currentCourseSession, currentCandidate));
+            groupAssignmentMap.addEntry(currentCourseSession, currentCandidate);
 
             //filter candidates
             filteredCourseSessions = filterCandidates(currentCourseSessionMap, currentCourseSession, currentCandidate);
@@ -191,12 +193,19 @@ public class SecondScheduler extends Scheduler {
                 //if it is part of the same course, and it is a group course
                 //filter all candidates intersecting in the same roomTable
                 else if (cs.isGroupCourse()) {
-                    candidates = candidates.stream()
-                            .filter(c -> !c.intersects(currentCandidate) || !c.isInSameRoom(currentCandidate))
-                            .sorted(Comparator.comparing(Candidate::isPreferredSlots).
-                                    thenComparingInt(Candidate::getSlot))
-                            .collect(Collectors.toList());
-                }
+                    if(!groupAssignmentMap.isLimitExceeded(currentCourseSession, currentCandidate)){
+                        candidates = candidates.stream()
+                                .filter(c -> !c.intersects(currentCandidate) || !c.isInSameRoom(currentCandidate))
+                                .sorted(Comparator.comparing(Candidate::isPreferredSlots).
+                                        thenComparingInt(Candidate::getSlot))
+                                .collect(Collectors.toList());
+                    }
+                    else{
+                        candidates = candidates.stream()
+                                .filter(c -> !c.intersects(currentCandidate))
+                                .collect(Collectors.toList());
+                        }
+                    }
                 //if it is part of the same course, and it is a split course
                 //filter all candidates at the same day
                 else if (cs.isSplitCourse()) {
@@ -234,11 +243,13 @@ public class SecondScheduler extends Scheduler {
             return;
         }
         currentGroup = courseSessions.getFirst().getCourseId();
+        groupAssignmentMap.initGroup(currentGroup);
         int day = 0;
         for(CourseSession courseSession: courseSessions){
             List<Candidate> candidates = new ArrayList<>();
             if(!courseSession.getCourseId().equals(currentGroup)){
                 currentGroup = courseSession.getCourseId();
+                groupAssignmentMap.initGroup(currentGroup);
                 day = day == 4 ?  0 : day + 1;
             }
             for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
