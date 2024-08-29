@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GroupAssignmentMap {
-    private Map<String, List<Integer>> assignedGroupCourseSessions;
+    private final Map<String, List<Integer>> assignedGroupCourseSessions;
     private final int numberOfAllowedOverlapsPerCourse;
 
     public GroupAssignmentMap(int numberOfAllowedOverlapsPerCourse) {
@@ -36,7 +36,7 @@ public class GroupAssignmentMap {
         }
     }
 
-    public void removeEntry(CourseSession courseSession, Candidate candidate) {
+    public void removeEntry(CourseSession courseSession) {
         if(assignedGroupCourseSessions.containsKey(courseSession.getCourseId())) {
             assignedGroupCourseSessions.get(courseSession.getCourseId()).removeLast();
         }

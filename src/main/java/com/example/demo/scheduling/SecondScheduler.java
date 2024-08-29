@@ -153,6 +153,7 @@ public class SecondScheduler extends Scheduler {
         AssignmentStackEntry entry = assignmentStack.pop();
         entry.candidate.clearInAvailabilityMatrix();
         entry.courseSession.setRoomTable(null);
+        groupAssignmentMap.removeEntry(entry.courseSession);
     }
 
     private void finishAssignment(){
@@ -197,6 +198,7 @@ public class SecondScheduler extends Scheduler {
                         candidates = candidates.stream()
                                 .filter(c -> !c.intersects(currentCandidate) || !c.isInSameRoom(currentCandidate))
                                 .sorted(Comparator.comparing(Candidate::isPreferredSlots).
+                                        thenComparingInt(c -> Math.abs(c.getDay() - currentCandidate.getDay())).
                                         thenComparingInt(Candidate::getSlot))
                                 .collect(Collectors.toList());
                     }
