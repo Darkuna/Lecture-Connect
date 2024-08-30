@@ -1,10 +1,10 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import {LocalStorageService} from "ngx-webstorage";
-import {MessageService} from "primeng/api";
-import {Observable, switchMap, throwError} from "rxjs";
-import {Course} from "../../assets/Models/course";
-import {GlobalTableService} from "./global-table.service";
+import { LocalStorageService } from "ngx-webstorage";
+import { MessageService } from "primeng/api";
+import { Observable, switchMap, throwError, of } from "rxjs";
+import { Course } from "../../assets/Models/course";
+import { GlobalTableService } from "./global-table.service";
 
 @Injectable({
   providedIn: 'root'
@@ -23,32 +23,33 @@ export class CourseService {
     private http: HttpClient,
     private storage: LocalStorageService,
     private messageService: MessageService,
-    private currentTable: GlobalTableService
-  ) {
-  }
+    private currentTableService: GlobalTableService
+  ) { }
 
-  getAllCourses() {
+  getAllCourses(): Observable<Course[]> {
     return this.http.get<Course[]>(this.courseApiPath, this.httpOptions);
   }
 
   getUnselectedCourses(): Observable<Course[]> {
-    return this.currentTable.currentTimeTable?.pipe(
-      switchMap((data) => {
-        let id = data.id;
-        let newUrl = `/proxy/api/global/courses/${id}`;
-        return this.http.get<Course[]>(newUrl, this.httpOptions);
-      })
-    ) ?? new Observable();
+    // Verwende ein Observable, um `pipe` verwenden zu können
+    return this.currentTableService.currentTimeTable
+      ? of(this.currentTableService.currentTimeTable).pipe(
+        switchMap((data) => {
+          let id = data.id;
+          let newUrl = `/proxy/api/global/courses/${id}`;
+          return this.http.get<Course[]>(newUrl, this.httpOptions);
+        })
+      )
+      : of([]); // Leeres Observable, falls kein `currentTimeTable` vorhanden ist
   }
 
-
-  createSingleCourse(course: Course) {
+  createSingleCourse(course: Course): Observable<Course> {
     return this.http.post<Course>(this.courseApiPath, course, this.httpOptions);
   }
 
-  getSingleCourse(courseID: string): Observable<any> {
+  getSingleCourse(courseID: string): Observable<Course> {
     let newUrl = `${this.courseApiPath}/${courseID}`;
-    return this.http.get(newUrl, this.httpOptions);
+    return this.http.get<Course>(newUrl, this.httpOptions);
   }
 
   updateSingleCourse(course: Course): Course {
@@ -59,11 +60,11 @@ export class CourseService {
     return course;
   }
 
-  deleteSingleCourse(courseID: string) {
+  deleteSingleCourse(courseID: string): void {
     let newUrl = `${this.courseApiPath}/${courseID}`;
     this.http.delete(newUrl, this.httpOptions).subscribe({
       error: error => {
-        this.messageService.add({severity: 'failure', summary: 'Failure', detail: error.toString()});
+        this.messageService.add({ severity: 'failure', summary: 'Failure', detail: error.toString() });
       }
     }).unsubscribe();
   }

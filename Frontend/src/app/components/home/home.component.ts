@@ -1,25 +1,25 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
-import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import { ConfirmationService, MenuItem, MessageService } from "primeng/api";
+import { CalendarOptions, EventClickArg, EventInput } from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import {Semester} from "../../../assets/Models/enums/semester";
-import {Router} from "@angular/router";
-import {TableShareService} from "../../services/table-share.service";
-import {BehaviorSubject, catchError, from, Observable, of, Subscription, toArray} from "rxjs";
-import {GlobalTableService} from "../../services/global-table.service";
-import {TimeTableNames} from "../../../assets/Models/time-table-names";
-import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
-import {LocalStorageService} from "ngx-webstorage";
-import {EventConverterService} from "../../services/converter/event-converter.service";
-import {FullCalendarComponent} from "@fullcalendar/angular";
-import {Status} from "../../../assets/Models/enums/status";
-import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
-import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
-import {EventImpl} from "@fullcalendar/core/internal";
-import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
+import { Semester } from "../../../assets/Models/enums/semester";
+import { Router } from "@angular/router";
+import { TableShareService } from "../../services/table-share.service";
+import { BehaviorSubject, catchError, from, Observable, of, Subscription, toArray } from "rxjs";
+import { GlobalTableService } from "../../services/global-table.service";
+import { TimeTableNames } from "../../../assets/Models/time-table-names";
+import { TmpTimeTable } from "../../../assets/Models/tmp-time-table";
+import { LocalStorageService } from "ngx-webstorage";
+import { EventConverterService } from "../../services/converter/event-converter.service";
+import { FullCalendarComponent } from "@fullcalendar/angular";
+import { Status } from "../../../assets/Models/enums/status";
+import { TimeTableDTO } from "../../../assets/Models/dto/time-table-dto";
+import { CalendarContextMenuComponent } from "./calendar-context-menu/calendar-context-menu.component";
+import { EventImpl } from "@fullcalendar/core/internal";
+import { CourseSessionDTO } from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -34,7 +34,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   shownTableDD: TimeTableNames | null = null;
 
   creationTable!: TmpTimeTable;
-  selectedTimeTable: Observable<TimeTableDTO> | null = null;
+  selectedTimeTable: TimeTableDTO | null = null;
   private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
@@ -46,15 +46,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   lastSearchedEvent: EventImpl | null = null;
   firstSearchedEvent: EventImpl | null = null;
 
-  @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
-  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
+  @ViewChild('calendar', { read: ElementRef }) calendarElement!: ElementRef;
+  @ViewChild('calendarContextMenu') calendarContextMenu!: CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
   changeCalendarView: boolean = false;
-  calendarOptions :CalendarOptions = {
+  calendarOptions: CalendarOptions = {
     plugins: [
       interactionPlugin,
       dayGridPlugin,
@@ -81,7 +81,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     slotMaxTime: this.formatTime(this.tmpEndDate),
     slotDuration: this.formatTime(this.tmpDuration),
     slotLabelInterval: this.formatTime(this.tmpSlotInterval),
-    dayHeaderFormat: {weekday: 'long'},
+    dayHeaderFormat: { weekday: 'long' },
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
@@ -97,6 +97,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -104,7 +105,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         this.shownTableDD = this.availableTables[0];
         this.loadSpecificTable();
       }
-  });
+    });
+  }
+
+  ngAfterViewChecked() {
+    this.cdr.detectChanges();
   }
 
   ngAfterViewInit(): void {
@@ -124,15 +129,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showNewTableDialog = false;
   }
 
-  clearCalendar(){
+  clearCalendar() {
     this.calendarComponent.getApi().removeAllEvents();
   }
 
-  updateCalendarEvents(){
+  updateCalendarEvents() {
     this.clearCalendar();
 
-    this.selectedTimeTable!.subscribe((timeTable: TimeTableDTO) => {
-      let sessions = timeTable.courseSessions;
+    if (this.selectedTimeTable) {
+      let sessions = this.selectedTimeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput(),
         toArray(),
@@ -143,30 +148,39 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       ).subscribe(events => {
         this.combinedTableEventsSubject.next(events);
       });
-    });
+    }
   }
 
   loadSpecificTable() {
-    if(!this.shownTableDD!.id){
+    if (!this.shownTableDD || !this.shownTableDD.id) {
       return;
     }
 
-    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
-    this.updateCalendarEvents();
+    this.globalTableService.getSpecificTimeTable(this.shownTableDD.id).subscribe({
+      next: (timeTable: TimeTableDTO) => {
+        this.selectedTimeTable = timeTable;
+        this.globalTableService.currentTimeTable = timeTable;
+        this.updateCalendarEvents();
+      },
+      error: (error: Error) => {
+        console.error('Error loading specific time table:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load specific time table' });
+      }
+    });
   }
 
-  unselectTable(){
+
+  unselectTable() {
     this.globalTableService.unselectTable();
     this.shownTableDD = null;
     this.selectedTimeTable = null;
-
     this.clearCalendar();
   }
 
-  changeCalenderEventView(){
+  changeCalenderEventView() {
     let eventMaxValue: string = '2';
 
-    if (this.changeCalendarView){
+    if (this.changeCalendarView) {
       eventMaxValue = 'null';
     }
 
@@ -185,67 +199,74 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  deleteUnfinishedTable(){
+  deleteUnfinishedTable() {
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete all the selected Rooms?', header: 'Confirm', icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.localStorage.clear('tmptimetable');
-        this.messageService.add({severity: 'error', summary: 'Deleted Item', detail: 'temporary table got deleted'});
+        this.messageService.add({ severity: 'error', summary: 'Deleted Item', detail: 'temporary table got deleted' });
       },
       reject: () => {
-        this.messageService.add({severity: 'info', summary: 'Table saved', detail: 'your table was not deleted'});
+        this.messageService.add({ severity: 'info', summary: 'Table saved', detail: 'your table was not deleted' });
       }
     });
   }
 
-  applyAlgorithm(){
-    if(this.shownTableDD){
-      this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
-      this.updateCalendarEvents();
-
-      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
-    }
-    else {
-      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
+  applyAlgorithm() {
+    if (this.shownTableDD) {
+      this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id).subscribe({
+        next: (timeTableDTO: TimeTableDTO) => {
+          this.selectedTimeTable = timeTableDTO;
+          this.updateCalendarEvents();
+          this.messageService.add({ severity: 'success', summary: 'Updated Scheduler', detail: 'Algorithm was applied successfully' });
+        },
+        error: (error: Error) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message });
+        }
+      });
+    } else {
+      this.messageService.add({ severity: 'info', summary: 'Missing resources', detail: 'There is currently no table selected!' });
     }
   }
 
-  removeAll(){
-    if(this.shownTableDD){
-      this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
-      this.updateCalendarEvents();
-
-      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
+  removeAll() {
+    if (this.shownTableDD) {
+      this.globalTableService.removeAll(this.shownTableDD!.id).subscribe({
+        next: (response: TimeTableDTO) => {
+          this.selectedTimeTable = response;
+          this.updateCalendarEvents();
+          this.messageService.add({ severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar' });
+        },
+        error: (error: Error) => {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: error.message });
+        }
+      });
     } else {
-      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
+      this.messageService.add({ severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!' });
     }
   }
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
       this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
-      next: (collision: CourseSessionDTO[]) => {
-        if (collision.length === 0) {
-          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
-        else {
-          this.calendarContextMenu.colorCollisionEvents(collision);
-          this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
-        }
-      },
+        next: (collision: CourseSessionDTO[]) => {
+          if (collision.length === 0) {
+            this.messageService.add({ severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful' })
+          } else {
+            this.calendarContextMenu.colorCollisionEvents(collision);
+            this.messageService.add({ severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}` });
+          }
+        },
 
-      error: err => {
-        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
-      }
+        error: err => {
+          this.messageService.add({ severity: 'error', summary: 'Error occurred', detail: err });
+        }
       });
     } else {
-      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
+      this.messageService.add({ severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!' });
     }
   }
 
-  /**
-   * This method transforms the fullcalendar html to canvas and creates a pdf out of it. In order to get a better output
-   * some properties of the calendar are adjusted before pdf creation and reset afterward.
-   */
   exportCalendarAsPDF() {
     const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
 
@@ -266,11 +287,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  /**
-   * This method adjusts the properties of all calendar events to improve the readability when exporting the global
-   * calendar to pdf
-   * @param fontSize of the calendar events in the pdf output
-   */
   adjustEventFontSize(fontSize: string) {
     const eventElements = document.querySelectorAll('.fc-event-title, .fc-event-time');
 
@@ -292,7 +308,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.shareService.selectedTable = this.creationTable;
     this.router.navigate(['/wizard']).catch(message => {
-      this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+      this.messageService.add({ severity: 'error', summary: 'Failure in Redirect', detail: message });
     });
   }
 
@@ -300,18 +316,18 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     return Object.keys(Semester).filter(k => isNaN(Number(k)));
   }
 
-  redirectToSelection(page: string){
-    if(this.shownTableDD){
+  redirectToSelection(page: string) {
+    if (this.shownTableDD) {
       this.router.navigate([page]).catch(message => {
-        this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+        this.messageService.add({ severity: 'error', summary: 'Failure in Redirect', detail: message });
       });
     } else {
-      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
+      this.messageService.add({ severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!' });
     }
   }
 
-  showHoverDialog(event: EventClickArg):void{
-    if(this.calendarContextMenu.activateLens){
+  showHoverDialog(event: EventClickArg): void {
+    if (this.calendarContextMenu.activateLens) {
       this.calendarContextMenu.showHoverDialogBool = true;
       this.calendarContextMenu.hoverEventInfo = event;
       this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
@@ -319,10 +335,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  hideHoverDialog():void{
+  hideHoverDialog(): void {
     this.calendarContextMenu.showHoverDialogBool = false;
 
-    if(this.calendarContextMenu.hoverEventInfo){
+    if (this.calendarContextMenu.hoverEventInfo) {
       this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", '#666666');
       this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
     }
@@ -330,38 +346,37 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   updateCalendar(calendarOption: any, value: string) {
-    if(value === '00:00:00'){
+    if (value === '00:00:00') {
       value = '00:00:05';
     }
     this.calendarComponent.getApi().setOption(calendarOption, value);
   }
 
   formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
   }
 
-  getCalendarEvents(): EventImpl[]{
-    if(this.calendarComponent){
+  getCalendarEvents(): EventImpl[] {
+    if (this.calendarComponent) {
       return this.calendarComponent.getApi().getEvents();
     } else {
       return [];
     }
   }
 
-  colorSpecificEvent(event: EventImpl){
+  colorSpecificEvent(event: EventImpl) {
     this.clearLastEvent();
 
     this.lastSearchedEvent = this.firstSearchedEvent;
     this.firstSearchedEvent = event;
 
-    if(this.firstSearchedEvent){
+    if (this.firstSearchedEvent) {
       this.firstSearchedEvent.setProp("backgroundColor", '#53682e');
     }
   }
 
-  clearLastEvent(){
-    if(this.lastSearchedEvent){
+  clearLastEvent() {
+    if (this.lastSearchedEvent) {
       this.lastSearchedEvent.setProp("backgroundColor", '#666666');
     }
   }

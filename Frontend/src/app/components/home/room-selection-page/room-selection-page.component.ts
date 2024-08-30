@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {GlobalTableService} from "../../../services/global-table.service";
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {TimeTableDTO} from "../../../../assets/Models/dto/time-table-dto";
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {Status} from "../../../../assets/Models/enums/status";
@@ -22,7 +22,18 @@ export class RoomSelectionPageComponent {
     private localStorage: LocalStorageService,
     private messageService: MessageService
   ) {
-    this.currentTable = this.globalTableService.currentTimeTable;
+    this.currentTable = this.globalTableService.currentTimeTable
+      ? of(this.globalTableService.currentTimeTable)
+      : of({
+        id: 0,
+        semester: '',
+        year: 0,
+        status: '',
+        roomTables: [],
+        courseSessions: [],
+        createdAt: '',
+        updatedAt: ''
+      });
     this.selectedTable = new TmpTimeTable();
     this.selectedTable.status = Status.NEW;
   }

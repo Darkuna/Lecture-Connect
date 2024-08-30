@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {Observable} from "rxjs";
+import {Observable, of} from "rxjs";
 import {TimeTableDTO} from "../../../../assets/Models/dto/time-table-dto";
 import {GlobalTableService} from "../../../services/global-table.service";
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
@@ -24,7 +24,18 @@ export class CourseSelectionPageComponent {
     private messageService: MessageService,
     private router: Router
   ) {
-    this.currentTable = this.globalTableService.currentTimeTable;
+    this.currentTable = this.globalTableService.currentTimeTable
+      ? of(this.globalTableService.currentTimeTable)
+      : of({
+        id: 0,
+        semester: '',
+        year: 0,
+        status: '',
+        roomTables: [],
+        courseSessions: [],
+        createdAt: '',
+        updatedAt: ''
+      });
     this.selectedTable = new TmpTimeTable();
     this.selectedTable.status = Status.NEW;
   }

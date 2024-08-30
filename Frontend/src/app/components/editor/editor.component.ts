@@ -1,26 +1,26 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
-import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
+import { CalendarOptions, EventClickArg, EventInput } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import {GlobalTableService} from "../../services/global-table.service";
-import {Observable, of} from "rxjs";
-import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
-import {EventConverterService} from "../../services/converter/event-converter.service";
-import {FullCalendarComponent} from "@fullcalendar/angular";
-import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
-import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
-import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
+import { GlobalTableService } from "../../services/global-table.service";
+import { Observable, of, BehaviorSubject, Subscription } from "rxjs";
+import { TimeTableDTO } from "../../../assets/Models/dto/time-table-dto";
+import { EventConverterService } from "../../services/converter/event-converter.service";
+import { FullCalendarComponent } from "@fullcalendar/angular";
+import { RoomTableDTO } from "../../../assets/Models/dto/room-table-dto";
+import { CourseSessionDTO } from "../../../assets/Models/dto/course-session-dto";
+import interactionPlugin, { Draggable, DropArg } from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
-import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
+import { CalendarContextMenuComponent } from "../home/calendar-context-menu/calendar-context-menu.component";
 
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
-  styleUrl: './editor.component.css'
+  styleUrls: ['./editor.component.css']
 })
-export class EditorComponent implements AfterViewInit, OnDestroy{
+export class EditorComponent implements AfterViewInit, OnDestroy {
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
-  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
+  @ViewChild('calendarContextMenu') calendarContextMenu!: CalendarContextMenuComponent;
   @ViewChild('external') external!: ElementRef;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
@@ -28,7 +28,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
-  destCalendarOptions: CalendarOptions= {
+  destCalendarOptions: CalendarOptions = {
     plugins: [
       interactionPlugin,
       dayGridPlugin,
@@ -55,7 +55,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     slotMaxTime: this.converter.formatTime(this.tmpEndDate),
     slotDuration: this.converter.formatTime(this.tmpDuration),
     slotLabelInterval: this.converter.formatTime(this.tmpSlotInterval),
-    dayHeaderFormat: {weekday: 'long'},
+    dayHeaderFormat: { weekday: 'long' },
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
@@ -63,8 +63,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     eventClick: this.eventClick.bind(this),
   };
 
-  selectedTimeTable: Observable<TimeTableDTO>;
-  timeTable!: TimeTableDTO;
+  selectedTimeTable$: BehaviorSubject<TimeTableDTO | null> = new BehaviorSubject<TimeTableDTO | null>(null);
   availableRooms: RoomTableDTO[] = [];
   selectedRoom: RoomTableDTO | null = null;
   combinedTableEvents: Observable<EventInput[]> = new Observable<EventInput[]>();
@@ -73,21 +72,49 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   nrOfEvents: number = 0;
   maxEvents: number = 0;
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     private globalTableService: GlobalTableService,
     private converter: EventConverterService,
+    private cdr: ChangeDetectorRef,
   ) {
-    this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
-    this.selectedTimeTable.subscribe( r => {
-        this.availableRooms = r.roomTables;
-        this.selectedRoom = r.roomTables[0];
-      }
+
+    if (this.globalTableService.currentTimeTable) {
+      this.selectedTimeTable$.next(this.globalTableService.currentTimeTable);
+    } else {
+      this.selectedTimeTable$.next({
+        id: 0,
+        semester: '',
+        year: 0,
+        status: '',
+        roomTables: [],
+        courseSessions: [],
+        createdAt: '',
+        updatedAt: ''
+      });
+    }
+
+    console.log(this.selectedTimeTable$)
+
+    this.subscriptions.add(
+      this.selectedTimeTable$.subscribe(r => {
+        if (r) {
+          this.availableRooms = r.roomTables;
+          this.selectedRoom = r.roomTables.length > 0 ? r.roomTables[0] : null;
+        }
+      })
     );
   }
 
+  ngAfterViewChecked() {
+    this.cdr.detectChanges();
+  }
+
   ngAfterViewInit(): void {
-    this.loadNewRoom(this.selectedRoom!);
+    if (this.selectedRoom) {
+      this.loadNewRoom(this.selectedRoom);
+    }
     this.calendarContextMenu.calendarComponent = this.calendarComponent;
 
     this.draggable = new Draggable(this.external.nativeElement, {
@@ -103,39 +130,42 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     });
   }
 
-
-
   ngOnDestroy(): void {
-    this.draggable.destroy()
+    this.draggable.destroy();
+    this.subscriptions.unsubscribe();
   }
 
   loadNewRoom(newRoom: RoomTableDTO): void {
+    if (!newRoom) return;
+
     this.clearCalendar();
     this.selectedRoom = newRoom;
 
-    this.selectedTimeTable.subscribe(t => {
-      const placedEvents: EventInput[] = this.reloadNewEvents(newRoom.roomId, t);
+    this.selectedTimeTable$.subscribe(t => {
+      if (t) {
+        const placedEvents: EventInput[] = this.reloadNewEvents(newRoom.roomId, t);
 
-      this.maxEvents = placedEvents.length;
-      this.dragTableEvents = placedEvents.filter(s => !s.extendedProps?.['assigned']);
-      this.nrOfEvents = this.maxEvents - this.dragTableEvents.length;
+        this.maxEvents = placedEvents.length;
+        this.dragTableEvents = placedEvents.filter(s => !s.extendedProps?.['assigned']);
+        this.nrOfEvents = this.maxEvents - this.dragTableEvents.length;
 
-      this.combinedTableEvents = of([
-        ...placedEvents,
-        ...this.reloadNewBackgroundEvents(this.selectedRoom!),
-      ]);
-    })
+        this.combinedTableEvents = of([
+          ...placedEvents,
+          ...this.reloadNewBackgroundEvents(this.selectedRoom!)
+        ]);
+      }
+    });
   }
 
-  reloadNewEvents(roodId: string, table: TimeTableDTO): EventInput[] {
+  reloadNewEvents(roomId: string, table: TimeTableDTO): EventInput[] {
     return table.courseSessions
-      .filter(s => s.roomTable?.roomId === roodId)
-      .map((s:CourseSessionDTO) =>
-          this.converter.convertTimingToEventInput(s, true)
-        );
+      .filter(s => s.roomTable?.roomId === roomId)
+      .map((s: CourseSessionDTO) =>
+        this.converter.convertTimingToEventInput(s, true)
+      );
   }
 
-  reloadNewBackgroundEvents(room: RoomTableDTO) :EventInput[]{
+  reloadNewBackgroundEvents(room: RoomTableDTO): EventInput[] {
     let combinedEvents: EventInput[] = [];
     room.timingConstraints?.forEach(t => {
       combinedEvents.push(this.converter.convertTimingEventInput(t));
@@ -144,7 +174,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return combinedEvents;
   }
 
-  clearCalendar(){
+  clearCalendar() {
     this.calendarComponent.getApi().removeAllEvents();
   }
 

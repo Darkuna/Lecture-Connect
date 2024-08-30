@@ -62,7 +62,7 @@ public class SecondScheduler extends Scheduler {
 
         if(!checkPreConditions(courseSessions, availabilityMatrices)){
             log.error("preconditions failed");
-            return;
+            throw new AssignmentFailedException("Preconditions failed");
         }
 
         singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
