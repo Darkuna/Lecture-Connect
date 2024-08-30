@@ -124,6 +124,7 @@ public class DTOConverter {
         if(dto.getSplitTimes() != null){
             course.setSplitTimes(dto.getSplitTimes());
         }
+        course.setStudyType(StudyType.valueOf(dto.getStudyType()));
         return course;
     }
 

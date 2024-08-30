@@ -52,7 +52,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
         return this == BLOCKED;
     }
 
-    public boolean isSamePS(CourseSession courseSession) {
+    public boolean isFromSameCourse(CourseSession courseSession) {
         return courseSession.courseId.equals(this.courseId);
     }
 
@@ -62,6 +62,10 @@ public class CourseSession implements Persistable<Long>, Serializable {
 
     public boolean isSplitCourse(){
         return name.contains("Split");
+    }
+
+    public boolean isAllowedToIntersectWith(CourseSession courseSession) {
+        return this.semester != courseSession.semester || this.studyType != courseSession.studyType;
     }
 
     @Override
