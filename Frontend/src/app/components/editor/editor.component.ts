@@ -120,6 +120,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   loadNewRoom(newRoom: RoomTableDTO): void {
     this.saveChanges();
+
+    this.allEvents = this.converter.convertMultipleCourseSessions(this.timeTable.courseSessions);
     this.selectedRoom = newRoom;
 
     this.dragTableEvents = this.allEvents.filter(s => !s.extendedProps?.['assigned']);
@@ -162,8 +164,9 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
         message: 'Are you sure you want to remove the selected Room?',
 
         accept: () => {
-          const updatedSession = this.updateSession(args.event)!;
+          const updatedSession = this.updateSession(args.event, false)!;
           updatedSession.timing = null;
+
           this.dragTableEvents.push(
             this.converter.convertTimingToEventInput(updatedSession, true)
           );
@@ -178,19 +181,20 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   eventReceive(args: EventReceiveArg){
-    this.updateSession(args.event);
+    this.updateSession(args.event, true);
   }
 
   eventChange(args: EventChangeArg){
-    this.updateSession(args.event);
+    this.updateSession(args.event, true);
   }
 
-  private updateSession(event:EventApi): CourseSessionDTO | undefined{
+  private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
     const session = this.timeTable.courseSessions
       .find(s => s.id.toString() === event.id);
 
     if(session){
       session!.roomTable = this.selectedRoom!;
+      session!.assigned = assigned;
       session!.timing = new TimingDTO();
       session!.timing!.startTime = this.converter.convertLocalDateToString(event.start!);
       session!.timing!.endTime = this.converter.convertLocalDateToString(event.end!);
