@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.dto.*;
 import com.example.demo.exceptions.scheduler.AssignmentFailedException;
 import com.example.demo.models.*;
+import com.example.demo.models.enums.ChangeType;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
 import com.example.demo.repositories.TimeTableRepository;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,15 +34,18 @@ public class TimeTableService {
     private final CourseSessionService courseSessionService;
     private final DTOConverter dtoConverter;
     private final Scheduler scheduler;
+    private final GlobalTableChangeService globalTableChangeService;
     private static final Logger log = LoggerFactory.getLogger(TimeTableService.class);
 
     public TimeTableService(TimeTableRepository timeTableRepository, RoomTableService roomTableService,
-                            CourseSessionService courseSessionService, DTOConverter dtoConverter, SecondScheduler scheduler) {
+                            CourseSessionService courseSessionService, DTOConverter dtoConverter, SecondScheduler scheduler,
+                            GlobalTableChangeService globalTableChangeService) {
         this.timeTableRepository = timeTableRepository;
         this.roomTableService = roomTableService;
         this.courseSessionService = courseSessionService;
         this.dtoConverter = dtoConverter;
         this.scheduler = scheduler;
+        this.globalTableChangeService = globalTableChangeService;
     }
 
     /**
@@ -71,6 +76,8 @@ public class TimeTableService {
         }
         log.info("Created timeTable with id {}. Added {} roomTables and {} courseSessions", timeTable.getId(),
                 timeTable.getRoomTables().size(), timeTable.getCourseSessions().size());
+        globalTableChangeService.create(ChangeType.CREATE_TABLE, timeTable, String.format("Timetable %s %d with id %d was created",
+                dto.getSemester(), dto.getYear(), timeTable.getId()));
         return timeTableRepository.save(timeTable);
     }
 
@@ -203,6 +210,7 @@ public class TimeTableService {
             scheduler.assignUnassignedCourseSessions();
             timeTableRepository.save(timeTable);
             log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
+
         }
         catch(AssignmentFailedException e){
             log.error("Assignment failed for timeTable with id {}. Unassigning all courseSessions ...", timeTable.getId());

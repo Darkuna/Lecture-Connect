@@ -22,8 +22,7 @@ public class GlobalTableChange implements Persistable<Long>, Serializable {
     @ManyToOne
     private TimeTable timeTable;
     private LocalDateTime date;
-    @ManyToOne
-    private Userx user;
+    private String user;
 
     @Override
     public Long getId() {

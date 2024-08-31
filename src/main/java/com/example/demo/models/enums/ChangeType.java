@@ -1,6 +1,7 @@
 package com.example.demo.models.enums;
 
 public enum ChangeType {
+    CREATE_TABLE,
     ASSIGN_COURSE,
     MOVE_COURSE,
     FIX_COURSE,

@@ -6,6 +6,7 @@ import com.example.demo.models.Userx;
 import com.example.demo.models.enums.ChangeType;
 import com.example.demo.repositories.GlobalTableChangeRepository;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,7 +20,8 @@ public class GlobalTableChangeService {
         this.globalTableChangeRepository = globalTableChangeRepository;
     }
 
-    public void create(ChangeType changeType, TimeTable timeTable, Userx user, String description){
+    public void create(ChangeType changeType, TimeTable timeTable, String description){
+        String user = SecurityContextHolder.getContext().getAuthentication().getName();
         GlobalTableChange globalTableChange = new GlobalTableChange();
         globalTableChange.setChangeType(changeType);
         globalTableChange.setTimeTable(timeTable);
