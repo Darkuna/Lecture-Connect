@@ -89,11 +89,4 @@ export class GlobalTableService {
     this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, [courses, newLogs], this.httpOptions);
     return this.currentTimeTable;
   }
-
-  //TODO change with correct api path
-  updateTableLogs(id: number, newLogs : TableLogDto[]){
-    let newUrl = `${GlobalTableService.API_PATH}/logs/${id}`;
-    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, newLogs, this.httpOptions);
-    return this.currentTimeTable;
-  }
 }

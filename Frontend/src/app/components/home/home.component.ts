@@ -204,8 +204,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updateCalendarEvents();
 
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
-    }
-    else {
+    } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }

@@ -13,7 +13,7 @@
                     [filter]="true"
                     [showClear]="false"
                     [options]="availableRooms" [ngModel]="selectedRoom"
-                    (onChange)="loadNewRoom($event.value)">
+                   >
           <ng-template let-item pTemplate="item">
             <div class="flex align-items-center gap-2">
               <div>{{ item.roomId }}</div>

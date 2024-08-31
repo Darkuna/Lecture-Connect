@@ -17,7 +17,7 @@ export class EventConverterService {
       description: session.roomTable?.roomId,
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime ?? '',
-      endTime: session.timing?.endTime,
+      endTime: session.timing?.endTime ?? '',
       editable:editable,
       droppable: true,
       extendedProps: {
@@ -131,6 +131,7 @@ export class EventConverterService {
   }
 
   convertImplToInput(event: EventImpl): EventInput {
+    console.log("in converter", event)
     return {
       id: event.id,
       title: event.title,
