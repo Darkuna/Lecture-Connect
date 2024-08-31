@@ -40,16 +40,16 @@ export class GlobalTableService {
     return this.currentTimeTable;
   }
 
-  pushTmpTableObject(table: TmpTimeTableDTO): Promise<[boolean, string]> {
+  pushTmpTableObject(table: TmpTimeTableDTO): Promise<string> {
     let newUrl = `${GlobalTableService.API_PATH}/create`;
 
     return new Promise((resolve, reject) => {
       this.http.post<any>(newUrl, table, this.httpOptions).subscribe({
         next: (response) => {
-        resolve([true, 'upload successfully']);
+        resolve('upload successfully');
       },
       error: (err: HttpErrorResponse) => {
-        reject([false, err.message]);
+        reject(err.message);
       }
       });
     });

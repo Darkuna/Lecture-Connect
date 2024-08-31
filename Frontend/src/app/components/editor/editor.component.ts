@@ -89,9 +89,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
         this.availableRooms = r.roomTables;
         this.selectedRoom = r.roomTables[0];
 
-        this.allEvents = this.converter.convertMultipleCourseSessions(r.courseSessions);
-        this.maxEvents = this.allEvents.length;
-
         this.timeTable = r;
         this.loadNewRoom(this.selectedRoom!);
       }
@@ -122,6 +119,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.saveChanges();
 
     this.allEvents = this.converter.convertMultipleCourseSessions(this.timeTable.courseSessions);
+    this.maxEvents = this.allEvents.length;
     this.selectedRoom = newRoom;
 
     this.dragTableEvents = this.allEvents.filter(s => !s.extendedProps?.['assigned']);

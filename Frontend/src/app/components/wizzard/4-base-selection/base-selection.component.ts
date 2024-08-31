@@ -222,17 +222,14 @@ export class BaseSelectionComponent{
     let res = this.convertGlobalTableItems();
     this.globalTableService.pushTmpTableObject(res)
       .then(([status, message]) => {
-        if (status) {
           this.localStorage.clear('tmptimetable');
           this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
+
           this.router.navigate(['/home']).catch(message => {
             this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
           });
-        } else {
-          this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
-        }
       })
-      .catch(([status, message]) => {
+      .catch((message) => {
         this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
       });
   }
