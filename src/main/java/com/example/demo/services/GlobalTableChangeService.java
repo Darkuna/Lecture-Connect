@@ -2,7 +2,6 @@ package com.example.demo.services;
 
 import com.example.demo.models.GlobalTableChange;
 import com.example.demo.models.TimeTable;
-import com.example.demo.models.Userx;
 import com.example.demo.models.enums.ChangeType;
 import com.example.demo.repositories.GlobalTableChangeRepository;
 import org.springframework.context.annotation.Scope;
@@ -25,7 +24,7 @@ public class GlobalTableChangeService {
         GlobalTableChange globalTableChange = new GlobalTableChange();
         globalTableChange.setChangeType(changeType);
         globalTableChange.setTimeTable(timeTable);
-        globalTableChange.setUser(user);
+        globalTableChange.setChangeUser(user);
         globalTableChange.setDescription(description);
         globalTableChange.setDate(LocalDateTime.now());
 

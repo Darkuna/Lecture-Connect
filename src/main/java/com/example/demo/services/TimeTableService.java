@@ -76,7 +76,7 @@ public class TimeTableService {
         }
         log.info("Created timeTable with id {}. Added {} roomTables and {} courseSessions", timeTable.getId(),
                 timeTable.getRoomTables().size(), timeTable.getCourseSessions().size());
-        globalTableChangeService.create(ChangeType.CREATE_TABLE, timeTable, String.format("Timetable %s %d with id %d was created",
+        globalTableChangeService.create(ChangeType.CREATE_TABLE, timeTable, String.format("Timetable '%s %d' with id '%d' was created",
                 dto.getSemester(), dto.getYear(), timeTable.getId()));
         return timeTableRepository.save(timeTable);
     }
