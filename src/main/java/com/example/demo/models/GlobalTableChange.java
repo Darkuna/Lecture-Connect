@@ -4,11 +4,15 @@ import com.example.demo.models.enums.ChangeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 public class GlobalTableChange implements Persistable<Long>, Serializable {
     @Id
@@ -17,7 +21,9 @@ public class GlobalTableChange implements Persistable<Long>, Serializable {
     private ChangeType changeType;
     @ManyToOne
     private TimeTable timeTable;
-    private LocalDateTime changeDate;
+    private LocalDateTime date;
+    @ManyToOne
+    private Userx user;
 
     @Override
     public Long getId() {
@@ -26,6 +32,6 @@ public class GlobalTableChange implements Persistable<Long>, Serializable {
 
     @Override
     public boolean isNew() {
-        return false;
+        return id == null;
     }
 }
