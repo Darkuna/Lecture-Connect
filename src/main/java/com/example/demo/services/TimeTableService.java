@@ -216,8 +216,6 @@ public class TimeTableService {
             log.error("Assignment failed for timeTable with id {}. Unassigning all courseSessions ...", timeTable.getId());
             unassignAllCourseSessions(timeTable);
         }
-
-
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
@@ -231,5 +229,11 @@ public class TimeTableService {
         log.info("Unassigned all assigned courseSessions of timeTable {}", timeTable.getId());
         timeTable.setRoomTables(roomTableService.loadAllOfTimeTable(timeTable));
         return timeTable;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
+        List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
+        //TODO: check differences and update courseSessions
     }
 }

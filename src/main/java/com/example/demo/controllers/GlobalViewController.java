@@ -125,4 +125,14 @@ public class GlobalViewController {
         }
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/update-course-sessions")
+    public ResponseEntity<Void> updateCourseSessionsOfTimeTable(@RequestParam Long timeTableId, @RequestBody List<CourseSessionDTO> courseSessionDTOs) {
+        TimeTable timeTable = timeTableService.loadTimeTable(timeTableId);
+        List<CourseSession> courseSessions = courseSessionDTOs.stream()
+                .map(dtoConverter::toCourseSession)
+                .collect(Collectors.toList());
+        timeTableService.updateCourseSessions(timeTable, courseSessions);
+        return ResponseEntity.ok().build();
+    }
 }
