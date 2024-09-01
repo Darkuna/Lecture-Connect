@@ -75,17 +75,13 @@ public class Timing implements Persistable<Long>, Serializable{
         return this.startTime.isBefore(timing.endTime) && timing.startTime.isBefore(this.endTime);
     }
 
-    /*
-    This toString() method was used for test data creation
-
-    public String toString(){
-        return String.format("INSERT INTO TIMING VALUES (%d, %d, '%s', '%s', NULL, NULL ",-id-20, day.ordinal(),
-                startTime.getHour() >= 10 ? startTime.getHour()+":"+ startTime.getMinute()+":00" : "0" + startTime.getHour()+":"+ startTime.getMinute()+":00",
-                endTime.getHour() >= 10 ? endTime.getHour()+":"+ endTime.getMinute()+":00" : "0" + endTime.getHour()+":"+ endTime.getMinute()+":00");
-    }
-    */
-
     public String toString(){
         return String.format("%s, %s - %s Uhr", day.toString(), startTime, endTime);
+    }
+
+    public boolean hasSameDayAndTime(Timing timing){
+        return this.day.equals(timing.day) &&
+                this.endTime.equals(timing.endTime) &&
+                this.startTime.equals(timing.startTime);
     }
 }

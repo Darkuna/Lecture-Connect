@@ -49,4 +49,9 @@ public class RoomTable implements Persistable<Long>, Serializable {
         availabilityMatrix.addTimingConstraint(timing);
         timingConstraints.add(timing);
     }
+
+    @Override
+    public String toString() {
+        return roomId;
+    }
 }

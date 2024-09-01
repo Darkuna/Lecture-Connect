@@ -18,8 +18,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import java.util.Map;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing timetables.
@@ -234,6 +236,45 @@ public class TimeTableService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
         List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
-        //TODO: check differences and update courseSessions
+        Map<Long, CourseSession> orig = originalCourseSessions.stream().collect(Collectors.toMap(CourseSession::getId, c -> c));
+        for(CourseSession courseSession : courseSessions){
+            CourseSession toCompare = orig.get(courseSession.getId());
+            //if original and new courseSession are not assigned, nothing to do
+            if(!toCompare.isAssigned() && !courseSession.isAssigned()){
+                continue;
+            }
+            //cases: courseSession could have been moved, assigned or unassigned
+            //if both are assigned
+            if(toCompare.isAssigned() == courseSession.isAssigned()){
+                //if either roomTable or timing differs
+                if(!toCompare.isAssignedToSameRoomAndTime(courseSession)){
+                    //if only timing changed
+                    if(toCompare.getRoomTable().equals(courseSession.getRoomTable())){
+                        globalTableChangeService.create(ChangeType.MOVE_COURSE, timeTable, String.format("Course %s was moved from %s to %s",
+                                courseSession.getName(), toCompare.getTiming(), courseSession.getTiming()));
+                        courseSessionService.moveCourseSession(courseSession);
+                    }
+                    //if roomTable and timing changed
+                    else{
+                        globalTableChangeService.create(ChangeType.MOVE_COURSE, timeTable, String.format("Course %s was moved from %s to %s and from room %s to %s",
+                                courseSession.getName(), toCompare.getTiming(), courseSession.getTiming(), toCompare.getRoomTable(), courseSession.getRoomTable()));
+                        courseSessionService.moveCourseSession(courseSession);
+                    }
+                }
+            }
+            //if courseSession is assigned and original not
+            else if (courseSession.isAssigned()){
+                globalTableChangeService.create(ChangeType.ASSIGN_COURSE, timeTable, String.format("Course %s was assigned to room %s at %s",
+                        courseSession.getName(), courseSession.getTiming(), courseSession.getRoomTable()));
+                courseSessionService.assignCourseSession(courseSession);
+            }
+            // if original was assigned and new courseSession is not
+            else {
+                globalTableChangeService.create(ChangeType.UNASSIGN_COURSE, timeTable, String.format("Course %s was unassigned from room %s at %s",
+                        courseSession.getName(), toCompare.getTiming(), toCompare.getRoomTable()));
+                courseSessionService.unassignCourseSession(courseSession);
+            }
+
+        }
     }
 }

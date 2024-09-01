@@ -128,6 +128,16 @@ public class CourseSessionService {
         return courseSession;
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public CourseSession assignCourseSession(CourseSession courseSession){
+        courseSession.setRoomTable(courseSession.getRoomTable());
+        courseSession.setTiming(timingService.createTiming(courseSession.getTiming()));
+        courseSession.setAssigned(true);
+        courseSession = courseSessionRepository.save(courseSession);
+        log.info("Assigned course session {} to roomTable {} at timing {}", courseSession.getName(), courseSession.getRoomTable(), courseSession.getTiming());
+        return courseSession;
+    }
+
     /**
      * Unassigns a course session from its room table and timing.
      *
@@ -221,5 +231,16 @@ public class CourseSessionService {
 
     public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
         return courseSessionRepository.saveAll(courseSessions);
+    }
+
+    public void moveCourseSession(CourseSession courseSession) {
+        if(courseSession.getId() != null){
+            CourseSession original = loadCourseSessionByID(courseSession.getId());
+            if(!original.getTiming().hasSameDayAndTime(courseSession.getTiming())){
+                timingService.deleteTiming(original.getTiming());
+                courseSession.setTiming(timingService.createTiming(courseSession.getTiming()));
+            }
+            courseSessionRepository.save(courseSession);
+        }
     }
 }

@@ -81,6 +81,10 @@ public class CourseSession implements Persistable<Long>, Serializable {
         return id.hashCode();
     }
 
+    public boolean isAssignedToSameRoomAndTime(CourseSession courseSession){
+        return courseSession.getRoomTable().equals(roomTable) &&
+                courseSession.getTiming().hasSameDayAndTime(timing);
+    }
 
     /*
     // This toString Method was used for test data creation.
