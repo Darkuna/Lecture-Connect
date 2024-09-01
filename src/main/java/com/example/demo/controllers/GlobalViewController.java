@@ -1,9 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.*;
-import com.example.demo.models.Course;
 import com.example.demo.models.CourseSession;
-import com.example.demo.models.Room;
 import com.example.demo.models.TimeTable;
 import com.example.demo.services.CourseService;
 import com.example.demo.services.DTOConverter;

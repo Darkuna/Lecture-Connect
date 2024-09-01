@@ -212,6 +212,8 @@ public class TimeTableService {
             scheduler.assignUnassignedCourseSessions();
             timeTableRepository.save(timeTable);
             log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
+            globalTableChangeService.create(ChangeType.APPLY_ALGORITHM, timeTable, String.format("Assignment algorithm was applied for timeTable %s %d",
+                    timeTable.getSemester(), timeTable.getYear()));
 
         }
         catch(AssignmentFailedException e){
@@ -229,6 +231,8 @@ public class TimeTableService {
     public TimeTable unassignAllCourseSessions(TimeTable timeTable){
         courseSessionService.unassignCourseSessions(timeTable.getAssignedCourseSessions());
         log.info("Unassigned all assigned courseSessions of timeTable {}", timeTable.getId());
+        globalTableChangeService.create(ChangeType.CLEAR_TABLE, timeTable, String.format("All assigned courseSessions of timeTable %s %d were unassigned",
+                timeTable.getSemester(), timeTable.getYear()));
         timeTable.setRoomTables(roomTableService.loadAllOfTimeTable(timeTable));
         return timeTable;
     }
