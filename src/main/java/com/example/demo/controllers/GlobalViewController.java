@@ -9,6 +9,7 @@ import com.example.demo.services.RoomService;
 import com.example.demo.services.TimeTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,9 +67,22 @@ public class GlobalViewController {
 
     @PostMapping("/assignment/{id}")
     public ResponseEntity<TimeTableDTO> calculateAndUpdateTimeTable(@PathVariable Long id) {
-        timeTableService.assignCourseSessionsToRooms(timeTable);
-        TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
-        return ResponseEntity.ok().body(updatedTimeTableDTO);
+
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+
+        if (timeTable == null) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        if (timeTableService.assignCourseSessionsToRooms(timeTable)) {
+            TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
+            return ResponseEntity.ok().body(updatedTimeTableDTO);
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
     }
 
     @PostMapping("/assignment/remove/{id}")
