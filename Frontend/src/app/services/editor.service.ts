@@ -22,8 +22,9 @@ export class EditorService {
     private storage: LocalStorageService,
   ) { }
 
-  pushSessionChanges(timeTableId : number, changesSessions: CourseSessionDTO[]):Observable<TimeTableDTO> {
+  pushSessionChanges(timeTableId : number, changesSessions: CourseSessionDTO[]) {
     let newUrl = `${EditorService.API_PATH}/update-course-sessions/${timeTableId}`;
-    return this.http.post<TimeTableDTO>(newUrl, changesSessions, this.httpOptions);
+    console.log(changesSessions);
+    return this.http.put<CourseSessionDTO[]>(newUrl, changesSessions, this.httpOptions).subscribe();
   }
 }
