@@ -138,7 +138,7 @@ public class GlobalViewController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/update-course-sessions/{id}")
+    @PutMapping("/update-course-sessions/{id}")
     public ResponseEntity<Void> updateCourseSessionsOfTimeTable(@PathVariable Long id, @RequestBody List<CourseSessionDTO> courseSessionDTOs) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
         List<CourseSession> courseSessions = courseSessionDTOs.stream()
