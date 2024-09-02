@@ -41,7 +41,7 @@ public class RoomTableServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateRoomTablesFromRoom(){
-        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024);
+        TimeTable timeTable = timeTableService.createTimeTable("Test-Table", Semester.SS, 2024);
         Room room = roomService.loadRoomByID("HS A");
         RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
 

@@ -18,8 +18,7 @@ public class GlobalTableChange implements Persistable<Long>, Serializable {
     private Long id;
     private String description;
     private ChangeType changeType;
-    @ManyToOne
-    private TimeTable timeTable;
+    private String timeTable;
     private LocalDateTime date;
     private String changeUser;
 

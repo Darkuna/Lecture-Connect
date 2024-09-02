@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Scope("session")
@@ -23,11 +24,16 @@ public class GlobalTableChangeService {
         String user = SecurityContextHolder.getContext().getAuthentication().getName();
         GlobalTableChange globalTableChange = new GlobalTableChange();
         globalTableChange.setChangeType(changeType);
-        globalTableChange.setTimeTable(timeTable);
+        globalTableChange.setTimeTable(timeTable.getName());
         globalTableChange.setChangeUser(user);
         globalTableChange.setDescription(description);
         globalTableChange.setDate(LocalDateTime.now());
 
         globalTableChangeRepository.save(globalTableChange);
     }
+
+    public List<GlobalTableChange> loadAll(){
+        return globalTableChangeRepository.findAll();
+    }
+
 }

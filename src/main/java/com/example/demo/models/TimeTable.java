@@ -20,6 +20,7 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String name;
     private Semester semester;
     @Column(name = "academic_year")
     private int year;

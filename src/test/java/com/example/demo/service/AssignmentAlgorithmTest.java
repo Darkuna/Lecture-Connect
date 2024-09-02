@@ -38,7 +38,7 @@ public class AssignmentAlgorithmTest {
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testAssignmentAlgorithm(){
-        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2025);
+        TimeTable timeTable = timeTableService.createTimeTable("Test-TimeTable", Semester.SS, 2025);
         List<Room> rooms = roomService.loadAllRooms();
         List<Course> courses = courseService.loadAllCourses();
         Random random = new Random();

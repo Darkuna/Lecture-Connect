@@ -9,6 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class TimeTableCreationDTO {
+    private String name;
     private String semester;
     private int year;
     private String status;

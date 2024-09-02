@@ -7,7 +7,6 @@ import com.example.demo.models.enums.ChangeType;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
 import com.example.demo.repositories.TimeTableRepository;
-import com.example.demo.scheduling.FirstScheduler;
 import com.example.demo.scheduling.Scheduler;
 import com.example.demo.scheduling.SecondScheduler;
 import jakarta.persistence.EntityNotFoundException;
@@ -16,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 
@@ -62,6 +60,7 @@ public class TimeTableService {
         Room room;
         Course course;
         TimeTable timeTable = new TimeTable();
+        timeTable.setName(dto.getName());
         timeTable.setStatus(Status.NEW);
         timeTable.setSemester(Semester.valueOf(dto.getSemester()));
         timeTable.setYear(dto.getYear());
@@ -84,8 +83,9 @@ public class TimeTableService {
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public TimeTable createTimeTable(Semester semester, int year){
+    public TimeTable createTimeTable(String name, Semester semester, int year){
         TimeTable timeTable = new TimeTable();
+        timeTable.setName(name);
         timeTable.setSemester(semester);
         timeTable.setYear(year);
         timeTable.setStatus(Status.NEW);
@@ -212,6 +212,7 @@ public class TimeTableService {
             scheduler.assignUnassignedCourseSessions();
             timeTableRepository.save(timeTable);
             log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
+            globalTableChangeService.create(ChangeType.APPLY_ALGORITHM, timeTable, "Assignment algorithm was processed successfully.");
             return true;
         }
         catch(AssignmentFailedException e){

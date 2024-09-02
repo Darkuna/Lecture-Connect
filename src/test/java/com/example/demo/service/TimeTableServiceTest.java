@@ -36,7 +36,7 @@ public class TimeTableServiceTest {
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateTimeTableWithOneRoomAndOneCourseWithoutGroups(){
-        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024);
+        TimeTable timeTable = timeTableService.createTimeTable("Test", Semester.SS, 2024);
 
         assertEquals(Semester.SS, timeTable.getSemester());
         assertEquals(2024, timeTable.getYear());
@@ -45,7 +45,7 @@ public class TimeTableServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testCreateRoomTableToTimeTable(){
-        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024);
+        TimeTable timeTable = timeTableService.createTimeTable("Test", Semester.SS, 2024);
         Room room = roomService.loadRoomByID("HS A");
         RoomTable roomTable = timeTableService.createRoomTable(timeTable, room);
 
@@ -55,7 +55,7 @@ public class TimeTableServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testAddCourseSessionToTimeTable(){
-        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024);
+        TimeTable timeTable = timeTableService.createTimeTable("Test",Semester.SS, 2024);
         Course course = courseService.loadCourseById("703003");
         course.setNumberOfGroups(6);
         course.setSplit(false);
