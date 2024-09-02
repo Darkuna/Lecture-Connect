@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {CalendarOptions, EventApi, EventChangeArg, EventClickArg, EventInput, EventMountArg} from "@fullcalendar/core";
+import {CalendarOptions, EventApi, EventChangeArg, EventClickArg, EventInput} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -16,7 +16,6 @@ import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {EditorService} from "../../services/editor.service";
 import {Router} from "@angular/router";
 import {ContextMenu} from "primeng/contextmenu";
-import {EventImpl} from "@fullcalendar/core/internal";
 
 @Component({
   selector: 'app-editor',
@@ -68,13 +67,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     eventClick: this.eventClick.bind(this),
     eventReceive: this.eventReceive.bind(this),
     eventChange: this.eventChange.bind(this),
-    eventDidMount: (arg) =>{
-      const eventId = arg.event.id
-      arg.el.addEventListener("contextmenu", (jsEvent)=>{
-        jsEvent.preventDefault()
-        console.log("contextMenu", eventId)
-      })
-    }
   };
 
   selectedTimeTable: Observable<TimeTableDTO>;
@@ -90,12 +82,11 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   maxEvents: number = 0;
 
   items: MenuItem[] | undefined;
-  selectedSession: EventImpl | null = null;
+  selectedSession: EventClickArg | null = null;
 
   constructor(
     private globalTableService: GlobalTableService,
     private converter: EventConverterService,
-    private confirmationService: ConfirmationService,
     private editorService: EditorService,
     private router: Router,
     private messageService: MessageService,
@@ -113,7 +104,8 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   ngOnInit(): void{
     this.items = [
-      { label: 'fix Course', icon: 'pi pi-copy',command: event => {this.changeSessionBlockState()} },
+      { label: 'unassign Course', icon: 'pi pi-copy',command: () => {this.unassignCourse()} },
+      { label: 'fix Course', icon: 'pi pi-copy',command: () => {this.changeSessionBlockState()} },
       { label: 'free Course', icon: 'pi pi-copy' },
       { label: 'add Group', icon: 'pi pi-file-edit', disabled:true},
       { label: 'remove Group', icon: 'pi pi-file-edit', disabled:true },
@@ -180,6 +172,20 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     });
   }
 
+  unassignCourse(){
+    if(this.selectedSession?.event.title !== 'BLOCKED' && this.selectedSession?.event.title !== 'COMPUTER_SCIENCE') {
+      const updatedSession = this.updateSession(this.selectedSession?.event! , false)!;
+      updatedSession.timing = null;
+
+      this.dragTableEvents.push(
+        this.converter.convertTimingToEventInput(updatedSession, true)
+      );
+
+      this.selectedSession?.event.remove();
+      this.nrOfEvents -= 1;
+    }
+  }
+
   drop(arg: DropArg) {
     this.dragTableEvents =
       this.dragTableEvents.filter(
@@ -188,27 +194,9 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   eventClick(args: EventClickArg) {
-    if(args.event.title !== 'BLOCKED' && args.event.title !== 'COMPUTER_SCIENCE'){
-      this.confirmationService.confirm({
-        header: 'Remove selected Course',
-        message: 'Are you sure you want to remove the selected Room?',
-
-        accept: () => {
-          const updatedSession = this.updateSession(args.event, false)!;
-          updatedSession.timing = null;
-
-          this.dragTableEvents.push(
-            this.converter.convertTimingToEventInput(updatedSession, true)
-          );
-
-          args.event.remove();
-          this.nrOfEvents -= 1;
-          },
-
-        reject: () => {}
-      })
+    this.selectedSession = args;
+    this.contextMenu.show(args.jsEvent); // Show context menu at click position
     }
-  }
 
   eventReceive(args: EventReceiveArg){
     this.updateSession(args.event, true);
@@ -235,14 +223,15 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   changeSessionBlockState(){
     const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.selectedSession?.id);
+      .find(s => s.id.toString() === this.selectedSession?.event.id);
 
-    console.log(session)
+    console.log("selected session: ", this.selectedSession);
+    console.log("found Session", session);
 
     if(session){
       session.isFixed = session.isFixed!
-      this.selectedSession?.setProp('editable', session.isFixed);
-      this.selectedSession?.setProp('backgroundColor','var(--system-color-primary-orange)');
+      //this.selectedSession?.setProp('editable', session.isFixed);
+      //this.selectedSession?.setProp('backgroundColor','var(--system-color-primary-orange)');
     }
   }
 
@@ -257,10 +246,4 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
   }
-
-  /*
-  onHide() {
-    this.selectedSession = null;
-  }
-   */
 }
