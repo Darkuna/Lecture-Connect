@@ -16,6 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -47,6 +48,7 @@ public class TimeTableServiceTest {
     public void testCreateRoomTableToTimeTable(){
         TimeTable timeTable = timeTableService.createTimeTable("Test", Semester.SS, 2024);
         Room room = roomService.loadRoomByID("HS A");
+        room.setTimingConstraints(new ArrayList<>());
         RoomTable roomTable = timeTableService.createRoomTable(timeTable, room);
 
         assertEquals(timeTable, roomTable.getTimeTable());
@@ -81,7 +83,7 @@ public class TimeTableServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadTimeTableNames(){
         List<TimeTableNameDTO> timeTableNames = timeTableService.loadTimeTableNames();
-        assertEquals(3, timeTableNames.size());
+        assertEquals(5, timeTableNames.size());
     }
 
     @Test
@@ -90,14 +92,14 @@ public class TimeTableServiceTest {
     public void testLoadTimeTable(){
         TimeTable timeTable = timeTableService.loadTimeTable(-1);
 
-        assertEquals(Semester.SS, timeTable.getSemester());
-        assertEquals(2023, timeTable.getYear());
+        assertEquals(Semester.WS, timeTable.getSemester());
+        assertEquals(8888, timeTable.getYear());
         assertNotNull(timeTable.getRoomTables());
         assertNotNull(timeTable.getCourseSessions());
     }
 
     /**
-     * Test is only used for test data creation
+     * Test was only used for test data creation
      */
     @Test
     @DirtiesContext

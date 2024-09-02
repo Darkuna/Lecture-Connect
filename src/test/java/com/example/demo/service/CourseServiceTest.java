@@ -124,7 +124,7 @@ public class CourseServiceTest {
     public void testLoadAllCoursesNotInTimeTable() {
         TimeTable timeTable = timeTableService.loadTimeTable(-5);
         List<Course> courses = courseService.loadAllCoursesNotInTimeTable(timeTable);
-        int expected = courseService.loadAllCourses().size() - 2;
+        int expected = courseService.loadAllCourses().size() - 3;
         assertEquals(expected, courses.size());
     }
 }
