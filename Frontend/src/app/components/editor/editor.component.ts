@@ -10,7 +10,7 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import interactionPlugin, {Draggable, DropArg, EventReceiveArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
-import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
+import {MenuItem, MessageService} from "primeng/api";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {EditorService} from "../../services/editor.service";
@@ -229,12 +229,11 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       .find(s => s.id.toString() === this.currentSelection?.event.id);
 
     if(session){
-      console.log(session);
-      session.fixed = session.fixed!
+      session.fixed = !session.fixed
 
-      console.log(session);
       this.currentSelection?.event.setProp('editable', session.fixed);
       this.lastSelection?.event.setProp('borderColor', '#666666');
+
       if(session.fixed){
         this.currentSelection?.event.setProp('backgroundColor','#666666');
       } else {
