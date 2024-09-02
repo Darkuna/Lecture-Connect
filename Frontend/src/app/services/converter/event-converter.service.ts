@@ -10,7 +10,7 @@ import {CourseColor} from "../../../assets/Models/enums/lecture-color";
   providedIn: 'root'
 })
 export class EventConverterService {
-  convertTimingToEventInput(session: CourseSessionDTO, editable: boolean): EventInput {
+  convertTimingToEventInput(session: CourseSessionDTO): EventInput {
     return {
       id: session.id.toString(),
       title: session.name,
@@ -18,7 +18,8 @@ export class EventConverterService {
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime ?? '',
       endTime: session.timing?.endTime ?? '',
-      editable:editable,
+      editable:!session.fixed,
+      backgroundColor: session.fixed ? '#5D6B5B' : '#666666',
       droppable: true,
       extendedProps: {
         'type': session.name.slice(0, 2),
@@ -91,7 +92,7 @@ export class EventConverterService {
   convertMultipleCourseSessions(sessions: CourseSessionDTO[]){
     return sessions
       .map((s:CourseSessionDTO) =>
-        this.convertTimingToEventInput(s, true)
+        this.convertTimingToEventInput(s)
       );
   }
 
@@ -122,7 +123,7 @@ export class EventConverterService {
   }
 
   convertCourseSessionToEventInput(): OperatorFunction<CourseSessionDTO, EventInput> {
-    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session, false));
+    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session));
   }
 
   formatTime(date: Date): string {

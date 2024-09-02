@@ -44,7 +44,7 @@
       </div>
     </p-toolbar>
     <div id="calendarScroll">
-      <full-calendar #calendar
+      <full-calendar #calendar id="calendarID"
                      [options]='destCalendarOptions'
                      [events]="combinedTableEvents"/>
     </div>
@@ -111,4 +111,4 @@
   </p-overlayPanel>
 </div>
 
-<p-contextMenu #cm [model]="items" [global]="true"/>
+<p-contextMenu #cm [model]="items" [global]="true" (onHide)="onHide()"/>

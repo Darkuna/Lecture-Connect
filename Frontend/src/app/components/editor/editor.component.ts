@@ -82,7 +82,8 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   maxEvents: number = 0;
 
   items: MenuItem[] | undefined;
-  selectedSession: EventClickArg | null = null;
+  lastSelection: EventClickArg | null = null;
+  currentSelection: EventClickArg | null = null;
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -133,7 +134,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   loadNewRoom(newRoom: RoomTableDTO): void {
     //this.saveChanges();
-
     this.allEvents = this.converter.convertMultipleCourseSessions(this.timeTable.courseSessions);
     this.maxEvents = this.allEvents.length;
     this.selectedRoom = newRoom;
@@ -173,15 +173,15 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   unassignCourse(){
-    if(this.selectedSession?.event.title !== 'BLOCKED' && this.selectedSession?.event.title !== 'COMPUTER_SCIENCE') {
-      const updatedSession = this.updateSession(this.selectedSession?.event! , false)!;
+    if(this.currentSelection?.event.title !== 'BLOCKED' && this.currentSelection?.event.title !== 'COMPUTER_SCIENCE') {
+      const updatedSession = this.updateSession(this.currentSelection?.event! , false)!;
       updatedSession.timing = null;
 
       this.dragTableEvents.push(
-        this.converter.convertTimingToEventInput(updatedSession, true)
+        this.converter.convertTimingToEventInput(updatedSession)
       );
 
-      this.selectedSession?.event.remove();
+      this.currentSelection?.event.remove();
       this.nrOfEvents -= 1;
     }
   }
@@ -194,9 +194,12 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   eventClick(args: EventClickArg) {
-    this.selectedSession = args;
-    this.contextMenu.show(args.jsEvent); // Show context menu at click position
-    }
+    this.lastSelection = this.currentSelection;
+    this.lastSelection?.event.setProp('borderColor', '#666666');
+
+    this.currentSelection = args;
+    args.event.setProp('borderColor', 'var(--system-color-primary-orange)');
+  }
 
   eventReceive(args: EventReceiveArg){
     this.updateSession(args.event, true);
@@ -223,15 +226,20 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   changeSessionBlockState(){
     const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.selectedSession?.event.id);
-
-    console.log("selected session: ", this.selectedSession);
-    console.log("found Session", session);
+      .find(s => s.id.toString() === this.currentSelection?.event.id);
 
     if(session){
-      session.isFixed = session.isFixed!
-      //this.selectedSession?.setProp('editable', session.isFixed);
-      //this.selectedSession?.setProp('backgroundColor','var(--system-color-primary-orange)');
+      console.log(session);
+      session.fixed = session.fixed!
+
+      console.log(session);
+      this.currentSelection?.event.setProp('editable', session.fixed);
+      this.lastSelection?.event.setProp('borderColor', '#666666');
+      if(session.fixed){
+        this.currentSelection?.event.setProp('backgroundColor','#666666');
+      } else {
+        this.currentSelection?.event.setProp('backgroundColor','#5D6B5B');
+      }
     }
   }
 
@@ -245,5 +253,9 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   formatTime(date: Date): string {
     // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
+  }
+
+  onHide(){
+    this.currentSelection = null;
   }
 }

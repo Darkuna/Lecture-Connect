@@ -11,7 +11,7 @@ public class CourseSessionDTO {
     private Long id;
     private String name;
     private boolean isAssigned;
-    private boolean isFixed;
+    private boolean fixed;
     private int duration;
     private int semester;
     private String studyType;
