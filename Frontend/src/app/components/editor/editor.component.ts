@@ -66,7 +66,13 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     drop: this.drop.bind(this),
     eventClick: this.eventClick.bind(this),
     eventReceive: this.eventReceive.bind(this),
-    eventChange: this.eventChange.bind(this)
+    eventChange: this.eventChange.bind(this),
+    eventDidMount: (arg) =>{
+      this.selectedSession = arg.event.id
+      arg.el.addEventListener("contextmenu", (jsEvent)=>{
+        jsEvent.preventDefault()
+      })
+    }
   };
 
   selectedTimeTable: Observable<TimeTableDTO>;
@@ -82,7 +88,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   maxEvents: number = 0;
 
   items: MenuItem[] | undefined;
-  selectedSession: EventInput | null = null;
+  selectedSession: string | null = null;
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -131,7 +137,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   loadNewRoom(newRoom: RoomTableDTO): void {
-    this.saveChanges();
+    //this.saveChanges();
 
     this.allEvents = this.converter.convertMultipleCourseSessions(this.timeTable.courseSessions);
     this.maxEvents = this.allEvents.length;
@@ -234,12 +240,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   formatTime(date: Date): string {
     // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
-  }
-
-  onContextMenu(event:MouseEvent) {
-    this.selectedSession = event;
-    this.contextMenu.show(event);
-    console.log(event);
   }
 
   onHide() {
