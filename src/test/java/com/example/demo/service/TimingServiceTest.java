@@ -86,8 +86,8 @@ public class TimingServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadTimingConstraintsOfRoomTable(){
-        int numberOfConstraints = 5;
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+        int numberOfConstraints = 7;
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-90);
         List<Timing> timingConstraints = timingService.loadTimingConstraintsOfRoomTable(roomTable);
 
         assertEquals(numberOfConstraints, timingConstraints.size());
