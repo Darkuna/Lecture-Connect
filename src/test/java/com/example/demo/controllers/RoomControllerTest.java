@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.dto.RoomDTO;
 import com.example.demo.models.Room;
+import com.example.demo.services.DTOConverter;
 import com.example.demo.services.RoomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,8 @@ public class RoomControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private RoomService roomService;
+    @MockBean
+    private DTOConverter dtoConverter;
 
     @Test
     public void testGetRooms() throws Exception{

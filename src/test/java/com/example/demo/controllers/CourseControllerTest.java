@@ -3,6 +3,7 @@ package com.example.demo.controllers;
 import com.example.demo.dto.CourseDTO;
 import com.example.demo.models.Course;
 import com.example.demo.services.CourseService;
+import com.example.demo.services.DTOConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class CourseControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private CourseService courseService;
+    @MockBean
+    private DTOConverter dtoConverter;
     @Test
     public void testGetCourses() throws Exception {
         List<Course> courses = List.of(new Course(), new Course(), new Course());
