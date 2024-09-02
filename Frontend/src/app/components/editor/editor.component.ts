@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {CalendarOptions, EventApi, EventChangeArg, EventClickArg, EventInput} from "@fullcalendar/core";
+import {CalendarOptions, EventApi, EventChangeArg, EventClickArg, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -16,6 +16,7 @@ import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {EditorService} from "../../services/editor.service";
 import {Router} from "@angular/router";
 import {ContextMenu} from "primeng/contextmenu";
+import {EventImpl} from "@fullcalendar/core/internal";
 
 @Component({
   selector: 'app-editor',
@@ -68,9 +69,10 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     eventReceive: this.eventReceive.bind(this),
     eventChange: this.eventChange.bind(this),
     eventDidMount: (arg) =>{
-      this.selectedSession = arg.event.id
+      const eventId = arg.event.id
       arg.el.addEventListener("contextmenu", (jsEvent)=>{
         jsEvent.preventDefault()
+        console.log("contextMenu", eventId)
       })
     }
   };
@@ -88,7 +90,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   maxEvents: number = 0;
 
   items: MenuItem[] | undefined;
-  selectedSession: string | null = null;
+  selectedSession: EventImpl | null = null;
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -111,9 +113,10 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   ngOnInit(): void{
     this.items = [
-      { label: 'fix Course', icon: 'pi pi-copy' },
-      { label: 'add Group', icon: 'pi pi-file-edit' },
-      { label: 'remove Group', icon: 'pi pi-file-edit' },
+      { label: 'fix Course', icon: 'pi pi-copy',command: event => {this.changeSessionBlockState()} },
+      { label: 'free Course', icon: 'pi pi-copy' },
+      { label: 'add Group', icon: 'pi pi-file-edit', disabled:true},
+      { label: 'remove Group', icon: 'pi pi-file-edit', disabled:true },
       { label: 'split Course', icon: 'pi pi-file-edit', disabled:true},
     ];
   }
@@ -230,6 +233,19 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     return session ;
   }
 
+  changeSessionBlockState(){
+    const session = this.timeTable.courseSessions
+      .find(s => s.id.toString() === this.selectedSession?.id);
+
+    console.log(session)
+
+    if(session){
+      session.isFixed = session.isFixed!
+      this.selectedSession?.setProp('editable', session.isFixed);
+      this.selectedSession?.setProp('backgroundColor','var(--system-color-primary-orange)');
+    }
+  }
+
   updateCalendar(calendarOption: any, value: string) {
     if(value === '00:00:00'){
       value = '00:00:05';
@@ -242,7 +258,9 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     return date.toString().split(' ')[4];
   }
 
+  /*
   onHide() {
     this.selectedSession = null;
   }
+   */
 }
