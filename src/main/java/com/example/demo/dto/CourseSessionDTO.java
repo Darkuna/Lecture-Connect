@@ -18,4 +18,11 @@ public class CourseSessionDTO {
     private List<TimingDTO> timingConstraints;
     private TimingDTO timing;
     private RoomTableDTO roomTable;
+    private String courseId;
+
+    @Override
+    public String toString(){
+        return String.format("%s: %s %s %s %s", name, studyType, roomTable.getRoomId(), timing, courseId);
+    }
 }
+

@@ -82,23 +82,12 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
 
     public boolean isAssignedToSameRoomAndTime(CourseSession courseSession){
-        return courseSession.getRoomTable().equals(roomTable) &&
-                courseSession.getTiming().hasSameDayAndTime(timing);
+        return courseSession.getRoomTable().equals(this.roomTable) &&
+                courseSession.getTiming().hasSameDayAndTime(this.timing);
     }
 
-    /*
-    // This toString Method was used for test data creation.
-    // To use it again, uncomment the method and add the following variable to the class attributes:
-
-    //    private static int id_counter = ID_OF_THE_NEXT_COURSE_SESSION;
-
-    // Use the createTestData() Method in TimeTableServiceTest.java to create the data
-
+    @Override
     public String toString(){
-        String string = String.format("INSERT INTO COURSE_SESSION(ID, NAME, LECTURER, SEMESTER, NUMBER_OF_PARTICIPANTS, DURATION, COMPUTERS_NECESSARY, IS_ASSIGNED, IS_FIXED, COURSE_ID, ROOM_TABLE_ID, TIME_TABLE_ID, TIMING_ID) VALUES (%d, '%s', '%s', %d, %d, %d, %b, %b, %b, '%s', NULL, -2, NULL)",
-                id_counter, name, lecturer, semester, numberOfParticipants, duration, computersNecessary, isAssigned, isFixed, courseId);
-        id_counter--;
-        return string;
+        return String.format("%s: %s %s %s %s", name, studyType, roomTable.getRoomId(), timing, courseId);
     }
-    */
 }

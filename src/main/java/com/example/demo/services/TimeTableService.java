@@ -244,6 +244,9 @@ public class TimeTableService {
         for(CourseSession courseSession : courseSessions){
             CourseSession toCompare = orig.get(courseSession.getId());
             //if original and new courseSession are not assigned, nothing to do
+            if(toCompare == null){
+                System.out.println(courseSession);
+            }
             if(!toCompare.isAssigned() && !courseSession.isAssigned()){
                 continue;
             }

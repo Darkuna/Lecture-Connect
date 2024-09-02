@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.example.demo.models.*;
 import com.example.demo.repositories.CourseSessionRepository;
+import com.example.demo.repositories.RoomTableRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -25,8 +26,8 @@ import java.util.Set;
 @Scope("session")
 public class CourseSessionService {
 
-    CourseSessionRepository courseSessionRepository;
-    TimingService timingService;
+    private final CourseSessionRepository courseSessionRepository;
+    private final TimingService timingService;
     private static final Logger log = LoggerFactory.getLogger(CourseSessionService.class);
 
     @Autowired
@@ -130,12 +131,16 @@ public class CourseSessionService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public CourseSession assignCourseSession(CourseSession courseSession){
-        courseSession.setRoomTable(courseSession.getRoomTable());
-        courseSession.setTiming(timingService.createTiming(courseSession.getTiming()));
-        courseSession.setAssigned(true);
-        courseSession = courseSessionRepository.save(courseSession);
-        log.info("Assigned course session {} to roomTable {} at timing {}", courseSession.getName(), courseSession.getRoomTable(), courseSession.getTiming());
-        return courseSession;
+        if(courseSession.getId() != null){
+            CourseSession original = loadCourseSessionByID(courseSession.getId());
+            original.setRoomTable(courseSession.getRoomTable());
+            original.setTiming(timingService.createTiming(courseSession.getTiming()));
+            original.setAssigned(true);
+            original = courseSessionRepository.save(original);
+            log.info("Assigned course session {} to roomTable {} at timing {}", original.getName(), original.getRoomTable(), original.getTiming());
+            return courseSession;
+        }
+        return null;
     }
 
     /**
@@ -237,10 +242,11 @@ public class CourseSessionService {
         if(courseSession.getId() != null){
             CourseSession original = loadCourseSessionByID(courseSession.getId());
             if(!original.getTiming().hasSameDayAndTime(courseSession.getTiming())){
-                timingService.deleteTiming(original.getTiming());
-                courseSession.setTiming(timingService.createTiming(courseSession.getTiming()));
+                Timing timing = original.getTiming();
+                original.setTiming(timingService.createTiming(courseSession.getTiming()));
+                courseSessionRepository.save(original);
+                timingService.deleteTiming(timing);
             }
-            courseSessionRepository.save(courseSession);
         }
     }
 }
