@@ -54,7 +54,7 @@ public class CourseSessionServiceTest {
 
         CourseSession courseSession = courseSessions.getFirst();
 
-        assertEquals(Integer.getInteger(normalCourse.getId()), courseSession.getCourseId());
+        assertEquals(normalCourse.getId(), courseSession.getCourseId());
         assertEquals(normalCourse.getDuration(), courseSession.getDuration());
         assertEquals(normalCourse.getTimingConstraints(), courseSession.getTimingConstraints());
     }
@@ -75,11 +75,11 @@ public class CourseSessionServiceTest {
         CourseSession courseSession1 = courseSessions.get(0);
         CourseSession courseSession2 = courseSessions.get(1);
 
-        assertEquals(Integer.getInteger(splitCourse.getId()), courseSession1.getCourseId());
+        assertEquals(splitCourse.getId(), courseSession1.getCourseId());
         assertEquals(120, courseSession1.getDuration());
         assertEquals(splitCourse.getTimingConstraints(), courseSession1.getTimingConstraints());
 
-        assertEquals(Integer.getInteger(splitCourse.getId()), courseSession2.getCourseId());
+        assertEquals(splitCourse.getId(), courseSession2.getCourseId());
         assertEquals(60, courseSession2.getDuration());
         assertEquals(splitCourse.getTimingConstraints(), courseSession2.getTimingConstraints());
     }
@@ -99,7 +99,7 @@ public class CourseSessionServiceTest {
 
         CourseSession courseSession = courseSessions.getFirst();
 
-        assertEquals(Integer.getInteger(groupCourse.getId()), courseSession.getCourseId());
+        assertEquals(groupCourse.getId(), courseSession.getCourseId());
         assertEquals(groupCourse.getDuration(), courseSession.getDuration());
         assertEquals(groupCourse.getTimingConstraints(), courseSession.getTimingConstraints());
     }
@@ -138,11 +138,11 @@ public class CourseSessionServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllAssignedToRoomTable(){
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-40);
         List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
         System.out.println(courseSessions);
         assertNotNull(courseSessions);
-        assertEquals(1, courseSessions.size());
+        assertEquals(41, courseSessions.size());
     }
 
     @Test
@@ -161,12 +161,12 @@ public class CourseSessionServiceTest {
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testDeleteUnassignedCourseSession(){
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-1);
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-420);
         assertFalse(courseSession.isAssigned());
 
         courseSessionService.deleteCourseSession(courseSession);
 
-        assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-1));
+        assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-420));
     }
 
     @Test
@@ -185,7 +185,7 @@ public class CourseSessionServiceTest {
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testFixUnassignedCourseSession() {
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-1);
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-420);
         assertFalse(courseSession.isAssigned());
 
         assertThrows(CourseSessionNotAssignedException.class, () -> courseSessionService.fixCourseSession(courseSession));
