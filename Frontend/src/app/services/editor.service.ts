@@ -23,7 +23,7 @@ export class EditorService {
   ) { }
 
   pushSessionChanges(timeTableId : number, changesSessions: CourseSessionDTO[]):Observable<TimeTableDTO> {
-    let newUrl = `${EditorService.API_PATH}/update-course-sessions?timeTableId=${timeTableId}`;
+    let newUrl = `${EditorService.API_PATH}/update-course-sessions/${timeTableId}`;
     return this.http.post<TimeTableDTO>(newUrl, changesSessions, this.httpOptions);
   }
 }
