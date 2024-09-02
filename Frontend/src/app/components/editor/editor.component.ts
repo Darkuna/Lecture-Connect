@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CalendarOptions, EventApi, EventChangeArg, EventClickArg, EventInput} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -10,20 +10,22 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import interactionPlugin, {Draggable, DropArg, EventReceiveArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
-import {CalendarContextMenuComponent} from "../home/calendar-context-menu/calendar-context-menu.component";
-import {ConfirmationService} from "primeng/api";
+import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
+import {EditorService} from "../../services/editor.service";
+import {Router} from "@angular/router";
+import {ContextMenu} from "primeng/contextmenu";
 
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.css'
 })
-export class EditorComponent implements AfterViewInit, OnDestroy{
+export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
-  @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('external') external!: ElementRef;
+  @ViewChild('cm') contextMenu!: ContextMenu
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
@@ -79,10 +81,16 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   nrOfEvents: number = 0;
   maxEvents: number = 0;
 
+  items: MenuItem[] | undefined;
+  selectedSession: EventInput | null = null;
+
   constructor(
     private globalTableService: GlobalTableService,
     private converter: EventConverterService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private editorService: EditorService,
+    private router: Router,
+    private messageService: MessageService,
   ) {
     this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
     this.selectedTimeTable.subscribe( r => {
@@ -95,9 +103,16 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     );
   }
 
-  ngAfterViewInit(): void {
-    this.calendarContextMenu.calendarComponent = this.calendarComponent;
+  ngOnInit(): void{
+    this.items = [
+      { label: 'fix Course', icon: 'pi pi-copy' },
+      { label: 'add Group', icon: 'pi pi-file-edit' },
+      { label: 'remove Group', icon: 'pi pi-file-edit' },
+      { label: 'split Course', icon: 'pi pi-file-edit', disabled:true},
+    ];
+  }
 
+  ngAfterViewInit(): void {
     this.draggable = new Draggable(this.external.nativeElement, {
       itemSelector: '.fc-event',
       eventData: (eventEl) => {
@@ -145,7 +160,15 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   saveChanges(){
-    console.log("saved changes", this.timeTable.courseSessions);
+    this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions);
+  }
+
+  saveAndGoHome(){
+    this.saveChanges();
+
+    this.router.navigate(['/home']).catch(message => {
+      this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
+    });
   }
 
   drop(arg: DropArg) {
@@ -213,5 +236,13 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return date.toString().split(' ')[4];
   }
 
-  protected readonly JSON = JSON;
+  onContextMenu(event:MouseEvent) {
+    this.selectedSession = event;
+    this.contextMenu.show(event);
+    console.log(event);
+  }
+
+  onHide() {
+    this.selectedSession = null;
+  }
 }

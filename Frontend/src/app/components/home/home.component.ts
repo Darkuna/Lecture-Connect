@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit, ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -22,13 +32,14 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import {ChangeDetection} from "@angular/cli/lib/config/workspace-schema";
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterViewChecked {
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD: TimeTableNames | null = null;
@@ -97,6 +108,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private cd: ChangeDetectorRef
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -113,6 +125,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.availableTableSubs.unsubscribe();
+  }
+
+  ngAfterViewChecked() {
+    this.cd.detectChanges();
   }
 
   showTableDialog() {

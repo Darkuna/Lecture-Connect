@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
-import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {Observable} from "rxjs";
 import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
-import {Course} from "../../assets/Models/course";
+import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
 
 @Injectable({
   providedIn: 'root'
 })
-export class EditorServiceService {
+export class EditorService {
   static API_PATH = "/proxy/api/global";
   httpOptions = {
     headers: new HttpHeaders({
@@ -23,8 +22,8 @@ export class EditorServiceService {
     private storage: LocalStorageService,
   ) { }
 
-  pushSessionChanges(changesSessions: CourseSessionDTO[]):Observable<any> {
-    let newUrl = `${EditorServiceService.API_PATH}/TO_BE_EDITED`;
-    return this.http.post<CourseSessionDTO[]>(newUrl, changesSessions, this.httpOptions);
+  pushSessionChanges(timeTableId : number, changesSessions: CourseSessionDTO[]):Observable<TimeTableDTO> {
+    let newUrl = `${EditorService.API_PATH}/update-course-sessions?timeTableId=${timeTableId}`;
+    return this.http.post<TimeTableDTO>(newUrl, changesSessions, this.httpOptions);
   }
 }

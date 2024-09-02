@@ -131,7 +131,6 @@ export class EventConverterService {
   }
 
   convertImplToInput(event: EventImpl): EventInput {
-    console.log("in converter", event)
     return {
       id: event.id,
       title: event.title,
