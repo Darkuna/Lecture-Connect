@@ -3,10 +3,8 @@ import {
   AfterViewInit, ChangeDetectorRef,
   Component,
   ElementRef,
-  OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
   ViewChild
 } from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
@@ -113,7 +111,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
         this.availableTables = [...data];
-        this.shownTableDD = this.availableTables[0];
+
+        if(this.globalTableService.currentTimeTable){
+          this.shownTableDD = this.availableTables
+            .find(t => t.id === this.globalTableService.tableId) ?? this.availableTables[0];
+        }
+
         this.loadSpecificTable();
       }
   });
@@ -150,7 +153,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.selectedTimeTable!.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
-        this.converter.convertCourseSessionToEventInput(),
+        this.converter.convertCourseSessionToEventInput('home'),
         toArray(),
         catchError(error => {
           console.error('Error converting sessions:', error);

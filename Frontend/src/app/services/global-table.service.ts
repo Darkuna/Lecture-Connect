@@ -15,6 +15,8 @@ import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 })
 export class GlobalTableService {
   currentTimeTable: Observable<TimeTableDTO> | null = null;
+  tableId: number | null = null;
+
   static API_PATH = "/proxy/api/global";
   httpOptions = {
     headers: new HttpHeaders({
@@ -37,6 +39,7 @@ export class GlobalTableService {
   getSpecificTimeTable(id: number):Observable<TimeTableDTO> {
     let newUrl = `${GlobalTableService.API_PATH}/${id}`;
     this.currentTimeTable = this.http.get<TimeTableDTO>(newUrl, this.httpOptions)
+    this.currentTimeTable.subscribe(r => this.tableId = r.id);
     return this.currentTimeTable;
   }
 
@@ -45,7 +48,7 @@ export class GlobalTableService {
 
     return new Promise((resolve, reject) => {
       this.http.post<any>(newUrl, table, this.httpOptions).subscribe({
-        next: (response) => {
+        next: () => {
         resolve('upload successfully');
       },
       error: (err: HttpErrorResponse) => {

@@ -104,13 +104,12 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   ngOnInit(): void{
-    this.items = [
-      { label: 'unassign Course', icon: 'pi pi-copy',command: () => {this.unassignCourse()} },
-      { label: 'fix Course', icon: 'pi pi-copy',command: () => {this.changeSessionBlockState()} },
-      { label: 'free Course', icon: 'pi pi-copy' },
-      { label: 'add Group', icon: 'pi pi-file-edit', disabled:true},
-      { label: 'remove Group', icon: 'pi pi-file-edit', disabled:true },
-      { label: 'split Course', icon: 'pi pi-file-edit', disabled:true},
+    this.items = this.items = [
+      { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
+      { label: 'fix/free Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() } },
+      { label: 'add Group', icon: 'pi pi-file-edit', disabled: true },
+      { label: 'remove Group', icon: 'pi pi-file-edit', disabled: true },
+      { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
     ];
   }
 
@@ -134,7 +133,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   loadNewRoom(newRoom: RoomTableDTO): void {
     //this.saveChanges();
-    this.allEvents = this.converter.convertMultipleCourseSessions(this.timeTable.courseSessions);
+    this.allEvents = this.converter.convertMultipleCourseSessions(this.timeTable.courseSessions, 'editor');
     this.maxEvents = this.allEvents.length;
     this.selectedRoom = newRoom;
 
@@ -178,7 +177,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       updatedSession.timing = null;
 
       this.dragTableEvents.push(
-        this.converter.convertTimingToEventInput(updatedSession)
+        this.converter.convertTimingToEventInput(updatedSession, 'editor')
       );
 
       this.currentSelection?.event.remove();
@@ -195,7 +194,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   eventClick(args: EventClickArg) {
     this.lastSelection = this.currentSelection;
-    this.lastSelection?.event.setProp('borderColor', '#666666');
+    this.lastSelection?.event.setProp('borderColor', '#050505');
 
     this.currentSelection = args;
     args.event.setProp('borderColor', 'var(--system-color-primary-orange)');
@@ -232,7 +231,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       session.fixed = !session.fixed
 
       this.currentSelection?.event.setProp('editable', session.fixed);
-      this.lastSelection?.event.setProp('borderColor', '#666666');
+      this.lastSelection?.event.setProp('borderColor', '#050505');
 
       if(session.fixed){
         this.currentSelection?.event.setProp('backgroundColor','#666666');
@@ -255,6 +254,8 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   onHide(){
+    this.lastSelection?.event.setProp('borderColor', '#050505');
+    this.currentSelection?.event.setProp('borderColor', '#050505');
     this.currentSelection = null;
   }
 }
