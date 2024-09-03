@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.example.demo.models.*;
 import com.example.demo.repositories.CourseSessionRepository;
+import com.example.demo.repositories.RoomTableRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -25,8 +26,8 @@ import java.util.Set;
 @Scope("session")
 public class CourseSessionService {
 
-    CourseSessionRepository courseSessionRepository;
-    TimingService timingService;
+    private final CourseSessionRepository courseSessionRepository;
+    private final TimingService timingService;
     private static final Logger log = LoggerFactory.getLogger(CourseSessionService.class);
 
     @Autowired
@@ -128,6 +129,20 @@ public class CourseSessionService {
         return courseSession;
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public CourseSession assignCourseSession(CourseSession courseSession){
+        if(courseSession.getId() != null){
+            CourseSession original = loadCourseSessionByID(courseSession.getId());
+            original.setRoomTable(courseSession.getRoomTable());
+            original.setTiming(timingService.createTiming(courseSession.getTiming()));
+            original.setAssigned(true);
+            original = courseSessionRepository.save(original);
+            log.info("Assigned course session {} to roomTable {} at timing {}", original.getName(), original.getRoomTable(), original.getTiming());
+            return courseSession;
+        }
+        return null;
+    }
+
     /**
      * Unassigns a course session from its room table and timing.
      *
@@ -221,5 +236,17 @@ public class CourseSessionService {
 
     public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
         return courseSessionRepository.saveAll(courseSessions);
+    }
+
+    public void moveCourseSession(CourseSession courseSession) {
+        if(courseSession.getId() != null){
+            CourseSession original = loadCourseSessionByID(courseSession.getId());
+            if(!original.getTiming().hasSameDayAndTime(courseSession.getTiming())){
+                Timing timing = original.getTiming();
+                original.setTiming(timingService.createTiming(courseSession.getTiming()));
+                courseSessionRepository.save(original);
+                timingService.deleteTiming(timing);
+            }
+        }
     }
 }

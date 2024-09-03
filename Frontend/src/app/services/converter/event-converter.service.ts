@@ -4,23 +4,34 @@ import {map, OperatorFunction} from "rxjs";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
-import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import {CourseColor} from "../../../assets/Models/enums/lecture-color";
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventConverterService {
-  convertTimingToEventInput(session: CourseSessionDTO, editable: boolean): EventInput {
+  getValueBasedOnPage(session: CourseSessionDTO, call: 'editor' | 'home'): boolean{
+    return (call === 'home') ? false : !session.fixed;
+  }
+
+  getColorBasedOnPage(session: CourseSessionDTO, call: 'editor' | 'home'): string{
+    if(call === 'home') return '#666666';
+    if (session.fixed && call === 'editor') return  '#5D6B5B';
+    else return '#666666';
+  }
+
+  convertTimingToEventInput(session: CourseSessionDTO, call: 'editor' | 'home'): EventInput {
     return {
       id: session.id.toString(),
       title: session.name,
       description: session.roomTable?.roomId,
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime ?? '',
-      endTime: session.timing?.endTime,
-      editable:editable,
+      endTime: session.timing?.endTime ?? '',
+      editable: this.getValueBasedOnPage(session, call),
+      backgroundColor: this.getColorBasedOnPage(session, call),
       droppable: true,
+      durationEditable: false,
       extendedProps: {
         'type': session.name.slice(0, 2),
         'semester': session.semester,
@@ -29,16 +40,6 @@ export class EventConverterService {
         'duration': this.convertDurationToHours(session.duration)
       }
     };
-  }
-
-  convertRoomToEventInputs(room: RoomTableDTO): EventInput[] {
-    let finalEvents:EventInput[] = [];
-
-    room.timingConstraints?.forEach(t => {
-      finalEvents.push(this.convertTimingEventInput(t));
-    })
-
-    return finalEvents;
   }
 
   convertTimingEventInput(timing: TimingDTO): EventInput {
@@ -72,7 +73,7 @@ export class EventConverterService {
     return timing;
   }
 
-  private convertLocalDateToString(date: Date):string{
+  convertLocalDateToString(date: Date):string{
     let hours: number = date.getHours();
     let minutes: number = date.getMinutes();
     let seconds: number = date.getSeconds();
@@ -99,6 +100,12 @@ export class EventConverterService {
     return `${formattedHours}:${formattedMinutes}`;
   }
 
+  convertMultipleCourseSessions(sessions: CourseSessionDTO[], call: 'editor' | 'home'){
+    return sessions
+      .map((s:CourseSessionDTO) =>
+        this.convertTimingToEventInput(s, call)
+      );
+  }
 
   weekDayToNumber(day: string): string[] {
     switch (day) {
@@ -126,12 +133,8 @@ export class EventConverterService {
     }
   }
 
-  convertCourseSessionToEventInput(): OperatorFunction<CourseSessionDTO, EventInput> {
-    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session, false));
-  }
-
-  convertTimingToBackgroundEventInput(): OperatorFunction<RoomTableDTO, EventInput> {
-    return map((room: RoomTableDTO) => this.convertRoomToEventInputs(room));
+  convertCourseSessionToEventInput(call: 'editor' | 'home'): OperatorFunction<CourseSessionDTO, EventInput> {
+    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session, call));
   }
 
   formatTime(date: Date): string {

@@ -1,9 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.*;
-import com.example.demo.models.Course;
 import com.example.demo.models.CourseSession;
-import com.example.demo.models.Room;
 import com.example.demo.models.TimeTable;
 import com.example.demo.services.CourseService;
 import com.example.demo.services.DTOConverter;
@@ -11,6 +9,7 @@ import com.example.demo.services.RoomService;
 import com.example.demo.services.TimeTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,9 +67,22 @@ public class GlobalViewController {
 
     @PostMapping("/assignment/{id}")
     public ResponseEntity<TimeTableDTO> calculateAndUpdateTimeTable(@PathVariable Long id) {
-        timeTableService.assignCourseSessionsToRooms(timeTable);
-        TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
-        return ResponseEntity.ok().body(updatedTimeTableDTO);
+
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+
+        if (timeTable == null) {
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        if (timeTableService.assignCourseSessionsToRooms(timeTable)) {
+            TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
+            return ResponseEntity.ok().body(updatedTimeTableDTO);
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(null);
+        }
     }
 
     @PostMapping("/assignment/remove/{id}")
@@ -108,21 +120,31 @@ public class GlobalViewController {
         return ResponseEntity.ok(rooms);
     }
 
-    @PostMapping("/add-courses-to-timetable")
-    public ResponseEntity<Void> addCoursesToTimeTable(@RequestParam Long timeTableId, @RequestBody List<CourseDTO> courseDTOs) {
-        TimeTable timeTable = timeTableService.loadTimeTable(timeTableId);
+    @PostMapping("/add-courses-to-timetable/{id}")
+    public ResponseEntity<Void> addCoursesToTimeTable(@PathVariable Long id, @RequestBody List<CourseDTO> courseDTOs) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
         for(CourseDTO courseDTO : courseDTOs) {
             timeTableService.createCourseSessions(timeTable, dtoConverter.toCourse(courseDTO));
         }
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/add-rooms-to-timetable")
-    public ResponseEntity<Void> addRoomsToTimeTable(@RequestParam Long timeTableId, @RequestBody List<RoomDTO> roomsDTOs) {
-        TimeTable timeTable = timeTableService.loadTimeTable(timeTableId);
+    @PostMapping("/add-rooms-to-timetable/{id}")
+    public ResponseEntity<Void> addRoomsToTimeTable(@PathVariable Long id, @RequestBody List<RoomDTO> roomsDTOs) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
         for(RoomDTO roomDTO : roomsDTOs) {
             timeTableService.createRoomTable(timeTable, dtoConverter.toRoom(roomDTO));
         }
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/update-course-sessions/{id}")
+    public ResponseEntity<Void> updateCourseSessionsOfTimeTable(@PathVariable Long id, @RequestBody List<CourseSessionDTO> courseSessionDTOs) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+        List<CourseSession> courseSessions = courseSessionDTOs.stream()
+                .map(dtoConverter::toCourseSession)
+                .collect(Collectors.toList());
+        timeTableService.updateCourseSessions(timeTable, courseSessions);
         return ResponseEntity.ok().build();
     }
 }

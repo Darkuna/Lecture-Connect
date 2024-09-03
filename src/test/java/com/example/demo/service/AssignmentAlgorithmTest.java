@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @SpringBootTest
 @WebAppConfiguration
 @ActiveProfiles("dev")
@@ -38,7 +40,7 @@ public class AssignmentAlgorithmTest {
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testAssignmentAlgorithm(){
-        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2025);
+        TimeTable timeTable = timeTableService.createTimeTable("Test-TimeTable", Semester.SS, 2025);
         List<Room> rooms = roomService.loadAllRooms();
         List<Course> courses = courseService.loadAllCourses();
         Random random = new Random();
@@ -50,6 +52,7 @@ public class AssignmentAlgorithmTest {
 
         // create roomTables and assign random timing constraints
         for(Room room : rooms){
+            room.setTimingConstraints(new ArrayList<>());
             RoomTable roomTable = timeTableService.createRoomTable(timeTable, room);
             
             //Block two random days of the week
@@ -85,13 +88,10 @@ public class AssignmentAlgorithmTest {
         }
 
         // start algorithm
-        timeTableService.assignCourseSessionsToRooms(timeTable);
+        boolean success = timeTableService.assignCourseSessionsToRooms(timeTable);
 
-        // print results
-        for(RoomTable roomTable : timeTable.getRoomTables()){
-            System.out.println(roomTable.getAvailabilityMatrix());
-            System.out.print("\n\n");
-        }
+        //verify
+        assertTrue(success);
     }
 
 

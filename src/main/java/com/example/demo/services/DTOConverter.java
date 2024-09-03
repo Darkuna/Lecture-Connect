@@ -307,7 +307,9 @@ public class DTOConverter {
         timing.setId(dto.getId());
         timing.setStartTime(dto.getStartTime());
         timing.setEndTime(dto.getEndTime());
-        timing.setTimingType(TimingType.valueOf(dto.getTimingType()));
+        if(dto.getTimingType() != null){
+            timing.setTimingType(TimingType.valueOf(dto.getTimingType()));
+        }
         if (dto.getDay() != null) {
             timing.setDay(Day.valueOf(dto.getDay()));
         }

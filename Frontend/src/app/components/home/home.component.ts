@@ -1,4 +1,12 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit, ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -22,13 +30,14 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import {ChangeDetection} from "@angular/cli/lib/config/workspace-schema";
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterViewChecked {
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD: TimeTableNames | null = null;
@@ -97,11 +106,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private cd: ChangeDetectorRef
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
         this.availableTables = [...data];
-        this.shownTableDD = this.availableTables[0];
+
+        if(this.globalTableService.currentTimeTable){
+          this.shownTableDD = this.availableTables
+            .find(t => t.id === this.globalTableService.tableId) ?? this.availableTables[0];
+        }
+
         this.loadSpecificTable();
       }
   });
@@ -113,6 +128,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.availableTableSubs.unsubscribe();
+  }
+
+  ngAfterViewChecked() {
+    this.cd.detectChanges();
   }
 
   showTableDialog() {
@@ -134,7 +153,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedTimeTable!.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
-        this.converter.convertCourseSessionToEventInput(),
+        this.converter.convertCourseSessionToEventInput('home'),
         toArray(),
         catchError(error => {
           console.error('Error converting sessions:', error);
@@ -204,18 +223,31 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updateCalendarEvents();
 
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
-    }
-    else {
+    } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 
   removeAll(){
     if(this.shownTableDD){
-      this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
-      this.updateCalendarEvents();
+      this.confirmationService.confirm(
+        {
+          message: 'Are you sure that you want to proceed?',
+          header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+          acceptIcon:"none",
+          rejectIcon:"none",
+          accept: () => {
+            this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
+            this.updateCalendarEvents();
 
-      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
+            this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
+          },
+          reject: () => {
+            this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
+          }
+        }
+      );
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }

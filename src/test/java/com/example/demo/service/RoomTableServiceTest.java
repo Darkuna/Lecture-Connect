@@ -21,6 +21,7 @@ import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,9 +41,10 @@ public class RoomTableServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testCreateRoomTablesFromRoom(){
-        TimeTable timeTable = timeTableService.createTimeTable(Semester.SS, 2024);
+    public void testCreateRoomTableFromRoom(){
+        TimeTable timeTable = timeTableService.createTimeTable("Test-Table", Semester.SS, 2024);
         Room room = roomService.loadRoomByID("HS A");
+        room.setTimingConstraints(new ArrayList<>());
         RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
 
         assertEquals(timeTable, roomTable.getTimeTable());
@@ -59,14 +61,12 @@ public class RoomTableServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testCreateAvailabilityMatrixWithOneTimingConstraint(){
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-3);
-        assertEquals(1, roomTable.getTimingConstraints().size());
-        AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(roomTable);
+    public void testCreateAvailabilityMatrixWithSevenTimingConstraint(){
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-90);
+        assertEquals(7, roomTable.getTimingConstraints().size());
+        AvailabilityMatrix availabilityMatrix = roomTable.getAvailabilityMatrix();
         assertNotNull(availabilityMatrix);
-        long totalAvailableTime = TimingConstants.START_TIME.until(TimingConstants.END_TIME, ChronoUnit.MINUTES) * 5;
-        long toSubtract = roomTable.getTimingConstraints().getFirst().getDuration();
-        assertEquals(totalAvailableTime-toSubtract, availabilityMatrix.getTotalAvailableTime());
+        assertEquals(360, availabilityMatrix.getTotalAvailableTime());
     }
 
     @Test
@@ -76,20 +76,19 @@ public class RoomTableServiceTest {
         List<RoomTable> roomTables = roomTableService.loadAllOfTimeTable(timeTable);
 
         assertNotNull(roomTables);
-        assertEquals(5, roomTables.size());
+        assertEquals(2, roomTables.size());
     }
 
     @Test
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testDeleteRoomTableWithAssignedCoursesAndTimingConstraints(){
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+    public void testDeleteRoomTableWithAssignedCourses(){
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-41);
         assertNotEquals(0, roomTable.getAssignedCourseSessions().size());
-        assertNotEquals(0, roomTable.getTimingConstraints().size());
 
         roomTableService.deleteRoomTable(roomTable);
 
-        assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(-1));
+        assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(-41));
     }
 
     @Test
@@ -109,15 +108,15 @@ public class RoomTableServiceTest {
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testAddTimingConstraint(){
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-4);
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-40);
 
         Timing timingConstraint = timingService.createTiming(LocalTime.of(9,0),
                 LocalTime.of(10,0), Day.MONDAY, TimingType.BLOCKED);
 
-        System.out.println(roomTable.getAvailabilityMatrix());
+        assertEquals(0, roomTable.getTimingConstraints().size());
 
         roomTableService.addTimingConstraints(roomTable, List.of(timingConstraint));
 
-        System.out.println(roomTable.getAvailabilityMatrix());
+        assertEquals(1, roomTable.getTimingConstraints().size());
     }
 }

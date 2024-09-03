@@ -5,11 +5,11 @@ export interface CourseSessionDTO {
   id: number;
   name: string;
   assigned: boolean;
-  isFixed: boolean;
+  fixed: boolean;
   duration: number;
   semester: number;
   studyType: string;
   timingConstraints: TimingDTO[];
-  timing?: TimingDTO;
+  timing: TimingDTO | null;
   roomTable?: RoomTableDTO;
 }
