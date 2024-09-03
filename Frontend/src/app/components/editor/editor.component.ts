@@ -160,7 +160,10 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   saveChanges(){
-    this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions);
+    this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions)
+      .subscribe(s => this.timeTable.courseSessions = s);
+    
+    this.globalTableService.getSpecificTimeTable(this.timeTable.id);
   }
 
   saveAndGoHome(){

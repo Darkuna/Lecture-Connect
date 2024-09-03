@@ -22,9 +22,9 @@ export class EditorService {
     private storage: LocalStorageService,
   ) { }
 
-  pushSessionChanges(timeTableId : number, changesSessions: CourseSessionDTO[]) {
+  pushSessionChanges(timeTableId : number, changedSessions: CourseSessionDTO[]) {
     let newUrl = `${EditorService.API_PATH}/update-course-sessions/${timeTableId}`;
-    console.log(changesSessions);
-    return this.http.put<CourseSessionDTO[]>(newUrl, changesSessions, this.httpOptions).subscribe();
+    console.log(changedSessions);
+    return this.http.put<CourseSessionDTO[]>(newUrl, changedSessions, this.httpOptions);
   }
 }
