@@ -155,7 +155,6 @@ public class CourseSessionService {
         if(courseSession.getId() != null) {
             CourseSession original = loadCourseSessionByID(courseSession.getId());
             original.setRoomTable(null);
-            Timing timing = courseSession.getTiming();
             original.setTiming(null);
             original.setAssigned(false);
             original = courseSessionRepository.save(original);
