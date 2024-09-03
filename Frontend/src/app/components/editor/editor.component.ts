@@ -228,21 +228,21 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       .find(s => s.id.toString() === this.currentSelection?.event.id);
 
     if(session){
-      session.fixed = !session.fixed
-
       this.currentSelection?.event.setProp('editable', session.fixed);
       this.lastSelection?.event.setProp('borderColor', '#050505');
 
+      session.fixed = !session.fixed
+
       if(session.fixed){
-        this.currentSelection?.event.setProp('backgroundColor','#666666');
-      } else {
         this.currentSelection?.event.setProp('backgroundColor','#5D6B5B');
+      } else {
+        this.currentSelection?.event.setProp('backgroundColor','#666666');
       }
     }
   }
 
   updateCalendar(calendarOption: any, value: string) {
-    if(value === '00:00:00'){
+    if(calendarOption.includes('slot') && value === '00:00:00'){
       value = '00:00:05';
     }
     this.calendarComponent.getApi().setOption(calendarOption, value);
