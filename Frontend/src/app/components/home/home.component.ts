@@ -31,6 +31,7 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import {ChangeDetection} from "@angular/cli/lib/config/workspace-schema";
+import {LoadingService} from "../../services/loading.service";
 
 @Component({
   selector: 'app-home',
@@ -106,7 +107,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private spinner: LoadingService
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -219,9 +221,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   applyAlgorithm(){
     if(this.shownTableDD){
+      this.spinner.waiting();
+
       this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
       this.updateCalendarEvents();
 
+      this.spinner.finished();
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});

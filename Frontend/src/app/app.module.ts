@@ -64,6 +64,7 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 import { CalendarContextMenuComponent } from './components/home/calendar-context-menu/calendar-context-menu.component';
 import { EditorComponent } from './components/editor/editor.component';
 import {PanelMenuModule} from "primeng/panelmenu";
+import { SpinnerComponent } from './components/spinner/spinner.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -87,6 +88,7 @@ import {PanelMenuModule} from "primeng/panelmenu";
         CourseSelectionPageComponent,
         CalendarContextMenuComponent,
         EditorComponent,
+        SpinnerComponent,
     ],
   bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,
