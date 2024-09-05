@@ -81,7 +81,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   nrOfEvents: number = 0;
   maxEvents: number = 0;
 
-  items: MenuItem[] | undefined;
+  items: MenuItem[] = [];
   lastSelection: EventClickArg | null = null;
   currentSelection: EventClickArg | null = null;
 
@@ -104,14 +104,13 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   ngOnInit(): void{
-    this.items = this.items = [
+    this.items = [
+      { label: 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
       { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
-      { label: 'fix/free Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() } },
       { label: 'add Group', icon: 'pi pi-file-edit', disabled: true },
       { label: 'remove Group', icon: 'pi pi-file-edit', disabled: true },
       { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
-    ];
-  }
+    ]  }
 
   ngAfterViewInit(): void {
     this.draggable = new Draggable(this.external.nativeElement, {
@@ -162,7 +161,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   saveChanges(){
     this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions)
       .subscribe(s => this.timeTable.courseSessions = s);
-    
+
     this.globalTableService.getSpecificTimeTable(this.timeTable.id);
   }
 
@@ -185,6 +184,17 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
       this.currentSelection?.event.remove();
       this.nrOfEvents -= 1;
+    }
+  }
+
+  getItemMenuOptions() : void {
+    const session = this.timeTable.courseSessions
+      .find(s => s.id.toString() === this.currentSelection?.event.id);
+
+    if(session && session.fixed){
+      this.items[0].label = 'free Course';
+    } else {
+      this.items[0].label = 'fix Course';
     }
   }
 
