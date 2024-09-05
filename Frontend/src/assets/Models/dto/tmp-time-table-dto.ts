@@ -4,6 +4,7 @@ import {RoomDTO} from "./room-dto";
 import {CourseDTO} from "./course-dto";
 
 export class TmpTimeTableDTO {
+  name?: string;
   semester?: Semester;
   year?: number;
   status: Status | string = Status.NEW;

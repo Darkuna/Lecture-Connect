@@ -152,13 +152,16 @@ public class CourseSessionService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public CourseSession unassignCourseSession(CourseSession courseSession){
-        courseSession.setRoomTable(null);
-        Timing timing = courseSession.getTiming();
-        courseSession.setTiming(null);
-        timingService.deleteTiming(timing);
-        courseSession.setAssigned(false);
-        log.info("Unassigned course session {}", courseSession.getName());
-        return courseSessionRepository.save(courseSession);
+        if(courseSession.getId() != null) {
+            CourseSession original = loadCourseSessionByID(courseSession.getId());
+            original.setRoomTable(null);
+            original.setTiming(null);
+            original.setAssigned(false);
+            original = courseSessionRepository.save(original);
+            log.info("Unassigned course session {}", courseSession.getName());
+            return original;
+        }
+        return null;
     }
 
     /**

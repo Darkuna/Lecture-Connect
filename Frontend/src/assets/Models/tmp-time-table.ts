@@ -8,6 +8,7 @@ export class TmpTimeTable {
   id!: number;
   semester?: Semester;
   year?: number;
+  name?: string;
   status: Status = Status.NEW;
   courseTable!: Course[];
   roomTables!: Room[];

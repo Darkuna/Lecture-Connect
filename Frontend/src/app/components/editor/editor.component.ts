@@ -1,5 +1,5 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {CalendarOptions, EventApi, EventChangeArg, EventClickArg, EventInput} from "@fullcalendar/core";
+import {AfterViewInit, Component, ElementRef,  OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AllowFunc, CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -16,6 +16,7 @@ import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {EditorService} from "../../services/editor.service";
 import {Router} from "@angular/router";
 import {ContextMenu} from "primeng/contextmenu";
+import {event} from "jquery";
 
 @Component({
   selector: 'app-editor',
@@ -51,10 +52,11 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     selectMirror: true,
     dayMaxEvents: true,
     allDaySlot: false,
-    height: "auto",
-    eventBackgroundColor: "#666666",
-    eventBorderColor: "#050505",
-    eventTextColor: "var(--system-color-primary-white)",
+    dragScroll: true,
+    height: 'auto',
+    eventBackgroundColor: '#666666',
+    eventBorderColor: '#050505',
+    eventTextColor: 'var(--system-color-primary-white)',
     slotMinTime: this.converter.formatTime(this.tmpStartDate),
     slotMaxTime: this.converter.formatTime(this.tmpEndDate),
     slotDuration: this.converter.formatTime(this.tmpDuration),
@@ -64,9 +66,10 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     slotEventOverlap: true,
     nowIndicator: false,
     drop: this.drop.bind(this),
-    eventClick: this.eventClick.bind(this),
     eventReceive: this.eventReceive.bind(this),
     eventChange: this.eventChange.bind(this),
+    eventDidMount: this.eventDidMount.bind(this),
+    eventAllow: this.eventAllow.bind(this),
   };
 
   selectedTimeTable: Observable<TimeTableDTO>;
@@ -81,9 +84,8 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   nrOfEvents: number = 0;
   maxEvents: number = 0;
 
-  items: MenuItem[] | undefined;
-  lastSelection: EventClickArg | null = null;
-  currentSelection: EventClickArg | null = null;
+  items: MenuItem[] = [];
+  rightClickEvent: EventMountArg | null = null;
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -104,14 +106,13 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   ngOnInit(): void{
-    this.items = this.items = [
+    this.items = [
+      { label: 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
       { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
-      { label: 'fix/free Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() } },
       { label: 'add Group', icon: 'pi pi-file-edit', disabled: true },
       { label: 'remove Group', icon: 'pi pi-file-edit', disabled: true },
       { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
-    ];
-  }
+    ]  }
 
   ngAfterViewInit(): void {
     this.draggable = new Draggable(this.external.nativeElement, {
@@ -160,7 +161,10 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   saveChanges(){
-    this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions);
+    this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions)
+      .subscribe(s => this.timeTable.courseSessions = s);
+
+    this.globalTableService.getSpecificTimeTable(this.timeTable.id);
   }
 
   saveAndGoHome(){
@@ -172,16 +176,27 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   unassignCourse(){
-    if(this.currentSelection?.event.title !== 'BLOCKED' && this.currentSelection?.event.title !== 'COMPUTER_SCIENCE') {
-      const updatedSession = this.updateSession(this.currentSelection?.event! , false)!;
+    if(this.rightClickEvent?.event.title !== 'BLOCKED' && this.rightClickEvent?.event.title !== 'COMPUTER_SCIENCE') {
+      const updatedSession = this.updateSession(this.rightClickEvent?.event! , false)!;
       updatedSession.timing = null;
 
       this.dragTableEvents.push(
         this.converter.convertTimingToEventInput(updatedSession, 'editor')
       );
 
-      this.currentSelection?.event.remove();
+      this.rightClickEvent?.event.remove();
       this.nrOfEvents -= 1;
+    }
+  }
+
+  getItemMenuOptions() : void {
+    const session = this.timeTable.courseSessions
+      .find(s => s.id.toString() === this.rightClickEvent?.event.id);
+
+    if(session && session.fixed){
+      this.items[0].label = 'free Course';
+    } else {
+      this.items[0].label = 'fix Course';
     }
   }
 
@@ -192,20 +207,23 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     this.nrOfEvents += 1;
   }
 
-  eventClick(args: EventClickArg) {
-    this.lastSelection = this.currentSelection;
-    this.lastSelection?.event.setProp('borderColor', '#050505');
-
-    this.currentSelection = args;
-    args.event.setProp('borderColor', 'var(--system-color-primary-orange)');
-  }
-
   eventReceive(args: EventReceiveArg){
     this.updateSession(args.event, true);
   }
 
   eventChange(args: EventChangeArg){
     this.updateSession(args.event, true);
+  }
+
+  eventDidMount(arg: EventMountArg){
+    arg.el.addEventListener("contextmenu", (jsEvent)=>{
+      jsEvent.preventDefault()
+      this.rightClickEvent = arg;
+    })
+  }
+
+  eventAllow(args: any):boolean{
+    return args.start.getHours() > 7 && args.end.getHours() < 23;
   }
 
   private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
@@ -225,24 +243,23 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   changeSessionBlockState(){
     const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.currentSelection?.event.id);
+      .find(s => s.id.toString() === this.rightClickEvent?.event.id);
 
     if(session){
+      this.rightClickEvent?.event.setProp('editable', session.fixed);
       session.fixed = !session.fixed
 
-      this.currentSelection?.event.setProp('editable', session.fixed);
-      this.lastSelection?.event.setProp('borderColor', '#050505');
-
+      let color = '#666666';
       if(session.fixed){
-        this.currentSelection?.event.setProp('backgroundColor','#666666');
-      } else {
-        this.currentSelection?.event.setProp('backgroundColor','#5D6B5B');
+        color = '#7a4444';
       }
+
+      this.rightClickEvent?.event.setProp('backgroundColor', color);
     }
   }
 
   updateCalendar(calendarOption: any, value: string) {
-    if(value === '00:00:00'){
+    if(calendarOption.includes('slot') && value === '00:00:00'){
       value = '00:00:05';
     }
     this.calendarComponent.getApi().setOption(calendarOption, value);
@@ -251,11 +268,5 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   formatTime(date: Date): string {
     // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
-  }
-
-  onHide(){
-    this.lastSelection?.event.setProp('borderColor', '#050505');
-    this.currentSelection?.event.setProp('borderColor', '#050505');
-    this.currentSelection = null;
   }
 }

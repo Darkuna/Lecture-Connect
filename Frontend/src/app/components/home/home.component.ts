@@ -30,7 +30,6 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import {ChangeDetection} from "@angular/cli/lib/config/workspace-schema";
 
 @Component({
   selector: 'app-home',
@@ -110,11 +109,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
-        this.availableTables = [...data];
+        this.availableTables = data;
 
-        if(this.globalTableService.currentTimeTable){
+        if(this.globalTableService.currentTimeTable !== null){
           this.shownTableDD = this.availableTables
             .find(t => t.id === this.globalTableService.tableId) ?? this.availableTables[0];
+        } else {
+          this.shownTableDD = this.availableTables[0];
         }
 
         this.loadSpecificTable();
