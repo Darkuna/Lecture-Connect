@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface TimeTableRepository extends JpaRepository<TimeTable, Long> {
-    @Query("SELECT new com.example.demo.dto.TimeTableNameDTO(t.id, t.semester, t.year) FROM TimeTable t")
+    @Query("SELECT new com.example.demo.dto.TimeTableNameDTO(t.id, t.semester, t.year, t.name) FROM TimeTable t")
     List<TimeTableNameDTO> findAllTimeTableDTOs();
 }

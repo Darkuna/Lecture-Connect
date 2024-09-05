@@ -212,6 +212,7 @@ export class BaseSelectionComponent{
     dto.rooms = this.roomConverter.convertRoomsToDto(this.globalTable.roomTables);
     dto.courses = this.courseConverter.convertListToDto(this.globalTable.courseTable);
 
+    dto.name = this.globalTable.name;
     dto.year = this.globalTable.year;
     dto.semester = this.globalTable.semester;
     dto.status = getStatusKey(this.globalTable.status);
@@ -220,9 +221,8 @@ export class BaseSelectionComponent{
   }
 
   sendToBackend() {
-    let res = this.convertGlobalTableItems();
-    this.globalTableService.pushTmpTableObject(res)
-      .then(([status, message]) => {
+    this.globalTableService.pushTmpTableObject(this.convertGlobalTableItems())
+      .then((message) => {
           this.localStorage.clear('tmptimetable');
           this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
 

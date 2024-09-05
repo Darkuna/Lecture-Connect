@@ -26,12 +26,12 @@
                     [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="unselectTable()">
           <ng-template pTemplate="selectedItem">
             <div class="item">
-              <div>{{ shownTableDD!.semester }} {{ shownTableDD!.year }}</div>
+              <div>{{ shownTableDD!.name }} {{ shownTableDD!.semester }} {{ shownTableDD!.year }}</div>
             </div>
           </ng-template>
           <ng-template let-item pTemplate="item">
             <div class="flex align-items-center gap-2">
-              <div>{{ item.semester }} {{ item.year }}</div>
+              <div>{{ item.name }} {{ item.semester }} {{ item.year }}</div>
             </div>
           </ng-template>
         </p-dropdown>
