@@ -24,7 +24,6 @@ export class EditorService {
 
   pushSessionChanges(timeTableId : number, changedSessions: CourseSessionDTO[]) {
     let newUrl = `${EditorService.API_PATH}/update-course-sessions/${timeTableId}`;
-    console.log(changedSessions);
     return this.http.put<CourseSessionDTO[]>(newUrl, changedSessions, this.httpOptions);
   }
 }

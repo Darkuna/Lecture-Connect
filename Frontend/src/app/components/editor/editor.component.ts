@@ -1,5 +1,5 @@
-import {AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {CalendarOptions, EventApi, EventChangeArg, EventClickArg, EventInput, EventMountArg} from "@fullcalendar/core";
+import {AfterViewInit, Component, ElementRef,  OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AllowFunc, CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -52,6 +52,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     selectMirror: true,
     dayMaxEvents: true,
     allDaySlot: false,
+    dragScroll: true,
     height: 'auto',
     eventBackgroundColor: '#666666',
     eventBorderColor: '#050505',
@@ -68,7 +69,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     eventReceive: this.eventReceive.bind(this),
     eventChange: this.eventChange.bind(this),
     eventDidMount: this.eventDidMount.bind(this),
-
+    eventAllow: this.eventAllow.bind(this),
   };
 
   selectedTimeTable: Observable<TimeTableDTO>;
@@ -220,6 +221,10 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       jsEvent.preventDefault()
       this.rightClickEvent = arg;
     })
+  }
+
+  eventAllow(args: any):boolean{
+    return args.start.getHours() > 8 && args.end.getHours() < 22;
   }
 
   private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
