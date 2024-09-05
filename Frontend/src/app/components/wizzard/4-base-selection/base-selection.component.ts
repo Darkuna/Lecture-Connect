@@ -112,6 +112,7 @@ export class BaseSelectionComponent{
     selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
+    dragScroll: true,
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
     eventAdd: this.interactWithModel.bind(this),

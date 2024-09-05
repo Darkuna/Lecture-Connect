@@ -216,7 +216,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   eventDidMount(arg: EventMountArg){
-    const eventId = arg.event.id
     arg.el.addEventListener("contextmenu", (jsEvent)=>{
       jsEvent.preventDefault()
       this.rightClickEvent = arg;
@@ -224,7 +223,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   eventAllow(args: any):boolean{
-    return args.start.getHours() > 8 && args.end.getHours() < 22;
+    return args.start.getHours() > 7 && args.end.getHours() < 23;
   }
 
   private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
