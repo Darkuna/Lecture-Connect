@@ -57,11 +57,11 @@ export class WizardComponent {
     this.currentDialog = this.InfoDialogOptions[this.active];
   }
 
-  checkIfCoursesSelected():boolean{
+  checkIfCoursesSelected(): boolean{
     return this.selectedTable.courseTable === undefined || this.selectedTable.courseTable.length == 0;
   }
 
-  checkIfRoomsSelected(){
+  checkIfRoomsSelected(): boolean{
     return this.selectedTable.roomTables === undefined || this.selectedTable.roomTables.length == 0;
   }
 
@@ -114,11 +114,7 @@ export class WizardComponent {
     this.selectedTable.currentPageIndex = this.active;
     this.selectedTable.status = Status.LOCAL;
     this.localStorage.store('tmptimetable', this.selectedTable);
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'The Table is only cached locally'
-    });
+    this.messageService.add({severity: 'info', summary: 'Info', detail: 'The Table is only cached locally'});
   }
 
   closeWizard() {
