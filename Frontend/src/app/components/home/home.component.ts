@@ -109,11 +109,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
-        this.availableTables = [...data];
+        this.availableTables = data;
 
-        if(this.globalTableService.currentTimeTable){
+        if(this.globalTableService.currentTimeTable !== null){
           this.shownTableDD = this.availableTables
             .find(t => t.id === this.globalTableService.tableId) ?? this.availableTables[0];
+        } else {
+          this.shownTableDD = this.availableTables[0];
         }
 
         this.loadSpecificTable();
