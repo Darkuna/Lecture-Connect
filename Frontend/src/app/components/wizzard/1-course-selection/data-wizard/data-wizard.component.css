@@ -1,40 +1,19 @@
-.card-container {
-  position: fixed;
-  top: calc(7% + 5px);
-  left: 50%;
-  transform: translateX(-50%); /* Center the container horizontally */
-  display: flex;
-  gap: 10rem;
-  justify-content: center; /* Center the cards within the container */
-  align-items: center; /* Optional: Center cards vertically if desired */
+#content{
+  padding: 12rem 26rem;
 }
 
-.custom-card {
+.custom {
+  float: left;
   width: 20rem;
   height: 25rem;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* Centers content vertically */
-  align-items: center; /* Centers content horizontally */
+  justify-content: center;
+  align-items: center;
   color: var(--system-color-primary-white);
   background-color: #003361CF;
   border-radius: 1rem;
   margin: 0.5rem;
   padding: 0.5rem;
-  text-align: center; /* Ensures the text is centered within the card */
-}
-
-#infoGrid {
-  position: absolute;
-  top: calc(7% + 5px);
-  right: 90%;
-  background-color: #E2E1DF;
-  border-radius: 20px;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Center the child elements horizontally */
-  padding: 0.2rem;
-
-  min-width: 5rem;
+  text-align: center;
 }

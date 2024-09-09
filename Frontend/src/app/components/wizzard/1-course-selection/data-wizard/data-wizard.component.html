@@ -1,23 +1,56 @@
-<div class="card-container">
-  <div *ngFor="let page of pageContent; index as i;">
-    <div class="custom-card">
-      <h2>
-        {{ page.header }}
-      </h2>
-      <h4>
-        {{ page.text }}
-      </h4>
-
-      <ng-template ngFor let-button [ngForOf]="page.buttons" pTemplate="footer">
-        <p-button
-          [label]="button.text"
-          [style]="{
-          'background-color': button.color,
-          'border-color':button.color,
-          'margin-top':'.5rem',
-          width: '16rem'}">
-        </p-button>
-      </ng-template>
-    </div>
+<div id="content">
+  <div class="custom">
+    <h2>Preselect Data</h2>
+    <h4>Do you want to preselect data?</h4>
+    <p-button [disabled]="userHasInteracted"
+      [label]="'yes'"
+      [style]="{'margin-top': '.5rem', width: '16rem'}"
+      (onClick)="filterData(true)"
+    ></p-button>
+    <p-button [disabled]="userHasInteracted"
+      [label]="'no'"
+      [style]="{'margin-top': '.5rem', width: '16rem'}"
+      (onClick)="filterData(false)"
+    ></p-button>
   </div>
+
+  <div class="custom" *ngIf="showIndex >= 1">
+    <h2>Semester Courses</h2>
+    <h4>'Do you want to only include the courses of the selected semester?</h4>
+    <p-button [disabled]="userHasInteractedSemester"
+      [label]="'yes'"
+      [style]="{'margin-top': '.5rem', width: '16rem'}"
+      (onClick)="filterSemester(true)"
+    ></p-button>
+    <p-button [disabled]="userHasInteractedSemester"
+      [label]="'no'"
+      [style]="{'margin-top': '.5rem', width: '16rem'}"
+      (onClick)="filterSemester(false)"
+    ></p-button>
+  </div>
+
+  <div class="custom" *ngIf="showIndex == 2">
+    <h2>Course Degree(s)</h2>
+    <h4>Do you want to select the degree of courses?</h4>
+    <p-button [disabled]="!userHasInteractedSemester"
+      [label]="'Bachelor Computer Science'"
+      [style]="{'margin-top': '.5rem', width: '16rem'}"
+      (onClick)="addStudyTypeFilter('BACHELOR_CS', 0)"
+    ></p-button>
+    <p-button [disabled]="!userHasInteractedSemester"
+      [label]="'Master Computer Science'"
+      [style]="{'margin-top': '.5rem', width: '16rem'}"
+      (onClick)="addStudyTypeFilter('MASTER_CS', 1)"
+    ></p-button>
+    <p-button [disabled]="!userHasInteractedSemester"
+      [label]="'Master Software Engineering'"
+      [style]="{'margin-top': '.5rem', width: '16rem'}"
+      (onClick)="addStudyTypeFilter('MASTER_SWE', 2)"/>
+  </div>
+
+
+  <p-button
+    [label]="'finish'"
+    [style]="{'margin-top': '.5rem', width: '16rem'}"
+    (onClick)="finish()"/>
 </div>

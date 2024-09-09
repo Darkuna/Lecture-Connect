@@ -5,6 +5,7 @@ import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {getRoleOptions} from "../../../../assets/Models/enums/course-type";
 import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
+import {TableShareService} from "../../../services/table-share.service";
 
 @Component({
   selector: 'app-course-selection',
@@ -31,14 +32,19 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
 
   constructor(
     private courseService: CourseService,
+    private shareService: TableShareService,
     private messageService: MessageService,
-  ) {}
+  ) {
+    this.courseTable = this.shareService.initialCourses;
+  }
 
   ngAfterViewInit(): void {
     if(this.wizardMode){
       this.courseSub = this.courseService.getAllCourses().subscribe(
         (data => this.availableCourses = data)
       );
+
+      console.log(this.shareService.initialCourses);
     } else {
       this.courseSub = this.courseService.getUnselectedCourses().subscribe(
         (data => this.availableCourses = data)
