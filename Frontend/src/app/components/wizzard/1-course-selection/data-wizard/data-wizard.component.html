@@ -1,9 +1,3 @@
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
 <div class="card-container">
   <div *ngFor="let page of pageContent; index as i;">
     <div class="custom-card">
@@ -17,7 +11,11 @@
       <ng-template ngFor let-button [ngForOf]="page.buttons" pTemplate="footer">
         <p-button
           [label]="button.text"
-          [style]="{'background-color': button.color, 'border-color':button.color}">
+          [style]="{
+          'background-color': button.color,
+          'border-color':button.color,
+          'margin-top':'.5rem',
+          width: '16rem'}">
         </p-button>
       </ng-template>
     </div>
