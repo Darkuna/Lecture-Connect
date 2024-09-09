@@ -4,41 +4,22 @@
 <br>
 <br>
 <br>
-<br>
-<br>
-<br>
-<p-button (onClick)="op.toggle($event)" icon="pi pi-share-alt" label="Share" />
-<p-overlayPanel #op [style]="{width: '45rem', height: '25rem'}">
-    <p-stepper class="flexbox-panel">
+<div class="card-container">
+  <div *ngFor="let page of pageContent; index as i;">
+    <div class="custom-card">
+      <h2>
+        {{ page.header }}
+      </h2>
+      <h4>
+        {{ page.text }}
+      </h4>
 
-      <p-stepperPanel header="Course Degrees">
-        <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
-          <div class="flexbox-item">
-            Select the degree of courses
-          </div>
-          <div class="flexbox-item">
-            content
-          </div>
-          <div class="flexbox-item">
-            <p-button label="Back" icon="pi pi-arrow-left" [disabled]="true" />
-            <p-button label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" />
-          </div>
-        </ng-template>
-      </p-stepperPanel>
-      <p-stepperPanel header="Semester Courses">
-        <ng-template pTemplate="content" let-prevCallback="prevCallback" let-index="index">
-          <div class="flexbox-item">
-            Do you want to only include the courses of the selected semester? (SS)
-          </div>
-          <div class="flexbox-item">
-            content
-          </div>
-          <div class="flexbox-item">
-            <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
-            <p-button label="finished" icon="pi pi-arrow-right" iconPos="right" />
-          </div>
-        </ng-template>
-      </p-stepperPanel>
-    </p-stepper>
-</p-overlayPanel>
-
+      <ng-template ngFor let-button [ngForOf]="page.buttons" pTemplate="footer">
+        <p-button
+          [label]="button.text"
+          [style]="{'background-color': button.color, 'border-color':button.color}">
+        </p-button>
+      </ng-template>
+    </div>
+  </div>
+</div>
