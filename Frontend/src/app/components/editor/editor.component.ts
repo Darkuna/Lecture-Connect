@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef,  OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {AllowFunc, CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
+import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -16,7 +16,6 @@ import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {EditorService} from "../../services/editor.service";
 import {Router} from "@angular/router";
 import {ContextMenu} from "primeng/contextmenu";
-import {event} from "jquery";
 
 @Component({
   selector: 'app-editor',
@@ -26,7 +25,7 @@ import {event} from "jquery";
 export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('external') external!: ElementRef;
-  @ViewChild('cm') contextMenu!: ContextMenu
+  @ViewChild('cm') contextMenu!: ContextMenu;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
@@ -86,6 +85,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   items: MenuItem[] = [];
   rightClickEvent: EventMountArg | null = null;
+  firstSearchedEvent: EventInput | null = null;
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -133,7 +133,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   loadNewRoom(newRoom: RoomTableDTO): void {
-    //this.saveChanges();
     this.allEvents = this.converter.convertMultipleCourseSessions(this.timeTable.courseSessions, 'editor');
     this.maxEvents = this.allEvents.length;
     this.selectedRoom = newRoom;
@@ -268,5 +267,23 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   formatTime(date: Date): string {
     // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
+  }
+
+  getCalendarEvents(): EventInput[]{
+    console.log();
+    return this.allEvents;
+  }
+
+  changeRoom(event:EventInput){
+    if(event){
+      const room = this.timeTable.roomTables
+        .find(r => r.roomId === event['description']);
+
+      if(room && this.selectedRoom === room){
+        this.messageService.add({severity: 'info', summary: 'Info', detail: 'the course is in the current room'});
+      } else {
+        this.loadNewRoom(room!);
+      }
+    }
   }
 }
