@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {RoomService} from "../../../services/room-service";
@@ -11,6 +11,10 @@ import {Room} from "../../../../assets/Models/room";
 })
 export class RoomSelectionComponent implements OnDestroy {
   @Input() roomTables!: Room[];
+  @Input() wizardMode: boolean = true;
+
+  @Output() addRoomInParent: EventEmitter<Room> = new EventEmitter<Room>();
+  @Output() removeRoomInParent: EventEmitter<Room> = new EventEmitter<Room>();
 
   courseSub: Subscription;
   availableRooms!: Room[];
@@ -18,13 +22,7 @@ export class RoomSelectionComponent implements OnDestroy {
   CreateDialogVisible: boolean = false;
   selectedRooms: Room[] = [];
   draggedRoom: Room | undefined | null;
-
-
   headers: any[];
-  stateOptions: any[] = [
-    {label: 'Yes', value: true},
-    {label: 'No', value: false}
-  ];
 
   constructor(
     private roomService: RoomService,
@@ -77,26 +75,8 @@ export class RoomSelectionComponent implements OnDestroy {
 
   drop() {
     if (this.draggedRoom) {
-      let idx = this.findIndex(this.draggedRoom, this.roomTables);
-
-      if (idx !== -1) {
-        this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Room is already in List'});
-      } else {
-        this.roomTables.push(this.draggedRoom);
-        this.draggedRoom = null;
-      }
+      this.addRoomInParent.emit(this.draggedRoom);
     }
-  }
-
-  findIndex(product: Room, list: Room[]): number {
-    let index = -1;
-    for (let i = 0; i < (list).length; i++) {
-      if (product.id === (list)[i].id) {
-        index = i;
-        break;
-      }
-    }
-    return index;
   }
 
   dragEnd() {
@@ -104,13 +84,7 @@ export class RoomSelectionComponent implements OnDestroy {
   }
 
   deleteSingleItem(room: Room) {
-
-    const index = this.selectedRooms.indexOf(room, 0);
-    if (index > -1) {
-      this.selectedRooms.splice(index, 1);
-    }
-
-    this.roomTables = this.roomTables.filter(val => val.id !== room.id);
+    this.removeRoomInParent.emit(room);
   }
 
   roomsSelected() : boolean{
@@ -125,6 +99,6 @@ export class RoomSelectionComponent implements OnDestroy {
     }
   }
 
-    protected readonly String = String;
+  protected readonly String = String;
   protected readonly screen = screen;
 }

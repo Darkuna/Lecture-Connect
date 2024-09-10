@@ -5,7 +5,7 @@
 
 
 :root {
-  --system-color-primary-blue: #003361;
+  --system-color-primary-blue: rgba(0, 51, 97, 0.81);
   --system-color-primary-orange: #F39200;
   --system-color-primary-white: #f4f4f4;
   --system-color-primary-red: #AD5353;

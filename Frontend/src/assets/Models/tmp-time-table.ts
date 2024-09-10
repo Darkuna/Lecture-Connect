@@ -10,6 +10,6 @@ export class TmpTimeTable {
   year?: number;
   name?: string;
   status: Status = Status.NEW;
-  courseTable!: Course[];
-  roomTables!: Room[];
+  courseTable: Course[] = [];
+  roomTables: Room[] = [];
 }
