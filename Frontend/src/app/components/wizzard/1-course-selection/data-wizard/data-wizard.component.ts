@@ -1,11 +1,10 @@
 import {Component, Input, Output} from '@angular/core';
-import {CourseDTO} from "../../../../../assets/Models/dto/course-dto";
 import {TmpTimeTable} from "../../../../../assets/Models/tmp-time-table";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../../../services/table-share.service";
-import {GlobalTableService} from "../../../../services/global-table.service";
 import {CourseService} from "../../../../services/course-service";
 import {Course} from "../../../../../assets/Models/course";
+import {MessageService} from "primeng/api";
 
 @Component({
   selector: 'app-data-wizard',
@@ -19,14 +18,17 @@ export class DataWizardComponent{
 
   userHasInteracted: boolean = false;
   userHasInteractedSemester: boolean = false;
+  filterDataVar: boolean = true;
+  filterSemesterVar: boolean = true;
 
-  filterStudyType: [string, string, string] = ['', '', ''];
+  filterStudyType: [string|null, string|null, string|null] = [null, null, null];
   showIndex: number = 0;
 
  constructor(
    private router: Router,
    private shareService: TableShareService,
    private courseService: CourseService,
+   private messageService: MessageService,
  ) {
    this.tmpTimeTable = this.shareService.selectedTable;
      this.courseService.getAllCourses().subscribe(
@@ -36,15 +38,18 @@ export class DataWizardComponent{
 
  filterData(setFilter: boolean): void {
    if(setFilter){
+     this.filterDataVar = setFilter;
      this.userHasInteracted = true;
      this.showIndex += 1;
    } else {
      this.router.navigate(['/wizard'])
-       .catch(message => {});
+       .catch();
    }
  }
 
   filterSemester(setFilter: boolean): void{
+    this.filterSemesterVar = setFilter;
+
    if(setFilter){
      if(this.tmpTimeTable.semester == 'SS'){
        this.initialSelection = this.allCourses
@@ -62,7 +67,15 @@ export class DataWizardComponent{
   }
 
   addStudyTypeFilter(studyType: string, idx: number): void {
-   this.filterStudyType[idx] = studyType;
+   if(this.filterStudyType[idx] === null){
+     this.filterStudyType[idx] = studyType;
+   } else {
+     this.filterStudyType[idx] = null;
+   }
+  }
+
+  filterIsSet(idx:number):boolean {
+   return this.filterStudyType[idx] !== null;
   }
 
   finish(){
@@ -72,8 +85,14 @@ export class DataWizardComponent{
        || c.studyType == this.filterStudyType[1]
        || c.studyType == this.filterStudyType[2]
      )
+    if(this.initialSelection.length == 0){
+      this.messageService.add({severity: 'error', summary: 'Initial Data Load', detail: 'There are no entries based on your selection'});
+    } else {
+      this.messageService.add({severity: 'success', summary: 'Initial Data Load', detail: 'Preselected data got added'});
+    }
+
     this.shareService.selectedTable.courseTable = this.initialSelection;
-    this.router.navigate(['/wizard']).catch(message => {});
+    this.router.navigate(['/wizard']).catch();
  }
 
 }
