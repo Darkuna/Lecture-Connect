@@ -27,16 +27,18 @@
                     optionLabel="title"
                     [showClear]="true"
                     [filter]="true"
-                    [disabled]="true"
+                    [options]="getCalendarEvents()"
+                    [(ngModel)]="firstSearchedEvent"
+                    (ngModelChange)="changeRoom($event)"
                     placeholder="Search for a Course">
           <ng-template pTemplate="selectedItem" let-selectedOption>
             <div class="flex align-items-center gap-2">
-              <div>{{ selectedOption.roomId }}</div>
+              <div>{{ selectedOption.title }}</div>
             </div>
           </ng-template>
           <ng-template let-course pTemplate="item">
             <div class="flex align-items-center gap-2">
-              <div>{{ course.roomId }}</div>
+              <div>{{ course.title }} | {{ course.description }}</div>
             </div>
           </ng-template>
         </p-dropdown>
