@@ -14,7 +14,7 @@ import {TableShareService} from "../../../services/table-share.service";
 })
 
 export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
-  @Input() courseTable: Course[] = [];
+  @Input() courseTable!: Course[];
   @Input() wizardMode: boolean = true;
 
   courseSub!: Subscription;
@@ -34,9 +34,7 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
     private courseService: CourseService,
     private shareService: TableShareService,
     private messageService: MessageService,
-  ) {
-    this.courseTable = this.shareService.initialCourses;
-  }
+  ) { }
 
   ngAfterViewInit(): void {
     if(this.wizardMode){

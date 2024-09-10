@@ -24,7 +24,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback">
-      <app-course-selection [courseTable]="selectedTable.courseTable"></app-course-selection>
+      <app-course-selection [courseTable]="initialData" [wizardMode]="true"/>
 
       <div class="flex pt-4 justify-content-between">
         <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>

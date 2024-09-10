@@ -77,17 +77,18 @@
       <ng-template pTemplate="header">
         <tr>
           <th id="checkbox">
-            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+            <p-tableHeaderCheckbox/>
           </th>
           <th id="headers" class="flex-header"
               *ngFor="let col of headers" [pSortableColumn]="col.field"
               pResizableColumn pReorderableColumn>
           <span>
-            <p-sortIcon [field]="col.field"></p-sortIcon>
+            <p-sortIcon [field]="col.field"/>
             {{ col.header }}
           </span>
-            <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
-                            [field]="col.field"></p-columnFilter>
+            <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type"
+                            display="menu"
+                            [field]="col.field"/>
           </th>
           <th id="RemoveColumn">
             Remove

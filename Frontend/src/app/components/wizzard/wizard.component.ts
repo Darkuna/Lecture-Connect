@@ -6,6 +6,7 @@ import {InfoDialogInterface} from "../../../assets/Models/interfaces/info-dialog
 import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
 import {Router} from "@angular/router";
+import {Course} from "../../../assets/Models/course";
 
 @Component({
   selector: 'app-wizard',
@@ -14,6 +15,7 @@ import {Router} from "@angular/router";
 })
 export class WizardComponent {
   selectedTable!: TmpTimeTable;
+  initialData!: Course[];
 
   active: number = 0;
   dialog: boolean = false;
@@ -27,6 +29,7 @@ export class WizardComponent {
     private router: Router,
   ) {
     this.selectedTable = this.shareService.selectedTable;
+    this.initialData = this.shareService.initialCourses;
     this.active = this.selectedTable.currentPageIndex;
     this.InfoDialogOptions = [
       {
