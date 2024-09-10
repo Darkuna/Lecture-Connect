@@ -7,6 +7,7 @@ import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
 import {Router} from "@angular/router";
 import {Course} from "../../../assets/Models/course";
+import {Room} from "../../../assets/Models/room";
 
 @Component({
   selector: 'app-wizard',
@@ -15,7 +16,6 @@ import {Course} from "../../../assets/Models/course";
 })
 export class WizardComponent {
   selectedTable!: TmpTimeTable;
-  initialData!: Course[];
 
   active: number = 0;
   dialog: boolean = false;
@@ -29,7 +29,6 @@ export class WizardComponent {
     private router: Router,
   ) {
     this.selectedTable = this.shareService.selectedTable;
-    this.initialData = this.shareService.initialCourses;
     this.active = this.selectedTable.currentPageIndex;
     this.InfoDialogOptions = [
       {
@@ -61,13 +60,42 @@ export class WizardComponent {
   }
 
   checkIfCoursesSelected(): boolean{
-    return this.selectedTable.courseTable === undefined || this.selectedTable.courseTable.length == 0;
+    return this.selectedTable.courseTable.length == 0;
   }
 
   checkIfRoomsSelected(): boolean{
-    return this.selectedTable.roomTables === undefined || this.selectedTable.roomTables.length == 0;
+    return this.selectedTable.roomTables.length == 0;
   }
 
+  addCourse(course: Course) {
+    if (course) {
+      if (this.selectedTable.courseTable.findIndex(x => x.id == course.id) > -1) {
+        this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
+      } else {
+        this.selectedTable.courseTable.push(course);
+
+      }
+    }
+  }
+
+  removeCourse(course: Course){
+    this.selectedTable.courseTable = this.selectedTable.courseTable.filter((val:Course) => val.id !== course.id);
+  }
+
+  addRoom(room: Room){
+    if (room) {
+      if (this.selectedTable.roomTables.findIndex(x => x.id == room.id) > -1) {
+        this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Room is already in List'});
+      } else {
+        this.selectedTable.roomTables.push(room);
+
+      }
+    }
+  }
+
+  removeRoom(room: Room){
+    this.selectedTable.roomTables = this.selectedTable.roomTables.filter((val:Room) => val.id !== room.id);
+  }
 
   getColorBasedOnIndex(type: string, index: number): string {
     if (index > this.active) {

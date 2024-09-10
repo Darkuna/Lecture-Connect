@@ -1,11 +1,10 @@
-import {AfterViewInit, Component, Input, OnDestroy} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {getRoleOptions} from "../../../../assets/Models/enums/course-type";
 import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
-import {TableShareService} from "../../../services/table-share.service";
 
 @Component({
   selector: 'app-course-selection',
@@ -14,8 +13,11 @@ import {TableShareService} from "../../../services/table-share.service";
 })
 
 export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
-  @Input() courseTable!: Course[];
+  @Input() courseTable: Course[] = [];
   @Input() wizardMode: boolean = true;
+
+  @Output() addCourseInParent: EventEmitter<Course> = new EventEmitter<Course>();
+  @Output() removeCourseInParent: EventEmitter<Course> = new EventEmitter<Course>();
 
   courseSub!: Subscription;
   availableCourses!: Course[];
@@ -32,7 +34,6 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
 
   constructor(
     private courseService: CourseService,
-    private shareService: TableShareService,
     private messageService: MessageService,
   ) { }
 
@@ -42,7 +43,6 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
         (data => this.availableCourses = data)
       );
 
-      console.log(this.shareService.initialCourses);
     } else {
       this.courseSub = this.courseService.getUnselectedCourses().subscribe(
         (data => this.availableCourses = data)
@@ -92,18 +92,11 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
     this.draggedCourse = item;
   }
 
-  drag() {
-  }
+  drag() { }
 
   drop() {
-    if (this.draggedCourse) {
-      let idx = this.courseTable.indexOf(this.draggedCourse);
-
-      if (idx > -1) {
-        this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
-      } else {
-        this.courseTable.push(this.draggedCourse);
-      }
+    if(this.draggedCourse) {
+      this.addCourseInParent.emit(this.draggedCourse);
     }
   }
 
@@ -112,7 +105,7 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
   }
 
   deleteSingleItem(course: Course) {
-    this.courseTable = this.courseTable.filter((val:Course) => val.id !== course.id);
+    this.removeCourseInParent.emit(course);
   }
 
   coursesSelected() : boolean{
@@ -123,13 +116,14 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
   }
 
   deleteMultipleItems() {
-    this.courseTable = this.courseTable.filter((val) => !this.selectedCourses?.includes(val));
+    this.selectedCourses?.forEach(c => {
+      this.deleteSingleItem(c);
+    })
     this.selectedCourses = null;
   }
 
   protected readonly getRoleOptions = getRoleOptions;
   protected readonly getDegreeOptions = getDegreeOptions;
-    protected readonly window = window;
   protected readonly screen = screen;
   protected readonly String = String;
 }

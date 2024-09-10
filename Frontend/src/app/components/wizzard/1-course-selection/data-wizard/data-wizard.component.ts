@@ -72,7 +72,7 @@ export class DataWizardComponent{
        || c.studyType == this.filterStudyType[1]
        || c.studyType == this.filterStudyType[2]
      )
-    this.shareService.initialCourses = this.initialSelection;
+    this.shareService.selectedTable.courseTable = this.initialSelection;
     this.router.navigate(['/wizard']).catch(message => {});
  }
 

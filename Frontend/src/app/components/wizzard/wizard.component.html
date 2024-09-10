@@ -24,13 +24,13 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback">
-      <app-course-selection [courseTable]="initialData" [wizardMode]="true"/>
+      <app-course-selection [wizardMode]="true" [courseTable]="selectedTable.courseTable"
+                            (addCourseInParent)="addCourse($event)" (removeCourseInParent)="removeCourse($event)"/>
 
       <div class="flex pt-4 justify-content-between">
         <p-button [disabled]="true" icon="pi pi-arrow-left" class="PrevButton"/>
         <p-button (onClick)="nextCallback.emit()" [disabled]="checkIfCoursesSelected()"
                   (click)="saveLocal()" icon="pi pi-arrow-right" class="NextButton"/>
-
       </div>
     </ng-template>
   </p-stepperPanel>
@@ -47,7 +47,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      <app-detail-selection [globalTable]="selectedTable.courseTable"></app-detail-selection>
+      <app-detail-selection [globalTable]="selectedTable.courseTable" ></app-detail-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
@@ -68,7 +68,8 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      <app-room-selection [roomTables]="selectedTable.roomTables"></app-room-selection>
+      <app-room-selection [roomTables]="selectedTable.roomTables" [wizardMode]="true"
+      (addRoomInParent)="addRoom($event)" (removeRoomInParent)="removeRoom($event)"/>
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
@@ -90,7 +91,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-prevCallback="prevCallback">
-      <app-base-selection [globalTable]="selectedTable"></app-base-selection>
+      <app-base-selection [globalTable]="selectedTable"/>
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
         <p-button [disabled]="true" icon="pi pi-arrow-right" class="NextButton"/>
