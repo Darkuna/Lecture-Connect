@@ -25,7 +25,7 @@ import {ContextMenu} from "primeng/contextmenu";
 export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('external') external!: ElementRef;
-  @ViewChild('cm') contextMenu!: ContextMenu
+  @ViewChild('cm') contextMenu!: ContextMenu;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
