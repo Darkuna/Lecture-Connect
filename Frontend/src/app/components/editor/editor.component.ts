@@ -270,7 +270,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   getCalendarEvents(): EventInput[]{
-    console.log();
     return this.allEvents;
   }
 
