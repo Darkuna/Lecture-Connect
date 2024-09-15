@@ -142,7 +142,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
 
     this.contextItems = [
       {
-        label: 'Filter Groups',
+        label: 'Remove Groups',
         icon: 'pi pi-filter',
         items: [
           {
