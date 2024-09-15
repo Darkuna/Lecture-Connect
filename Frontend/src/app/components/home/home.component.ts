@@ -324,7 +324,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.hideTableDialog();
 
     this.shareService.selectedTable = this.creationTable;
-    this.router.navigate(['/tmpwizard']).catch(message => {
+    this.router.navigate(['/user/preselection']).catch(message => {
       this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
     });
   }
@@ -426,7 +426,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           {
             label: 'Edit Mode',
             icon: 'pi pi-pen-to-square',
-            command: () => this.redirectToSelection('/editor')
+            command: () => this.redirectToSelection('/user/editor')
           },
           {
             label: 'Auto Fill',
@@ -453,12 +453,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           {
             label: 'Add new Courses',
             icon: 'pi pi-book',
-            command: () => this.redirectToSelection('/tt-courses')
+            command: () => this.redirectToSelection('/user/tt-courses')
           },
           {
             label: 'Edit shown Courses',
             icon: 'pi pi-book',
-            command: () => this.redirectToSelection('/tt-courses')
+            command: () => this.redirectToSelection('/user/tt-courses')
           },
         ]
       },
@@ -469,13 +469,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           {
             label: 'Add new Rooms',
             icon: 'pi pi-warehouse',
-            command: () => this.redirectToSelection('/tt-rooms')
+            command: () => this.redirectToSelection('/user/tt-rooms')
           },
 
           {
             label: 'Edit shown Rooms',
             icon: 'pi pi-warehouse',
-            command: () => this.redirectToSelection('/tt-rooms')
+            command: () => this.redirectToSelection('/user/tt-rooms')
           },
         ]
       },
@@ -489,7 +489,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           {
             label: 'last Changes',
             icon: 'pi pi-comments',
-            command: () => this.redirectToSelection('/tt-status')
+            command: () => this.redirectToSelection('/user/tt-status')
           }
         ]
       },

@@ -22,6 +22,8 @@ export class WizardComponent {
   currentDialog: InfoDialogInterface;
   InfoDialogOptions: InfoDialogInterface[];
 
+  dirtyData: boolean = true;
+
   constructor(
     private shareService: TableShareService,
     private localStorage: LocalStorageService,
@@ -142,6 +144,7 @@ export class WizardComponent {
   }
 
   saveLocal() {
+    this.dirtyData = false;
     this.selectedTable.currentPageIndex = this.active;
     this.selectedTable.status = Status.LOCAL;
     this.localStorage.store('tmptimetable', this.selectedTable);
@@ -150,10 +153,17 @@ export class WizardComponent {
 
   closeWizard() {
     this.saveLocal();
-    this.router.navigate(['/home'])
+    this.router.navigate(['/users/home'])
       .catch(message => {
         this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
       }
     );
+  }
+
+  canDeactivate(): boolean {
+    if (this.dirtyData) {
+      return confirm('You have unsaved changes. Do you really want to leave?');
+    }
+    return true; // If no unsaved changes, allow navigation
   }
 }

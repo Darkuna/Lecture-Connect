@@ -86,6 +86,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   items: MenuItem[] = [];
   rightClickEvent: EventMountArg | null = null;
   firstSearchedEvent: EventInput | null = null;
+  dirtyData: boolean = false;
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -160,6 +161,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   saveChanges(){
+    this.dirtyData = false;
     this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions)
       .subscribe(s => this.timeTable.courseSessions = s);
 
@@ -169,7 +171,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   saveAndGoHome(){
     this.saveChanges();
 
-    this.router.navigate(['/home']).catch(message => {
+    this.router.navigate(['/user/home']).catch(message => {
       this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
     });
   }
@@ -178,6 +180,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     if(this.rightClickEvent?.event.title !== 'BLOCKED' && this.rightClickEvent?.event.title !== 'COMPUTER_SCIENCE') {
       const updatedSession = this.updateSession(this.rightClickEvent?.event! , false)!;
       updatedSession.timing = null;
+      this.dirtyData = true;
 
       this.dragTableEvents.push(
         this.converter.convertTimingToEventInput(updatedSession, 'editor')
@@ -204,14 +207,17 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       this.dragTableEvents.filter(
         e => e.id !== arg.draggedEl.getAttribute('data-id'))
     this.nrOfEvents += 1;
+    this.dirtyData = true;
   }
 
   eventReceive(args: EventReceiveArg){
     this.updateSession(args.event, true);
+    this.dirtyData = true;
   }
 
   eventChange(args: EventChangeArg){
     this.updateSession(args.event, true);
+    this.dirtyData = true;
   }
 
   eventDidMount(arg: EventMountArg){
@@ -270,7 +276,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   getCalendarEvents(): EventInput[]{
-    console.log();
     return this.allEvents;
   }
 
@@ -285,5 +290,12 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
         this.loadNewRoom(room!);
       }
     }
+  }
+
+  canDeactivate(): boolean {
+    if (this.dirtyData) {
+      return confirm('You have unsaved changes. Do you really want to leave?');
+    }
+    return true; // If no unsaved changes, allow navigation
   }
 }

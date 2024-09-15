@@ -2,27 +2,27 @@
   <div id="wrapperLeftButtons" >
     <div class="item" *ngIf="isLoggedIn()" >
       <button pButton type="button" label="Connector" class="headerButton"
-              (click)="redirectToPage('/home')"></button>
+              (click)="redirectToPage('/user/home')"></button>
     </div>
     <div class="item" *ngIf="isLoggedIn()" >
       <button pButton type="button" label="Courses" class="headerButton"
-              (click)="redirectToPage('/lectures')"></button>
+              (click)="redirectToPage('/user/courses')"></button>
     </div>
     <div class="item" *ngIf="isLoggedIn()" >
       <button pButton type="button" label="Rooms" class="headerButton"
-              (click)="redirectToPage('/rooms')"></button>
+              (click)="redirectToPage('/user/rooms')"></button>
     </div>
   </div>
 
   <h1>{{ pageTitle }}</h1>
 
   <div id="wrapperRightButtons">
-    <div class="itemRight" *ngIf="isLoggedIn()" >
+    <div class="itemRight" *ngIf="isLoggedIn() && hasAdminRole()" >
       <button pButton type="button" label="Table Management" class="headerButton"></button>
     </div>
     <div class="itemRight" *ngIf="isLoggedIn() && hasAdminRole()">
       <button pButton type="button" label="Users" class="headerButton"
-              (click)="redirectToPage('/users')"></button>
+              (click)="redirectToPage('/admin/users')"></button>
     </div>
     <div class="itemRight" *ngIf="isLoggedIn()">
       <button pButton type="button" label="logout" class="headerButton"

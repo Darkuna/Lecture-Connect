@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
-import {Observable} from "rxjs";
 import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
-import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +11,7 @@ export class EditorService {
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwtToken')
+      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
     })
   };
 

@@ -20,11 +20,11 @@ export class HeaderSelfComponent {
   }
 
   isLoggedIn(): boolean {
-    return this.userInfoService.userLoggedIn;
+    return this.userInfoService.userIsLoggedIn();
   }
 
   hasAdminRole(): boolean {
-    return this.userInfoService.role === 'ADMIN';
+    return this.userInfoService.hasAdminRole();
   }
 
   redirectToPage(page: string): void {

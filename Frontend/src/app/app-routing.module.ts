@@ -10,19 +10,24 @@ import {RoomSelectionPageComponent} from "./components/home/room-selection-page/
 import {CourseSelectionPageComponent} from "./components/home/course-selection-page/course-selection-page.component";
 import {PageNotFoundComponentComponent} from "./components/page-not-found-component/page-not-found-component.component";
 import {EditorComponent} from "./components/editor/editor.component";
-import {DataWizardComponent} from "./components/wizzard/1-course-selection/data-wizard/data-wizard.component";
+import {DataWizardComponent} from "./components/wizzard/data-wizard/data-wizard.component";
+import {AuthGuardAdmin, AuthGuardEditorClose, AuthGuardLogin, AuthGuardWizardClose} from "./guard/auth-guards";
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent},
-  {path: 'home', component: HomeComponent},
-  {path: 'rooms', component: RoomViewComponent},
-  {path: 'lectures', component: CourseViewComponent},
-  {path: 'users', component: UsersViewComponent},
-  {path: 'wizard', component: WizardComponent},
-  {path: 'tt-rooms', component: RoomSelectionPageComponent},
-  {path: 'tt-courses', component: CourseSelectionPageComponent},
-  {path: 'editor', component: EditorComponent},
-  { path: 'tmpwizard', component: DataWizardComponent },
+  {path: 'user', canActivateChild: [AuthGuardLogin], children:[
+      {path: 'home', component: HomeComponent},
+      {path: 'rooms', component: RoomViewComponent},
+      {path: 'courses', component: CourseViewComponent},
+      {path: 'wizard', component: WizardComponent, canDeactivate: [AuthGuardWizardClose]},
+      {path: 'tt-rooms', component: RoomSelectionPageComponent},
+      {path: 'tt-courses', component: CourseSelectionPageComponent},
+      {path: 'editor', component: EditorComponent, canDeactivate: [AuthGuardEditorClose]},
+      {path: 'preselection', component: DataWizardComponent},
+    ]},
+  {path: 'admin', canActivateChild: [AuthGuardAdmin], children:[
+      {path: 'users', component: UsersViewComponent},
+    ]},
   { path: '**', component: PageNotFoundComponentComponent },  // Wildcard route for a 404 page
 ];
 

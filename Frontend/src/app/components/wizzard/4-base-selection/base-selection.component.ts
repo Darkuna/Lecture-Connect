@@ -1,6 +1,6 @@
 import {Component, Input, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
-import {CalendarOptions, DateSelectArg, EventClickArg} from "@fullcalendar/core";
+import {CalendarOptions, DateSelectArg, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -146,12 +146,13 @@ export class BaseSelectionComponent{
   }
 
   saveEvent(){
-    let newEvent = {
+    let newEvent:EventInput = {
       title: this.getCourseType(this.lastUsedColor),
       color: this.lastUsedColor,
       borderColor: '#D8D8D8',
       start: this.dataSelectStart,
       end: this.dataSelectEnd,
+      editable: true
     };
 
     this.calendarComponent.getApi().addEvent(newEvent);
@@ -226,7 +227,7 @@ export class BaseSelectionComponent{
           this.localStorage.clear('tmptimetable');
           this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
 
-          this.router.navigate(['/home']).catch(message => {
+          this.router.navigate(['/user/home']).catch(message => {
             this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
           });
       })
