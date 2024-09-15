@@ -12,7 +12,7 @@ import {PasswordModule} from "primeng/password";
 import {FormsModule} from "@angular/forms";
 import {LoginComponent} from './components/login/login.component';
 import {HomeComponent} from './components/home/home.component';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {NgxWebstorageModule} from 'ngx-webstorage';
 import {PageNotFoundComponentComponent} from './components/page-not-found-component/page-not-found-component.component';
 import {ToastModule} from 'primeng/toast';
@@ -65,6 +65,8 @@ import { CalendarContextMenuComponent } from './components/home/calendar-context
 import { EditorComponent } from './components/editor/editor.component';
 import {PanelMenuModule} from "primeng/panelmenu";
 import { DataWizardComponent } from './components/wizzard/1-course-selection/data-wizard/data-wizard.component';
+import { SpinnerComponent } from './components/spinner/spinner.component';
+import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 
 @NgModule({ declarations: [
         AppComponent,
@@ -89,6 +91,7 @@ import { DataWizardComponent } from './components/wizzard/1-course-selection/dat
         CalendarContextMenuComponent,
         EditorComponent,
         DataWizardComponent,
+        SpinnerComponent,
     ],
   bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,
@@ -130,6 +133,11 @@ import { DataWizardComponent } from './components/wizzard/1-course-selection/dat
   providers: [
     ConfirmationService,
     MessageService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoadingInterceptor,
+      multi: true
+    },
     provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
 }
