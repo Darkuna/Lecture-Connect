@@ -1,4 +1,4 @@
-<p-contextMenu [global]="true" [model]="contextItems"/>
+<p-contextMenu [global]="true" [model]="contextItems" (onShow)="getItemMenuOptions()"/>
 
 <p-dialog [(visible)]="showHoverDialogBool && activateLens" header="{{hoverEventInfo?.event!.title}}"
           [modal]="false" [closable]="false"

@@ -137,6 +137,14 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     });
   }
 
+  getItemMenuOptions() : void {
+    if(this.activateLens){
+      this.contextItems[2].label = 'Lens (inactive)'
+    } else {
+      this.contextItems[2].label = 'Lens (active)'
+    }
+  }
+
   ngOnInit(): void {
     this.activateLens = true;
 
