@@ -12,11 +12,11 @@ export class LoginUserInfoService implements OnDestroy{
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwtToken')
+      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
     })
   };
 
-  userLoggedIn: boolean = false;
+  private _userLoggedIn: boolean = false;
   private _username: string | null = null;
   private _role: string | null = null;
   private loginSub: Subscription | null = null;
@@ -26,7 +26,7 @@ export class LoginUserInfoService implements OnDestroy{
     private http: HttpClient,
     private storage: LocalStorageService,
   ) {
-    this.userLoggedIn = !!sessionStorageService.retrieve("name");
+    this._userLoggedIn = !!sessionStorageService.retrieve("name");
   }
 
   ngOnDestroy(): void {
@@ -45,7 +45,7 @@ export class LoginUserInfoService implements OnDestroy{
             this.username = decodedToken['username'];
             this.role = decodedToken['role'][0];
             this.userLoggedIn = true;
-            this.storage.store('jwtToken', token['token']);
+            this.storage.store('jwt-token', token['token']);
           }
 
           resolve('upload successfully');
@@ -55,6 +55,14 @@ export class LoginUserInfoService implements OnDestroy{
         }
       });
     });
+  }
+
+  hasAdminRole():boolean{
+    return this._role == 'admin'
+  }
+
+  userIsLoggedIn():boolean{
+    return this.userLoggedIn;
   }
 
   get username(): string {
@@ -74,5 +82,14 @@ export class LoginUserInfoService implements OnDestroy{
   set role(value: string) {
     this.sessionStorageService.store("role", value);
     this._role = value;
+  }
+
+
+  get userLoggedIn(): boolean {
+    return this._userLoggedIn;
+  }
+
+  set userLoggedIn(value: boolean) {
+    this._userLoggedIn = value;
   }
 }

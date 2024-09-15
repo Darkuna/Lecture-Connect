@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
-import {Observable, switchMap, throwError} from "rxjs";
+import {Observable, switchMap} from "rxjs";
 import {Course} from "../../assets/Models/course";
 import {GlobalTableService} from "./global-table.service";
 
@@ -15,7 +15,7 @@ export class CourseService {
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwtToken')
+      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
     })
   };
 

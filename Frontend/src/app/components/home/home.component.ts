@@ -324,7 +324,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.hideTableDialog();
 
     this.shareService.selectedTable = this.creationTable;
-    this.router.navigate(['/tmpwizard']).catch(message => {
+    this.router.navigate(['/preselection']).catch(message => {
       this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
     });
   }
