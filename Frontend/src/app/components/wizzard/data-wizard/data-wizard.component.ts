@@ -1,9 +1,9 @@
 import {Component, Input, Output} from '@angular/core';
-import {TmpTimeTable} from "../../../../../assets/Models/tmp-time-table";
+import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {Router} from "@angular/router";
-import {TableShareService} from "../../../../services/table-share.service";
-import {CourseService} from "../../../../services/course-service";
-import {Course} from "../../../../../assets/Models/course";
+import {TableShareService} from "../../../services/table-share.service";
+import {CourseService} from "../../../services/course-service";
+import {Course} from "../../../../assets/Models/course";
 import {MessageService} from "primeng/api";
 
 @Component({
@@ -42,7 +42,7 @@ export class DataWizardComponent{
      this.userHasInteracted = true;
      this.showIndex += 1;
    } else {
-     this.router.navigate(['/wizard'])
+     this.router.navigate(['/user/wizard'])
        .catch();
    }
  }
@@ -92,7 +92,7 @@ export class DataWizardComponent{
     }
 
     this.shareService.selectedTable.courseTable = this.initialSelection;
-    this.router.navigate(['/wizard']).catch();
+    this.router.navigate(['/user/wizard']).catch();
  }
 
 }

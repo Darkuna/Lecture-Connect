@@ -226,7 +226,7 @@ export class BaseSelectionComponent{
           this.localStorage.clear('tmptimetable');
           this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
 
-          this.router.navigate(['/home']).catch(message => {
+          this.router.navigate(['/user/home']).catch(message => {
             this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
           });
       })

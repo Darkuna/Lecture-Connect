@@ -169,7 +169,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   saveAndGoHome(){
     this.saveChanges();
 
-    this.router.navigate(['/home']).catch(message => {
+    this.router.navigate(['/user/home']).catch(message => {
       this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
     });
   }

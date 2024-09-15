@@ -18,7 +18,7 @@ export class LoginUserInfoService implements OnDestroy{
 
   private _userLoggedIn: boolean = false;
   private _username: string | null = null;
-  private _role: string[] | null = null;
+  private _role: string[] = [];
   private loginSub: Subscription | null = null;
 
   constructor(

@@ -64,7 +64,7 @@ import {ProgressSpinnerModule} from "primeng/progressspinner";
 import { CalendarContextMenuComponent } from './components/home/calendar-context-menu/calendar-context-menu.component';
 import { EditorComponent } from './components/editor/editor.component';
 import {PanelMenuModule} from "primeng/panelmenu";
-import { DataWizardComponent } from './components/wizzard/1-course-selection/data-wizard/data-wizard.component';
+import { DataWizardComponent } from './components/wizzard/data-wizard/data-wizard.component';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 

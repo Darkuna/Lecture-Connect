@@ -10,8 +10,8 @@ import {RoomSelectionPageComponent} from "./components/home/room-selection-page/
 import {CourseSelectionPageComponent} from "./components/home/course-selection-page/course-selection-page.component";
 import {PageNotFoundComponentComponent} from "./components/page-not-found-component/page-not-found-component.component";
 import {EditorComponent} from "./components/editor/editor.component";
-import {DataWizardComponent} from "./components/wizzard/1-course-selection/data-wizard/data-wizard.component";
-import {AuthGuardAdmin, AuthGuardLogin} from "./guard/auth-guard.guard";
+import {DataWizardComponent} from "./components/wizzard/data-wizard/data-wizard.component";
+import {AuthGuardAdmin, AuthGuardLogin} from "./guard/auth-guards";
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent},
