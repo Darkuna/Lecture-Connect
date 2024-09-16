@@ -12,6 +12,7 @@ import {PageNotFoundComponentComponent} from "./components/page-not-found-compon
 import {EditorComponent} from "./components/editor/editor.component";
 import {DataWizardComponent} from "./components/wizzard/data-wizard/data-wizard.component";
 import {AuthGuardAdmin, AuthGuardEditorClose, AuthGuardLogin, AuthGuardWizardClose} from "./guard/auth-guards";
+import {UserSettingsComponent} from "./components/header-self/user-settings/user-settings.component";
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent},
@@ -24,6 +25,7 @@ const routes: Routes = [
       {path: 'tt-courses', component: CourseSelectionPageComponent},
       {path: 'editor', component: EditorComponent, canDeactivate: [AuthGuardEditorClose]},
       {path: 'preselection', component: DataWizardComponent},
+      {path: 'settings', component: UserSettingsComponent},
     ]},
   {path: 'admin', canActivateChild: [AuthGuardAdmin], children:[
       {path: 'users', component: UsersViewComponent},

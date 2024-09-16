@@ -67,6 +67,7 @@ import {PanelMenuModule} from "primeng/panelmenu";
 import { DataWizardComponent } from './components/wizzard/data-wizard/data-wizard.component';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import {LoadingInterceptor} from "./interceptor/loading.interceptor";
+import { UserSettingsComponent } from './components/header-self/user-settings/user-settings.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -92,6 +93,7 @@ import {LoadingInterceptor} from "./interceptor/loading.interceptor";
         EditorComponent,
         DataWizardComponent,
         SpinnerComponent,
+        UserSettingsComponent,
     ],
   bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,
