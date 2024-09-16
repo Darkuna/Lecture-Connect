@@ -7,6 +7,7 @@ RUN npm install
 
 COPY . .
 RUN npm run build --prod
+RUN chmod -R 755 /usr/share/nginx/html
 
 FROM nginx:alpine
 
