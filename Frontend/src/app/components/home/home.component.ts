@@ -129,6 +129,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   ngOnDestroy(): void {
     this.availableTableSubs.unsubscribe();
+
   }
 
   ngAfterViewChecked() {
@@ -256,20 +257,21 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
-      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
-      next: (collision: CourseSessionDTO[]) => {
-        if (collision.length === 0) {
-          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
-        else {
-          this.calendarContextMenu.colorCollisionEvents(collision);
-          this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
-        }
-      },
+      const tmpSub = this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
+        next: (collision: CourseSessionDTO[]) => {
+          if (collision.length === 0) {
+            this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
+          else {
+            this.calendarContextMenu.colorCollisionEvents(collision);
+            this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
+          }
+        },
 
-      error: err => {
-        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
-      }
+        error: err => {
+          this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
+        }
       });
+      tmpSub.unsubscribe();
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
