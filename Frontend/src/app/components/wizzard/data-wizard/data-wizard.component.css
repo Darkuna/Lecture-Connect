@@ -1,0 +1,19 @@
+#content{
+  padding: 12rem 26rem;
+}
+
+.custom {
+  float: left;
+  width: 20rem;
+  height: 25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--system-color-primary-white);
+  background-color: #003361CF;
+  border-radius: 1rem;
+  margin: 0.5rem;
+  padding: 0.5rem;
+  text-align: center;
+}

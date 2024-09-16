@@ -13,26 +13,31 @@ export class CourseToDtoConverterService {
   ) {
   }
 
-  convertCourseToDto(courses: Course[]): CourseDTO[]{
+  convertCourseToDto(course: Course): CourseDTO {
+    return new CourseDTO(
+      course.id,
+      course.courseType!.toString(),
+      course.studyType!.toString(),
+      course.name!,
+      course.lecturer!,
+      course.semester!,
+      course.duration!,
+      course.numberOfParticipants!,
+      course.computersNecessary!,
+      this.timingConverter.convertMultiple(course.timingConstraints!),
+      '',
+      '',
+      course.numberOfGroups!,
+      course.isSplit,
+      course.splitTimes
+    );
+  }
+
+  convertListToDto(courses: Course[]): CourseDTO[]{
     let dto: CourseDTO[] = [];
 
     courses.forEach(c => {
-      dto.push(
-        new CourseDTO(
-          c.id,
-          c.courseType!.toString(),
-          c.studyType!,
-          c.name!,
-          c.lecturer!,
-          c.semester!,
-          c.duration!,
-          c.numberOfParticipants!,
-          c.computersNecessary!,
-          this.timingConverter.convertMultiple(c.timingConstraints!),
-          c.createdAt?.toLocaleString()!,
-          c.updatedAt?.toLocaleString()!,
-          c.numberOfGroups!, c.isSplit!, c.splitTimes!)
-      )
+      dto.push( this.convertCourseToDto(c) )
     })
 
     return dto;

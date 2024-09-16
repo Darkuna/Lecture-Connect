@@ -1,6 +1,6 @@
 import {Component, Input, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
-import {CalendarOptions, DateSelectArg, EventClickArg} from "@fullcalendar/core";
+import {CalendarOptions, DateSelectArg, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -112,6 +112,7 @@ export class BaseSelectionComponent{
     selectable: true,
     selectMirror: true,
     dayMaxEvents: true,
+    dragScroll: true,
     select: this.handleDateSelect.bind(this),
     eventClick: this.handleEventClick.bind(this),
     eventAdd: this.interactWithModel.bind(this),
@@ -129,6 +130,9 @@ export class BaseSelectionComponent{
     eventOverlap: false,
     slotEventOverlap: false,
     nowIndicator: false,
+    eventDurationEditable: true,
+    eventStartEditable: true,
+
   });
 
   handleDateSelect(selectInfo: DateSelectArg) {
@@ -142,12 +146,13 @@ export class BaseSelectionComponent{
   }
 
   saveEvent(){
-    let newEvent = {
+    let newEvent:EventInput = {
       title: this.getCourseType(this.lastUsedColor),
       color: this.lastUsedColor,
       borderColor: '#D8D8D8',
       start: this.dataSelectStart,
       end: this.dataSelectEnd,
+      editable: true
     };
 
     this.calendarComponent.getApi().addEvent(newEvent);
@@ -206,8 +211,9 @@ export class BaseSelectionComponent{
     let dto = new TmpTimeTableDTO();
 
     dto.rooms = this.roomConverter.convertRoomsToDto(this.globalTable.roomTables);
-    dto.courses = this.courseConverter.convertCourseToDto(this.globalTable.courseTable);
+    dto.courses = this.courseConverter.convertListToDto(this.globalTable.courseTable);
 
+    dto.name = this.globalTable.name;
     dto.year = this.globalTable.year;
     dto.semester = this.globalTable.semester;
     dto.status = getStatusKey(this.globalTable.status);
@@ -216,20 +222,16 @@ export class BaseSelectionComponent{
   }
 
   sendToBackend() {
-    let res = this.convertGlobalTableItems();
-    this.globalTableService.pushTmpTableObject(res)
-      .then(([status, message]) => {
-        if (status) {
+    this.globalTableService.pushTmpTableObject(this.convertGlobalTableItems())
+      .then((message) => {
           this.localStorage.clear('tmptimetable');
           this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
-          this.router.navigate(['/home']).catch(message => {
+
+          this.router.navigate(['/user/home']).catch(message => {
             this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
           });
-        } else {
-          this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
-        }
       })
-      .catch(([status, message]) => {
+      .catch((message) => {
         this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
       });
   }

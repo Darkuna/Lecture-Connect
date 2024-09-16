@@ -3,7 +3,6 @@ package com.example.demo.models;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.base.TimestampedEntity;
 import com.example.demo.models.enums.Status;
-import com.example.demo.scheduling.Scheduler;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +20,7 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    private String name;
     private Semester semester;
     @Column(name = "academic_year")
     private int year;
@@ -29,9 +29,6 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
     private List<RoomTable> roomTables;
     @OneToMany(mappedBy = "timeTable", fetch = FetchType.LAZY)
     private List<CourseSession> courseSessions;
-
-    @Transient
-    private Scheduler scheduler;
 
     public TimeTable(){
         this.roomTables = new ArrayList<>();

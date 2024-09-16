@@ -1,10 +1,6 @@
-import { HttpClient } from '@angular/common/http';
-import {Component, OnDestroy} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router} from '@angular/router';
-import {LocalStorageService} from "ngx-webstorage";
-import * as jwt_decode from 'jwt-decode';
 import {MessageService} from "primeng/api";
-import {Subscription} from "rxjs";
 import {LoginUserInfoService} from "../../services/login-user-info.service";
 
 interface LoginObj {
@@ -34,7 +30,7 @@ export class LoginComponent {
     this.userInfoService.loginUser(this.loginObj)
       .then(() => {
         this.messageService.add({severity: 'success',summary: `Welcome back ${this.loginObj.name}!`});
-        this.router.navigate(['/home'])
+        this.router.navigate(['/user/home'])
           .catch(message => {
             this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
         })

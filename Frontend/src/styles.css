@@ -5,7 +5,7 @@
 
 
 :root {
-  --system-color-primary-blue: #003361;
+  --system-color-primary-blue: rgba(0, 51, 97, 0.81);
   --system-color-primary-orange: #F39200;
   --system-color-primary-white: #f4f4f4;
   --system-color-primary-red: #AD5353;
@@ -104,4 +104,18 @@
   background-color: transparent;
 }
 
+.p-panelmenu .p-panelmenu-header .p-panelmenu-header-content .p-panelmenu-header-action {
+  color: var(--system-color-primary-white);
+  padding: 1rem;
+  font-weight: 600;
+  background: var(--system-color-primary-blue);
+  position: relative; /* Allows us to position the badge */
+}
+
+.p-panelmenu .p-panelmenu-content .p-menuitem > .p-menuitem-content .p-menuitem-link {
+  color: #4c566a;
+  padding: 0.75rem 1rem;
+  -webkit-user-select: none;
+  user-select: none;
+}
 

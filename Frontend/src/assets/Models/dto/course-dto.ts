@@ -14,7 +14,7 @@ export class CourseDTO {
   createdAt?: string;
   updatedAt?: string;
   numberOfGroups?: number;
-  isSplit?: boolean;
+  split?: boolean;
   splitTimes?: number[];
 
 
@@ -32,7 +32,7 @@ export class CourseDTO {
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.numberOfGroups = numberOfGroups;
-    this.isSplit = isSplit;
+    this.split = isSplit;
     this.splitTimes = splitTimes;
   }
 }

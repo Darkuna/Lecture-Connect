@@ -12,7 +12,7 @@ import {PasswordModule} from "primeng/password";
 import {FormsModule} from "@angular/forms";
 import {LoginComponent} from './components/login/login.component';
 import {HomeComponent} from './components/home/home.component';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {NgxWebstorageModule} from 'ngx-webstorage';
 import {PageNotFoundComponentComponent} from './components/page-not-found-component/page-not-found-component.component';
 import {ToastModule} from 'primeng/toast';
@@ -63,6 +63,10 @@ import { CourseSelectionPageComponent } from './components/home/course-selection
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import { CalendarContextMenuComponent } from './components/home/calendar-context-menu/calendar-context-menu.component';
 import { EditorComponent } from './components/editor/editor.component';
+import {PanelMenuModule} from "primeng/panelmenu";
+import { DataWizardComponent } from './components/wizzard/data-wizard/data-wizard.component';
+import { SpinnerComponent } from './components/spinner/spinner.component';
+import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 
 @NgModule({ declarations: [
         AppComponent,
@@ -86,8 +90,10 @@ import { EditorComponent } from './components/editor/editor.component';
         CourseSelectionPageComponent,
         CalendarContextMenuComponent,
         EditorComponent,
+        DataWizardComponent,
+        SpinnerComponent,
     ],
-    bootstrap: [AppComponent],
+  bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,
     BrowserModule,
     AppRoutingModule,
@@ -123,10 +129,15 @@ import { EditorComponent } from './components/editor/editor.component';
     IconFieldModule,
     InputIconModule,
     ToggleButtonModule,
-    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule],
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule],
   providers: [
     ConfirmationService,
     MessageService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoadingInterceptor,
+      multi: true
+    },
     provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule {
 }

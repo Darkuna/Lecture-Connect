@@ -6,6 +6,8 @@ import {InfoDialogInterface} from "../../../assets/Models/interfaces/info-dialog
 import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
 import {Router} from "@angular/router";
+import {Course} from "../../../assets/Models/course";
+import {Room} from "../../../assets/Models/room";
 
 @Component({
   selector: 'app-wizard',
@@ -19,6 +21,8 @@ export class WizardComponent {
   dialog: boolean = false;
   currentDialog: InfoDialogInterface;
   InfoDialogOptions: InfoDialogInterface[];
+
+  dirtyData: boolean = true;
 
   constructor(
     private shareService: TableShareService,
@@ -57,14 +61,43 @@ export class WizardComponent {
     this.currentDialog = this.InfoDialogOptions[this.active];
   }
 
-  checkIfCoursesSelected():boolean{
-    return this.selectedTable.courseTable === undefined || this.selectedTable.courseTable.length == 0;
+  checkIfCoursesSelected(): boolean{
+    return this.selectedTable.courseTable.length == 0;
   }
 
-  checkIfRoomsSelected(){
-    return this.selectedTable.roomTables === undefined || this.selectedTable.roomTables.length == 0;
+  checkIfRoomsSelected(): boolean{
+    return this.selectedTable.roomTables.length == 0;
   }
 
+  addCourse(course: Course) {
+    if (course) {
+      if (this.selectedTable.courseTable.findIndex(x => x.id == course.id) > -1) {
+        this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
+      } else {
+        this.selectedTable.courseTable.push(course);
+
+      }
+    }
+  }
+
+  removeCourse(course: Course){
+    this.selectedTable.courseTable = this.selectedTable.courseTable.filter((val:Course) => val.id !== course.id);
+  }
+
+  addRoom(room: Room){
+    if (room) {
+      if (this.selectedTable.roomTables.findIndex(x => x.id == room.id) > -1) {
+        this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Room is already in List'});
+      } else {
+        this.selectedTable.roomTables.push(room);
+
+      }
+    }
+  }
+
+  removeRoom(room: Room){
+    this.selectedTable.roomTables = this.selectedTable.roomTables.filter((val:Room) => val.id !== room.id);
+  }
 
   getColorBasedOnIndex(type: string, index: number): string {
     if (index > this.active) {
@@ -111,22 +144,26 @@ export class WizardComponent {
   }
 
   saveLocal() {
+    this.dirtyData = false;
     this.selectedTable.currentPageIndex = this.active;
     this.selectedTable.status = Status.LOCAL;
     this.localStorage.store('tmptimetable', this.selectedTable);
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'The Table is only cached locally'
-    });
+    this.messageService.add({severity: 'info', summary: 'Info', detail: 'The Table is only cached locally'});
   }
 
   closeWizard() {
     this.saveLocal();
-    this.router.navigate(['/home'])
+    this.router.navigate(['/users/home'])
       .catch(message => {
         this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
       }
     );
+  }
+
+  canDeactivate(): boolean {
+    if (this.dirtyData) {
+      return confirm('You have unsaved changes. Do you really want to leave?');
+    }
+    return true; // If no unsaved changes, allow navigation
   }
 }

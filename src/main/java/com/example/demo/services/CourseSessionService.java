@@ -3,6 +3,7 @@ package com.example.demo.services;
 import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.example.demo.models.*;
 import com.example.demo.repositories.CourseSessionRepository;
+import com.example.demo.repositories.RoomTableRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -25,8 +26,8 @@ import java.util.Set;
 @Scope("session")
 public class CourseSessionService {
 
-    CourseSessionRepository courseSessionRepository;
-    TimingService timingService;
+    private final CourseSessionRepository courseSessionRepository;
+    private final TimingService timingService;
     private static final Logger log = LoggerFactory.getLogger(CourseSessionService.class);
 
     @Autowired
@@ -43,10 +44,11 @@ public class CourseSessionService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> createCourseSessionsFromCourse(TimeTable timeTable, Course course){
+        log.info("Course: split: {}, nrGroups: {}, splitTimes: {}", course.isSplit(), course.getNumberOfGroups(), course.getSplitTimes());
         List<CourseSession> courseSessions = new ArrayList<>();
         boolean isSplitCourse = course.isSplit();
         boolean hasGroups = course.getNumberOfGroups() > 1;
-        int numberOfCourseSessionsToCreate = hasGroups ? course.getNumberOfGroups() : (isSplitCourse ? 2 : 1);
+        int numberOfCourseSessionsToCreate = hasGroups ? course.getNumberOfGroups() : (isSplitCourse ? course.getSplitTimes().size() : 1);
 
         for(int i = 0; i < numberOfCourseSessionsToCreate; i++){
             CourseSession courseSession = new CourseSession();
@@ -127,6 +129,20 @@ public class CourseSessionService {
         return courseSession;
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public CourseSession assignCourseSession(CourseSession courseSession){
+        if(courseSession.getId() != null){
+            CourseSession original = loadCourseSessionByID(courseSession.getId());
+            original.setRoomTable(courseSession.getRoomTable());
+            original.setTiming(timingService.createTiming(courseSession.getTiming()));
+            original.setAssigned(true);
+            original = courseSessionRepository.save(original);
+            log.info("Assigned course session {} to roomTable {} at timing {}", original.getName(), original.getRoomTable(), original.getTiming());
+            return courseSession;
+        }
+        return null;
+    }
+
     /**
      * Unassigns a course session from its room table and timing.
      *
@@ -136,13 +152,16 @@ public class CourseSessionService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public CourseSession unassignCourseSession(CourseSession courseSession){
-        courseSession.setRoomTable(null);
-        Timing timing = courseSession.getTiming();
-        courseSession.setTiming(null);
-        timingService.deleteTiming(timing);
-        courseSession.setAssigned(false);
-        log.info("Unassigned course session {}", courseSession.getName());
-        return courseSessionRepository.save(courseSession);
+        if(courseSession.getId() != null) {
+            CourseSession original = loadCourseSessionByID(courseSession.getId());
+            original.setRoomTable(null);
+            original.setTiming(null);
+            original.setAssigned(false);
+            original = courseSessionRepository.save(original);
+            log.info("Unassigned course session {}", courseSession.getName());
+            return original;
+        }
+        return null;
     }
 
     /**
@@ -216,5 +235,21 @@ public class CourseSessionService {
         List<CourseSession> courseSessionsToSave = courseSessions.stream()
                 .toList();
         return courseSessionRepository.saveAll(courseSessionsToSave);
+    }
+
+    public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
+        return courseSessionRepository.saveAll(courseSessions);
+    }
+
+    public void moveCourseSession(CourseSession courseSession) {
+        if(courseSession.getId() != null){
+            CourseSession original = loadCourseSessionByID(courseSession.getId());
+            if(!original.getTiming().hasSameDayAndTime(courseSession.getTiming())){
+                Timing timing = original.getTiming();
+                original.setTiming(timingService.createTiming(courseSession.getTiming()));
+                courseSessionRepository.save(original);
+                timingService.deleteTiming(timing);
+            }
+        }
     }
 }

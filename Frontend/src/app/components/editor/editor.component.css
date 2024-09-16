@@ -14,28 +14,42 @@
 }
 
 .col-left {
-  display: inline-table;
-  align-content: center;
+  display: inline-block;
+  align-content: baseline;
+  text-align: center;
   height: 100%;
   border-radius: 15px;
-}
-
-#external-events {
-  border: 1px solid #ccc;
-  background-color: #f4f4f4;
-}
-
-#external-events .fc-event {
-  width: 100%;
-  margin: 5px 0;
-  padding: 5px;
-  background-color: #3788d8;
-  color: white;
-  cursor: pointer;
 }
 
 #calendarScroll{
   overflow-y: auto;
   max-height: 86vh;
   height: 100%;
+}
+
+#external-events{
+  overflow-y: scroll;
+}
+
+.fc-event{
+  background-color: #6e6e6e; /* Gray background */
+  color: white; /* White text */
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #4e4e4e; /* Optional: Darker border for emphasis */
+  width: 100%; /* Full width of the container */
+  box-sizing: border-box; /* Ensure padding doesn’t affect width */
+  margin: 5px 0;
+  padding: 5px;
+
+}
+
+.event-time {
+  font-size: var(--fc-small-font-size);
+}
+
+.event-title {
+  font-size: 1rem; /* Normal size for the title */
+  font-weight: normal; /* Regular weight */
+  margin-top: 5px; /* Space between time and title */
+  line-height: 1.2; /* Better line spacing */
 }

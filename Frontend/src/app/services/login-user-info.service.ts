@@ -12,13 +12,13 @@ export class LoginUserInfoService implements OnDestroy{
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwtToken')
+      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
     })
   };
 
-  userLoggedIn: boolean = false;
+  private _userLoggedIn: boolean = false;
   private _username: string | null = null;
-  private _role: string | null = null;
+  private _role: string[] = [];
   private loginSub: Subscription | null = null;
 
   constructor(
@@ -26,7 +26,7 @@ export class LoginUserInfoService implements OnDestroy{
     private http: HttpClient,
     private storage: LocalStorageService,
   ) {
-    this.userLoggedIn = !!sessionStorageService.retrieve("name");
+    this._userLoggedIn = !!sessionStorageService.retrieve("name");
   }
 
   ngOnDestroy(): void {
@@ -40,12 +40,12 @@ export class LoginUserInfoService implements OnDestroy{
       this.http.post<any>(LoginUserInfoService.API_PATH, loginObj, this.httpOptions).subscribe({
         next: (token) => {
           if (token && token['token']) {
-            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string };
+            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string | string[] };
 
-            this.username = decodedToken['username'];
-            this.role = decodedToken['role'][0];
+            this.username = <string>decodedToken['username'];
+            this.role = <string[]>decodedToken['role'];
             this.userLoggedIn = true;
-            this.storage.store('jwtToken', token['token']);
+            this.storage.store('jwt-token', token['token']);
           }
 
           resolve('upload successfully');
@@ -57,6 +57,14 @@ export class LoginUserInfoService implements OnDestroy{
     });
   }
 
+  hasAdminRole():boolean{
+    return !!this._role!.find(t => t == 'ADMIN');
+  }
+
+  userIsLoggedIn():boolean{
+    return this.userLoggedIn;
+  }
+
   get username(): string {
     return this._username || "";
   }
@@ -66,13 +74,22 @@ export class LoginUserInfoService implements OnDestroy{
     this._username = value;
   }
 
-  get role(): string {
+  get role(): string[] {
     this.sessionStorageService.retrieve("role");
-    return this._role || "";
+    return this._role || [];
   }
 
-  set role(value: string) {
+  set role(value: string[]) {
     this.sessionStorageService.store("role", value);
     this._role = value;
+  }
+
+
+  get userLoggedIn(): boolean {
+    return this._userLoggedIn;
+  }
+
+  set userLoggedIn(value: boolean) {
+    this._userLoggedIn = value;
   }
 }

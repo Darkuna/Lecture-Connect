@@ -15,11 +15,13 @@ import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 })
 export class GlobalTableService {
   currentTimeTable: Observable<TimeTableDTO> | null = null;
+  tableId: number | null = null;
+
   static API_PATH = "/proxy/api/global";
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwtToken')
+      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
     })
   };
 
@@ -37,19 +39,20 @@ export class GlobalTableService {
   getSpecificTimeTable(id: number):Observable<TimeTableDTO> {
     let newUrl = `${GlobalTableService.API_PATH}/${id}`;
     this.currentTimeTable = this.http.get<TimeTableDTO>(newUrl, this.httpOptions)
+    this.currentTimeTable.subscribe(r => this.tableId = r.id);
     return this.currentTimeTable;
   }
 
-  pushTmpTableObject(table: TmpTimeTableDTO): Promise<[boolean, string]> {
+  pushTmpTableObject(table: TmpTimeTableDTO): Promise<string> {
     let newUrl = `${GlobalTableService.API_PATH}/create`;
 
     return new Promise((resolve, reject) => {
       this.http.post<any>(newUrl, table, this.httpOptions).subscribe({
-        next: (response) => {
-        resolve([true, 'upload successfully']);
+        next: () => {
+        resolve('upload successfully');
       },
       error: (err: HttpErrorResponse) => {
-        reject([false, err.message]);
+        reject(err.message);
       }
       });
     });
@@ -87,13 +90,6 @@ export class GlobalTableService {
   updateTableCourses(id: number, courses : Course[], newLogs : TableLogDto[]){
     let newUrl = `${GlobalTableService.API_PATH}/courseupdate/${id}`;
     this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, [courses, newLogs], this.httpOptions);
-    return this.currentTimeTable;
-  }
-
-  //TODO change with correct api path
-  updateTableLogs(id: number, newLogs : TableLogDto[]){
-    let newUrl = `${GlobalTableService.API_PATH}/logs/${id}`;
-    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, newLogs, this.httpOptions);
     return this.currentTimeTable;
   }
 }

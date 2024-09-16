@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 public class TimeTableDTO {
     private Long id;
+    private String name;
     private String semester;
     private int year;
     private String status;

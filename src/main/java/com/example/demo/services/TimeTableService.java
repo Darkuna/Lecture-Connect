@@ -1,11 +1,14 @@
 package com.example.demo.services;
 
 import com.example.demo.dto.*;
+import com.example.demo.exceptions.scheduler.AssignmentFailedException;
 import com.example.demo.models.*;
+import com.example.demo.models.enums.ChangeType;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
 import com.example.demo.repositories.TimeTableRepository;
 import com.example.demo.scheduling.Scheduler;
+import com.example.demo.scheduling.SecondScheduler;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -13,8 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import java.util.Map;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class for managing timetables.
@@ -29,17 +34,18 @@ public class TimeTableService {
     private final CourseSessionService courseSessionService;
     private final DTOConverter dtoConverter;
     private final Scheduler scheduler;
+    private final GlobalTableChangeService globalTableChangeService;
     private static final Logger log = LoggerFactory.getLogger(TimeTableService.class);
-    private final TimingService timingService;
 
     public TimeTableService(TimeTableRepository timeTableRepository, RoomTableService roomTableService,
-                            CourseSessionService courseSessionService, DTOConverter dtoConverter, Scheduler scheduler, TimingService timingService) {
+                            CourseSessionService courseSessionService, DTOConverter dtoConverter, SecondScheduler scheduler,
+                            GlobalTableChangeService globalTableChangeService) {
         this.timeTableRepository = timeTableRepository;
         this.roomTableService = roomTableService;
         this.courseSessionService = courseSessionService;
         this.dtoConverter = dtoConverter;
         this.scheduler = scheduler;
-        this.timingService = timingService;
+        this.globalTableChangeService = globalTableChangeService;
     }
 
     /**
@@ -54,6 +60,7 @@ public class TimeTableService {
         Room room;
         Course course;
         TimeTable timeTable = new TimeTable();
+        timeTable.setName(dto.getName());
         timeTable.setStatus(Status.NEW);
         timeTable.setSemester(Semester.valueOf(dto.getSemester()));
         timeTable.setYear(dto.getYear());
@@ -70,12 +77,15 @@ public class TimeTableService {
         }
         log.info("Created timeTable with id {}. Added {} roomTables and {} courseSessions", timeTable.getId(),
                 timeTable.getRoomTables().size(), timeTable.getCourseSessions().size());
+        globalTableChangeService.create(ChangeType.CREATE_TABLE, timeTable, String.format("Timetable '%s %d' with id '%d' was created",
+                dto.getSemester(), dto.getYear(), timeTable.getId()));
         return timeTableRepository.save(timeTable);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public TimeTable createTimeTable(Semester semester, int year){
+    public TimeTable createTimeTable(String name, Semester semester, int year){
         TimeTable timeTable = new TimeTable();
+        timeTable.setName(name);
         timeTable.setSemester(semester);
         timeTable.setYear(year);
         timeTable.setStatus(Status.NEW);
@@ -194,14 +204,22 @@ public class TimeTableService {
      *
      * @param timeTable The timetable for executing the algorithm
      */
-    @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public void assignCourseSessionsToRooms(TimeTable timeTable){
+    public boolean assignCourseSessionsToRooms(TimeTable timeTable){
         log.info("Starting assignment algorithm for timeTable with id {}", timeTable.getId());
         scheduler.setTimeTable(timeTable);
-        scheduler.assignUnassignedCourseSessions();
-        timeTableRepository.save(timeTable);
-        log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
+        try{
+            scheduler.assignUnassignedCourseSessions();
+            timeTableRepository.save(timeTable);
+            log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
+            globalTableChangeService.create(ChangeType.APPLY_ALGORITHM, timeTable, "Assignment algorithm was processed successfully.");
+            return true;
+        }
+        catch(AssignmentFailedException e){
+            log.error("Assignment failed for timeTable with id {}. Unassigning all courseSessions ...", timeTable.getId());
+            unassignAllCourseSessions(timeTable);
+            return false;
+        }
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
@@ -213,7 +231,57 @@ public class TimeTableService {
     public TimeTable unassignAllCourseSessions(TimeTable timeTable){
         courseSessionService.unassignCourseSessions(timeTable.getAssignedCourseSessions());
         log.info("Unassigned all assigned courseSessions of timeTable {}", timeTable.getId());
+        globalTableChangeService.create(ChangeType.CLEAR_TABLE, timeTable, String.format("All assigned courseSessions of timeTable %s %d were unassigned",
+                timeTable.getSemester(), timeTable.getYear()));
         timeTable.setRoomTables(roomTableService.loadAllOfTimeTable(timeTable));
         return timeTable;
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
+        List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
+        Map<Long, CourseSession> orig = originalCourseSessions.stream().collect(Collectors.toMap(CourseSession::getId, c -> c));
+        for(CourseSession courseSession : courseSessions){
+            CourseSession toCompare = orig.get(courseSession.getId());
+            //if original and new courseSession are not assigned, nothing to do
+            if(toCompare == null){
+                System.out.println(courseSession);
+            }
+            if(!toCompare.isAssigned() && !courseSession.isAssigned()){
+                continue;
+            }
+            //cases: courseSession could have been moved, assigned or unassigned
+            //if both are assigned
+            if(toCompare.isAssigned() == courseSession.isAssigned()){
+                //if either roomTable or timing differs
+                if(!toCompare.isAssignedToSameRoomAndTime(courseSession)){
+                    //if only timing changed
+                    if(toCompare.getRoomTable().equals(courseSession.getRoomTable())){
+                        globalTableChangeService.create(ChangeType.MOVE_COURSE, timeTable, String.format("Course %s was moved from %s to %s",
+                                courseSession.getName(), toCompare.getTiming(), courseSession.getTiming()));
+                        courseSessionService.moveCourseSession(courseSession);
+                    }
+                    //if roomTable and timing changed
+                    else{
+                        globalTableChangeService.create(ChangeType.MOVE_COURSE, timeTable, String.format("Course %s was moved from %s to %s and from room %s to %s",
+                                courseSession.getName(), toCompare.getTiming(), courseSession.getTiming(), toCompare.getRoomTable(), courseSession.getRoomTable()));
+                        courseSessionService.moveCourseSession(courseSession);
+                    }
+                }
+            }
+            //if courseSession is assigned and original not
+            else if (courseSession.isAssigned()){
+                globalTableChangeService.create(ChangeType.ASSIGN_COURSE, timeTable, String.format("Course %s was assigned to room %s at %s",
+                        courseSession.getName(), courseSession.getTiming(), courseSession.getRoomTable()));
+                courseSessionService.assignCourseSession(courseSession);
+            }
+            // if original was assigned and new courseSession is not
+            else {
+                globalTableChangeService.create(ChangeType.UNASSIGN_COURSE, timeTable, String.format("Course %s was unassigned from room %s at %s",
+                        courseSession.getName(), toCompare.getTiming(), toCompare.getRoomTable()));
+                courseSessionService.unassignCourseSession(courseSession);
+            }
+
+        }
     }
 }

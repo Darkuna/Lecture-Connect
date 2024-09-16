@@ -1,4 +1,12 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterViewChecked,
+  AfterViewInit, ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {ConfirmationService, MenuItem, MessageService} from "primeng/api";
 import {CalendarOptions, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -28,7 +36,7 @@ import html2canvas from 'html2canvas';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterViewChecked {
   availableTableSubs: Subscription;
   availableTables!: TimeTableNames[];
   shownTableDD: TimeTableNames | null = null;
@@ -53,6 +61,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
+  changeCalendarView: boolean = false;
   calendarOptions :CalendarOptions = {
     plugins: [
       interactionPlugin,
@@ -96,11 +105,19 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private cd: ChangeDetectorRef
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
-        this.availableTables = [...data];
-        this.shownTableDD = this.availableTables[0];
+        this.availableTables = data;
+
+        if(this.globalTableService.currentTimeTable !== null){
+          this.shownTableDD = this.availableTables
+            .find(t => t.id === this.globalTableService.tableId) ?? this.availableTables[0];
+        } else {
+          this.shownTableDD = this.availableTables[0];
+        }
+
         this.loadSpecificTable();
       }
   });
@@ -112,6 +129,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.availableTableSubs.unsubscribe();
+
+  }
+
+  ngAfterViewChecked() {
+    this.cd.detectChanges();
   }
 
   showTableDialog() {
@@ -133,7 +155,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.selectedTimeTable!.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
-        this.converter.convertCourseSessionToEventInput(),
+        this.converter.convertCourseSessionToEventInput('home'),
         toArray(),
         catchError(error => {
           console.error('Error converting sessions:', error);
@@ -162,8 +184,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.clearCalendar();
   }
 
-  tableIsSelected():boolean{
-    return this.selectedTimeTable === null;
+  changeCalenderEventView(){
+    let eventMaxValue: string = '2';
+
+    if (this.changeCalendarView){
+      eventMaxValue = 'null';
+    }
+
+    this.updateCalendar('eventMaxStack', eventMaxValue);
   }
 
   isTmpTableAvailable(): TmpTimeTable {
@@ -197,28 +225,53 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       this.updateCalendarEvents();
 
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
+    } else {
+      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
-    else {
+  }
+
+  removeAll(){
+    if(this.shownTableDD){
+      this.confirmationService.confirm(
+        {
+          message: 'Are you sure that you want to proceed?',
+          header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle',
+          acceptIcon:"none",
+          rejectIcon:"none",
+          accept: () => {
+            this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
+            this.updateCalendarEvents();
+
+            this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
+          },
+          reject: () => {
+            this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
+          }
+        }
+      );
+    } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
   }
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
-      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
-      next: (collision: CourseSessionDTO[]) => {
-        if (collision.length === 0) {
-          this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
-        else {
-          this.calendarContextMenu.colorCollisionEvents(collision);
-          this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
-        }
-      },
+      const tmpSub = this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
+        next: (collision: CourseSessionDTO[]) => {
+          if (collision.length === 0) {
+            this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
+          else {
+            this.calendarContextMenu.colorCollisionEvents(collision);
+            this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
+          }
+        },
 
-      error: err => {
-        this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
-      }
+        error: err => {
+          this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
+        }
       });
+      tmpSub.unsubscribe();
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
@@ -273,7 +326,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.hideTableDialog();
 
     this.shareService.selectedTable = this.creationTable;
-    this.router.navigate(['/wizard']).catch(message => {
+    this.router.navigate(['/user/preselection']).catch(message => {
       this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
     });
   }
@@ -368,19 +421,25 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     ];
 
     this.items = [
-      {separator: true},
       {
         label: 'Editor',
+        expanded: true,
         items: [
           {
             label: 'Edit Mode',
             icon: 'pi pi-pen-to-square',
-            command: () => this.redirectToSelection('/editor')
+            command: () => this.redirectToSelection('/user/editor')
           },
           {
             label: 'Auto Fill',
             icon: 'pi pi-microchip',
-            command: () => this.applyAlgorithm()
+            badge: '3',
+            command: () => this.applyAlgorithm(),
+          },
+          {
+            label: 'Remove all',
+            icon: 'pi pi-delete-left',
+            command: () => this.removeAll()
           },
           {
             label: 'Collision Check',
@@ -389,7 +448,53 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         ]
       },
-      {separator: true},
+      {
+        label: 'Courses',
+        expanded: true,
+        items: [
+          {
+            label: 'Add new Courses',
+            icon: 'pi pi-book',
+            command: () => this.redirectToSelection('/user/tt-courses')
+          },
+          {
+            label: 'Edit shown Courses',
+            icon: 'pi pi-book',
+            command: () => this.redirectToSelection('/user/tt-courses')
+          },
+        ]
+      },
+      {
+        label: 'Rooms',
+        expanded: true,
+        items: [
+          {
+            label: 'Add new Rooms',
+            icon: 'pi pi-warehouse',
+            command: () => this.redirectToSelection('/user/tt-rooms')
+          },
+
+          {
+            label: 'Edit shown Rooms',
+            icon: 'pi pi-warehouse',
+            command: () => this.redirectToSelection('/user/tt-rooms')
+          },
+        ]
+      },
+      {
+        label: 'Scheduling',
+        items: [
+          {
+            label: 'define Status',
+            icon: 'pi pi-check-square',
+          },
+          {
+            label: 'last Changes',
+            icon: 'pi pi-comments',
+            command: () => this.redirectToSelection('/user/tt-status')
+          }
+        ]
+      },
       {
         label: 'Print',
         items: [
@@ -404,54 +509,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           }
         ]
       },
-      {separator: true},
-      {
-        label: 'Courses',
-        items: [
-          {
-            label: 'Add new Courses',
-            icon: 'pi pi-book',
-            command: () => this.redirectToSelection('/tt-courses')
-          },
-          {
-            label: 'Edit shown Courses',
-            icon: 'pi pi-book',
-            command: () => this.redirectToSelection('/tt-courses')
-          },
-        ]
-      },
-      {separator: true},
-      {
-        label: 'Rooms',
-        items: [
-          {
-            label: 'Add new Rooms',
-            icon: 'pi pi-warehouse',
-            command: () => this.redirectToSelection('/tt-rooms')
-          },
-
-          {
-            label: 'Edit shown Rooms',
-            icon: 'pi pi-warehouse',
-            command: () => this.redirectToSelection('/tt-rooms')
-          },
-        ]
-      },
-      {separator: true},
-      {
-        label: 'Scheduling',
-        items: [
-          {
-            label: 'define Status',
-            icon: 'pi pi-check-square',
-          },
-          {
-            label: 'last Changes',
-            icon: 'pi pi-comments',
-            command: () => this.redirectToSelection('/tt-status')
-          }
-        ]
-      }
     ];
   }
 }

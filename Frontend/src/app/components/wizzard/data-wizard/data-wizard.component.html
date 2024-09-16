@@ -1,0 +1,66 @@
+<div id="content">
+  <div class="custom">
+    <h2>Preselect Data</h2>
+    <h4>Do you want to preselect data?</h4>
+    <button pButton [label]="'yes'"
+            [disabled]="userHasInteracted"
+            [style]="{'margin-top': '.5rem', width: '16rem',
+                      'background-color': filterDataVar && userHasInteracted ? '#889A3E' : '#81A1C1',
+                      'border-color': filterDataVar && userHasInteracted ? '#889A3E' : '#81A1C1'}"
+            (click)="filterData(true)">
+    </button>
+    <button pButton [disabled]="userHasInteracted"
+            [label]="'no'"
+            [style]="{'margin-top': '.5rem', width: '14rem'}"
+            (click)="filterData(false)">
+    </button>
+  </div>
+
+  <div class="custom" *ngIf="showIndex >= 1">
+    <h2>Semester Courses</h2>
+    <h4>'Do you want to only include the courses of the selected semester?</h4>
+    <button pButton [disabled]="userHasInteractedSemester"
+            [label]="'yes'"
+            [style]="{'margin-top': '.5rem', width: '16rem',
+                      'background-color': filterSemesterVar && userHasInteractedSemester ? '#889A3E' : '#81A1C1',
+                      'border-color': filterSemesterVar && userHasInteractedSemester ? '#889A3E' : '#81A1C1'}"
+            (click)="filterSemester(true)">
+    </button>
+    <button pButton [disabled]="userHasInteractedSemester"
+            [label]="'no'"
+            [style]="{'margin-top': '.5rem', width: '14rem',
+                      'background-color': !filterSemesterVar && userHasInteractedSemester ? '#889A3E' : '#81A1C1',
+                      'border-color': !filterSemesterVar && userHasInteractedSemester ? '#889A3E' : '#81A1C1'}"
+            (click)="filterSemester(false)">
+    </button>
+  </div>
+
+  <div class="custom" *ngIf="showIndex == 2">
+    <h2>Course Degree(s)</h2>
+    <h4>Do you want to select the degree of courses?</h4>
+    <button pButton [label]="'Bachelor Computer Science'"
+            [style]="{'margin-top': '.5rem', width: '16rem',
+                      'background-color': filterIsSet(0) ? '#889A3E' : '#727b83',
+                      'border-color': filterIsSet(0) ? '#889A3E' : '#727b83'}"
+            (click)="addStudyTypeFilter('BACHELOR_CS', 0)">
+    </button>
+    <button pButton [label]="'Master Computer Science'"
+            [style]="{'margin-top': '.5rem', width: '16rem',
+                      'background-color': filterIsSet(1) ? '#889A3E' : '#727b83',
+                      'border-color': filterIsSet(1) ? '#889A3E' : '#727b83'}"
+            (click)="addStudyTypeFilter('MASTER_CS', 1)">
+    </button>
+    <button pButton [label]="'Master Software Engineering'"
+            [style]="{'margin-top': '.5rem', width: '16rem',
+                      'background-color': filterIsSet(2) ? '#889A3E' : '#727b83',
+                      'border-color': filterIsSet(2) ? '#889A3E' : '#727b83'}"
+            (click)="addStudyTypeFilter('MASTER_SWE', 2)">
+    </button>
+  </div>
+
+
+  <p-button
+    [label]="'finish'"
+    [style]="{'margin-top': '.5rem', width: '16rem'}"
+    (onClick)="finish()"/>
+</div>

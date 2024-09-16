@@ -1,0 +1,45 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: blablabla!!#
+      MYSQL_DATABASE: lectureconnect
+      MYSQL_USER: user
+      MYSQL_PASSWORD: blablabla??#
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+  backend:
+    build:
+      context: ../
+      dockerfile: docker/backend/Dockerfile
+    container_name: backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/lectureconnect
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: blablabla!!#
+      SPRING_JPA_DATABASE: MYSQL
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      - mysql
+    networks:
+      - app-network
+  frontend:
+    build:
+      context: ../Frontend/
+      dockerfile: ../docker/frontend/Dockerfile
+    container_name: frontend
+    ports:
+      - "4200:80"
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

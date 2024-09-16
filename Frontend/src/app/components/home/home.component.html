@@ -1,21 +1,6 @@
 <div id="grid">
   <div id="div1">
-    <p-menu [model]="items">
-      <ng-template pTemplate="start">
-        <span class="text"> Global Table View </span>
-      </ng-template>
-
-      <ng-template pTemplate="submenuheader" let-item>
-        <span class="text-primary font-bold">{{ item.label }}</span>
-      </ng-template>
-
-      <ng-template pTemplate="item" let-item>
-        <a pRipple class="flex align-items-center p-menuitem-link">
-          <span [class]="item.icon" style="margin-right: .8rem"></span>
-          <span class="ml-2">{{ item.label }}</span>
-        </a>
-      </ng-template>
-    </p-menu>
+    <p-panelMenu [model]="items" [multiple]='true'/>
   </div>
 
   <div id="div2">
@@ -33,36 +18,33 @@
                 pTooltip="delete unfinished table"
                 class="headerButton" (click)="deleteUnfinishedTable()">
         </button>
-
       </div>
 
       <div class="p-toolbar-group-center">
-        <p-dropdown id="all"
-                    [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
+        <p-dropdown id="all" [options]="availableTables" [(ngModel)]="shownTableDD" scrollHeight="300px"
                     placeholder="Choose your Year..." optionLabel="year" [filter]="true" filterBy="year"
                     [showClear]="true" (onChange)="loadSpecificTable()" (onClear)="unselectTable()">
           <ng-template pTemplate="selectedItem">
             <div class="item">
-              <div>{{ shownTableDD!.semester }} {{ shownTableDD!.year }}</div>
+              <div>{{ shownTableDD!.name }} {{ shownTableDD!.semester }} {{ shownTableDD!.year }}</div>
             </div>
           </ng-template>
           <ng-template let-item pTemplate="item">
             <div class="flex align-items-center gap-2">
-              <div>{{ item.semester }} {{ item.year }}</div>
+              <div>{{ item.name }} {{ item.semester }} {{ item.year }}</div>
             </div>
           </ng-template>
         </p-dropdown>
       </div>
 
       <div class="p-toolbar-group-end">
-        <p-dropdown [style]="{'margin-right': '.5rem', 'width': '28rem'}"
+        <p-dropdown [style]="{'margin-right': '.5rem'}"
                     [options]="getCalendarEvents()"
                     [(ngModel)]="firstSearchedEvent"
                     (ngModelChange)="colorSpecificEvent(firstSearchedEvent!)"
                     optionLabel="title"
                     [showClear]="true"
                     [filter]="true"
-                    [disabled]="tableIsSelected()"
                     placeholder="Search for a Course">
           <ng-template pTemplate="selectedItem" let-selectedOption>
             <div class="flex align-items-center gap-2">
@@ -75,9 +57,8 @@
             </div>
           </ng-template>
         </p-dropdown>
+        <p-button icon="pi pi-cog" (click)="op.show($event, op)" />
       </div>
-
-      <p-button icon="pi pi-cog" (click)="op.show($event, op)" />
     </p-toolbar>
   </div>
 
@@ -89,13 +70,23 @@
 <p-dialog [(visible)]="showNewTableDialog" [position]="position" header="create new Table"
           [style]="{ width: '30rem', height: '22rem' }" [modal]="true" styleClass="p-fluid">
   <ng-template pTemplate="content" class="parent">
-    <label for="type">Semester Type</label>
-    <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="creationTable.semester"
-                placeholder="select a Type"/>
-    <br>
-    <label for="year">Year</label>
-    <p-inputNumber type="number" id="year" required autofocus [(ngModel)]="creationTable.year"/>
-    <small class="p-error" *ngIf="!creationTable.year">for Simplification needed</small>
+    <div id="newCalendarGrid">
+      <div id="semester">
+        <label for="type">Semester Type</label>
+        <p-dropdown id="type" [options]="getSemesterOptions()" [(ngModel)]="creationTable.semester"
+                    placeholder="select a Semester"/>
+      </div>
+      <div id="tableYear">
+        <label for="year">Year</label>
+        <p-inputNumber type="number" id="year" required autofocus [(ngModel)]="creationTable.year"/>
+        <small class="p-error" *ngIf="!creationTable.year">for Simplification needed</small>
+      </div>
+      <div id="tableName">
+        <label for="name">Table Name</label>
+        <input pInputText type="text" id="name" required [(ngModel)]="creationTable.name"/>
+        <small class="p-error" *ngIf="!creationTable.name">for Simplification needed</small>
+      </div>
+    </div>
   </ng-template>
 
   <ng-template pTemplate="footer">
@@ -103,30 +94,70 @@
             (click)="hideTableDialog()" >
     </button>
     <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
-            (click)="createNewTable()" [disabled]="!creationTable.year">
+            (click)="createNewTable()" [disabled]="!creationTable.year || !creationTable.name || !creationTable.semester">
     </button>
   </ng-template>
 </p-dialog>
 
-<p-overlayPanel #op showCloseIcon="true">
+<p-overlayPanel #op showCloseIcon="true" [dismissable]="true">
   <ng-template pTemplate="content">
-    <label for="start-time" style="padding-right: .7rem; padding-left: .3rem">Start Time</label>
-    <p-calendar id="start-time" inputId="calendar-timeonly"
-                [timeOnly]="true" [ngModel]="tmpStartDate"
-                (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
-
-    <label for="end-time" style="padding-right: .7rem; padding-left: .3rem">End Time</label>
-    <p-calendar id="end-time" inputId="calendar-timeonly"
-                [timeOnly]="true" [ngModel]="tmpEndDate"
-                (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
-    <label for="duration" style="padding-right: .7rem; padding-left: .3rem">Time Slot Duration</label>
-    <p-calendar id="duration" inputId="calendar-timeonly"
-                [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
-                (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
-    <label for="interval" style="padding-right: .7rem; padding-left: .3rem">Time Label Interval </label>
-    <p-calendar id="interval" inputId="calendar-timeonly"
-                [timeOnly]="true" [ngModel]="tmpSlotInterval"
-                (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
+    <div class="divTable">
+      <div class="divTableBody">
+        <div class="divTableRow">
+          <div class="divTableCell">
+            <label for="start-time" style="padding-right: .7rem; padding-left: .3rem">Start Time</label>
+          </div>
+          <div class="divTableCell">
+            <p-calendar id="start-time" inputId="calendar-timeonly"
+                        [timeOnly]="true" [ngModel]="tmpStartDate"
+                        (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
+          </div>
+        </div>
+        <div class="divTableRow">
+          <div class="divTableCell">
+            <label for="end-time" style="padding-right: .7rem; padding-left: .3rem">End Time</label>
+          </div>
+          <div class="divTableCell">
+            <p-calendar id="end-time" inputId="calendar-timeonly"
+                        [timeOnly]="true" [ngModel]="tmpEndDate"
+                        (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
+          </div>
+        </div>
+        <div class="divTableRow">
+          <div class="divTableCell">
+            <label for="duration" style="padding-right: .7rem; padding-left: .3rem">Time Slot Duration</label>
+          </div>
+          <div class="divTableCell">
+            <p-calendar id="duration" inputId="calendar-timeonly"
+                        [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
+                        (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
+          </div>
+        </div>
+        <div class="divTableRow">
+          <div class="divTableCell">
+            <label for="interval" style="padding-right: .7rem; padding-left: .3rem">Time Label Interval </label>
+          </div>
+          <div class="divTableCell">
+            <p-calendar id="interval" inputId="calendar-timeonly"
+                        [timeOnly]="true" [ngModel]="tmpSlotInterval"
+                        (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
+          </div>
+        </div>
+        <div class="divTableRow">
+          <div class="divTableCell">
+            <label for="view" style="padding-right: .7rem; padding-left: .3rem">decrease Events shown</label>
+          </div>
+          <div class="divTableCell">
+            <p-toggleButton id="view"
+                            [(ngModel)]="changeCalendarView"
+                            (onChange)="changeCalenderEventView()"
+                            onLabel="On"
+                            offLabel="Off"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   </ng-template>
 </p-overlayPanel>
 
