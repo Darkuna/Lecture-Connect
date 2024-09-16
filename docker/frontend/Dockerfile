@@ -3,11 +3,12 @@ FROM node:20-bookworm AS build
 WORKDIR /app
 
 COPY package*.json ./
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 RUN npm install
 
 COPY . .
 RUN npm run build --prod
-RUN chmod -R 755 /usr/share/nginx/html
+RUN chmod -R 777 /usr/share/nginx/html
 
 FROM nginx:alpine
 
