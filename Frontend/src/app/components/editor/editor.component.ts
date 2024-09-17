@@ -263,18 +263,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     }
   }
 
-  updateCalendar(calendarOption: any, value: string) {
-    if(calendarOption.includes('slot') && value === '00:00:00'){
-      value = '00:00:05';
-    }
-    this.calendarComponent.getApi().setOption(calendarOption, value);
-  }
-
-  formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
-    return date.toString().split(' ')[4];
-  }
-
   getCalendarEvents(): EventInput[]{
     return this.allEvents;
   }
