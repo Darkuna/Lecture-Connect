@@ -87,6 +87,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   rightClickEvent: EventMountArg | null = null;
   firstSearchedEvent: EventInput | null = null;
   dirtyData: boolean = false;
+  searchCourse: string = '';
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -285,5 +286,20 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       return confirm('You have unsaved changes. Do you really want to leave?');
     }
     return true; // If no unsaved changes, allow navigation
+  }
+
+
+  // Filtered events based on search term
+  get filteredEvents() {
+    if (!this.searchCourse) {
+      return this.dragTableEvents;  // Return all events if there's no search term
+    }
+
+    const lowerSearchTerm = this.searchCourse.toLowerCase();
+
+    // Filter events where the title matches the search term
+    return this.dragTableEvents.filter(event =>
+      event.title!.toLowerCase().includes(lowerSearchTerm)
+    );
   }
 }

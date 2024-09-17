@@ -40,7 +40,6 @@
           </div>
         </ng-template>
       </p-dropdown>
-      <p-button label='finished' (onClick)="saveAndGoHome()" [style]="{'margin-right':'5rem'}"/>
     </div>
   </p-toolbar>
   <div class="col-left" style="width: 85%">
@@ -51,13 +50,19 @@
     </div>
   </div>
 
-  <div class="col-left" #external id="external-events"
-       style="width: 15%; position: fixed; padding: 5px; height:90%">
-    <div *ngFor="let event of dragTableEvents" class="fc-event"
-         [attr.data-id]="event['id']"
-         [attr.data-title]="event['title']"
-         [attr.data-duration]="event.extendedProps?.['duration']">
-      {{ event['title'] }}
+  <div class="col-left" #external style="width: 15%; position: fixed; padding: 5px; height:90%">
+    <p-button label='finished' (onClick)="saveAndGoHome()" [style]="{'width':'90%', 'margin-bottom': '.5rem'}"/>
+
+    <input type="text" pInputText placeholder="Search unassigned course" [(ngModel)]="searchCourse"
+           [style]="{'width':'90%', 'margin-bottom': '.5rem'}" />
+
+    <div id="dragEvents">
+      <div *ngFor="let event of filteredEvents" class="fc-event"
+           [attr.data-id]="event['id']"
+           [attr.data-title]="event['title']"
+           [attr.data-duration]="event.extendedProps?.['duration']">
+        {{ event['title'] }}
+      </div>
     </div>
   </div>
 </div>
