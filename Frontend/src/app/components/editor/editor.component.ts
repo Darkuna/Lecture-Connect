@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -305,5 +305,9 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     return this.dragTableEvents.filter(event =>
       event.title!.toLowerCase().includes(lowerSearchTerm)
     );
+  }
+
+  unassignedCourses(){
+    return this.dragTableEvents.length == 0;
   }
 }
