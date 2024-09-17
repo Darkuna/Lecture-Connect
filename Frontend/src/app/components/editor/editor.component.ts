@@ -95,7 +95,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     private editorService: EditorService,
     private router: Router,
     private messageService: MessageService,
-    private cd: ChangeDetectorRef
   ) {
     this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
     this.selectedTimeTable.subscribe( r => {
