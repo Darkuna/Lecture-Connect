@@ -11,5 +11,5 @@ export interface CourseSessionDTO {
   studyType: string;
   timingConstraints: TimingDTO[];
   timing: TimingDTO | null;
-  roomTable?: RoomTableDTO;
+  roomTable: RoomTableDTO | null;
 }

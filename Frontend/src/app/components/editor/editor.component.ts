@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef,  OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -95,6 +95,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     private editorService: EditorService,
     private router: Router,
     private messageService: MessageService,
+    private cd: ChangeDetectorRef
   ) {
     this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
     this.selectedTimeTable.subscribe( r => {
@@ -180,6 +181,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   unassignCourse(){
     if(this.rightClickEvent?.event.title !== 'BLOCKED' && this.rightClickEvent?.event.title !== 'COMPUTER_SCIENCE') {
       const updatedSession = this.updateSession(this.rightClickEvent?.event! , false)!;
+      updatedSession.roomTable = null;
       updatedSession.timing = null;
       this.dirtyData = true;
 
@@ -232,6 +234,10 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     return args.start.getHours() > 7 && args.end.getHours() < 23;
   }
 
+  private updateAllEventsList(newSessionID: string, roomTable: string | null){
+    this.allEvents.find(e => e['id'] === newSessionID)!['description'] = roomTable;
+  }
+
   private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
     const session = this.timeTable.courseSessions
       .find(s => s.id.toString() === event.id);
@@ -243,6 +249,9 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       session!.timing!.startTime = this.converter.convertLocalDateToString(event.start!);
       session!.timing!.endTime = this.converter.convertLocalDateToString(event.end!);
       session!.timing!.day = this.converter.weekNumberToDay(event.start?.getDay() || 1);
+
+      const room = assigned ? this.selectedRoom?.roomId! : null;
+      this.updateAllEventsList(session.id.toString(), room);
     }
     return session ;
   }
@@ -262,10 +271,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
       this.rightClickEvent?.event.setProp('backgroundColor', color);
     }
-  }
-
-  getCalendarEvents(): EventInput[]{
-    return this.allEvents;
   }
 
   changeRoom(event:EventInput){
