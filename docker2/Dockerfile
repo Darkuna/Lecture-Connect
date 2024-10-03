@@ -22,7 +22,7 @@ COPY ../../target/demo-0.0.1-SNAPSHOT.jar /app/app.jar
 FROM nginx:alpine
 
 # Copy the built frontend files to Nginx's serving directory
-COPY --from=frontend-build /app/dist/new_test /usr/share/nginx/html
+COPY --from=frontend-build /app/dist/new_test/browser /usr/share/nginx/html
 
 # Copy the built Spring Boot JAR file
 COPY --from=backend-build /app/app.jar /app/app.jar
