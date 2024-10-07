@@ -21,8 +21,11 @@ export class HeaderSelfComponent {
   }
 
   isLoggedIn(): boolean {
-    return this.userInfoService.userIsLoggedIn();
+    return this.userInfoService.isLoggedIn();
   }
+
+
+
 
   hasAdminRole(): boolean {
     return this.userInfoService.hasAdminRole();

@@ -12,13 +12,11 @@ export class PageNotFoundComponentComponent {
   constructor(
     private router: Router,
     private storage: LocalStorageService,
-    private userInfoService: LoginUserInfoService,
     private sessionStorageService: SessionStorageService,
   ) {
   }
 
   redirectToLoginPage(){
-    this.userInfoService.userLoggedIn = false;
     this.storage.clear();
     this.sessionStorageService.clear();
     this.router.navigate(['/login']).then();

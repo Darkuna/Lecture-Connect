@@ -1,104 +1,46 @@
-import {Injectable, OnDestroy} from '@angular/core';
-import {LocalStorageService, SessionStorageService} from "ngx-webstorage";
-import * as jwt_decode from "jwt-decode";
-import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
-import {Subscription} from "rxjs";
-import {Router} from "@angular/router";
+import {Injectable,} from '@angular/core';
+import {tap} from "rxjs";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
+
+interface LoginObj {
+  name: string;
+  password: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
-export class LoginUserInfoService implements OnDestroy{
+export class LoginUserInfoService{
   static API_PATH = "/proxy/auth/login";
-  httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
-    })
-  };
-
-  private _userLoggedIn: boolean = false;
-  private _username: string | null = null;
-  private _role: string[] = [];
-  private loginSub: Subscription | null = null;
 
   constructor(
-    private sessionStorageService: SessionStorageService,
     private http: HttpClient,
-    private storage: LocalStorageService,
-    private router: Router
-  ) {
-    this._userLoggedIn = !!sessionStorageService.retrieve("name");
-  }
+  ) { }
 
-  ngOnDestroy(): void {
-    if (!this.loginSub?.closed) {
-      this.loginSub?.unsubscribe();
-    }
-  }
-
-  loginUser(loginObj: any, stayLogin: boolean) :Promise<string>{
-    return new Promise((resolve, reject) => {
-      this.http.post<any>(LoginUserInfoService.API_PATH, loginObj, this.httpOptions).subscribe({
-        next: (token) => {
-          if (token && token['token']) {
-            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string | string[] };
-
-            this.username = <string>decodedToken['username'];
-            this.role = <string[]>decodedToken['role'];
-            this.userLoggedIn = true;
-            this.storage.store('jwt-token', token['token']);
-          }
-
-          resolve('upload successfully');
-        },
-        error: (err: HttpErrorResponse) => {
-          reject(err.message);
+  login(data: any, stayLogin: boolean) {
+    return  this.http.post(LoginUserInfoService.API_PATH, data)
+      .pipe(tap((result) => {
+        if(stayLogin){
+          localStorage.setItem('authUser', JSON.stringify(result));
+        } else {
+          sessionStorage.setItem('authUser', JSON.stringify(result));
         }
-      });
-    });
+      }));
   }
 
-  logout(): void {
-    this.userLoggedIn = false;
-    this.storage.clear();
-    this.sessionStorageService.clear();
-    this.router.navigate(['/login']);
+  logout(){
+    localStorage.removeItem('authUser');
+  }
+
+  isLoggedIn(): boolean{
+    return localStorage.getItem('authUser') !== null;
+  }
+
+  hasUserRole():boolean{
+    return localStorage.getItem('authUser') !== null;
   }
 
   hasAdminRole():boolean{
-    return !!this._role!.find(t => t == 'ADMIN');
-  }
-
-  userIsLoggedIn():boolean{
-    return this.userLoggedIn;
-  }
-
-  get username(): string {
-    return this._username || "";
-  }
-
-  set username(value: string) {
-    this.sessionStorageService.store("name", value);
-    this._username = value;
-  }
-
-  get role(): string[] {
-    this.sessionStorageService.retrieve("role");
-    return this._role || [];
-  }
-
-  set role(value: string[]) {
-    this.sessionStorageService.store("role", value);
-    this._role = value;
-  }
-
-
-  get userLoggedIn(): boolean {
-    return this._userLoggedIn;
-  }
-
-  set userLoggedIn(value: boolean) {
-    this._userLoggedIn = value;
+    return localStorage.getItem('authUser') !== null;
   }
 }

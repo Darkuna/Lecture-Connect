@@ -9,7 +9,7 @@ import {ButtonModule} from 'primeng/button';
 import {CardModule} from "primeng/card";
 import {InputTextModule} from 'primeng/inputtext';
 import {PasswordModule} from "primeng/password";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {LoginComponent} from './components/login/login.component';
 import {HomeComponent} from './components/home/home.component';
 import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
@@ -68,7 +68,6 @@ import { DataWizardComponent } from './components/wizzard/data-wizard/data-wizar
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 import { UserSettingsComponent } from './components/header-self/user-settings/user-settings.component';
-import {LoginComponentNew} from "./components/login/login.component_new";
 
 @NgModule({ declarations: [
         AppComponent,
@@ -95,7 +94,6 @@ import {LoginComponentNew} from "./components/login/login.component_new";
         DataWizardComponent,
         SpinnerComponent,
         UserSettingsComponent,
-    LoginComponentNew,
     ],
   bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,
@@ -133,7 +131,7 @@ import {LoginComponentNew} from "./components/login/login.component_new";
     IconFieldModule,
     InputIconModule,
     ToggleButtonModule,
-    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule],
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule, ReactiveFormsModule],
   providers: [
     ConfirmationService,
     MessageService,

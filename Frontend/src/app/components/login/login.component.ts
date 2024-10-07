@@ -1,12 +1,7 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
-import {MessageService} from "primeng/api";
 import {LoginUserInfoService} from "../../services/login-user-info.service";
-
-interface LoginObj {
-  name: string;
-  password: string;
-}
+import {FormControl, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-login',
@@ -14,12 +9,35 @@ interface LoginObj {
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  stayLogin:boolean = false;
+
+  protected loginForm = new FormGroup({
+    username: new FormControl('', [Validators.required]),
+    password: new FormControl('', [Validators.required])
+  })
+
   constructor(
+    private loginService: LoginUserInfoService,
     private router: Router,
-    private messageService: MessageService,
-    private userInfoService: LoginUserInfoService
   ) {
   }
+
+  onSubmit() {
+    if (this.loginForm.valid) {
+      console.log(this.loginForm.value);
+      this.loginService.login(this.loginForm.value, this.stayLogin)
+        .subscribe((data: any) => {
+          if (this.loginService.isLoggedIn()) {
+            this.router.navigate(['/users/home'])
+              .catch(message => {
+                }
+              );          }
+          console.log(data);
+        });
+    }
+  }
+
+  /*
 
   login() {
     this.userInfoService.loginUser(this.loginObj, this.stayLogin)
@@ -34,4 +52,5 @@ export class LoginComponent {
         this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: error});
       });
   }
+   */
 }
