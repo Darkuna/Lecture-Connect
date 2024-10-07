@@ -3,6 +3,7 @@ import {LocalStorageService, SessionStorageService} from "ngx-webstorage";
 import * as jwt_decode from "jwt-decode";
 import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {Subscription} from "rxjs";
+import {Router} from "@angular/router";
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,7 @@ export class LoginUserInfoService implements OnDestroy{
     private sessionStorageService: SessionStorageService,
     private http: HttpClient,
     private storage: LocalStorageService,
+    private router: Router
   ) {
     this._userLoggedIn = !!sessionStorageService.retrieve("name");
   }
@@ -35,7 +37,7 @@ export class LoginUserInfoService implements OnDestroy{
     }
   }
 
-  loginUser(loginObj: any) :Promise<string>{
+  loginUser(loginObj: any, stayLogin: boolean) :Promise<string>{
     return new Promise((resolve, reject) => {
       this.http.post<any>(LoginUserInfoService.API_PATH, loginObj, this.httpOptions).subscribe({
         next: (token) => {
@@ -55,6 +57,13 @@ export class LoginUserInfoService implements OnDestroy{
         }
       });
     });
+  }
+
+  logout(): void {
+    this.userLoggedIn = false;
+    this.storage.clear();
+    this.sessionStorageService.clear();
+    this.router.navigate(['/login']);
   }
 
   hasAdminRole():boolean{

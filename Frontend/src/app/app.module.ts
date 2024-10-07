@@ -68,6 +68,7 @@ import { DataWizardComponent } from './components/wizzard/data-wizard/data-wizar
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 import { UserSettingsComponent } from './components/header-self/user-settings/user-settings.component';
+import {LoginComponentNew} from "./components/login/login.component_new";
 
 @NgModule({ declarations: [
         AppComponent,
@@ -94,6 +95,7 @@ import { UserSettingsComponent } from './components/header-self/user-settings/us
         DataWizardComponent,
         SpinnerComponent,
         UserSettingsComponent,
+    LoginComponentNew,
     ],
   bootstrap: [AppComponent],
   imports: [BrowserAnimationsModule,

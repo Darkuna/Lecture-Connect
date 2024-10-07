@@ -14,11 +14,6 @@ interface LoginObj {
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  loginObj: LoginObj = {
-    name: "",
-    password: ""
-  }
-
   constructor(
     private router: Router,
     private messageService: MessageService,
@@ -27,7 +22,7 @@ export class LoginComponent {
   }
 
   login() {
-    this.userInfoService.loginUser(this.loginObj)
+    this.userInfoService.loginUser(this.loginObj, this.stayLogin)
       .then(() => {
         this.messageService.add({severity: 'success',summary: `Welcome back ${this.loginObj.name}!`});
         this.router.navigate(['/user/home'])
@@ -39,6 +34,4 @@ export class LoginComponent {
         this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: error});
       });
   }
-
-
 }
