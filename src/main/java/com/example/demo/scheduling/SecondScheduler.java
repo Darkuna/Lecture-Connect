@@ -88,6 +88,9 @@ public class SecondScheduler extends Scheduler {
      * @return true, if the assignment was successful, else false
      */
     private boolean processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions){
+        int process = 0;
+        int courseSessionSize = possibleCandidatesForCourseSessions.size();
+
         if(possibleCandidatesForCourseSessions.isEmpty()){
             return true;
         }
@@ -103,7 +106,11 @@ public class SecondScheduler extends Scheduler {
 
         while(true){
             currentCourseSessionMap = currentState.possibleCandidateMap;
-            log.info("CourseSessions to process: {}", currentCourseSessionMap.size());
+            if(currentCourseSessionMap.size() < courseSessionSize){
+                courseSessionSize = currentCourseSessionMap.size();
+                log.info("CourseSessions to process: {}", currentCourseSessionMap.size());
+            }
+
             currentIndex = currentState.index;
 
             Map<CourseSession, List<Candidate>> finalCurrentCourseSessionMap = currentCourseSessionMap;
