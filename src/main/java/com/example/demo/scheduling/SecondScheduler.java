@@ -16,7 +16,7 @@ public class SecondScheduler extends Scheduler {
     private final GroupAssignmentMap groupAssignmentMap;
     public SecondScheduler(TimingService timingService, CourseSessionService courseSessionService) {
         super(timingService, courseSessionService);
-        this.groupAssignmentMap = new GroupAssignmentMap(3);
+        this.groupAssignmentMap = new GroupAssignmentMap(2);
     }
 
     /**

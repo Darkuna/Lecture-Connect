@@ -52,7 +52,7 @@ public class AvailabilityMatrix {
         for (Timing timing : roomTable.getTimingConstraints()) {
             dayIndex = timing.getDay().ordinal();
             startSlot = timeToSlotIndex(timing.getStartTime());
-            endSlot = timeToSlotIndex(timing.getEndTime());
+            endSlot = timeToSlotIndex(timing.getEndTime()) -1;
 
             if(timing.getTimingType().equals(TimingType.BLOCKED)) {
                 for (int slot = startSlot; slot < endSlot; slot++) {

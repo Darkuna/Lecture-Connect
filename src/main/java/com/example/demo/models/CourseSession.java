@@ -65,7 +65,8 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
 
     public boolean isAllowedToIntersectWith(CourseSession courseSession) {
-        return this.semester != courseSession.semester || this.studyType != courseSession.studyType;
+        return this.semester != courseSession.semester || this.studyType != courseSession.studyType
+                || this.isElective() || courseSession.isElective();
     }
 
     @Override
