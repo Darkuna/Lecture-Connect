@@ -54,6 +54,7 @@ public class CourseSessionService {
             CourseSession courseSession = new CourseSession();
             courseSession.setAssigned(false);
             courseSession.setFixed(false);
+            courseSession.setElective(course.isElective());
             courseSession.setLecturer(course.getLecturer());
             courseSession.setNumberOfParticipants(course.getNumberOfParticipants());
             courseSession.setSemester(course.getSemester());

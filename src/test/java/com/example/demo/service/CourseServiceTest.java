@@ -53,7 +53,7 @@ public class CourseServiceTest {
         List<Timing> timingConstraints = List.of(constraint);
 
         Course course = courseService.createCourse(id, name, courseType, lecturer, semester, duration, numberOfParticipants,
-                computersNecessary, timingConstraints, studyType);
+                computersNecessary, timingConstraints, false, studyType);
 
         assertEquals(id, course.getId());
         assertEquals(name, course.getName());

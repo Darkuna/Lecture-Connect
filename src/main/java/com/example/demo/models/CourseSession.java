@@ -13,7 +13,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
 public class CourseSession implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,6 +23,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     private int semester;
     private int numberOfParticipants;
     private boolean computersNecessary;
+    private boolean elective;
     @Transient
     private List<Timing> timingConstraints;
     private boolean isAssigned;
