@@ -164,6 +164,6 @@ export class WizardComponent {
     if (this.dirtyData) {
       return confirm('You have unsaved changes. Do you really want to leave?');
     }
-    return true; // If no unsaved changes, allow navigation
+    return true;
   }
 }
