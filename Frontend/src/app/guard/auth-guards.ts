@@ -1,8 +1,19 @@
-import {CanActivateFn, CanDeactivateFn} from '@angular/router';
+import {CanActivateFn, CanDeactivateFn, Router} from '@angular/router';
 import {inject} from "@angular/core";
 import {LoginUserInfoService} from "../services/login-user-info.service";
 import {EditorComponent} from "../components/editor/editor.component";
 import {WizardComponent} from "../components/wizzard/wizard.component";
+
+export const AuthGuardRemember: CanActivateFn = () => {
+  const userService: LoginUserInfoService = inject(LoginUserInfoService);
+  const router: Router = inject(Router);
+  if (userService.isLoggedIn()) {
+    router.navigate(['/user/home']);
+    return false;
+  }
+  else { return true; }
+};
+
 
 export const AuthGuardLogin: CanActivateFn = () => {
   const userService:LoginUserInfoService = inject(LoginUserInfoService);

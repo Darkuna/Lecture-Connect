@@ -11,11 +11,17 @@ import {CourseSelectionPageComponent} from "./components/home/course-selection-p
 import {PageNotFoundComponentComponent} from "./components/page-not-found-component/page-not-found-component.component";
 import {EditorComponent} from "./components/editor/editor.component";
 import {DataWizardComponent} from "./components/wizzard/data-wizard/data-wizard.component";
-import {AuthGuardAdmin, AuthGuardEditorClose, AuthGuardLogin, AuthGuardWizardClose} from "./guard/auth-guards";
+import {
+  AuthGuardAdmin,
+  AuthGuardEditorClose,
+  AuthGuardLogin,
+  AuthGuardRemember,
+  AuthGuardWizardClose
+} from "./guard/auth-guards";
 import {UserSettingsComponent} from "./components/header-self/user-settings/user-settings.component";
 
 const routes: Routes = [
-  {path: 'login', component: LoginComponent},
+  {path: 'login', component: LoginComponent, canActivate: [AuthGuardRemember]},
   {path: 'user', canActivateChild: [AuthGuardLogin], children:[
       {path: 'home', component: HomeComponent},
       {path: 'rooms', component: RoomViewComponent},
