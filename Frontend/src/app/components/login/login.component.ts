@@ -16,6 +16,7 @@ interface LoginObj {
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnDestroy{
+  rememberMe: boolean = false;
   loginObj: LoginObj = {
     name: '',
     password: ''
@@ -34,7 +35,7 @@ export class LoginComponent implements OnDestroy{
   }
 
   login():void{
-    this._loginSub = this.userInfoService.loginUser(this.loginObj, false)
+    this._loginSub = this.userInfoService.loginUser(this.loginObj, this.rememberMe)
       .subscribe({
           next: () => {
             if(this.userInfoService.isLoggedIn())

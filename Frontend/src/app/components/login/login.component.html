@@ -4,12 +4,15 @@
       <input pInputText type="text" placeholder="enter your username ..." [(ngModel)]="loginObj.name"/>
     </span>
     <span class="ui-float-label">
-    <p-password id="password" [feedback]="false" placeholder="password please ..." [(ngModel)]="loginObj.password"
-                styleClass="p-password p-component p-inputwrapper p-input-icon-right"
-                [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}"/>
-</span>
+      <p-password id="password" [feedback]="false" placeholder="password please ..." [(ngModel)]="loginObj.password"
+                  styleClass="p-password p-component p-inputwrapper p-input-icon-right"
+                  [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}"/>
+    </span>
     <span class="ui-float-label">
-      <button pButton pRipple ="submit" label="login" class="headerButton" style="" (click)="login()"></button>
+        <p-toggleButton ariaLabel="rememberme" onLabel="Remember Me" offLabel="Remember Me" [(ngModel)]="rememberMe"/>
+    </span>
+    <span class="ui-float-label">
+      <button pButton pRipple ="submit" label="login" class="headerButton" (click)="login()"></button>
     </span>
   </p-card>
   <img src="/assets/login.jpg" alt="background pic"/>
