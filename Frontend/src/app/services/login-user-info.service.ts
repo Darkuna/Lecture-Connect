@@ -1,5 +1,6 @@
 import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
+import * as jwt_decode from "jwt-decode";
 import {tap} from "rxjs";
 
 @Injectable({
@@ -19,7 +20,6 @@ export class LoginUserInfoService implements OnDestroy{
   loginUser(loginObj: any, remember: boolean){
     return this.http.post(`${LoginUserInfoService.API_PATH}`, loginObj)
       .pipe(tap((result) => {
-        console.log('result: '+ result + '\nJSON ' + JSON.stringify(result));
         if (remember)
           localStorage.setItem("jwt-token", JSON.stringify(result));
         else
@@ -33,6 +33,15 @@ export class LoginUserInfoService implements OnDestroy{
   }
 
   hasAdminRole():boolean{
+    let token = localStorage.getItem('jwt-token') ?? sessionStorage.getItem('jwt-token');
+
+    if (token) {
+      const decodedToken = jwt_decode.jwtDecode(token) as { [key: string]: string | string[] };
+      console.log(decodedToken);
+      const roles =  <string[]>decodedToken['role'];
+
+      return !!roles!.find(t => t == 'ADMIN');
+    }
     return false;
   }
 
