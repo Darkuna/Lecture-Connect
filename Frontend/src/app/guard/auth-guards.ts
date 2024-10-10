@@ -6,7 +6,7 @@ import {WizardComponent} from "../components/wizzard/wizard.component";
 
 export const AuthGuardLogin: CanActivateFn = () => {
   const userService:LoginUserInfoService = inject(LoginUserInfoService);
-  return userService.userIsLoggedIn();
+  return userService.isLoggedIn();
 };
 
 export const AuthGuardEditorClose: CanDeactivateFn<any> = (component: EditorComponent) => {

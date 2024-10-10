@@ -1,6 +1,5 @@
 import {Injectable} from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import {LocalStorageService} from "ngx-webstorage";
 import {Observable} from "rxjs";
 import {Room} from "../../assets/Models/room";
 import {MessageService} from "primeng/api";
@@ -13,13 +12,12 @@ export class RoomService {
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
+      'Authorization': 'Bearer ' + localStorage.getItem('jwt-token') ?? sessionStorage.getItem('jwt-token')
     })
   };
 
   constructor(
     private http: HttpClient,
-    private storage: LocalStorageService,
     private messageService: MessageService,
   ) {
   }

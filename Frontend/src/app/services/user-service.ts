@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Userx } from '../../assets/Models/userx';
-import { LocalStorageService } from "ngx-webstorage";
 import {MessageService} from "primeng/api";
 
 @Injectable({
@@ -13,14 +12,13 @@ export class UserService {
 
   constructor(
     private http: HttpClient,
-    private storage: LocalStorageService,
     private messageService: MessageService,
   ) {}
 
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
+      'Authorization': 'Bearer ' + localStorage.getItem('jwt-token') ?? sessionStorage.getItem('jwt-token')
     })
   };
 

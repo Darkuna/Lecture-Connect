@@ -1,95 +1,42 @@
 import {Injectable, OnDestroy} from '@angular/core';
-import {LocalStorageService, SessionStorageService} from "ngx-webstorage";
-import * as jwt_decode from "jwt-decode";
-import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
-import {Subscription} from "rxjs";
+import {HttpClient} from "@angular/common/http";
+import {tap} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginUserInfoService implements OnDestroy{
   static API_PATH = "/proxy/auth/login";
-  httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
-    })
-  };
-
-  private _userLoggedIn: boolean = false;
-  private _username: string | null = null;
-  private _role: string[] = [];
-  private loginSub: Subscription | null = null;
 
   constructor(
-    private sessionStorageService: SessionStorageService,
     private http: HttpClient,
-    private storage: LocalStorageService,
-  ) {
-    this._userLoggedIn = !!sessionStorageService.retrieve("name");
-  }
+  ) { }
 
   ngOnDestroy(): void {
-    if (!this.loginSub?.closed) {
-      this.loginSub?.unsubscribe();
-    }
+
   }
 
-  loginUser(loginObj: any) :Promise<string>{
-    return new Promise((resolve, reject) => {
-      this.http.post<any>(LoginUserInfoService.API_PATH, loginObj, this.httpOptions).subscribe({
-        next: (token) => {
-          if (token && token['token']) {
-            const decodedToken = jwt_decode.jwtDecode(token['token']) as { [key: string]: string | string[] };
+  loginUser(loginObj: any, remember: boolean){
+    return this.http.post(`${LoginUserInfoService.API_PATH}`, loginObj)
+      .pipe(tap((result) => {
+        console.log('result: '+ result + '\nJSON ' + JSON.stringify(result));
+        if (remember)
+          localStorage.setItem("jwt-token", JSON.stringify(result));
+        else
+          sessionStorage.setItem("jwt-token", JSON.stringify(result));
+      }))
+  }
 
-            this.username = <string>decodedToken['username'];
-            this.role = <string[]>decodedToken['role'];
-            this.userLoggedIn = true;
-            this.storage.store('jwt-token', token['token']);
-          }
-
-          resolve('upload successfully');
-        },
-        error: (err: HttpErrorResponse) => {
-          reject(err.message);
-        }
-      });
-    });
+  logoutUser(){
+    localStorage.removeItem('jwt-token');
+    sessionStorage.removeItem('jwt-token');
   }
 
   hasAdminRole():boolean{
-    return !!this._role!.find(t => t == 'ADMIN');
+    return false;
   }
 
-  userIsLoggedIn():boolean{
-    return this.userLoggedIn;
-  }
-
-  get username(): string {
-    return this._username || "";
-  }
-
-  set username(value: string) {
-    this.sessionStorageService.store("name", value);
-    this._username = value;
-  }
-
-  get role(): string[] {
-    this.sessionStorageService.retrieve("role");
-    return this._role || [];
-  }
-
-  set role(value: string[]) {
-    this.sessionStorageService.store("role", value);
-    this._role = value;
-  }
-
-
-  get userLoggedIn(): boolean {
-    return this._userLoggedIn;
-  }
-
-  set userLoggedIn(value: boolean) {
-    this._userLoggedIn = value;
+  isLoggedIn():boolean{
+    return localStorage.getItem('jwt-token') !== null || sessionStorage.getItem('jwt-token') !== null;
   }
 }
