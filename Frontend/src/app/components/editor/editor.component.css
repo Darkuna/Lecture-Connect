@@ -17,18 +17,21 @@
   display: inline-block;
   align-content: baseline;
   text-align: center;
-  height: 100%;
   border-radius: 15px;
 }
 
+#dragEvents{
+  display: inline-block;
+  align-content: baseline;
+  text-align: center;
+  max-height: 83%;
+  overflow-y: scroll;
+}
 #calendarScroll{
   overflow-y: auto;
   max-height: 86vh;
   height: 100%;
-}
 
-#external-events{
-  overflow-y: scroll;
 }
 
 .fc-event{

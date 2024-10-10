@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef,  OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -87,6 +87,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   rightClickEvent: EventMountArg | null = null;
   firstSearchedEvent: EventInput | null = null;
   dirtyData: boolean = false;
+  searchCourse: string = '';
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -179,6 +180,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   unassignCourse(){
     if(this.rightClickEvent?.event.title !== 'BLOCKED' && this.rightClickEvent?.event.title !== 'COMPUTER_SCIENCE') {
       const updatedSession = this.updateSession(this.rightClickEvent?.event! , false)!;
+      updatedSession.roomTable = null;
       updatedSession.timing = null;
       this.dirtyData = true;
 
@@ -231,6 +233,10 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     return args.start.getHours() > 7 && args.end.getHours() < 23;
   }
 
+  private updateAllEventsList(newSessionID: string, roomTable: string | null){
+    this.allEvents.find(e => e['id'] === newSessionID)!['description'] = roomTable;
+  }
+
   private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
     const session = this.timeTable.courseSessions
       .find(s => s.id.toString() === event.id);
@@ -242,6 +248,9 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       session!.timing!.startTime = this.converter.convertLocalDateToString(event.start!);
       session!.timing!.endTime = this.converter.convertLocalDateToString(event.end!);
       session!.timing!.day = this.converter.weekNumberToDay(event.start?.getDay() || 1);
+
+      const room = assigned ? this.selectedRoom?.roomId! : null;
+      this.updateAllEventsList(session.id.toString(), room);
     }
     return session ;
   }
@@ -263,22 +272,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     }
   }
 
-  updateCalendar(calendarOption: any, value: string) {
-    if(calendarOption.includes('slot') && value === '00:00:00'){
-      value = '00:00:05';
-    }
-    this.calendarComponent.getApi().setOption(calendarOption, value);
-  }
-
-  formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
-    return date.toString().split(' ')[4];
-  }
-
-  getCalendarEvents(): EventInput[]{
-    return this.allEvents;
-  }
-
   changeRoom(event:EventInput){
     if(event){
       const room = this.timeTable.roomTables
@@ -297,5 +290,24 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       return confirm('You have unsaved changes. Do you really want to leave?');
     }
     return true; // If no unsaved changes, allow navigation
+  }
+
+
+  // Filtered events based on search term
+  get filteredEvents() {
+    if (!this.searchCourse) {
+      return this.dragTableEvents;  // Return all events if there's no search term
+    }
+
+    const lowerSearchTerm = this.searchCourse.toLowerCase();
+
+    // Filter events where the title matches the search term
+    return this.dragTableEvents.filter(event =>
+      event.title!.toLowerCase().includes(lowerSearchTerm)
+    );
+  }
+
+  unassignedCourses(){
+    return this.dragTableEvents.length == 0;
   }
 }
