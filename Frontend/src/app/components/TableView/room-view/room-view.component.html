@@ -97,8 +97,8 @@
 
       <div class="rand">
         <label for="op1">Computers available?</label>
-        <p-selectButton id="op1" [options]="stateOptions" [(ngModel)]="singleRoom.computersAvailable"
-                        optionLabel="label" optionValue="value"></p-selectButton>
+        <p-toggleButton id="op1" [(ngModel)]="singleRoom.computersAvailable"
+                        onLabel="Yes" offLabel="No"/>
       </div>
     </div>
   </ng-template>

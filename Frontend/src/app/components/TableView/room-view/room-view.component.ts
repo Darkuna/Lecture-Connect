@@ -20,11 +20,6 @@ export class RoomViewComponent implements OnInit, OnDestroy {
   headers: any[];
   private roomsSub?: Subscription;
 
-  stateOptions: any[] = [
-    {label: 'Yes', value: true},
-    {label: 'No', value: false}
-  ];
-
   constructor(
     private cd: ChangeDetectorRef,
     private messageService: MessageService,
