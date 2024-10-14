@@ -19,7 +19,7 @@ import {
   AuthGuardWizardClose
 } from "./guard/auth-guards";
 import {UserSettingsComponent} from "./components/header-self/user-settings/user-settings.component";
-import {TableViewComponent} from "./components/TableView/table-view/table-view/table-view.component";
+import {TableViewComponent} from "./components/TableView/table-view/table-view.component";
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent, canActivate: [AuthGuardRemember]},

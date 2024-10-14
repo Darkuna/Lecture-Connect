@@ -68,7 +68,7 @@ import { DataWizardComponent } from './components/wizzard/data-wizard/data-wizar
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 import { UserSettingsComponent } from './components/header-self/user-settings/user-settings.component';
-import { TableViewComponent } from './components/TableView/table-view/table-view/table-view.component';
+import { TableViewComponent } from './components/TableView/table-view/table-view.component';
 import {TreeTableModule} from "primeng/treetable";
 
 @NgModule({ declarations: [

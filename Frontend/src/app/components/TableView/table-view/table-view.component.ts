@@ -1,15 +1,15 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
 import {ConfirmationService, MessageService, TreeNode} from "primeng/api";
-import {GlobalTableService} from "../../../../services/global-table.service";
-import {TimeTableNames} from "../../../../../assets/Models/time-table-names";
-import {TimeTable} from "../../../../../assets/Models/time-table";
-import {NodeConverterService} from "../../../../services/converter/node-converter.service";
+import {GlobalTableService} from "../../../services/global-table.service";
+import {TimeTableNames} from "../../../../assets/Models/time-table-names";
+import {TimeTable} from "../../../../assets/Models/time-table";
+import {NodeConverterService} from "../../../services/converter/node-converter.service";
 
 @Component({
   selector: 'app-table-view',
   templateUrl: './table-view.component.html',
-  styleUrl: '../../tables.css',
+  styleUrl: '../tables.css',
 })
 export class TableViewComponent implements OnInit, OnDestroy{
   itemDialogVisible: boolean = false;
@@ -34,6 +34,7 @@ export class TableViewComponent implements OnInit, OnDestroy{
       {field: 'semester', header: 'Semester'},
       {field: 'year', header: 'Year'},
     ];
+
     this.selectedHeaders = this.headers;
   }
 
