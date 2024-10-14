@@ -1,1 +1,78 @@
-<p>table-view works!</p>
+<div class="moveDownHeader">
+  <p-toolbar styleClass="mb-4 gap-2">
+    <ng-template pTemplate="left">
+
+    </ng-template>
+
+    <ng-template pTemplate="left">
+      <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
+                     selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
+                     placeholder="Choose Columns"></p-multiSelect>
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+               placeholder="Search..."/>
+      </span>
+    </ng-template>
+    <ng-template pTemplate="right">
+      <button pButton pRipple label="New" class="customButton" (click)="openNew()"></button>
+      <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
+              [disabled]="!selectedRooms || !selectedRooms.length"></button>
+      <button pButton pRipple label="Import" class="customButton"></button>
+      <button pButton pRipple label="Export" icon="pi pi-upload" class="customButton"></button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-treeTable [value]="files" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Name</th>
+        <th>Size</th>
+        <th>Type</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+      <tr [ttRow]="rowNode">
+        <td>
+          <p-treeTableToggler [rowNode]="rowNode" />
+          {{ rowData.name }}
+        </td>
+        <td>{{ rowData.size }}</td>
+        <td>{{ rowData.type }}</td>
+      </tr>
+    </ng-template>
+  </p-treeTable>
+</div>
+
+
+<p-dialog [(visible)]="itemDialogVisible" [style]="{ width: '47rem', height: '25rem' }"
+          header="Room Creation" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content" class="parent">
+    <div class="rand">
+      <label for="nameRoom">Name of room</label>
+      <input type="text" pInputText id="nameRoom" required autofocus
+             [(ngModel)]="singleRoom.id" [disabled]="itemIsEdited"/>
+      <small class="p-error" *ngIf="!singleRoom.id">Name is needed!</small>
+    </div>
+    <div class="div-container">
+      <div class="rand">
+        <label for="capacity">Capacity</label>
+        <input type="number" pInputText id="capacity" [(ngModel)]="singleRoom.capacity" required autofocus/>
+        <small class="p-error" *ngIf="!singleRoom.capacity">We need to know the room size.</small>
+      </div>
+
+      <div class="rand">
+        <label for="op1">Computers available?</label>
+        <p-toggleButton id="op1" [(ngModel)]="singleRoom.computersAvailable"
+                        onLabel="Yes" offLabel="No"/>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
+            (click)="saveNewItem()" [disabled]="!singleRoom.id && !singleRoom.capacity"></button>
+  </ng-template>
+</p-dialog>
+
