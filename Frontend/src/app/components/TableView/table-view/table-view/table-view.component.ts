@@ -71,7 +71,7 @@ export class TableViewComponent implements OnInit, OnDestroy{
 
   }
 
-  deleteSingleItem(room: Room) {
-
+  deleteSingleItem(id: number) {
+    //TODO call api to delete single table
   }
 }

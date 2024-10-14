@@ -24,26 +24,25 @@
   <p-treeTable [value]="tables" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}" #dt>
     <ng-template pTemplate="header">
       <tr>
-        <th id="" class="flex-header"
-            *ngFor="let col of selectedHeaders" [pSortableColumn]="col.field"
-            pResizableColumn pReorderableColumn>
-          <span>
-            <p-sortIcon [field]="col.field"></p-sortIcon>
-            {{ col.header }}
-          </span>
-          <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
-                          [field]="col.field"></p-columnFilter>
+        <th *ngFor="let col of selectedHeaders">
+          {{ col.header }}
+        </th>
+        <th>
+          Delete
         </th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
       <tr [ttRow]="rowNode">
-        <td>
-          <p-treeTableToggler [rowNode]="rowNode" />
-          {{ rowData.name }}
+        <td *ngFor="let col of selectedHeaders; let i = index">
+          <p-treeTableToggler [rowNode]="rowNode" *ngIf="i===0"></p-treeTableToggler>
+          {{ rowData[col.field]}}
         </td>
-        <td>{{ rowData.size }}</td>
-        <td>{{ rowData.type }}</td>
+        <td>
+          <p-button pButton pRipple icon="pi pi-trash" severity="danger"
+                    [rounded]="true" [outlined]="true"
+                    (click)="deleteSingleItem(rowData['id'])"/>
+        </td>
       </tr>
     </ng-template>
   </p-treeTable>

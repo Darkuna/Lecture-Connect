@@ -19,8 +19,8 @@ export class NodeConverterService {
       expanded: boolean = false;
       expandedIcon: string = 'pi pi-angle-down';
       icon: string = 'pi pi-angle-double-up';
-      key: string = 'id';
-      label: string = 'this is a test';
+      key: string = 'here is the key';
+      label: string = table.name ?? 'EMPTY';
       type: string = 'NameTable';
     }
   }
