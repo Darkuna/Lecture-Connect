@@ -16,19 +16,24 @@
     </ng-template>
     <ng-template pTemplate="right">
       <button pButton pRipple label="New" class="customButton" (click)="openNew()"></button>
-      <button pButton pRipple label="Delete" id="del" class="customButton" (click)="deleteMultipleItems()"
-              [disabled]="!selectedRooms || !selectedRooms.length"></button>
       <button pButton pRipple label="Import" class="customButton"></button>
       <button pButton pRipple label="Export" icon="pi pi-upload" class="customButton"></button>
     </ng-template>
   </p-toolbar>
 
-  <p-treeTable [value]="files" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}">
+  <p-treeTable [value]="tables" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}" #dt>
     <ng-template pTemplate="header">
       <tr>
-        <th>Name</th>
-        <th>Size</th>
-        <th>Type</th>
+        <th id="" class="flex-header"
+            *ngFor="let col of selectedHeaders" [pSortableColumn]="col.field"
+            pResizableColumn pReorderableColumn>
+          <span>
+            <p-sortIcon [field]="col.field"></p-sortIcon>
+            {{ col.header }}
+          </span>
+          <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
+                          [field]="col.field"></p-columnFilter>
+        </th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
@@ -43,36 +48,3 @@
     </ng-template>
   </p-treeTable>
 </div>
-
-
-<p-dialog [(visible)]="itemDialogVisible" [style]="{ width: '47rem', height: '25rem' }"
-          header="Room Creation" [modal]="true" styleClass="p-fluid">
-  <ng-template pTemplate="content" class="parent">
-    <div class="rand">
-      <label for="nameRoom">Name of room</label>
-      <input type="text" pInputText id="nameRoom" required autofocus
-             [(ngModel)]="singleRoom.id" [disabled]="itemIsEdited"/>
-      <small class="p-error" *ngIf="!singleRoom.id">Name is needed!</small>
-    </div>
-    <div class="div-container">
-      <div class="rand">
-        <label for="capacity">Capacity</label>
-        <input type="number" pInputText id="capacity" [(ngModel)]="singleRoom.capacity" required autofocus/>
-        <small class="p-error" *ngIf="!singleRoom.capacity">We need to know the room size.</small>
-      </div>
-
-      <div class="rand">
-        <label for="op1">Computers available?</label>
-        <p-toggleButton id="op1" [(ngModel)]="singleRoom.computersAvailable"
-                        onLabel="Yes" offLabel="No"/>
-      </div>
-    </div>
-  </ng-template>
-
-  <ng-template pTemplate="footer">
-    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
-    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text"
-            (click)="saveNewItem()" [disabled]="!singleRoom.id && !singleRoom.capacity"></button>
-  </ng-template>
-</p-dialog>
-

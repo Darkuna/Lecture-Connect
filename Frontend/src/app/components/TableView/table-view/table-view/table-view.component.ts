@@ -1,32 +1,35 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Room} from "../../../../../assets/Models/room";
 import {Subscription} from "rxjs";
-import {ConfirmationService, MessageService} from "primeng/api";
+import {ConfirmationService, MessageService, TreeNode} from "primeng/api";
 import {GlobalTableService} from "../../../../services/global-table.service";
 import {TimeTableNames} from "../../../../../assets/Models/time-table-names";
+import {TimeTable} from "../../../../../assets/Models/time-table";
+import {NodeConverterService} from "../../../../services/converter/node-converter.service";
 
 @Component({
   selector: 'app-table-view',
   templateUrl: './table-view.component.html',
+  styleUrl: '../../tables.css',
 })
 export class TableViewComponent implements OnInit, OnDestroy{
   itemDialogVisible: boolean = false;
   itemIsEdited = false;
-  singleRoom: Room;
-  tables!: TimeTableNames[];
-  selectedRooms!: Room[];
+  loadedTable:TimeTable;
+  tables!: TreeNode[];
   selectedHeaders: any;
   headers: any[];
 
-  private roomsSub?: Subscription;
+  private tablesSub?: Subscription;
 
   constructor(
     private cd: ChangeDetectorRef,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService,
     private tableService: GlobalTableService,
+    private nodeConverter: NodeConverterService,
+    private confirmationService: ConfirmationService,
   ) {
-    this.singleRoom = new Room();
+    this.loadedTable = new TimeTable();
     this.headers = [
       {field: 'name', header: 'Title'},
       {field: 'semester', header: 'Semester'},
@@ -36,13 +39,17 @@ export class TableViewComponent implements OnInit, OnDestroy{
   }
 
   ngOnInit(): void {
-    this.roomsSub = this.tableService.getTimeTableByNames()
-      .subscribe(data => this.tables = [...data]);
+    this.tablesSub = this.tableService.getTimeTableByNames()
+      .subscribe((data:TimeTableNames[]) => {
+        console.log(data)
+        this.tables = this.nodeConverter.convertTableListToNodeList(data)
+        console.log(this.tables);
+      });
     this.cd.markForCheck();
   }
 
   ngOnDestroy() {
-    this.roomsSub?.unsubscribe();
+    this.tablesSub?.unsubscribe();
     this.cd.detach();
   }
 
@@ -54,9 +61,9 @@ export class TableViewComponent implements OnInit, OnDestroy{
     this.itemDialogVisible = false;
   }
 
-  editItem(item: Room) {
+  editItem(item: TimeTable) {
     this.itemIsEdited = true;
-    this.singleRoom = item;
+    this.loadedTable = item;
     this.openNew();
   }
 

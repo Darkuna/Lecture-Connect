@@ -19,6 +19,7 @@ import {
   AuthGuardWizardClose
 } from "./guard/auth-guards";
 import {UserSettingsComponent} from "./components/header-self/user-settings/user-settings.component";
+import {TableViewComponent} from "./components/TableView/table-view/table-view/table-view.component";
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent, canActivate: [AuthGuardRemember]},
@@ -35,6 +36,8 @@ const routes: Routes = [
     ]},
   {path: 'admin', canActivateChild: [AuthGuardAdmin], children:[
       {path: 'users', component: UsersViewComponent},
+      {path: 'tables', component: TableViewComponent},
+
     ]},
   { path: '**', component: PageNotFoundComponentComponent },  // Wildcard route for a 404 page
 ];
