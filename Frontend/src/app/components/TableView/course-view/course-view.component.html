@@ -50,9 +50,8 @@
           <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
                           [field]="col.field"></p-columnFilter>
         </th>
-        <th>
-
-        </th>
+        <th> Edit </th>
+        <th> Delete </th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-u>
@@ -70,7 +69,8 @@
                     icon="pi pi-pencil" class="mr-2"
                     [rounded]="true" [outlined]="true" severity="success"
                     (click)="editItem(u)"/>
-
+        </td>
+        <td>
           <p-button pButton pRipple icon="pi pi-trash" severity="danger"
                     [rounded]="true" [outlined]="true"
                     (click)="deleteSingleItem(u)"/>

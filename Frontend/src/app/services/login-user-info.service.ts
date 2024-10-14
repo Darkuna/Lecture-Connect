@@ -37,7 +37,6 @@ export class LoginUserInfoService implements OnDestroy{
 
     if (token) {
       const decodedToken = jwt_decode.jwtDecode(token) as { [key: string]: string | string[] };
-      console.log(decodedToken);
       const roles =  <string[]>decodedToken['role'];
 
       return !!roles!.find(t => t == 'ADMIN');

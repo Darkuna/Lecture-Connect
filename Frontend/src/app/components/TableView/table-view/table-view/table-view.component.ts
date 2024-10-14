@@ -1,5 +1,4 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import {Room} from "../../../../../assets/Models/room";
 import {Subscription} from "rxjs";
 import {ConfirmationService, MessageService, TreeNode} from "primeng/api";
 import {GlobalTableService} from "../../../../services/global-table.service";
@@ -41,9 +40,7 @@ export class TableViewComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.tablesSub = this.tableService.getTimeTableByNames()
       .subscribe((data:TimeTableNames[]) => {
-        console.log(data)
         this.tables = this.nodeConverter.convertTableListToNodeList(data)
-        console.log(this.tables);
       });
     this.cd.markForCheck();
   }

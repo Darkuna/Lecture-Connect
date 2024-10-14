@@ -79,7 +79,7 @@ export class UsersViewComponent implements OnInit, OnDestroy{
         },
 
         error: err => {
-          this.messageService.add({severity: 'error', summary: 'Upload', detail: err.toString()});
+          this.messageService.add({severity: 'error', summary: 'Upload', detail: err.error});
         }
       });
     }
