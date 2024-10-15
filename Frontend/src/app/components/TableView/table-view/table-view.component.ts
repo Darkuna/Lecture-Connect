@@ -1,10 +1,9 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
-import {ConfirmationService, MessageService, TreeNode} from "primeng/api";
+import {ConfirmationService, MessageService} from "primeng/api";
 import {GlobalTableService} from "../../../services/global-table.service";
 import {TimeTableNames} from "../../../../assets/Models/time-table-names";
 import {TimeTable} from "../../../../assets/Models/time-table";
-import {NodeConverterService} from "../../../services/converter/node-converter.service";
 
 @Component({
   selector: 'app-table-view',
@@ -15,7 +14,8 @@ export class TableViewComponent implements OnInit, OnDestroy{
   itemDialogVisible: boolean = false;
   itemIsEdited = false;
   loadedTable:TimeTable;
-  tables!: TreeNode[];
+  tables!: TimeTableNames[];
+  selectedTable: TimeTableNames | null = null;
   selectedHeaders: any;
   headers: any[];
 
@@ -25,14 +25,15 @@ export class TableViewComponent implements OnInit, OnDestroy{
     private cd: ChangeDetectorRef,
     private messageService: MessageService,
     private tableService: GlobalTableService,
-    private nodeConverter: NodeConverterService,
     private confirmationService: ConfirmationService,
   ) {
     this.loadedTable = new TimeTable();
     this.headers = [
+      {field: 'status', header: 'Status '},
       {field: 'name', header: 'Title'},
       {field: 'semester', header: 'Semester'},
       {field: 'year', header: 'Year'},
+      {field: '', header: ''},
     ];
 
     this.selectedHeaders = this.headers;
@@ -41,7 +42,7 @@ export class TableViewComponent implements OnInit, OnDestroy{
   ngOnInit(): void {
     this.tablesSub = this.tableService.getTimeTableByNames()
       .subscribe((data:TimeTableNames[]) => {
-        this.tables = this.nodeConverter.convertTableListToNodeList(data)
+        this.tables = data
       });
     this.cd.markForCheck();
   }
@@ -69,7 +70,7 @@ export class TableViewComponent implements OnInit, OnDestroy{
 
   }
 
-  deleteSingleItem(id: number) {
+  deleteSingleItem() {
     //TODO call api to delete single table
   }
 }

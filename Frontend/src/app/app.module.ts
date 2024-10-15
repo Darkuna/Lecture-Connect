@@ -69,7 +69,6 @@ import { SpinnerComponent } from './components/spinner/spinner.component';
 import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 import { UserSettingsComponent } from './components/header-self/user-settings/user-settings.component';
 import { TableViewComponent } from './components/TableView/table-view/table-view.component';
-import {TreeTableModule} from "primeng/treetable";
 
 @NgModule({ declarations: [
         AppComponent, HeaderSelfComponent, LoginComponent,
@@ -88,7 +87,7 @@ import {TreeTableModule} from "primeng/treetable";
     FormsModule, RippleModule, TableModule, FileUploadModule, ToolbarModule, MultiSelectModule, DialogModule, DropdownModule, TagModule, RadioButtonModule,
     InputNumberModule, ConfirmDialogModule, InputTextareaModule, InputSwitchModule, SelectButtonModule,
     FullCalendarModule, MenuModule, BadgeModule, AvatarModule, CarouselModule, MenubarModule, CalendarModule, StepperModule, IconFieldModule, InputIconModule, ToggleButtonModule,
-    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule, TreeTableModule],
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule],
   providers: [
     ConfirmationService,
     MessageService,

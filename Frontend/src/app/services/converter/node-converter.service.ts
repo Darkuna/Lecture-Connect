@@ -11,7 +11,7 @@ export class NodeConverterService {
 
   convertNameTableToNode(table: TimeTableNames): TreeNode<TimeTableNames>{
     return new class implements TreeNode<TimeTableNames> {
-      children: TreeNode<TimeTableNames>[] = [];
+      children: TreeNode[] = [];
       data: TimeTableNames = table;
       expanded: boolean = false;
       label: string = table.name ?? 'EMPTY';

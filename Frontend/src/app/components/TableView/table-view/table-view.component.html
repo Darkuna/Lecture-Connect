@@ -6,8 +6,8 @@
 
     <ng-template pTemplate="left">
       <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
-                     selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
-                     placeholder="Choose Columns"></p-multiSelect>
+                     [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
+                     placeholder="Choose Columns"/>
       <span class="p-input-icon-left">
         <i class="pi pi-search"></i>
         <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
@@ -21,29 +21,34 @@
     </ng-template>
   </p-toolbar>
 
-  <p-treeTable [value]="tables" [scrollable]="true" [tableStyle]="{'min-width':'50rem'}" #dt>
-    <ng-template pTemplate="header">
+  <p-table
+    #dt
+    [value]="tables"
+    [globalFilterFields]="['id']"
+    [(selection)]="selectedTable"
+    [columns]="selectedHeaders"
+    dataKey="id">
+    <ng-template pTemplate="header" let-columns>
       <tr>
-        <th *ngFor="let col of selectedHeaders">
+        <th *ngFor="let col of columns">
           {{ col.header }}
         </th>
-        <th>
-          Delete
-        </th>
+        <th>Details</th>
+        <th>Delete</th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
-      <tr [ttRow]="rowNode">
-        <td *ngFor="let col of selectedHeaders; let i = index">
-          <p-treeTableToggler [rowNode]="rowNode" *ngIf="i===0"></p-treeTableToggler>
-          {{ rowData[col.field]}}
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <tr>
+        <td *ngFor="let col of columns">
+          {{ rowData[col.field] }}
         </td>
-        <td>
-          <p-button pButton pRipple icon="pi pi-trash" severity="danger"
-                    [rounded]="true" [outlined]="true"
-                    (click)="deleteSingleItem(rowData['id'])"/>
+        <td style="width: 5%">
+          <p-button pButton pRipple icon="pi pi-eye" severity="info" (click)="deleteSingleItem()"/>
+        </td>
+        <td style="width: 5%">
+          <p-button pButton pRipple icon="pi pi-trash" severity="danger" (click)="deleteSingleItem()"/>
         </td>
       </tr>
     </ng-template>
-  </p-treeTable>
+  </p-table>
 </div>
