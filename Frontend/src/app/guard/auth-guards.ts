@@ -16,6 +16,7 @@ export const AuthGuardRemember: CanActivateFn = () => {
 
 
 export const AuthGuardLogin: CanActivateFn = () => {
+  return true;
   const userService:LoginUserInfoService = inject(LoginUserInfoService);
   return userService.isLoggedIn();
 };

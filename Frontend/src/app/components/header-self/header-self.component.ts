@@ -32,7 +32,7 @@ export class HeaderSelfComponent {
   }
 
   logout(): void {
-    this.userInfoService.logoutUser();
+    this.userInfoService.clearCache();
     this.sessionStorageService.clear();
     this.redirectToPage('/login');
   }
