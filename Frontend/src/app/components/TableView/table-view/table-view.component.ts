@@ -4,6 +4,7 @@ import {ConfirmationService, MessageService} from "primeng/api";
 import {GlobalTableService} from "../../../services/global-table.service";
 import {TimeTableNames} from "../../../../assets/Models/time-table-names";
 import {TimeTable} from "../../../../assets/Models/time-table";
+import {TimeTableDTO} from "../../../../assets/Models/dto/time-table-dto";
 
 @Component({
   selector: 'app-table-view',
@@ -12,8 +13,8 @@ import {TimeTable} from "../../../../assets/Models/time-table";
 })
 export class TableViewComponent implements OnInit, OnDestroy{
   itemDialogVisible: boolean = false;
-  itemIsEdited = false;
-  loadedTable:TimeTable;
+  loadedTable:TimeTableDTO | null = null;
+  loadedTableSub: Subscription | null = null;
   tables!: TimeTableNames[];
   selectedTable: TimeTableNames | null = null;
   selectedHeaders: any;
@@ -27,7 +28,6 @@ export class TableViewComponent implements OnInit, OnDestroy{
     private tableService: GlobalTableService,
     private confirmationService: ConfirmationService,
   ) {
-    this.loadedTable = new TimeTable();
     this.headers = [
       {field: 'status', header: 'Status '},
       {field: 'name', header: 'Title'},
@@ -60,17 +60,20 @@ export class TableViewComponent implements OnInit, OnDestroy{
     this.itemDialogVisible = false;
   }
 
-  editItem(item: TimeTable) {
-    this.itemIsEdited = true;
-    this.loadedTable = item;
-    this.openNew();
-  }
-
-  saveNewItem(): void {
-
+  loadTable(data: TimeTableNames): void {
+    this.loadedTableSub = this.tableService.getSpecificTimeTable(data.id).subscribe(
+      (data:TimeTableDTO) => { this.loadedTable = data }
+    );
+    this.itemDialogVisible = true;
   }
 
   deleteSingleItem() {
     //TODO call api to delete single table
+  }
+
+  onDialogClose(){
+    this.itemDialogVisible = false;
+    if(this.loadedTableSub)
+      this.loadedTableSub.unsubscribe();
   }
 }
