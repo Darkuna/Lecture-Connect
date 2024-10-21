@@ -270,7 +270,7 @@ public class BacktrackingScheduler implements Scheduler {
                     if(!groupAssignmentMap.isLimitExceeded(currentCourseSession, currentCandidate)){
                         candidates = candidates.stream()
                                 .filter(c -> !c.intersects(currentCandidate) || !c.isInSameRoom(currentCandidate))
-                                .sorted(Comparator.comparing(Candidate::isPreferredSlots).
+                                .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
                                         thenComparingInt(c -> Math.abs(c.getDay() - currentCandidate.getDay())).
                                         thenComparingInt(Candidate::getSlot))
                                 .collect(Collectors.toList());
