@@ -22,6 +22,7 @@
             (onRowExpand)="loadTable($event.data)" (onRowCollapse)="onDialogClose()">
     <ng-template pTemplate="header" let-columns>
       <tr>
+        <th></th>
         <th *ngFor="let col of columns">
           {{ col.header }}
         </th>

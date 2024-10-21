@@ -34,7 +34,6 @@ export class TableViewComponent implements OnInit, OnDestroy{
       {field: 'name', header: 'Title'},
       {field: 'semester', header: 'Semester'},
       {field: 'year', header: 'Year'},
-      {field: '', header: ''},
     ];
 
     this.selectedHeaders = this.headers;
