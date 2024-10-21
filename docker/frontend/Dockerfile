@@ -11,7 +11,7 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build --prod --configuration=production
+RUN npm run build --prod --omit=prod
 
 FROM nginx:alpine
 
