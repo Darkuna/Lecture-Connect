@@ -52,12 +52,14 @@ public abstract class Scheduler {
         courseSessionsWithoutComputersNeeded = new ArrayList<>();
         courseSessionsWithComputersNeeded = new ArrayList<>();
         for(RoomTable roomTable : timeTable.getRoomTablesWithComputersAvailable()){
-            availabilityMatricesOfRoomsWithComputers.add(roomTable.getAvailabilityMatrix());
-            allAvailabilityMatrices.add(roomTable.getAvailabilityMatrix());
+            AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(roomTable);
+            availabilityMatricesOfRoomsWithComputers.add(availabilityMatrix);
+            allAvailabilityMatrices.add(availabilityMatrix);
         }
         for(RoomTable roomTable : timeTable.getRoomTablesWithoutComputersAvailable()){
-            availabilityMatricesOfRoomsWithoutComputers.add(roomTable.getAvailabilityMatrix());
-            allAvailabilityMatrices.add(roomTable.getAvailabilityMatrix());
+            AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(roomTable);
+            availabilityMatricesOfRoomsWithoutComputers.add(availabilityMatrix);
+            allAvailabilityMatrices.add(availabilityMatrix);
         }
         this.courseSessionsWithComputersNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithComputersNeeded());
         this.courseSessionsWithoutComputersNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithoutComputersNeeded());
@@ -271,11 +273,14 @@ public abstract class Scheduler {
         readyForAssignmentSet.clear();
     }
 
+
+
     /**
      * Checks already assigned courseSessions for collisions
      * @param timeTable to be checked
      * @return a list of courseSessions that are in collision
      */
+    /* TODO: fix
     public List<CourseSession> collisionCheck(TimeTable timeTable){
         if(!this.timeTable.equals(timeTable)){
             setTimeTable(timeTable);
@@ -289,4 +294,6 @@ public abstract class Scheduler {
         }
         return collisions;
     }
+
+     */
 }

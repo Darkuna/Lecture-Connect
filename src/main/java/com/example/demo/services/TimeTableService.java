@@ -221,12 +221,12 @@ public class TimeTableService {
             return false;
         }
     }
-
+    /* TODO: fix
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> checkCollisions(TimeTable timeTable){
         return scheduler.collisionCheck(timeTable);
     }
-
+    */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable unassignAllCourseSessions(TimeTable timeTable){
         courseSessionService.unassignCourseSessions(timeTable.getAssignedCourseSessions());

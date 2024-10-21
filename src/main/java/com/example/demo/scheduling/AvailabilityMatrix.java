@@ -200,11 +200,14 @@ public class AvailabilityMatrix {
         return timing;
     }
 
+    /* TODO: fix
     public static Candidate toCandidate(CourseSession courseSession) {
         return new Candidate(courseSession.getRoomTable().getAvailabilityMatrix(),
                 courseSession.getTiming().getDay().ordinal(),timeToSlotIndex(courseSession.getTiming().getStartTime()),
                 (int) courseSession.getTiming().getDuration(), true);
     }
+
+     */
 
     public static int timeToSlotIndex(LocalTime time) {
         time = time.minusHours(START_TIME.getHour());

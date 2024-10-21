@@ -29,9 +29,6 @@ public class RoomTable implements Persistable<Long>, Serializable {
     @ManyToOne
     private TimeTable timeTable;
 
-    @Transient
-    private AvailabilityMatrix availabilityMatrix;
-
     public RoomTable() {
         timingConstraints = new ArrayList<>();
     }
@@ -44,11 +41,6 @@ public class RoomTable implements Persistable<Long>, Serializable {
     @Override
     public boolean isNew() {
         return id == null;
-    }
-
-    public void addTimingConstraint(Timing timing) {
-        availabilityMatrix.addTimingConstraint(timing);
-        timingConstraints.add(timing);
     }
 
     @Override
