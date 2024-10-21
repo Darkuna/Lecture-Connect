@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Userx } from '../../assets/Models/userx';
+import {Userx, UserxDTO} from '../../assets/Models/userx';
 import {MessageService} from "primeng/api";
+import {UserxConverterService} from "./converter/userx-converter.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class UserService {
   constructor(
     private http: HttpClient,
     private messageService: MessageService,
+    private userConverter: UserxConverterService
   ) {}
 
   httpOptions = {
@@ -22,28 +24,24 @@ export class UserService {
     })
   };
 
-    getAllUsers(): Observable<Userx[]> {
-    return this.http.get<Userx[]>(this.userApiPath, this.httpOptions);
+    getAllUsers(): Observable<UserxDTO[]> {
+    return this.http.get<UserxDTO[]>(this.userApiPath, this.httpOptions);
   }
 
   createSingleUser(user: Userx) {
-    return this.http.post<Userx>(this.userApiPath, user, this.httpOptions);
-  }
-
-  getSingleUser(userID: string): Observable<any> {
-    let newUrl = `${this.userApiPath}/${userID}`;
-    return this.http.get(newUrl, this.httpOptions);
+      const dto = this.userConverter.toDTO(user);
+      return this.http.post<Userx>(this.userApiPath, dto, this.httpOptions);
   }
 
   updateSingleUser(user: Userx): Userx {
-    let newUrl = `${this.userApiPath}/${user.serialVersionUID}`;
+    let newUrl = `${this.userApiPath}/${user.id}`;
     this.http.put<Userx>(newUrl, user, this.httpOptions)
       .subscribe(res => { user = res }
-      ).unsubscribe();
+      )
     return user;
   }
 
-  deleteSingleUser(userID: number) {
+  deleteSingleUser(userID: string) {
     let newUrl = `${this.userApiPath}/${userID}`;
     this.http.delete(newUrl, this.httpOptions).subscribe({
       error: error => {
