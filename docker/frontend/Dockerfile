@@ -10,17 +10,15 @@ COPY ./package*.json ./
 RUN npm install -g @angular/cli
 RUN npm install
 
-#### go one folder back and copy the entire code from the root
-COPY ../ .
+COPY / .
 
 RUN npm run build --prod
 
 FROM nginxinc/nginx-unprivileged
 
-#### go one folder back and copy the entire code from the root
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build-stage ./nginx.conf /etc/nginx/conf.d/default.conf
 
 #### copy artifact build from the 'build environment'
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 
 CMD ["nginx", "-g", "daemon off;"]
