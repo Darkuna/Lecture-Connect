@@ -88,7 +88,6 @@ public class SecondScheduler extends Scheduler {
      * @return true, if the assignment was successful, else false
      */
     private boolean processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions){
-        int process = 0;
         int courseSessionSize = possibleCandidatesForCourseSessions.size();
 
         if(possibleCandidatesForCourseSessions.isEmpty()){
@@ -120,10 +119,10 @@ public class SecondScheduler extends Scheduler {
             candidateSize = currentCourseSessionMap.get(currentCourseSession).size();
             //if all candidates of the current state are iterated
             if(currentIndex >= candidateSize){
-                unassignLatestEntry();
                 if(stack.isEmpty()){
                     return false;
                 }
+                unassignLatestEntry();
                 currentState = stack.pop();
                 currentState.index++;
                 continue;
@@ -145,6 +144,9 @@ public class SecondScheduler extends Scheduler {
             //check if one of the courseSessions has no candidates after filtering. if yes pop the previous state
             for(Map.Entry<CourseSession, List<Candidate>> entry : filteredCourseSessions.entrySet()){
                 if(entry.getValue().isEmpty()){
+                    if(stack.isEmpty()){
+                        return false;
+                    }
                     unassignLatestEntry();
                     currentState = stack.pop();
                     currentState.index++;

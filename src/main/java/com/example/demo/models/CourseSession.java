@@ -87,8 +87,8 @@ public class CourseSession implements Persistable<Long>, Serializable {
                 courseSession.getTiming().hasSameDayAndTime(this.timing);
     }
 
-    @Override
-    public String toString(){
-        return String.format("%s: %s %s %s %s", name, studyType, roomTable.getRoomId(), timing, courseId);
-    }
+    //@Override
+    //public String toString(){
+    //    return String.format("%s: %s %s %s %s", name, studyType, roomTable.getRoomId(), timing, courseId);
+    //}
 }
