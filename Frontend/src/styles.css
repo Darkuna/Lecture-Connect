@@ -45,7 +45,6 @@
   margin: 0 auto;
   padding: 5px 10px;
   background: var(--system-color-primary-white);
-  border-width: 40px;
   flex-direction: column-reverse;
 }
 

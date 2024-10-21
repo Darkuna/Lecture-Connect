@@ -68,6 +68,8 @@ import { DataWizardComponent } from './components/wizzard/data-wizard/data-wizar
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 import { UserSettingsComponent } from './components/header-self/user-settings/user-settings.component';
+import { TableViewComponent } from './components/TableView/table-view/table-view.component';
+import {CheckboxModule} from "primeng/checkbox";
 
 @NgModule({ declarations: [
         AppComponent, HeaderSelfComponent, LoginComponent,
@@ -77,16 +79,16 @@ import { UserSettingsComponent } from './components/header-self/user-settings/us
         BaseSelectionComponent, CourseSelectionComponent, DetailSelectionComponent,
         RoomSelectionComponent, BaseSelectionComponent, RoomSelectionPageComponent,
         CourseSelectionPageComponent, CalendarContextMenuComponent, EditorComponent,
-        DataWizardComponent, SpinnerComponent, UserSettingsComponent,
+        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent,
     ],
   bootstrap: [AppComponent],
-  imports: [
-    NgxWebstorageModule.forRoot(),
-    BrowserAnimationsModule, BrowserModule, AppRoutingModule, ButtonModule, CardModule, InputTextModule, PasswordModule, ToastModule,
-    FormsModule, RippleModule, TableModule, FileUploadModule, ToolbarModule, MultiSelectModule, DialogModule, DropdownModule, TagModule, RadioButtonModule,
-    InputNumberModule, ConfirmDialogModule, InputTextareaModule, InputSwitchModule, SelectButtonModule,
-    FullCalendarModule, MenuModule, BadgeModule,AvatarModule, CarouselModule, MenubarModule, CalendarModule, StepperModule, IconFieldModule, InputIconModule, ToggleButtonModule,
-    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule],
+    imports: [
+        NgxWebstorageModule.forRoot(),
+        BrowserAnimationsModule, BrowserModule, AppRoutingModule, ButtonModule, CardModule, InputTextModule, PasswordModule, ToastModule,
+        FormsModule, RippleModule, TableModule, FileUploadModule, ToolbarModule, MultiSelectModule, DialogModule, DropdownModule, TagModule, RadioButtonModule,
+        InputNumberModule, ConfirmDialogModule, InputTextareaModule, InputSwitchModule, SelectButtonModule,
+        FullCalendarModule, MenuModule, BadgeModule, AvatarModule, CarouselModule, MenubarModule, CalendarModule, StepperModule, IconFieldModule, InputIconModule, ToggleButtonModule,
+        DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule, CheckboxModule],
   providers: [
     ConfirmationService,
     MessageService,

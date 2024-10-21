@@ -43,7 +43,7 @@
         <th id="check">
           <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
         </th>
-        <th id="" class="flex-header"
+        <th class="flex-header"
             *ngFor="let col of selectedHeaders" [pSortableColumn]="col.field"
             pResizableColumn pReorderableColumn>
           <span>
@@ -53,6 +53,8 @@
           <p-columnFilter operator="or" [type]="!col.type ? 'text' : col.type" display="menu"
                           [field]="col.field"></p-columnFilter>
         </th>
+        <th> Edit </th>
+        <th> Delete </th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-r>
@@ -68,7 +70,8 @@
                     icon="pi pi-pencil" class="mr-2"
                     [rounded]="true" [outlined]="true" severity="success"
                     (click)="editItem(r)"/>
-
+        </td>
+        <td>
           <p-button pButton pRipple icon="pi pi-trash" severity="danger"
                     [rounded]="true" [outlined]="true"
                     (click)="deleteSingleItem(r)"/>
@@ -97,8 +100,8 @@
 
       <div class="rand">
         <label for="op1">Computers available?</label>
-        <p-selectButton id="op1" [options]="stateOptions" [(ngModel)]="singleRoom.computersAvailable"
-                        optionLabel="label" optionValue="value"></p-selectButton>
+        <p-toggleButton id="op1" [(ngModel)]="singleRoom.computersAvailable"
+                        onLabel="Yes" offLabel="No"/>
       </div>
     </div>
   </ng-template>

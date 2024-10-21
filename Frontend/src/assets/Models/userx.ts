@@ -10,7 +10,7 @@ export class Userx {
   lastName?: string;
   email?: string;
   enabled?: boolean;
-  role?: Role
+  role?: Role[];
 
 
   public getTableColumns(): any[] {
