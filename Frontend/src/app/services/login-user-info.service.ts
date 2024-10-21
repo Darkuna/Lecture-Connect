@@ -9,7 +9,7 @@ import {environment} from "../environment/dev";
   providedIn: 'root'
 })
 export class LoginUserInfoService {
-  static API_PATH = `${environment.baseUrl}auth/login`;
+  static API_PATH = `http:://lecture-connect.ifi-tpt.uibk.ac.at:8080/auth/login`;
 
   constructor(
     private http: HttpClient,
