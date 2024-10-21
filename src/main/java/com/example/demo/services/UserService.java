@@ -145,16 +145,16 @@ public class UserService {
     @PreAuthorize("hasAuthority('ADMIN')")
     public Userx saveUser(Userx user)
             throws UserAlreadyExistsException, UserRequiredFieldEmptyException, UserInvalidEmailException {
-
+            Userx admin = userRepository.findByUsername("admin").get();
         if (user.isNew()) {
             checkUserRequirements(user);
             user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-            user.setCreateUser(getAuthenticatedUser());
+            user.setCreateUser(admin);
             user.setCreateDate(new Date());
         } else {
             user.setUpdateDate(new Date());
-            user.setUpdateUser(getAuthenticatedUser());
+            user.setUpdateUser(admin);
         }
         return userRepository.save(user);
     }
