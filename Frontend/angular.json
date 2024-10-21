@@ -40,6 +40,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/dev.ts",
+                  "with": "src/environments/prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -65,16 +71,16 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "new_test:build",
+            "buildTarget": "le_co_prod:build",
             "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
-              "buildTarget": "new_test:build:production",
+              "buildTarget": "le_co_prod:build:production",
               "proxyConfig": "proxy.prod.conf.json"
             },
             "development": {
-              "buildTarget": "new_test:build:development"
+              "buildTarget": "le_co_prod:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -82,7 +88,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "new_test:build"
+            "buildTarget": "le_co_prod:build"
           }
         },
         "test": {
