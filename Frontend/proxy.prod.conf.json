@@ -5,7 +5,7 @@
     "pathRewrite": {
       "^/proxy": ""
     },
-    "changeOrigin": false,
+    "changeOrigin": true,
     "logLevel": "debug"
   }
 }
