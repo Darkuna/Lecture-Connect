@@ -2,11 +2,9 @@ package com.example.demo.controllers;
 
 import com.example.demo.dto.*;
 import com.example.demo.models.CourseSession;
+import com.example.demo.models.GlobalTableChange;
 import com.example.demo.models.TimeTable;
-import com.example.demo.services.CourseService;
-import com.example.demo.services.DTOConverter;
-import com.example.demo.services.RoomService;
-import com.example.demo.services.TimeTableService;
+import com.example.demo.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -24,15 +22,17 @@ public class GlobalViewController {
     private final DTOConverter dtoConverter;
     private final RoomService roomService;
     private final CourseService courseService;
+    private final GlobalTableChangeService globalTableChangeService;
     private TimeTable timeTable;
 
     @Autowired
     public GlobalViewController(TimeTableService timeTableService, DTOConverter dtoConverter, RoomService roomService,
-                                CourseService courseService) {
+                                CourseService courseService, GlobalTableChangeService globalTableChangeService) {
         this.timeTableService = timeTableService;
         this.dtoConverter = dtoConverter;
         this.roomService = roomService;
         this.courseService = courseService;
+        this.globalTableChangeService = globalTableChangeService;
     }
 
     /**
@@ -146,5 +146,14 @@ public class GlobalViewController {
                 .collect(Collectors.toList());
         timeTableService.updateCourseSessions(timeTable, courseSessions);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<GlobalTableChangeDTO>> getGlobalTableChanges() {
+        List<GlobalTableChangeDTO> globalTableChanges = globalTableChangeService.loadAll().stream()
+                .map(dtoConverter::toGlobalTableChangeDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(globalTableChanges);
     }
 }
