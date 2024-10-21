@@ -1,5 +1,6 @@
 package com.example.demo.models;
 
+import com.example.demo.scheduling.AvailabilityMatrix;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

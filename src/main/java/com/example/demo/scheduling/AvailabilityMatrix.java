@@ -1,10 +1,12 @@
-package com.example.demo.models;
+package com.example.demo.scheduling;
 
 import com.example.demo.constants.TimingConstants;
 import com.example.demo.exceptions.roomTable.NotEnoughSpaceAvailableException;
+import com.example.demo.models.CourseSession;
+import com.example.demo.models.RoomTable;
+import com.example.demo.models.Timing;
 import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.TimingType;
-import com.example.demo.scheduling.Candidate;
 import lombok.Getter;
 
 import java.time.Duration;

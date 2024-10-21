@@ -1,6 +1,5 @@
 package com.example.demo.scheduling;
 
-import com.example.demo.models.AvailabilityMatrix;
 import com.example.demo.models.CourseSession;
 import com.example.demo.models.RoomTable;
 import lombok.Getter;

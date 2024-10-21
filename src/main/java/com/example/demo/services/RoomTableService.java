@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.models.*;
 import com.example.demo.repositories.RoomTableRepository;
+import com.example.demo.scheduling.AvailabilityMatrix;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;

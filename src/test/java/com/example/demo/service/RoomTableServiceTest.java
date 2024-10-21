@@ -1,10 +1,10 @@
 package com.example.demo.service;
 
-import com.example.demo.constants.TimingConstants;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.TimingType;
+import com.example.demo.scheduling.AvailabilityMatrix;
 import com.example.demo.services.RoomService;
 import com.example.demo.services.RoomTableService;
 import com.example.demo.services.TimeTableService;
@@ -20,7 +20,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import jakarta.persistence.EntityNotFoundException;
 
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,15 +1,12 @@
 package com.example.demo.scheduling;
 
 import com.example.demo.constants.TimingConstants;
-import com.example.demo.models.AvailabilityMatrix;
 import com.example.demo.models.CourseSession;
 import com.example.demo.models.RoomTable;
 import com.example.demo.models.Timing;
 import com.example.demo.models.enums.Day;
 import com.example.demo.models.enums.TimingType;
-import com.example.demo.services.CourseSessionService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
