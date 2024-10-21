@@ -70,7 +70,8 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "new_test:build:production"
+              "buildTarget": "new_test:build:production",
+              "proxyConfig": "proxy.prod.conf.json"
             },
             "development": {
               "buildTarget": "new_test:build:development"
