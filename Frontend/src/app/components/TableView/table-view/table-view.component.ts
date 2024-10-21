@@ -3,9 +3,7 @@ import {Subscription} from "rxjs";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {GlobalTableService} from "../../../services/global-table.service";
 import {TimeTableNames} from "../../../../assets/Models/time-table-names";
-import {TimeTable} from "../../../../assets/Models/time-table";
 import {TimeTableDTO} from "../../../../assets/Models/dto/time-table-dto";
-import {LoadingInterceptor} from "../../../interceptor/loading.interceptor";
 import {LoaderService} from "../../../services/loader.service";
 
 @Component({
@@ -74,7 +72,17 @@ export class TableViewComponent implements OnInit, OnDestroy{
 
 
   deleteSingleItem() {
-    //TODO call api to delete single table
+    this.confirmationService.confirm({
+      header: 'Are you sure?',
+      message: 'Please confirm to proceed.',
+      accept: () => {
+        //TODO call api to delete single table
+        this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+      }
+    });
   }
 
   onDialogClose(){
