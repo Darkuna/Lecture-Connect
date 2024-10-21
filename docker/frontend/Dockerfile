@@ -14,11 +14,25 @@ COPY . .
 
 RUN npm run build --prod
 
-FROM nginx
+FROM nginx:alpine
 
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 #### copy artifact build from the 'build environment'
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY --from=build /app/dist/new_test /usr/share/nginx/html
+
+CMD ["nginx", "-g", "daemon off;"]
+
+FROM node:20-bookworm AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build --prod
+
+
 
 CMD ["nginx", "-g", "daemon off;"]
