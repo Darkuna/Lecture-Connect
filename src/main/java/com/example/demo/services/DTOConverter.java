@@ -340,4 +340,15 @@ public class DTOConverter {
         entity.setCapacity(dto.getCapacity());
         entity.setComputersAvailable(dto.isComputersAvailable());
     }
+
+    public GlobalTableChangeDTO toGlobalTableChangeDTO(GlobalTableChange globalTableChange) {
+        GlobalTableChangeDTO dto = new GlobalTableChangeDTO();
+        dto.setDescription(globalTableChange.getDescription());
+        dto.setChangeType(globalTableChange.getChangeType().toString());
+        dto.setTimeTable(globalTableChange.getTimeTable());
+        dto.setChangeUser(dto.getChangeUser());
+        dto.setDate(globalTableChange.getDate());
+
+        return dto;
+    }
 }
