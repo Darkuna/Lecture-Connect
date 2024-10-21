@@ -5,6 +5,7 @@ import com.example.demo.exceptions.user.UserInvalidEmailException;
 import com.example.demo.exceptions.user.UserRequiredFieldEmptyException;
 import com.example.demo.models.Userx;
 import com.example.demo.models.UserxRole;
+import com.example.demo.repositories.UserRepository;
 import com.example.demo.services.UserService;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
@@ -35,11 +36,14 @@ public class UserServiceTest {
 
     @Autowired
     UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @DirtiesContext
     @Test
     @WithMockUser(username = "admin", authorities = {"ADMIN"})
     public void testDeleteUser() {
+        int numberOfUsers = userRepository.findAll().size();
         String username = "user1";
         Userx adminUser = userService.loadUser("admin").get();
         Assertions.assertNotNull(adminUser, "Admin user could not be loaded from test data source");
@@ -49,7 +53,7 @@ public class UserServiceTest {
 
         userService.deleteUser(toBeDeletedUser);
 
-        Assertions.assertEquals(13, Lists.newArrayList(userService.getAllUsers()).size(),
+        Assertions.assertEquals(numberOfUsers-1, Lists.newArrayList(userService.getAllUsers()).size(),
                 "No user has been deleted after calling UserService.deleteUser");
         Optional<Userx> deletedUser = userService.loadUser(username);
         Assertions.assertTrue(deletedUser.isEmpty(), "Deleted User \"" + username

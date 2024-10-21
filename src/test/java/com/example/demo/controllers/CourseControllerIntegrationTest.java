@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.repositories.CourseRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,12 +18,16 @@ public class CourseControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Test
     public void testGetCoursesFromDatabase() throws Exception {
+        int numberOfCourses = courseRepository.findAll().size();
+
         mockMvc.perform(get("/api/courses"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(56)));
+                .andExpect(jsonPath("$", hasSize(numberOfCourses)));
     }
 }

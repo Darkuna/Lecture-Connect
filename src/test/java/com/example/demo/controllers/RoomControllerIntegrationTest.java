@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.repositories.RoomRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,14 +17,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RoomControllerIntegrationTest {
 
     @Autowired
+    private RoomRepository roomRepository;
+    @Autowired
     private MockMvc mockMvc;
 
     @Test
     public void testGetRoomsFromDatabase() throws Exception {
+        int numberOfRooms = roomRepository.findAll().size();
+
         mockMvc.perform(get("/api/rooms"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(28)));
+                .andExpect(jsonPath("$", hasSize(numberOfRooms)));
     }
 
     @Test

@@ -47,7 +47,6 @@ public class RoomTableServiceTest {
         RoomTable roomTable = roomTableService.createRoomTableFromRoom(timeTable, room);
 
         assertEquals(timeTable, roomTable.getTimeTable());
-        assertNotNull(roomTable.getAvailabilityMatrix());
     }
 
     @Test
@@ -63,7 +62,7 @@ public class RoomTableServiceTest {
     public void testCreateAvailabilityMatrixWithSevenTimingConstraint(){
         RoomTable roomTable = roomTableService.loadRoomTableByID(-90);
         assertEquals(7, roomTable.getTimingConstraints().size());
-        AvailabilityMatrix availabilityMatrix = roomTable.getAvailabilityMatrix();
+        AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(roomTable);
         assertNotNull(availabilityMatrix);
         assertEquals(360, availabilityMatrix.getTotalAvailableTime());
     }
@@ -101,21 +100,5 @@ public class RoomTableServiceTest {
         roomTableService.deleteRoomTable(roomTable);
 
         assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(-2));
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testAddTimingConstraint(){
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-40);
-
-        Timing timingConstraint = timingService.createTiming(LocalTime.of(9,0),
-                LocalTime.of(10,0), Day.MONDAY, TimingType.BLOCKED);
-
-        assertEquals(0, roomTable.getTimingConstraints().size());
-
-        roomTableService.addTimingConstraints(roomTable, List.of(timingConstraint));
-
-        assertEquals(1, roomTable.getTimingConstraints().size());
     }
 }

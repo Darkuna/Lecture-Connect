@@ -116,7 +116,7 @@ public class CourseServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllCourses() {
         List<Course> courses = courseService.loadAllCourses();
-        assertEquals(56, courses.size());
+        assertEquals(92, courses.size());
     }
 
     @Test
