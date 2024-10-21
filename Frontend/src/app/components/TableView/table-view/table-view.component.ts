@@ -5,6 +5,8 @@ import {GlobalTableService} from "../../../services/global-table.service";
 import {TimeTableNames} from "../../../../assets/Models/time-table-names";
 import {TimeTable} from "../../../../assets/Models/time-table";
 import {TimeTableDTO} from "../../../../assets/Models/dto/time-table-dto";
+import {LoadingInterceptor} from "../../../interceptor/loading.interceptor";
+import {LoaderService} from "../../../services/loader.service";
 
 @Component({
   selector: 'app-table-view',
@@ -20,11 +22,13 @@ export class TableViewComponent implements OnInit, OnDestroy{
   selectedHeaders: any;
   headers: any[];
 
+  expandedRows = {};
   private tablesSub?: Subscription;
 
   constructor(
     private cd: ChangeDetectorRef,
-    private messageService: MessageService,
+    public loadingService: LoaderService,
+  private messageService: MessageService,
     private tableService: GlobalTableService,
     private confirmationService: ConfirmationService,
   ) {
@@ -65,7 +69,9 @@ export class TableViewComponent implements OnInit, OnDestroy{
       (data:TimeTableDTO) => { this.loadedTable = data }
     );
     this.itemDialogVisible = true;
+
   }
+
 
   deleteSingleItem() {
     //TODO call api to delete single table
