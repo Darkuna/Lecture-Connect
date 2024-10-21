@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "new_test": {
+    "le_co_prod": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -23,7 +23,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/new_test",
+            "outputPath": "dist/le_co_prod",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
