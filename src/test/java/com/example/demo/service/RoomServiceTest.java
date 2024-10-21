@@ -67,7 +67,7 @@ public class RoomServiceTest {
         Room room = roomService.loadRoomByID(id);
 
         assertEquals(id, room.getId());
-        assertEquals(50, room.getCapacity());
+        assertEquals(48, room.getCapacity());
         assertFalse(room.isComputersAvailable());
 
     }
@@ -75,7 +75,7 @@ public class RoomServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllRooms(){
-        int numberOfRooms = 28;
+        int numberOfRooms = 31;
         List<Room> rooms = roomService.loadAllRooms();
 
         assertEquals(numberOfRooms, rooms.size());

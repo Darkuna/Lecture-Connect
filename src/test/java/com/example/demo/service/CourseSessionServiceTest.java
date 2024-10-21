@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.constants.TimingConstants;
 import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.example.demo.models.Course;
 import com.example.demo.models.CourseSession;
@@ -109,13 +110,13 @@ public class CourseSessionServiceTest {
     public void testAssignCourseSessionToRoomTable(){
         CourseSession courseSession = courseSessionService.loadCourseSessionByID(-2);
         RoomTable roomTable = roomTableService.loadRoomTableByID(-2);
-        Timing timing = timingService.createTiming(LocalTime.of(8,0), LocalTime.of(10,0),
+        Timing timing = timingService.createTiming(TimingConstants.START_TIME, TimingConstants.START_TIME.plusHours(2),
                 Day.TUESDAY, TimingType.ASSIGNED);
         courseSessionService.assignCourseSessionToRoomTable(courseSession, roomTable, timing);
 
         assertEquals(Day.TUESDAY, courseSession.getTiming().getDay());
-        assertEquals(LocalTime.of(8,0), courseSession.getTiming().getStartTime());
-        assertEquals(LocalTime.of(10,0), courseSession.getTiming().getEndTime());
+        assertEquals(TimingConstants.START_TIME, courseSession.getTiming().getStartTime());
+        assertEquals(TimingConstants.START_TIME.plusHours(2), courseSession.getTiming().getEndTime());
         assertEquals(roomTable, courseSession.getRoomTable());
         assertTrue(courseSession.isAssigned());
     }
@@ -123,11 +124,11 @@ public class CourseSessionServiceTest {
     @Test
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testUnassignCourse(){
+    public void testUnassignCourseSession(){
         CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
         assertTrue(courseSession.isAssigned());
 
-        courseSessionService.unassignCourseSession(courseSession);
+        courseSession = courseSessionService.unassignCourseSession(courseSession);
 
         assertFalse(courseSession.isAssigned());
         assertNull(courseSession.getRoomTable());

@@ -13,7 +13,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@ToString
 public class CourseSession implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,6 +23,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     private int semester;
     private int numberOfParticipants;
     private boolean computersNecessary;
+    private boolean elective;
     @Transient
     private List<Timing> timingConstraints;
     private boolean isAssigned;
@@ -65,7 +65,8 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
 
     public boolean isAllowedToIntersectWith(CourseSession courseSession) {
-        return this.semester != courseSession.semester || this.studyType != courseSession.studyType;
+        return this.semester != courseSession.semester || this.studyType != courseSession.studyType
+                || this.isElective() || courseSession.isElective();
     }
 
     @Override
@@ -86,8 +87,8 @@ public class CourseSession implements Persistable<Long>, Serializable {
                 courseSession.getTiming().hasSameDayAndTime(this.timing);
     }
 
-    @Override
-    public String toString(){
-        return String.format("%s: %s %s %s %s", name, studyType, roomTable.getRoomId(), timing, courseId);
-    }
+    //@Override
+    //public String toString(){
+    //    return String.format("%s: %s %s %s %s", name, studyType, roomTable.getRoomId(), timing, courseId);
+    //}
 }

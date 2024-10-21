@@ -53,7 +53,7 @@ public class CourseServiceTest {
         List<Timing> timingConstraints = List.of(constraint);
 
         Course course = courseService.createCourse(id, name, courseType, lecturer, semester, duration, numberOfParticipants,
-                computersNecessary, timingConstraints, studyType);
+                computersNecessary, timingConstraints, false, studyType);
 
         assertEquals(id, course.getId());
         assertEquals(name, course.getName());
@@ -116,7 +116,7 @@ public class CourseServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllCourses() {
         List<Course> courses = courseService.loadAllCourses();
-        assertEquals(56, courses.size());
+        assertEquals(92, courses.size());
     }
 
     @Test

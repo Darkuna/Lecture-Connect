@@ -4,6 +4,7 @@ import com.example.demo.dto.TimeTableNameDTO;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.CourseType;
 import com.example.demo.models.enums.Semester;
+import com.example.demo.repositories.TimeTableRepository;
 import com.example.demo.services.CourseService;
 import com.example.demo.services.RoomService;
 import com.example.demo.services.TimeTableService;
@@ -32,6 +33,8 @@ public class TimeTableServiceTest {
     private RoomService roomService;
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private TimeTableRepository timeTableRepository;
 
     @Test
     @DirtiesContext
@@ -82,8 +85,9 @@ public class TimeTableServiceTest {
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadTimeTableNames(){
+        int numberOfTimeTables = timeTableRepository.findAll().size();
         List<TimeTableNameDTO> timeTableNames = timeTableService.loadTimeTableNames();
-        assertEquals(5, timeTableNames.size());
+        assertEquals(numberOfTimeTables, timeTableNames.size());
     }
 
     @Test

@@ -27,6 +27,7 @@ public class Course extends TimestampedEntity implements Persistable<String>, Se
     private int semester;
     private int duration;
     private int numberOfParticipants;
+    private boolean elective = false;
     private boolean computersNecessary;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "course_id")

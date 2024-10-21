@@ -66,7 +66,7 @@ public class CourseService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Course createCourse(String id, String name, CourseType courseType, String lecturer, int semester, int duration,
-                               int numberOfParticipants, boolean computersNecessary, List<Timing> timingConstraints,
+                               int numberOfParticipants, boolean computersNecessary, List<Timing> timingConstraints, boolean elective,
                                StudyType studyType){
         Course course = new Course();
         course.setId(id);
@@ -75,6 +75,7 @@ public class CourseService {
         course.setCourseType(courseType);
         course.setLecturer(lecturer);
         course.setSemester(semester);
+        course.setElective(elective);
         course.setDuration(duration);
         course.setNumberOfParticipants(numberOfParticipants);
         course.setComputersNecessary(computersNecessary);

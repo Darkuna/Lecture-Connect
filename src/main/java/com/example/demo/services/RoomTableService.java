@@ -50,7 +50,6 @@ public class RoomTableService {
         roomTable.setCapacity(room.getCapacity());
         roomTable.setComputersAvailable(room.isComputersAvailable());
         roomTable.setTimeTable(timeTable);
-        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         for(Timing timing : room.getTimingConstraints()){
             timingConstraints.add(timingService.createTiming(timing));
         }
@@ -91,7 +90,6 @@ public class RoomTableService {
                 () -> new EntityNotFoundException("RoomTable not found for ID: " + id));
         roomTable.setAssignedCourseSessions(courseSessionService.loadAllAssignedToRoomTable(roomTable));
         roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
-        roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         log.info("Loaded roomTable with id {}", roomTable.getId());
         return roomTable;
     }
@@ -108,25 +106,12 @@ public class RoomTableService {
         for(RoomTable roomTable : roomTables){
             roomTable.setAssignedCourseSessions(courseSessionService.loadAllAssignedToRoomTable(roomTable));
             roomTable.setTimingConstraints(timingService.loadTimingConstraintsOfRoomTable(roomTable));
-            roomTable.setAvailabilityMatrix(initializeAvailabilityMatrix(roomTable));
         }
         log.info("Loaded all roomTables of timeTable {} ({})", timeTable.getId(), roomTables.size());
         return roomTables;
     }
 
-    /**
-     * Initializes an availability matrix for a room table.
-     *
-     * @param roomTable The roomTable to initialize the availability matrix for.
-     * @return An initialized AvailabilityMatrix object.
-     */
-    public AvailabilityMatrix initializeAvailabilityMatrix(RoomTable roomTable){
-        return new AvailabilityMatrix(roomTable);
-    }
 
-    public void addTimingConstraints(RoomTable roomTable, List<Timing> timingConstraints){
-        for(Timing timingConstraint : timingConstraints){
-            roomTable.addTimingConstraint(timingConstraint);
-        }
-    }
+
+
 }

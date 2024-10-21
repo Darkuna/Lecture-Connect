@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.constants.TimingConstants;
 import com.example.demo.models.Course;
 import com.example.demo.models.RoomTable;
 import com.example.demo.models.Timing;
@@ -62,7 +63,7 @@ public class TimingServiceTest {
     public void testUpdateTimingWithCorrectParameters(){
         Timing timing = timingService.loadTimingByID(-2);
         Day day = Day.FRIDAY;
-        LocalTime start = LocalTime.of(8,0);
+        LocalTime start = TimingConstants.START_TIME;
         LocalTime end = LocalTime.of(10,0);
         timing = timingService.updateTiming(timing, start, end, day, TimingType.ASSIGNED);
 
