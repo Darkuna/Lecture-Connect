@@ -121,11 +121,13 @@ public class UserService {
     public Userx registerUser(Userx user)
             throws UserAlreadyExistsException, UserRequiredFieldEmptyException, UserInvalidEmailException {
         checkUserRequirements(user);
-
+        Userx admin = userRepository.findByUsername("admin").get();
         user.setCreateDate(new Date());
         user.setEnabled(true);
         user.setRoles(new HashSet<>());
         user.getRoles().add(UserxRole.USER);
+        user.setCreateUser(admin);
+        user.setUpdateUser(admin);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
