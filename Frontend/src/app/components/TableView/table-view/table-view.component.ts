@@ -12,7 +12,6 @@ import {LoaderService} from "../../../services/loader.service";
   styleUrl: '../tables.css',
 })
 export class TableViewComponent implements OnInit, OnDestroy{
-  itemDialogVisible: boolean = false;
   loadedTable:TimeTableDTO | null = null;
   loadedTableSub: Subscription | null = null;
   tables!: TimeTableNames[];
@@ -54,20 +53,10 @@ export class TableViewComponent implements OnInit, OnDestroy{
     this.cd.detach();
   }
 
-  openNew() {
-    this.itemDialogVisible = true;
-  }
-
-  hideDialog() {
-    this.itemDialogVisible = false;
-  }
-
   loadTable(data: TimeTableNames): void {
     this.loadedTableSub = this.tableService.getSpecificTimeTable(data.id).subscribe(
       (data:TimeTableDTO) => { this.loadedTable = data }
     );
-    this.itemDialogVisible = true;
-
   }
 
 
@@ -86,7 +75,6 @@ export class TableViewComponent implements OnInit, OnDestroy{
   }
 
   onDialogClose(){
-    this.itemDialogVisible = false;
     if(this.loadedTableSub)
       this.loadedTableSub.unsubscribe();
   }
