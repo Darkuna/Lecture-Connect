@@ -16,7 +16,7 @@ RUN npm run build --prod
 
 FROM nginx
 
-COPY --from=build-stage ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 #### copy artifact build from the 'build environment'
 COPY --from=build-stage /app/dist /usr/share/nginx/html
