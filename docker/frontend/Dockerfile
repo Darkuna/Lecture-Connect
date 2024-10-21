@@ -14,7 +14,7 @@ COPY . .
 
 RUN npm run build --prod
 
-FROM nginxinc/nginx-unprivileged
+FROM nginx
 
 COPY --from=build-stage ./nginx.conf /etc/nginx/conf.d/default.conf
 
