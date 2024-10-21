@@ -74,7 +74,10 @@ public class AvailabilityMatrix {
         for (Timing timing : roomTable.getTimingConstraints()) {
             dayIndex = timing.getDay().ordinal();
             startSlot = timeToSlotIndex(timing.getStartTime());
-            endSlot = timeToSlotIndex(timing.getEndTime()) - 1;
+            endSlot = timeToSlotIndex(timing.getEndTime());
+            if(endSlot >= timeToSlotIndex(END_TIME)) {
+                endSlot --;
+            }
 
             if(timing.getTimingType().equals(TimingType.BLOCKED)) {
                 for (int slot = startSlot; slot < endSlot; slot++) {
@@ -101,9 +104,9 @@ public class AvailabilityMatrix {
             timing = courseSession.getTiming();
             dayIndex = timing.getDay().ordinal();
             startSlot = timeToSlotIndex(timing.getStartTime());
-            endSlot = timeToSlotIndex(timing.getEndTime()) - 1;
+            endSlot = timeToSlotIndex(timing.getEndTime());
 
-            for (int slot = startSlot; slot < endSlot; slot++) {
+            for (int slot = startSlot; slot < endSlot - 1; slot++) {
                 if(matrix[dayIndex][slot] == CourseSession.PREFERRED){
                     totalAvailablePreferredTime -= DURATION_PER_SLOT;
                 }
@@ -210,9 +213,7 @@ public class AvailabilityMatrix {
     }
 
     public static int timeToSlotIndex(LocalTime time) {
-        time = time.minusHours(START_TIME.getHour());
-        time = time.minusMinutes(START_TIME.getMinute());
-        return (time.getHour() * 60 + time.getMinute()) / 15;
+        return (int) Duration.between(START_TIME, time).toMinutes() * 4 / 60;
     }
 
     public List<Candidate> getAllAvailableCandidates(CourseSession courseSession) {
