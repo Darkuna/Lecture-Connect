@@ -30,7 +30,9 @@ export class DetailSelectionComponent {
   }
 
   hasPsType() {
-    return this.selectedCourse!.courseType?.toString() === 'PS';
+    return this.selectedCourse!.courseType?.toString() === 'PS'
+      || this.selectedCourse!.courseType?.toString() === 'SL'
+      || this.selectedCourse!.courseType?.toString() === 'SE';
   }
 
   hasVoType() {

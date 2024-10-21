@@ -1,50 +1,48 @@
 <div class="context">
+  <p-toolbar>
+    <div class="p-toolbar-group-start">
+      {{nrOfEvents}} of {{maxEvents}} Courses are assigned
+    </div>
+
+    <div class="p-toolbar-group-center">
+      <p-dropdown id="all"
+                  scrollHeight="300px"
+                  placeholder="select room" optionLabel="roomId" filterBy="id"
+                  [filter]="true"
+                  [showClear]="false"
+                  [options]="availableRooms" [ngModel]="selectedRoom"
+                  (onChange)="loadNewRoom($event.value)">
+        <ng-template let-item pTemplate="item">
+          <div class="flex align-items-center gap-2">
+            <div>{{ item.roomId }}</div>
+          </div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+
+    <div class="p-toolbar-group-end">
+      <p-dropdown [style]="{'margin-right': '.5rem', 'width': '30rem'}"
+                  optionLabel="title"
+                  [showClear]="true"
+                  [filter]="true"
+                  [options]="allEvents"
+                  [(ngModel)]="firstSearchedEvent"
+                  (ngModelChange)="changeRoom($event)"
+                  placeholder="Search for a Course">
+        <ng-template pTemplate="selectedItem" let-selectedOption>
+          <div class="flex align-items-center gap-2">
+            <div>{{ selectedOption.title }}</div>
+          </div>
+        </ng-template>
+        <ng-template let-course pTemplate="item">
+          <div class="flex align-items-center gap-2">
+            <div>{{ course.title }} | {{ course.description ?? 'not assigned' }}</div>
+          </div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+  </p-toolbar>
   <div class="col-left" style="width: 85%">
-    <p-toolbar>
-      <div class="p-toolbar-group-start">
-        {{nrOfEvents}} of {{maxEvents}} Events are shown
-
-      </div>
-
-      <div class="p-toolbar-group-center">
-        <p-dropdown id="all"
-                     scrollHeight="300px"
-                    placeholder="select room" optionLabel="roomId" filterBy="id"
-                    [filter]="true"
-                    [showClear]="false"
-                    [options]="availableRooms" [ngModel]="selectedRoom"
-                    (onChange)="loadNewRoom($event.value)">
-          <ng-template let-item pTemplate="item">
-            <div class="flex align-items-center gap-2">
-              <div>{{ item.roomId }}</div>
-            </div>
-          </ng-template>
-        </p-dropdown>
-      </div>
-
-      <div class="p-toolbar-group-end">
-        <p-dropdown [style]="{'margin-right': '.5rem', 'width': '28rem'}"
-                    optionLabel="title"
-                    [showClear]="true"
-                    [filter]="true"
-                    [options]="getCalendarEvents()"
-                    [(ngModel)]="firstSearchedEvent"
-                    (ngModelChange)="changeRoom($event)"
-                    placeholder="Search for a Course">
-          <ng-template pTemplate="selectedItem" let-selectedOption>
-            <div class="flex align-items-center gap-2">
-              <div>{{ selectedOption.title }}</div>
-            </div>
-          </ng-template>
-          <ng-template let-course pTemplate="item">
-            <div class="flex align-items-center gap-2">
-              <div>{{ course.title }} | {{ course.description }}</div>
-            </div>
-          </ng-template>
-        </p-dropdown>
-        <p-button icon="pi pi-cog" (click)="op.show($event, op)"/>
-      </div>
-    </p-toolbar>
     <div id="calendarScroll">
       <full-calendar #calendar id="calendarID"
                      [options]='destCalendarOptions'
@@ -52,65 +50,22 @@
     </div>
   </div>
 
-  <div class="col-left" id="external-events" #external style="width: 15%; position: fixed; padding: 5px">
-    <p-button label='finished' (onClick)="saveAndGoHome()"/>
+  <div class="col-left" #external style="width: 15%; position: fixed; padding: 5px; height:90%">
 
-      <div *ngFor="let event of dragTableEvents" class="fc-event"
+    <p-button label='finished' (onClick)="saveAndGoHome()" [style]="{'width':'90%', 'margin-bottom': '.5rem'}"/>
+    <input type="text" pInputText [style]="{'width':'90%', 'margin-bottom': '.5rem'}"
+           placeholder="{{unassignedCourses() ? 'nothing to search':'Search unassigned course'}}"
+           [disabled]="unassignedCourses()" [(ngModel)]="searchCourse"/>
+
+    <div id="dragEvents">
+      <div *ngFor="let event of filteredEvents" class="fc-event"
            [attr.data-id]="event['id']"
            [attr.data-title]="event['title']"
            [attr.data-duration]="event.extendedProps?.['duration']">
-      {{ event['title'] }}
+        {{ event['title'] }}
+      </div>
     </div>
   </div>
-
-  <p-overlayPanel #op showCloseIcon="true" [dismissable]="true">
-    <ng-template pTemplate="content">
-      <div class="divTable">
-        <div class="divTableBody">
-          <div class="divTableRow">
-            <div class="divTableCell">
-              <label for="start-time" style="padding-right: .7rem; padding-left: .3rem">Start Time</label>
-            </div>
-            <div class="divTableCell">
-              <p-calendar id="start-time" inputId="calendar-timeonly"
-                          [timeOnly]="true" [ngModel]="tmpStartDate"
-                          (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
-            </div>
-          </div>
-          <div class="divTableRow">
-            <div class="divTableCell">
-              <label for="end-time" style="padding-right: .7rem; padding-left: .3rem">End Time</label>
-            </div>
-            <div class="divTableCell">
-              <p-calendar id="end-time" inputId="calendar-timeonly"
-                          [timeOnly]="true" [ngModel]="tmpEndDate"
-                          (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
-            </div>
-          </div>
-          <div class="divTableRow">
-            <div class="divTableCell">
-              <label for="duration" style="padding-right: .7rem; padding-left: .3rem">Time Slot Duration</label>
-            </div>
-            <div class="divTableCell">
-              <p-calendar id="duration" inputId="calendar-timeonly"
-                          [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
-                          (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
-            </div>
-          </div>
-          <div class="divTableRow">
-            <div class="divTableCell">
-              <label for="interval" style="padding-right: .7rem; padding-left: .3rem">Time Label Interval </label>
-            </div>
-            <div class="divTableCell">
-              <p-calendar id="interval" inputId="calendar-timeonly"
-                          [timeOnly]="true" [ngModel]="tmpSlotInterval"
-                          (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ng-template>
-  </p-overlayPanel>
 </div>
 
 <p-contextMenu [model]="items" [global]="true" (onShow)="getItemMenuOptions()"/>

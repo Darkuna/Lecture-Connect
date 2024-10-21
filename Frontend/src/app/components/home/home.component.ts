@@ -202,7 +202,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     let tmpTable = this.isTmpTableAvailable();
     if (tmpTable !== null) {
       this.shareService.selectedTable = tmpTable;
-      this.router.navigate(['/wizard']);
+      this.router.navigate(['/user/wizard']);
     }
   }
 

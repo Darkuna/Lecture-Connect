@@ -20,7 +20,7 @@ export class HeaderSelfComponent {
   }
 
   isLoggedIn(): boolean {
-    return this.userInfoService.userIsLoggedIn();
+    return this.userInfoService.isLoggedIn();
   }
 
   hasAdminRole(): boolean {
@@ -32,10 +32,8 @@ export class HeaderSelfComponent {
   }
 
   logout(): void {
-    this.userInfoService.userLoggedIn = false;
-    this.storage.clear();
+    this.userInfoService.logoutUser();
     this.sessionStorageService.clear();
     this.redirectToPage('/login');
   }
-
 }

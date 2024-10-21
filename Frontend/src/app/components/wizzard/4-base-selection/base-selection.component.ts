@@ -37,9 +37,9 @@ export class BaseSelectionComponent{
   dataSelectEnd!: Date;
 
   //to be saved in the config file
-  tmpStartDate: Date = new Date('2024-07-10T07:00:00');
-  tmpEndDate: Date = new Date('2024-07-10T23:00:00');
-  tmpDuration: Date = new Date('2024-07-10T00:15:00');
+  tmpStartDate: Date = new Date('2024-07-10T08:00:00');
+  tmpEndDate: Date = new Date('2024-07-10T22:00:00');
+  tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T01:00:00');
 
   constructor(
