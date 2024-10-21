@@ -91,7 +91,7 @@ public class GlobalViewController {
         TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok().body(updatedTimeTableDTO);
     }
-    /* TODO: fix
+
     @PostMapping("/collision/{id}")
     public ResponseEntity<List<CourseSessionDTO>> checkCollision(@PathVariable Long id) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
@@ -101,7 +101,7 @@ public class GlobalViewController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok().body(collisionDTOs);
     }
-    */
+
     @GetMapping("/courses/{id}")
     public ResponseEntity<List<CourseDTO>> getCoursesNotInTimeTable(@PathVariable Long id) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
