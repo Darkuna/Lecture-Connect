@@ -13,7 +13,7 @@
     </ng-template>
   </p-toolbar>
   <p-table
-    #dt dataKey="id"
+    #dt dataKey="id" [sortOrder]="-1"
     [value]="globalTable!"
     [rows]="15"
     [columns]="headers"
