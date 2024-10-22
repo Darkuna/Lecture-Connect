@@ -50,7 +50,7 @@
           <div class="p-3">
             <div style="display: flex; justify-content: space-between; gap: 2rem; width: 100%;">
               <!-- First table for Room Information with background and 100% width -->
-              <div style="padding: 1rem; flex: 1; width: 30%">
+              <div style="background-color: #f0f0f0; padding: 1rem; flex: 1; width: 30%">
                 <p-table [value]="loadedTable!.roomTables" dataKey="id" [loading]="loadingService.getLoading()">
                   <ng-template pTemplate="header">
                     <tr>
@@ -59,7 +59,7 @@
                     </tr>
                   </ng-template>
                   <ng-template pTemplate="body" let-sub>
-                    <tr>
+                    <tr>1
                       <td>{{ sub.roomId }}</td>
                       <td>{{ sub.capacity }}</td>
                     </tr>

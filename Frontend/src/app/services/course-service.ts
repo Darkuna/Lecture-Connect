@@ -4,17 +4,19 @@ import {MessageService} from "primeng/api";
 import {Observable, switchMap} from "rxjs";
 import {Course} from "../../assets/Models/course";
 import {GlobalTableService} from "./global-table.service";
+import { environment } from '../environment/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CourseService {
-  courseApiPath = "/proxy/api/courses";
+  courseApiPath = `${environment.baseUrl}/api/courses`;
 
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.getItem('jwt-token') ?? sessionStorage.getItem('jwt-token')
+      'Authorization': 'Bearer ' +
+        (localStorage.getItem('jwt-token') === null ? sessionStorage:localStorage).getItem('jwt-token')
     })
   };
 

@@ -3,16 +3,18 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {Observable} from "rxjs";
 import {Room} from "../../assets/Models/room";
 import {MessageService} from "primeng/api";
+import {environment} from "../environment/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class RoomService {
-  roomsApiPath = "/proxy/api/rooms";
+  roomsApiPath = `${environment.baseUrl}/api/rooms`;
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.getItem('jwt-token') ?? sessionStorage.getItem('jwt-token')
+      'Authorization': 'Bearer ' +
+        (localStorage.getItem('jwt-token') === null ? sessionStorage:localStorage).getItem('jwt-token')
     })
   };
 

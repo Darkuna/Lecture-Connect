@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "new_test": {
+    "le_co_prod": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -23,7 +23,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/new_test",
+            "outputPath": "dist/le_co_prod",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -40,6 +40,12 @@
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/app/environment/environment.ts",
+                  "with": "src/app/environment/environment.prod.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -65,15 +71,16 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "new_test:build",
+            "buildTarget": "le_co_prod:build",
             "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
-              "buildTarget": "new_test:build:production"
+              "buildTarget": "le_co_prod:build:production",
+              "proxyConfig": "proxy.prod.conf.json"
             },
             "development": {
-              "buildTarget": "new_test:build:development"
+              "buildTarget": "le_co_prod:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -81,7 +88,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "new_test:build"
+            "buildTarget": "le_co_prod:build"
           }
         },
         "test": {

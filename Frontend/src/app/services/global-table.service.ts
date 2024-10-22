@@ -8,6 +8,7 @@ import {TableLogDto} from "../../assets/Models/dto/table-log-dto";
 import {Room} from "../../assets/Models/room";
 import {Course} from "../../assets/Models/course";
 import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
+import {environment} from "../environment/environment";
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +17,12 @@ export class GlobalTableService {
   currentTimeTable: Observable<TimeTableDTO> | null = null;
   tableId: number | null = null;
 
-  static API_PATH = "/proxy/api/global";
+  static API_PATH = `${environment.baseUrl}/api/global`;
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.getItem('jwt-token') ?? sessionStorage.getItem('jwt-token')
+      'Authorization': 'Bearer ' +
+        (localStorage.getItem('jwt-token') === null ? sessionStorage:localStorage).getItem('jwt-token')
     })
   };
 

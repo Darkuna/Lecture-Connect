@@ -2,12 +2,13 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import * as decoder from "jwt-decode";
 import {tap} from "rxjs";
+import {environment} from "../environment/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginUserInfoService {
-  static API_PATH = "/proxy/auth/login";
+  static API_PATH = `${environment.baseUrl}/auth/login`;
 
   constructor(
     private http: HttpClient,
