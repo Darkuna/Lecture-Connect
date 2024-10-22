@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import {environment} from "../environment/environment";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 
@@ -6,11 +7,12 @@ import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
   providedIn: 'root'
 })
 export class EditorService {
-  static API_PATH = "/proxy/api/global";
+  static API_PATH = `${environment.baseUrl}/api/global`;
   httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.getItem('jwt-token') ?? sessionStorage.getItem('jwt-token')
+      'Authorization': 'Bearer ' +
+        (localStorage.getItem('jwt-token') === null ? sessionStorage:localStorage).getItem('jwt-token')
     })
   };
 
