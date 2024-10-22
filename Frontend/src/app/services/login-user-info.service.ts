@@ -7,7 +7,7 @@ import {tap} from "rxjs";
   providedIn: 'root'
 })
 export class LoginUserInfoService {
-  static API_PATH = '/proxy/auth/login';
+  static API_PATH = '/auth/login';
 
   constructor(
     private http: HttpClient,
