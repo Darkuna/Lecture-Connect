@@ -7,7 +7,7 @@ import {tap} from "rxjs";
   providedIn: 'root'
 })
 export class LoginUserInfoService {
-  static API_PATH = '/auth/login';
+  static API_PATH = 'http://lecture-connect.ifi-tpt.uibk.ac.at:8080/auth/login';
 
   constructor(
     private http: HttpClient,
