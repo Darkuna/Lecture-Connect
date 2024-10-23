@@ -176,14 +176,24 @@ public class CourseSessionService {
                     newCourseSession.getName(), newCourseSession.getRoomTable(), newCourseSession.getTiming()));
         }
         else if(newCourseSession.wasMoved(original)){
-            globalTableChangeService.create(ChangeType.MOVE_COURSE, timeTable, String.format("Course %s was moved from %s to %s",
-                    newCourseSession.getName(), original.getTiming(), newCourseSession.getTiming()));
+            if(newCourseSession.getRoomTable().equals(original.getRoomTable())){
+                globalTableChangeService.create(ChangeType.MOVE_COURSE, timeTable, String.format("Course %s was moved from %s to %s",
+                        newCourseSession.getName(), original.getTiming(), newCourseSession.getTiming()));
+            }
+            else{
+                globalTableChangeService.create(ChangeType.MOVE_COURSE, timeTable, String.format("Course %s was moved from room '%s' at %s to '%s' at %s",
+                        newCourseSession.getName(), original.getRoomTable(), original.getTiming(), newCourseSession.getRoomTable(), newCourseSession.getTiming()));
+            }
         }
         if(newCourseSession.wasFixed(original)){
             globalTableChangeService.create(ChangeType.FIX_COURSE, timeTable, String.format("Course %s was fixed in room %s at %s",
                     newCourseSession.getName(), newCourseSession.getRoomTable(), newCourseSession.getTiming()));
         }
-        if(!original.getTiming().equals(newCourseSession.getTiming())){
+
+        if(original.getTiming() == null){
+            original.setTiming(timingService.createTiming(newCourseSession.getTiming()));
+        }
+        else if(!original.getTiming().equals(newCourseSession.getTiming())){
             Timing toDelete = original.getTiming();
             if(newCourseSession.getTiming() != null){
                 original.setTiming(timingService.createTiming(newCourseSession.getTiming()));
@@ -191,6 +201,7 @@ public class CourseSessionService {
             else{
                 original.setTiming(null);
             }
+
             timingService.deleteTiming(toDelete);
         }
         original.setFixed(newCourseSession.isFixed());
