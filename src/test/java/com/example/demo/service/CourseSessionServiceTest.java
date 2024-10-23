@@ -22,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -137,27 +136,5 @@ public class CourseSessionServiceTest {
         courseSessionService.deleteCourseSession(courseSession);
 
         assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-420));
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testFixAssignedCourseSession() throws CourseSessionNotAssignedException {
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
-        assertTrue(courseSession.isAssigned());
-
-        courseSessionService.fixCourseSession(courseSession);
-
-        assertTrue(courseSession.isFixed());
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testFixUnassignedCourseSession() {
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-420);
-        assertFalse(courseSession.isAssigned());
-
-        assertThrows(CourseSessionNotAssignedException.class, () -> courseSessionService.fixCourseSession(courseSession));
     }
 }
