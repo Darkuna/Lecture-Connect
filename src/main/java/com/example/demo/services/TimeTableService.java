@@ -50,7 +50,7 @@ public class TimeTableService {
 
     /**
      * Creates a new timetable from a TimeTableCreationDto object and saves it to the database.
-     * @Transacitional is important here because in case of an error the timeTable would be partially created otherwise.
+     * @Transactional is important here because in case of an error the timeTable would be partially created otherwise.
      * @param dto The TimeTableCreationDto object to create the timetable from.
      * @return The newly created and persisted TimeTable object.
      */
@@ -237,8 +237,10 @@ public class TimeTableService {
         return timeTable;
     }
 
+
+    /*
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
+    public void updateCourseSessionsAlt(TimeTable timeTable, List<CourseSession> courseSessions){
         List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
         Map<Long, CourseSession> orig = originalCourseSessions.stream().collect(Collectors.toMap(CourseSession::getId, c -> c));
         for(CourseSession courseSession : courseSessions){
@@ -284,4 +286,21 @@ public class TimeTableService {
 
         }
     }
+
+     */
+
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
+        List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
+        Map<Long, CourseSession> orig = originalCourseSessions.stream().collect(Collectors.toMap(CourseSession::getId, c -> c));
+        for(CourseSession courseSession : courseSessions){
+            CourseSession toCompare = orig.get(courseSession.getId());
+            if(!toCompare.courseSessionChanged(courseSession)){
+                continue;
+            }
+            courseSessionService.updateCourseSession(timeTable, courseSession, toCompare);
+        }
+    }
+
 }

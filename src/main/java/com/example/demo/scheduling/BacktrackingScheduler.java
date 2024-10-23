@@ -313,6 +313,8 @@ public class BacktrackingScheduler implements Scheduler {
             }
             List<Candidate> filteredCandidates = candidates.stream()
                     .filter(c -> checkConstraintsFulfilled(courseSession, c))
+                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
+                            thenComparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
             map.put(courseSession, filteredCandidates);
         }
@@ -342,7 +344,8 @@ public class BacktrackingScheduler implements Scheduler {
             }
             List<Candidate> filteredCandidates = candidates.stream()
                     .filter(c -> checkConstraintsFulfilled(courseSession, c))
-                    .sorted(Comparator.comparingInt(Candidate::getSlot))
+                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed()
+                            .thenComparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
             map.put(courseSession, filteredCandidates);
         }
