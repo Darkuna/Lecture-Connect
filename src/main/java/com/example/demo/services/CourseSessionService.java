@@ -114,43 +114,6 @@ public class CourseSessionService {
         return courseSession;
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public CourseSession assignCourseSession(CourseSession courseSession){
-        if(courseSession.getId() != null){
-            CourseSession original = loadCourseSessionByID(courseSession.getId());
-            original.setRoomTable(courseSession.getRoomTable());
-            original.setTiming(timingService.createTiming(courseSession.getTiming()));
-            original.setAssigned(true);
-            original.setFixed(courseSession.isFixed());
-            original = courseSessionRepository.save(original);
-            log.info("Assigned course session {} to roomTable {} at timing {}", original.getName(), original.getRoomTable(), original.getTiming());
-            return courseSession;
-        }
-        return null;
-    }
-
-    /**
-     * Unassigns a course session from its room table and timing.
-     *
-     * @param courseSession The course session to unassign.
-     * @return The unassigned course session.
-     */
-    @Transactional
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public CourseSession unassignCourseSession(CourseSession courseSession){
-        if(courseSession.getId() != null) {
-            CourseSession original = loadCourseSessionByID(courseSession.getId());
-            original.setRoomTable(null);
-            original.setTiming(null);
-            original.setAssigned(false);
-            original.setFixed(false);
-            original = courseSessionRepository.save(original);
-            log.info("Unassigned course session {}", courseSession.getName());
-            return original;
-        }
-        return null;
-    }
-
     /**
      * Unassigns multiple course sessions.
      *
@@ -216,12 +179,6 @@ public class CourseSessionService {
         log.info("Loaded course session {}", courseSession.getName());
         courseSession.setTimingConstraints(timingService.loadTimingConstraintsOfCourse(courseSession.getCourseId()));
         return courseSession;
-    }
-
-    public List<CourseSession> saveAll(Set<CourseSession> courseSessions) {
-        List<CourseSession> courseSessionsToSave = courseSessions.stream()
-                .toList();
-        return courseSessionRepository.saveAll(courseSessionsToSave);
     }
 
     public List<CourseSession> saveAll(List<CourseSession> courseSessions) {

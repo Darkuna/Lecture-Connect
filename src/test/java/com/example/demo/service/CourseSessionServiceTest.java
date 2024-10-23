@@ -122,21 +122,6 @@ public class CourseSessionServiceTest {
     }
 
     @Test
-    @DirtiesContext
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testUnassignCourseSession(){
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
-        assertTrue(courseSession.isAssigned());
-
-        courseSession = courseSessionService.unassignCourseSession(courseSession);
-
-        assertFalse(courseSession.isAssigned());
-        assertNull(courseSession.getRoomTable());
-        assertNull(courseSession.getTiming());
-
-    }
-
-    @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllAssignedToRoomTable(){
         RoomTable roomTable = roomTableService.loadRoomTableByID(-40);
