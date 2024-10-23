@@ -252,6 +252,9 @@ public class CourseSessionService {
             if(newCourseSession.getTiming() != null){
                 original.setTiming(timingService.createTiming(newCourseSession.getTiming()));
             }
+            else{
+                original.setTiming(null);
+            }
             timingService.deleteTiming(toDelete);
         }
         original.setFixed(newCourseSession.isFixed());
