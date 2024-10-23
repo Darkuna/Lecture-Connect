@@ -237,8 +237,10 @@ public class TimeTableService {
         return timeTable;
     }
 
+
+    /*
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
+    public void updateCourseSessionsAlt(TimeTable timeTable, List<CourseSession> courseSessions){
         List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
         Map<Long, CourseSession> orig = originalCourseSessions.stream().collect(Collectors.toMap(CourseSession::getId, c -> c));
         for(CourseSession courseSession : courseSessions){
@@ -284,4 +286,21 @@ public class TimeTableService {
 
         }
     }
+
+     */
+
+
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
+        List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
+        Map<Long, CourseSession> orig = originalCourseSessions.stream().collect(Collectors.toMap(CourseSession::getId, c -> c));
+        for(CourseSession courseSession : courseSessions){
+            CourseSession toCompare = orig.get(courseSession.getId());
+            if(!toCompare.courseSessionChanged(courseSession)){
+                continue;
+            }
+            courseSessionService.updateCourseSession(timeTable, courseSession, toCompare);
+        }
+    }
+
 }

@@ -2,6 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.example.demo.models.*;
+import com.example.demo.models.enums.ChangeType;
 import com.example.demo.repositories.CourseSessionRepository;
 import com.example.demo.repositories.RoomTableRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,12 +29,14 @@ public class CourseSessionService {
 
     private final CourseSessionRepository courseSessionRepository;
     private final TimingService timingService;
+    private final GlobalTableChangeService globalTableChangeService;
     private static final Logger log = LoggerFactory.getLogger(CourseSessionService.class);
 
     @Autowired
-    public CourseSessionService(CourseSessionRepository courseSessionRepository, TimingService timingService) {
+    public CourseSessionService(CourseSessionRepository courseSessionRepository, TimingService timingService, GlobalTableChangeService globalTableChangeService) {
         this.courseSessionRepository = courseSessionRepository;
         this.timingService = timingService;
+        this.globalTableChangeService = globalTableChangeService;
     }
 
     /**
@@ -82,25 +85,6 @@ public class CourseSessionService {
     }
 
     /**
-     * Marks a course session as fixed if it is already assigned.
-     *
-     * @param courseSession The course session to be fixed.
-     * @return The fixed course session.
-     * @throws CourseSessionNotAssignedException if the course session is not assigned.
-     */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public CourseSession fixCourseSession(CourseSession courseSession) throws CourseSessionNotAssignedException {
-        if(courseSession.isAssigned()){
-            courseSession.setFixed(true);
-            log.info("Fixed course session {}", courseSession.getName());
-            return courseSessionRepository.save(courseSession);
-        }
-        else{
-            throw new CourseSessionNotAssignedException("Course session must be assigned to be fixed");
-        }
-    }
-
-    /**
      * Deletes a course session, unassigning it first if necessary.
      *
      * @param courseSession The course session to be deleted.
@@ -137,6 +121,7 @@ public class CourseSessionService {
             original.setRoomTable(courseSession.getRoomTable());
             original.setTiming(timingService.createTiming(courseSession.getTiming()));
             original.setAssigned(true);
+            original.setFixed(courseSession.isFixed());
             original = courseSessionRepository.save(original);
             log.info("Assigned course session {} to roomTable {} at timing {}", original.getName(), original.getRoomTable(), original.getTiming());
             return courseSession;
@@ -158,6 +143,7 @@ public class CourseSessionService {
             original.setRoomTable(null);
             original.setTiming(null);
             original.setAssigned(false);
+            original.setFixed(false);
             original = courseSessionRepository.save(original);
             log.info("Unassigned course session {}", courseSession.getName());
             return original;
@@ -242,15 +228,37 @@ public class CourseSessionService {
         return courseSessionRepository.saveAll(courseSessions);
     }
 
-    public void moveCourseSession(CourseSession courseSession) {
-        if(courseSession.getId() != null){
-            CourseSession original = loadCourseSessionByID(courseSession.getId());
-            if(!original.getTiming().hasSameDayAndTime(courseSession.getTiming())){
-                Timing timing = original.getTiming();
-                original.setTiming(timingService.createTiming(courseSession.getTiming()));
-                courseSessionRepository.save(original);
-                timingService.deleteTiming(timing);
-            }
+    @Transactional
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public void updateCourseSession(TimeTable timeTable, CourseSession newCourseSession, CourseSession original) {
+        if(newCourseSession.wasUnsassigned(original)){
+            globalTableChangeService.create(ChangeType.UNASSIGN_COURSE, timeTable, String.format("Course %s was unassigned from room %s at %s",
+                    newCourseSession.getName(), original.getRoomTable(), original.getTiming()));
         }
+        else if(newCourseSession.wasAssigned(original)){
+            globalTableChangeService.create(ChangeType.ASSIGN_COURSE, timeTable, String.format("Course %s was assigned to room %s at %s",
+                    newCourseSession.getName(), newCourseSession.getRoomTable(), newCourseSession.getTiming()));
+        }
+        else if(newCourseSession.wasMoved(original)){
+            globalTableChangeService.create(ChangeType.MOVE_COURSE, timeTable, String.format("Course %s was moved from %s to %s",
+                    newCourseSession.getName(), original.getTiming(), newCourseSession.getTiming()));
+        }
+        if(newCourseSession.wasFixed(original)){
+            globalTableChangeService.create(ChangeType.FIX_COURSE, timeTable, String.format("Course %s was fixed in room %s at %s",
+                    newCourseSession.getName(), newCourseSession.getRoomTable(), newCourseSession.getTiming()));
+        }
+        if(!original.getTiming().equals(newCourseSession.getTiming())){
+            Timing toDelete = original.getTiming();
+            if(newCourseSession.getTiming() != null){
+                original.setTiming(timingService.createTiming(newCourseSession.getTiming()));
+            }
+            timingService.deleteTiming(toDelete);
+        }
+        original.setFixed(newCourseSession.isFixed());
+        original.setRoomTable(newCourseSession.getRoomTable());
+        original.setAssigned(newCourseSession.isAssigned());
+
+        courseSessionRepository.save(original);
+
     }
 }

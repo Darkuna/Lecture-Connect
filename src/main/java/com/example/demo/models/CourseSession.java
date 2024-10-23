@@ -4,7 +4,6 @@ import com.example.demo.models.enums.StudyType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
@@ -82,13 +81,38 @@ public class CourseSession implements Persistable<Long>, Serializable {
         return id.hashCode();
     }
 
-    public boolean isAssignedToSameRoomAndTime(CourseSession courseSession){
-        return courseSession.getRoomTable().equals(this.roomTable) &&
-                courseSession.getTiming().hasSameDayAndTime(this.timing);
+    public boolean courseSessionChanged(CourseSession courseSession){
+        return courseSession.getRoomTable() == null && this.roomTable != null ||
+                courseSession.getRoomTable() != null && this.roomTable == null ||
+                !courseSession.getRoomTable().equals(this.roomTable) ||
+                !courseSession.getTiming().hasSameDayAndTime(this.timing) ||
+                courseSession.isFixed != this.isFixed ||
+                courseSession.isAssigned != this.isAssigned;
     }
 
-    //@Override
-    //public String toString(){
-    //    return String.format("%s: %s %s %s %s", name, studyType, roomTable.getRoomId(), timing, courseId);
-    //}
+    public boolean wasMoved(CourseSession toCompare){
+        return this.isAssigned &&
+                toCompare.isAssigned &&
+                (this.timing != toCompare.timing || this.roomTable != toCompare.roomTable);
+    }
+
+    public boolean wasAssigned(CourseSession toCompare){
+        return this.isAssigned &&
+                !toCompare.isAssigned;
+    }
+
+    public boolean wasUnsassigned(CourseSession toCompare){
+        return !this.isAssigned &&
+                toCompare.isAssigned;
+    }
+
+    public boolean wasFixed(CourseSession toCompare){
+        return this.isFixed &&
+                !toCompare.isFixed;
+    }
+
+    public boolean wasUnfixed(CourseSession toCompare){
+        return !this.isFixed &&
+                toCompare.isFixed;
+    }
 }
