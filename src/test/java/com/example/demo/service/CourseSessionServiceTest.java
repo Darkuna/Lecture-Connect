@@ -107,22 +107,6 @@ public class CourseSessionServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testAssignCourseSessionToRoomTable(){
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-2);
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-2);
-        Timing timing = timingService.createTiming(TimingConstants.START_TIME, TimingConstants.START_TIME.plusHours(2),
-                Day.TUESDAY, TimingType.ASSIGNED);
-        courseSessionService.assignCourseSessionToRoomTable(courseSession, roomTable, timing);
-
-        assertEquals(Day.TUESDAY, courseSession.getTiming().getDay());
-        assertEquals(TimingConstants.START_TIME, courseSession.getTiming().getStartTime());
-        assertEquals(TimingConstants.START_TIME.plusHours(2), courseSession.getTiming().getEndTime());
-        assertEquals(roomTable, courseSession.getRoomTable());
-        assertTrue(courseSession.isAssigned());
-    }
-
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllAssignedToRoomTable(){
         RoomTable roomTable = roomTableService.loadRoomTableByID(-40);
         List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);

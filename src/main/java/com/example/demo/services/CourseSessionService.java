@@ -1,10 +1,8 @@
 package com.example.demo.services;
 
-import com.example.demo.exceptions.courseSession.CourseSessionNotAssignedException;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.ChangeType;
 import com.example.demo.repositories.CourseSessionRepository;
-import com.example.demo.repositories.RoomTableRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Service class for managing course sessions.
@@ -94,24 +91,6 @@ public class CourseSessionService {
     public void deleteCourseSession(CourseSession courseSession){
         courseSessionRepository.delete(courseSession);
         log.info("Deleted course session {}", courseSession.getName());
-    }
-
-    /**
-     * Assigns a course session to a room table with specific timing.
-     *
-     * @param courseSession The course session to assign.
-     * @param roomTable The room table to assign the course session to.
-     * @param timing The timing for the course session.
-     * @return The assigned course session.
-     */
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public CourseSession assignCourseSessionToRoomTable(CourseSession courseSession, RoomTable roomTable, Timing timing){
-        courseSession.setRoomTable(roomTable);
-        courseSession.setTiming(timing);
-        courseSession.setAssigned(true);
-        courseSession = courseSessionRepository.save(courseSession);
-        log.info("Assigned course session {} to roomTable {} at timing {}", courseSession.getName(), roomTable, timing);
-        return courseSession;
     }
 
     /**
