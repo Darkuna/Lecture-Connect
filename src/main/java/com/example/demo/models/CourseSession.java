@@ -112,9 +112,4 @@ public class CourseSession implements Persistable<Long>, Serializable {
         return this.isFixed &&
                 !toCompare.isFixed;
     }
-
-    public boolean wasUnfixed(CourseSession toCompare){
-        return !this.isFixed &&
-                toCompare.isFixed;
-    }
 }
