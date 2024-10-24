@@ -203,13 +203,9 @@ public class AvailabilityMatrix {
     }
 
     public static Candidate toCandidate(CourseSession courseSession) {
-        /* TODO: fix
-        return new Candidate(courseSession.getRoomTable().getAvailabilityMatrix(),
+        return new Candidate(new AvailabilityMatrix(courseSession.getRoomTable()),
                 courseSession.getTiming().getDay().ordinal(),timeToSlotIndex(courseSession.getTiming().getStartTime()),
                 (int) courseSession.getTiming().getDuration(), true);
-
-         */
-        return null;
     }
 
     public static int timeToSlotIndex(LocalTime time) {

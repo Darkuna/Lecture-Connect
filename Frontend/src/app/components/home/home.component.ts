@@ -271,7 +271,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
         }
       });
-      tmpSub.unsubscribe();
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
