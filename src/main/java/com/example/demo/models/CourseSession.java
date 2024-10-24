@@ -82,8 +82,10 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
 
     public boolean courseSessionChanged(CourseSession courseSession){
-        return courseSession.getRoomTable() == null && this.roomTable != null ||
-                courseSession.getRoomTable() != null && this.roomTable == null ||
+        if(courseSession.getRoomTable() == null && this.roomTable == null){
+            return false;
+        }
+        return courseSession.getRoomTable() == null ||
                 !courseSession.getRoomTable().equals(this.roomTable) ||
                 !courseSession.getTiming().hasSameDayAndTime(this.timing) ||
                 courseSession.isFixed != this.isFixed ||

@@ -191,6 +191,10 @@ public class TimeTableService {
         timeTableRepository.delete(timeTable);
     }
 
+    /**
+     * Method to load names of all available timeTables for home view
+     * @return list of all timeTable names
+     */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<TimeTableNameDTO> loadTimeTableNames(){
         List<TimeTableNameDTO> timeTableNameDTOS = timeTableRepository.findAllTimeTableDTOs();
@@ -222,11 +226,21 @@ public class TimeTableService {
         }
     }
 
+    /**
+     * Method to check the current timeTable for collisions
+     * @param timeTable to be checked for collisions
+     * @return list of colliding courseSessions
+     */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> checkCollisions(TimeTable timeTable){
         return scheduler.collisionCheck(timeTable);
     }
 
+    /**
+     * Method to unassign all assigned courseSessions of a certain timeTable
+     * @param timeTable to unassign all courseSessions of
+     * @return
+     */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable unassignAllCourseSessions(TimeTable timeTable){
         courseSessionService.unassignCourseSessions(timeTable.getAssignedCourseSessions());
