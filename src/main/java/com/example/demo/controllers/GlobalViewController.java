@@ -92,6 +92,13 @@ public class GlobalViewController {
         return ResponseEntity.ok().body(updatedTimeTableDTO);
     }
 
+    @PostMapping("/assignment/removeCollisions/{id}")
+    public ResponseEntity<TimeTableDTO> removeCollisionsFromTimeTable(@PathVariable Long id) {
+        timeTable = timeTableService.unassignCollisions(timeTable);
+        TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
+        return ResponseEntity.ok().body(updatedTimeTableDTO);
+    }
+
     @PostMapping("/collision/{id}")
     public ResponseEntity<List<CourseSessionDTO>> checkCollision(@PathVariable Long id) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
