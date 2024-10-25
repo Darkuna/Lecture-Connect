@@ -593,9 +593,14 @@ public class BacktrackingScheduler implements Scheduler {
             }
             // check intersecting courses of same semester collision
             if(!courseSession.isElective()){
-                Candidate candidate = AvailabilityMatrix.toCandidate(courseSession);
                 for(CourseSession cs : collisionCandidates){
-                    if(checkCoursesOfSameSemester(cs, candidate)){
+                    if(cs.equals(courseSession)){
+                        continue;
+                    }
+                    if(courseSession.getTiming().intersects(cs.getTiming()) &&
+                        !cs.isElective() &&
+                        !cs.isFromSameCourse(courseSession) &&
+                        !cs.isAllowedToIntersectWith(courseSession)){
                         collisions.add(CollisionType.SEMESTER_INTERSECTION);
                         break;
                     }
