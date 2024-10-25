@@ -7,6 +7,7 @@ import com.example.demo.models.enums.ChangeType;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
 import com.example.demo.repositories.TimeTableRepository;
+import com.example.demo.scheduling.CollisionType;
 import com.example.demo.scheduling.Scheduler;
 import com.example.demo.scheduling.BacktrackingScheduler;
 import jakarta.persistence.EntityNotFoundException;
@@ -232,7 +233,7 @@ public class TimeTableService {
      * @return list of colliding courseSessions
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<CourseSession> checkCollisions(TimeTable timeTable){
+    public Map<CourseSession,List<CollisionType>> checkCollisions(TimeTable timeTable){
         return scheduler.collisionCheck(timeTable);
     }
 
@@ -258,7 +259,7 @@ public class TimeTableService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable unassignCollisions(TimeTable timeTable) {
-        List<CourseSession> collisions = scheduler.collisionCheck(timeTable);
+        List<CourseSession> collisions = scheduler.collisionCheck(timeTable).keySet().stream().toList();
         courseSessionService.unassignCourseSessions(collisions);
         return loadTimeTable(timeTable.getId());
     }
