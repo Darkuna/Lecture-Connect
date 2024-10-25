@@ -550,6 +550,9 @@ public class BacktrackingScheduler implements Scheduler {
      * at least one intersection
      */
     protected boolean checkCoursesOfSameSemester(CourseSession courseSession, Candidate candidate){
+        if(courseSession.isElective()){
+            return true;
+        }
         for(AvailabilityMatrix availabilityMatrix : allAvailabilityMatrices){
             if(availabilityMatrix.semesterIntersects(candidate, courseSession)){
                 return false;
