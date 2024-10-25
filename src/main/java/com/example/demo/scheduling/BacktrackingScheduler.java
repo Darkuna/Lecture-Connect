@@ -112,8 +112,8 @@ public class BacktrackingScheduler implements Scheduler {
         singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
         groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
 
-        prepareSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
-        prepareGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
+        prepareCandidatesForSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
+        prepareCandidatesForGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
 
         log.info("Starting assignment");
         try {
@@ -305,7 +305,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @param courseSessions to be prepared
      * @param availabilityMatrices to find possible candidates in
      */
-    private void prepareSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+    private void prepareCandidatesForSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         for(CourseSession courseSession : courseSessions){
             List<Candidate> candidates = new ArrayList<>();
             for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
@@ -326,7 +326,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @param courseSessions to be prepared
      * @param availabilityMatrices to find possible candidates in
      */
-    private void prepareGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+    private void prepareCandidatesForGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         String currentGroup;
         if(courseSessions == null || courseSessions.isEmpty()){
             return;
