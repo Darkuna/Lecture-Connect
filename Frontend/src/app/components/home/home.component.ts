@@ -255,6 +255,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     }
   }
 
+  removeCollisions(){
+    if (this.shownTableDD) {
+      this.selectedTimeTable = this.globalTableService.removeCollisions(this.shownTableDD.id);
+      this.updateCalendarEvents();
+    }
+  }
+
   applyCollisionCheck() {
     if (this.shownTableDD) {
       const tmpSub = this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
@@ -271,7 +278,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
         }
       });
-      tmpSub.unsubscribe();
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
@@ -440,6 +446,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
             label: 'Remove all',
             icon: 'pi pi-delete-left',
             command: () => this.removeAll()
+          },
+          {
+            label: 'Remove collisions',
+            icon: 'pi pi-delete-left',
+            command: () => this.removeCollisions()
           },
           {
             label: 'Collision Check',

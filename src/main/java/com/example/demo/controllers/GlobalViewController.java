@@ -92,10 +92,18 @@ public class GlobalViewController {
         return ResponseEntity.ok().body(updatedTimeTableDTO);
     }
 
+    @PostMapping("/assignment/removeCollisions/{id}")
+    public ResponseEntity<TimeTableDTO> removeCollisionsFromTimeTable(@PathVariable Long id) {
+        timeTable = timeTableService.unassignCollisions(timeTable);
+        TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
+        return ResponseEntity.ok().body(updatedTimeTableDTO);
+    }
+
     @PostMapping("/collision/{id}")
     public ResponseEntity<List<CourseSessionDTO>> checkCollision(@PathVariable Long id) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
-        List<CourseSession> collisions = timeTableService.checkCollisions(timeTable);
+        //TODO: the new collision check return a Map<CourseSession, List<CollisionType>. Make use of that
+        List<CourseSession> collisions = timeTableService.checkCollisions(timeTable).keySet().stream().toList();
         List<CourseSessionDTO> collisionDTOs = collisions.stream()
                 .map(dtoConverter::toCourseSessionDTO)
                 .collect(Collectors.toList());

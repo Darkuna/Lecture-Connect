@@ -64,8 +64,9 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
 
     public boolean isAllowedToIntersectWith(CourseSession courseSession) {
-        return this.semester != courseSession.semester || this.studyType != courseSession.studyType
-                || this.isElective() || courseSession.isElective();
+        return this.semester != courseSession.semester ||
+                this.studyType != courseSession.studyType ||
+                this.isElective() || courseSession.isElective();
     }
 
     @Override
@@ -82,8 +83,10 @@ public class CourseSession implements Persistable<Long>, Serializable {
     }
 
     public boolean courseSessionChanged(CourseSession courseSession){
-        return courseSession.getRoomTable() == null && this.roomTable != null ||
-                courseSession.getRoomTable() != null && this.roomTable == null ||
+        if(courseSession.getRoomTable() == null && this.roomTable == null){
+            return false;
+        }
+        return courseSession.getRoomTable() == null ||
                 !courseSession.getRoomTable().equals(this.roomTable) ||
                 !courseSession.getTiming().hasSameDayAndTime(this.timing) ||
                 courseSession.isFixed != this.isFixed ||
@@ -109,10 +112,5 @@ public class CourseSession implements Persistable<Long>, Serializable {
     public boolean wasFixed(CourseSession toCompare){
         return this.isFixed &&
                 !toCompare.isFixed;
-    }
-
-    public boolean wasUnfixed(CourseSession toCompare){
-        return !this.isFixed &&
-                toCompare.isFixed;
     }
 }

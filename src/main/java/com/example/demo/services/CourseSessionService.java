@@ -119,6 +119,7 @@ public class CourseSessionService {
      * @param roomTable The room table the course session are assigned to.
      * @return The list of course sessions assigned to the room table.
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> loadAllAssignedToRoomTable(RoomTable roomTable){
 
         List<CourseSession> courseSessions = courseSessionRepository.findAllByRoomTable(roomTable);
@@ -136,6 +137,7 @@ public class CourseSessionService {
      * @param timeTable The timetable the course sessions are associated to.
      * @return The list of course sessions from a specific timetable.
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> loadAllFromTimeTable(TimeTable timeTable){
         List<CourseSession> courseSessions = courseSessionRepository.findAllByTimeTable(timeTable);
         for(CourseSession courseSession : courseSessions){
@@ -152,6 +154,7 @@ public class CourseSessionService {
      * @return The course session.
      * @throws EntityNotFoundException if the course session could not be found in the database.
      */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public CourseSession loadCourseSessionByID(long id){
         CourseSession courseSession = courseSessionRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("CourseSession not found for ID: " + id));
@@ -160,10 +163,22 @@ public class CourseSessionService {
         return courseSession;
     }
 
+    /**
+     * Method to save all entries in a list of courseSessions.
+     * @param courseSessions list of CourseSession objects
+     * @return updated courseSessions
+     */
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
         return courseSessionRepository.saveAll(courseSessions);
     }
 
+    /**
+     * Method to update a courseSession by comparing the database version with the new version received from frontend
+     * @param timeTable the courseSession is assigned to
+     * @param newCourseSession courseSession that contains the latest changes
+     * @param original courseSession from the database
+     */
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void updateCourseSession(TimeTable timeTable, CourseSession newCourseSession, CourseSession original) {
