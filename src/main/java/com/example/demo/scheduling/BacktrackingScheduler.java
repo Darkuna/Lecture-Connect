@@ -606,6 +606,7 @@ public class BacktrackingScheduler implements Scheduler {
                     }
                 }
             }
+            //TODO: consider the number of group courses allowed to be assigned at the same time in the next iteration
 
             if(!collisions.isEmpty()){
                 collisionMap.put(courseSession, collisions);
