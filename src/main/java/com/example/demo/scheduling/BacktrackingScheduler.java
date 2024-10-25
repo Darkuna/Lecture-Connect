@@ -564,22 +564,49 @@ public class BacktrackingScheduler implements Scheduler {
     /**
      * Checks already assigned courseSessions for collisions
      * @param timeTable to be checked
-     * @return a list of courseSessions that are in collision
+     * @return a map of courseSessions that are in collision
      */
-    public List<CourseSession> collisionCheck(TimeTable timeTable){
+    public Map<CourseSession, List<CollisionType>> collisionCheck(TimeTable timeTable){
         if(!this.timeTable.equals(timeTable)){
             setTimeTable(timeTable);
         }
 
         List<CourseSession> collisionCandidates = timeTable.getAssignedCourseSessions();
-        List<CourseSession> collisions = new ArrayList<>();
+        Map<CourseSession, List<CollisionType>> collisionMap = new HashMap<>();
+
         for(CourseSession courseSession : collisionCandidates){
-            if(!checkCoursesOfSameSemester(courseSession, AvailabilityMatrix.toCandidate(courseSession))){
-                collisions.add(courseSession);
+            List<CollisionType> collisions = new ArrayList<>();
+            // check room capacity collision
+            if(courseSession.getRoomTable().getCapacity() < courseSession.getNumberOfParticipants()){
+                collisions.add(CollisionType.ROOM_CAPACITY);
+            }
+            // check computer necessary/available collision
+            if(courseSession.getRoomTable().isComputersAvailable() != courseSession.isComputersNecessary()){
+                collisions.add(CollisionType.ROOM_COMPUTERS);
+            }
+            // check courseSession's timing constraints collision
+            for(Timing timingConstraint : courseSession.getTimingConstraints()){
+                if(timingConstraint.intersects(courseSession.getTiming())){
+                    collisions.add(CollisionType.COURSE_TIMING_CONSTRAINTS);
+                    break;
+                }
+            }
+            // check intersecting courses of same semester collision
+            if(!courseSession.isElective()){
+                Candidate candidate = AvailabilityMatrix.toCandidate(courseSession);
+                for(CourseSession cs : collisionCandidates){
+                    if(checkCoursesOfSameSemester(cs, candidate)){
+                        collisions.add(CollisionType.SEMESTER_INTERSECTION);
+                        break;
+                    }
+                }
+            }
+
+            if(!collisions.isEmpty()){
+                collisionMap.put(courseSession, collisions);
             }
         }
-
-        return collisions;
+        return collisionMap;
     }
 
 
