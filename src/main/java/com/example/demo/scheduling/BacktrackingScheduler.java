@@ -563,7 +563,6 @@ public class BacktrackingScheduler implements Scheduler {
      * @param timeTable to be checked
      * @return a list of courseSessions that are in collision
      */
-
     public List<CourseSession> collisionCheck(TimeTable timeTable){
         if(!this.timeTable.equals(timeTable)){
             setTimeTable(timeTable);
