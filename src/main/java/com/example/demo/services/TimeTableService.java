@@ -239,7 +239,7 @@ public class TimeTableService {
     /**
      * Method to unassign all assigned courseSessions of a certain timeTable
      * @param timeTable to unassign all courseSessions of
-     * @return
+     * @return updated timeTable
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable unassignAllCourseSessions(TimeTable timeTable){
@@ -251,6 +251,11 @@ public class TimeTableService {
         return timeTable;
     }
 
+    /**
+     * Method to unassign all courseSessions detected by collision check
+     * @param timeTable to unassign colliding courseSessions of
+     * @return updated timeTable
+     */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable unassignCollisions(TimeTable timeTable) {
         List<CourseSession> collisions = scheduler.collisionCheck(timeTable);
@@ -258,6 +263,12 @@ public class TimeTableService {
         return loadTimeTable(timeTable.getId());
     }
 
+    /**
+     * Method to update courseSessions after editor changes. Therefore, the updated courseSessions coming from the frontend
+     * are compared to their original versions in the database and changes are detected and updated.
+     * @param timeTable to be updated
+     * @param courseSessions updated courseSessions from frontend
+     */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
         List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();

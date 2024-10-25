@@ -160,10 +160,21 @@ public class CourseSessionService {
         return courseSession;
     }
 
+    /**
+     * Method to save all entries in a list of courseSessions.
+     * @param courseSessions list of CourseSession objects
+     * @return updated courseSessions
+     */
     public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
         return courseSessionRepository.saveAll(courseSessions);
     }
 
+    /**
+     * Method to update a courseSession by comparing the database version with the new version received from frontend
+     * @param timeTable the courseSession is assigned to
+     * @param newCourseSession courseSession that contains the latest changes
+     * @param original courseSession from the database
+     */
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void updateCourseSession(TimeTable timeTable, CourseSession newCourseSession, CourseSession original) {
