@@ -16,7 +16,6 @@ export class CourseSelectionPageComponent {
     protected updaterService: CourseUpdaterService,
     private router: Router
   ) {
-    console.log(this.updaterService.currentCourses);
   }
 
   updateData():void {

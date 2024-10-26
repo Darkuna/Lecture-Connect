@@ -3,7 +3,7 @@ import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} fr
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
-import {Observable} from "rxjs";
+import {last, Observable} from "rxjs";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
@@ -192,8 +192,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       return;
     }
 
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.rightClickEvent?.event.id);
+    const session = this.findSession()
     const tmp = session!.name.slice(0, 2);
 
     this.items.push(
@@ -254,8 +253,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === event.id);
+    const session = this.findSession()
 
     if(session){
       session!.roomTable = this.selectedRoom!;
@@ -272,8 +270,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   changeSessionBlockState(){
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.rightClickEvent?.event.id);
+    const session = this.findSession()
 
     if(session){
       this.rightClickEvent?.event.setProp('editable', session.fixed);
@@ -301,7 +298,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     if (this.dirtyData) {
       return confirm('You have unsaved changes. Do you really want to leave?');
     }
-    return true; // If no unsaved changes, allow navigation
+    return true;
   }
 
 
@@ -311,8 +308,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     }
 
     const lowerSearchTerm = this.searchCourse.toLowerCase();
-
-    // Filter events where the title matches the search term
     return this.dragTableEvents.filter(event =>
       event.title!.toLowerCase().includes(lowerSearchTerm)
     );
@@ -327,11 +322,11 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   private addCourseWithPsCharacter(){
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.rightClickEvent!.event.id);
+    const session = this.findSession();
 
     const slicedName = session!.name.slice(0, session!.name.length-1);
     const lastNumber = this.findStringWithBiggestNumber(slicedName);
+
     session!.name = `${slicedName} ${lastNumber + 1}`;
     session!.id = 420;
 
@@ -341,13 +336,17 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   private removeCourseWithPsCharacter(){
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.rightClickEvent!.event.id);
-
+    const session = this.findSession();
     const slicedName = session!.name.slice(0, session!.name.length-1);
-    const lastNumber = this.findStringWithBiggestNumber(slicedName);
+    const baseCourse = `${slicedName}${this.findStringWithBiggestNumber(slicedName)}`;
+    const deleteCourse = this.timeTable.courseSessions
+      .find(s => s.name == baseCourse);
 
-    this.renameLastGroup(`${slicedName} ${lastNumber}`);
+    this.timeTable.courseSessions = this.timeTable.courseSessions
+      .filter(s => !s.name.includes(baseCourse));
+
+    this.calendarComponent.getApi().getEventById(deleteCourse!.id.toString())?.remove();
+    this.messageService.add({severity: 'error', summary: 'DELETE', detail: `deleted ${baseCourse}`});
   }
 
   private findStringWithBiggestNumber(baseCourse: string): number {
@@ -358,7 +357,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     let maxNumber = -Infinity;
 
     for (const str of allCourses) {
-      console.log(str);
       const number = parseInt(str.name.slice(-1), 10);
 
       if (!isNaN(number) && number > maxNumber) {
@@ -370,10 +368,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return parseInt(maxString!.slice(-1));
   }
 
-  private renameLastGroup(session: string){
-    const renameCourse = this.timeTable.courseSessions
-      .find(s => s.name === session)
-
-    console.log(renameCourse);
+  private findSession():CourseSessionDTO | undefined{
+    return this.timeTable.courseSessions.find(s => s.id.toString() === this.rightClickEvent!.event.id);
   }
 }
