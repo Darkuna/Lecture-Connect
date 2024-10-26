@@ -22,7 +22,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,37 +106,6 @@ public class CourseSessionServiceTest {
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testAssignCourseSessionToRoomTable(){
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-2);
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-2);
-        Timing timing = timingService.createTiming(TimingConstants.START_TIME, TimingConstants.START_TIME.plusHours(2),
-                Day.TUESDAY, TimingType.ASSIGNED);
-        courseSessionService.assignCourseSessionToRoomTable(courseSession, roomTable, timing);
-
-        assertEquals(Day.TUESDAY, courseSession.getTiming().getDay());
-        assertEquals(TimingConstants.START_TIME, courseSession.getTiming().getStartTime());
-        assertEquals(TimingConstants.START_TIME.plusHours(2), courseSession.getTiming().getEndTime());
-        assertEquals(roomTable, courseSession.getRoomTable());
-        assertTrue(courseSession.isAssigned());
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testUnassignCourseSession(){
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
-        assertTrue(courseSession.isAssigned());
-
-        courseSession = courseSessionService.unassignCourseSession(courseSession);
-
-        assertFalse(courseSession.isAssigned());
-        assertNull(courseSession.getRoomTable());
-        assertNull(courseSession.getTiming());
-
-    }
-
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllAssignedToRoomTable(){
         RoomTable roomTable = roomTableService.loadRoomTableByID(-40);
         List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
@@ -168,27 +136,5 @@ public class CourseSessionServiceTest {
         courseSessionService.deleteCourseSession(courseSession);
 
         assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-420));
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testFixAssignedCourseSession() throws CourseSessionNotAssignedException {
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-6);
-        assertTrue(courseSession.isAssigned());
-
-        courseSessionService.fixCourseSession(courseSession);
-
-        assertTrue(courseSession.isFixed());
-    }
-
-    @Test
-    @DirtiesContext
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testFixUnassignedCourseSession() {
-        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-420);
-        assertFalse(courseSession.isAssigned());
-
-        assertThrows(CourseSessionNotAssignedException.class, () -> courseSessionService.fixCourseSession(courseSession));
     }
 }

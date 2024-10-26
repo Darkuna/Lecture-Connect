@@ -70,6 +70,12 @@ export class GlobalTableService {
     return this.currentTimeTable;
   }
 
+  removeCollisions(id: number): Observable<TimeTableDTO> {
+    let newUrl = `${GlobalTableService.API_PATH}/assignment/removeCollisions/${id}`;
+    this.currentTimeTable = this.http.post<TimeTableDTO>(newUrl, this.httpOptions);
+    return this.currentTimeTable;
+  }
+
   getCollisions(id: number): Observable<CourseSessionDTO[]>{
     const newUrl = `${GlobalTableService.API_PATH}/collision/${id}`;
     return this.http.post<CourseSessionDTO[]>(newUrl, this.httpOptions);

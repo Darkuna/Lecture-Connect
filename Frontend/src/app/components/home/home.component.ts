@@ -261,6 +261,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     }
   }
 
+  removeCollisions(){
+    if (this.shownTableDD) {
+      this.selectedTimeTable = this.globalTableService.removeCollisions(this.shownTableDD.id);
+      this.updateCalendarEvents();
+    }
+  }
+
   applyCollisionCheck() {
     if (this.shownTableDD) {
       this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
@@ -446,6 +453,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
             label: 'Remove all',
             icon: 'pi pi-delete-left',
             command: () => this.removeAll()
+          },
+          {
+            label: 'Remove collisions',
+            icon: 'pi pi-delete-left',
+            command: () => this.removeCollisions()
           },
           {
             label: 'Collision Check',

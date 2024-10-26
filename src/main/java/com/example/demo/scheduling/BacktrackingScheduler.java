@@ -112,8 +112,8 @@ public class BacktrackingScheduler implements Scheduler {
         singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
         groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
 
-        prepareSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
-        prepareGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
+        prepareCandidatesForSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
+        prepareCandidatesForGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
 
         log.info("Starting assignment");
         try {
@@ -305,7 +305,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @param courseSessions to be prepared
      * @param availabilityMatrices to find possible candidates in
      */
-    private void prepareSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+    private void prepareCandidatesForSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         for(CourseSession courseSession : courseSessions){
             List<Candidate> candidates = new ArrayList<>();
             for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
@@ -313,6 +313,8 @@ public class BacktrackingScheduler implements Scheduler {
             }
             List<Candidate> filteredCandidates = candidates.stream()
                     .filter(c -> checkConstraintsFulfilled(courseSession, c))
+                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
+                            thenComparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
             map.put(courseSession, filteredCandidates);
         }
@@ -324,7 +326,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @param courseSessions to be prepared
      * @param availabilityMatrices to find possible candidates in
      */
-    private void prepareGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+    private void prepareCandidatesForGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         String currentGroup;
         if(courseSessions == null || courseSessions.isEmpty()){
             return;
@@ -342,7 +344,8 @@ public class BacktrackingScheduler implements Scheduler {
             }
             List<Candidate> filteredCandidates = candidates.stream()
                     .filter(c -> checkConstraintsFulfilled(courseSession, c))
-                    .sorted(Comparator.comparingInt(Candidate::getSlot))
+                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed()
+                            .thenComparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
             map.put(courseSession, filteredCandidates);
         }
@@ -547,6 +550,9 @@ public class BacktrackingScheduler implements Scheduler {
      * at least one intersection
      */
     protected boolean checkCoursesOfSameSemester(CourseSession courseSession, Candidate candidate){
+        if(courseSession.isElective()){
+            return true;
+        }
         for(AvailabilityMatrix availabilityMatrix : allAvailabilityMatrices){
             if(availabilityMatrix.semesterIntersects(candidate, courseSession)){
                 return false;
@@ -558,23 +564,55 @@ public class BacktrackingScheduler implements Scheduler {
     /**
      * Checks already assigned courseSessions for collisions
      * @param timeTable to be checked
-     * @return a list of courseSessions that are in collision
+     * @return a map of courseSessions that are in collision
      */
-
-    public List<CourseSession> collisionCheck(TimeTable timeTable){
+    public Map<CourseSession, List<CollisionType>> collisionCheck(TimeTable timeTable){
         if(!this.timeTable.equals(timeTable)){
             setTimeTable(timeTable);
         }
 
         List<CourseSession> collisionCandidates = timeTable.getAssignedCourseSessions();
-        List<CourseSession> collisions = new ArrayList<>();
+        Map<CourseSession, List<CollisionType>> collisionMap = new HashMap<>();
+
         for(CourseSession courseSession : collisionCandidates){
-            if(!checkCoursesOfSameSemester(courseSession, AvailabilityMatrix.toCandidate(courseSession))){
-                collisions.add(courseSession);
+            List<CollisionType> collisions = new ArrayList<>();
+            // check room capacity collision
+            if(courseSession.getRoomTable().getCapacity() < courseSession.getNumberOfParticipants()){
+                collisions.add(CollisionType.ROOM_CAPACITY);
+            }
+            // check computer necessary/available collision
+            if(courseSession.getRoomTable().isComputersAvailable() != courseSession.isComputersNecessary()){
+                collisions.add(CollisionType.ROOM_COMPUTERS);
+            }
+            // check courseSession's timing constraints collision
+            for(Timing timingConstraint : courseSession.getTimingConstraints()){
+                if(timingConstraint.intersects(courseSession.getTiming())){
+                    collisions.add(CollisionType.COURSE_TIMING_CONSTRAINTS);
+                    break;
+                }
+            }
+            // check intersecting courses of same semester collision
+            if(!courseSession.isElective()){
+                for(CourseSession cs : collisionCandidates){
+                    if(cs.equals(courseSession)){
+                        continue;
+                    }
+                    if(courseSession.getTiming().intersects(cs.getTiming()) &&
+                        !cs.isElective() &&
+                        !cs.isFromSameCourse(courseSession) &&
+                        !cs.isAllowedToIntersectWith(courseSession)){
+                        collisions.add(CollisionType.SEMESTER_INTERSECTION);
+                        break;
+                    }
+                }
+            }
+            //TODO: consider the number of group courses allowed to be assigned at the same time in the next iteration
+
+            if(!collisions.isEmpty()){
+                collisionMap.put(courseSession, collisions);
             }
         }
-
-        return collisions;
+        return collisionMap;
     }
 
 
