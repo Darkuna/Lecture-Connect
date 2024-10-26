@@ -15,7 +15,6 @@ export class EventConverterService {
   }
 
   getColorBasedOnPage(session: CourseSessionDTO, call: 'editor' | 'home'): string{
-    if(call === 'home') return '#666666';
     if (session.fixed && call === 'editor') return  '#7a4444';
     else return '#666666';
   }

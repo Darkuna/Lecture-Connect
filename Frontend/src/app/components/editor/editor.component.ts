@@ -197,7 +197,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     const tmp = session!.name.slice(0, 2);
 
     this.items.push(
-      { label: 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
+      { label: session!.fixed ? 'free Course' : 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
       { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
     )
 
@@ -238,9 +238,16 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     })
   }
 
-  eventAllow(args: any):boolean{
-    return args.start.getHours() > 7 && args.end.getHours() < 23;
+  eventAllow(args: any): boolean {
+    const startHour = args.start.getHours();
+    const startMinutes = args.start.getMinutes();
+
+    const isBefore815AM = startHour < 8 || (startHour === 8 && startMinutes < 15);
+    const isAfter10PM = args.end.getHours() >= 22;
+
+    return !isBefore815AM && !isAfter10PM;
   }
+
 
   private updateAllEventsList(newSessionID: string, roomTable: string | null){
     this.allEvents.find(e => e['id'] === newSessionID)!['description'] = roomTable;
@@ -261,7 +268,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       const room = assigned ? this.selectedRoom?.roomId! : null;
       this.updateAllEventsList(session.id.toString(), room);
     }
-    return session ;
+    return session;
   }
 
   changeSessionBlockState(){
@@ -298,10 +305,9 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
 
-  // Filtered events based on search term
   get filteredEvents() {
     if (!this.searchCourse) {
-      return this.dragTableEvents;  // Return all events if there's no search term
+      return this.dragTableEvents;
     }
 
     const lowerSearchTerm = this.searchCourse.toLowerCase();
@@ -320,17 +326,54 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   }
 
-  addCourseWithPsCharacter(){
+  private addCourseWithPsCharacter(){
     const session = this.timeTable.courseSessions
       .find(s => s.id.toString() === this.rightClickEvent!.event.id);
 
-    console.log(session);
+    const slicedName = session!.name.slice(0, session!.name.length-1);
+    const lastNumber = this.findStringWithBiggestNumber(slicedName);
+    session!.name = `${slicedName} ${lastNumber + 1}`;
+    session!.id = 420;
+
+    this.dragTableEvents.push(
+      this.converter.convertTimingToEventInput(session!, "editor")
+    );
   }
 
-  removeCourseWithPsCharacter(){
+  private removeCourseWithPsCharacter(){
     const session = this.timeTable.courseSessions
       .find(s => s.id.toString() === this.rightClickEvent!.event.id);
 
-    console.log(session);
+    const slicedName = session!.name.slice(0, session!.name.length-1);
+    const lastNumber = this.findStringWithBiggestNumber(slicedName);
+
+    this.renameLastGroup(`${slicedName} ${lastNumber}`);
+  }
+
+  private findStringWithBiggestNumber(baseCourse: string): number {
+    const allCourses = this.timeTable.courseSessions
+      .filter(str => str.name.includes(baseCourse));
+
+    let maxString = null;
+    let maxNumber = -Infinity;
+
+    for (const str of allCourses) {
+      console.log(str);
+      const number = parseInt(str.name.slice(-1), 10);
+
+      if (!isNaN(number) && number > maxNumber) {
+        maxNumber = number;
+        maxString = str.name;
+      }
+    }
+
+    return parseInt(maxString!.slice(-1));
+  }
+
+  private renameLastGroup(session: string){
+    const renameCourse = this.timeTable.courseSessions
+      .find(s => s.name === session)
+
+    console.log(renameCourse);
   }
 }

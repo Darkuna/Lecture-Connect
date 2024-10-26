@@ -30,7 +30,6 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import {CourseUpdaterService} from "../../services/course-updater.service";
 import {RoomUpdaterService} from "../../services/room-updater.service";
 
 @Component({
@@ -263,7 +262,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   removeCollisions(){
     if (this.shownTableDD) {
-      this.selectedTimeTable = this.globalTableService.removeCollisions(this.shownTableDD.id);
+      this.selectedTimeTable$ = this.globalTableService.removeCollisions(this.shownTableDD.id);
       this.updateCalendarEvents();
     }
   }
