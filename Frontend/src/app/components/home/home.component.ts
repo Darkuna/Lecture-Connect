@@ -30,6 +30,8 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import {CourseUpdaterService} from "../../services/course-updater.service";
+import {RoomUpdaterService} from "../../services/room-updater.service";
 
 @Component({
   selector: 'app-home',
@@ -42,7 +44,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   shownTableDD: TimeTableNames | null = null;
 
   creationTable!: TmpTimeTable;
-  selectedTimeTable: Observable<TimeTableDTO> | null = null;
+  selectedTimeTable$: Observable<TimeTableDTO> | null = null;
+  selectedTableSub: Subscription | null = null;
   private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
@@ -107,7 +110,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
+    private roomUpdater: RoomUpdaterService,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -131,7 +135,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   ngOnDestroy(): void {
     this.availableTableSubs.unsubscribe();
-
+    this.selectedTableSub?.unsubscribe();
   }
 
   ngAfterViewChecked() {
@@ -154,7 +158,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   updateCalendarEvents(){
     this.clearCalendar();
 
-    this.selectedTimeTable!.subscribe((timeTable: TimeTableDTO) => {
+    this.selectedTableSub = this.selectedTimeTable$!.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput('home'),
@@ -174,14 +178,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       return;
     }
 
-    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
+    this.selectedTimeTable$ = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
     this.updateCalendarEvents();
   }
 
   unselectTable(){
     this.globalTableService.unselectTable();
     this.shownTableDD = null;
-    this.selectedTimeTable = null;
+    this.selectedTimeTable$ = null;
 
     this.clearCalendar();
   }
@@ -223,7 +227,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   applyAlgorithm(){
     if(this.shownTableDD){
-      this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
+      this.selectedTimeTable$ = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
       this.updateCalendarEvents();
 
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
@@ -242,7 +246,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           acceptIcon:"none",
           rejectIcon:"none",
           accept: () => {
-            this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
+            this.selectedTimeTable$ = this.globalTableService.removeAll(this.shownTableDD!.id);
             this.updateCalendarEvents();
 
             this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
@@ -451,22 +455,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
         ]
       },
       {
-        label: 'Courses',
-        expanded: true,
-        items: [
-          {
-            label: 'Add new Courses',
-            icon: 'pi pi-book',
-            command: () => this.redirectToSelection('/user/tt-courses')
-          },
-          {
-            label: 'Edit shown Courses',
-            icon: 'pi pi-book',
-            command: () => this.redirectToSelection('/user/tt-courses')
-          },
-        ]
-      },
-      {
         label: 'Rooms',
         expanded: true,
         items: [
@@ -493,7 +481,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           {
             label: 'last Changes',
             icon: 'pi pi-comments',
-            command: () => this.redirectToSelection('/user/tt-status')
+            command: () => {
+              this.messageService.add({severity: 'error', summary: 'OFFLINE', detail: 'method not implemented'})
+          }
           }
         ]
       },
@@ -507,7 +497,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           },
           {
             label: 'Export Plan (each)',
-            icon: 'pi pi-folder'
+            icon: 'pi pi-folder',
+            command: () => {
+              this.messageService.add({severity: 'error', summary: 'OFFLINE', detail: 'method not implemented'})
+            }
           }
         ]
       },

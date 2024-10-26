@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
 import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -22,7 +22,7 @@ import {ContextMenu} from "primeng/contextmenu";
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.css'
 })
-export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
+export class EditorComponent implements AfterViewInit, OnDestroy{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('external') external!: ElementRef;
   @ViewChild('cm') contextMenu!: ContextMenu;
@@ -84,7 +84,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   maxEvents: number = 0;
 
   items: MenuItem[] = [];
-  rightClickEvent: EventMountArg | null = null;
+  rightClickEvent: EventMountArg | null | undefined = null;
   firstSearchedEvent: EventInput | null = null;
   dirtyData: boolean = false;
   searchCourse: string = '';
@@ -106,15 +106,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       }
     );
   }
-
-  ngOnInit(): void{
-    this.items = [
-      { label: 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
-      { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
-      { label: 'add Group', icon: 'pi pi-file-edit', disabled: true },
-      { label: 'remove Group', icon: 'pi pi-file-edit', disabled: true },
-      { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
-    ]  }
 
   ngAfterViewInit(): void {
     this.draggable = new Draggable(this.external.nativeElement, {
@@ -194,13 +185,30 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   }
 
   getItemMenuOptions() : void {
+    this.items = [ { label: 'add Group', icon: 'pi pi-file-edit', disabled: true } ]
+
+    if(!this.rightClickEvent?.event.id){
+      return;
+    }
+
     const session = this.timeTable.courseSessions
       .find(s => s.id.toString() === this.rightClickEvent?.event.id);
+    const tmp = session!.name.slice(0, 2);
 
-    if(session && session.fixed){
-      this.items[0].label = 'free Course';
+    this.items.push(
+      { label: 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
+      { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
+    )
+
+    if(tmp == 'PS' || tmp == 'SL'){
+      this.items.push(
+        { label: 'add Group', icon: 'pi pi-file-edit', disabled: true },
+        { label: 'remove Group', icon: 'pi pi-file-edit', disabled: true }
+      )
     } else {
-      this.items[0].label = 'fix Course';
+      this.items.push(
+        { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
+      )
     }
   }
 
