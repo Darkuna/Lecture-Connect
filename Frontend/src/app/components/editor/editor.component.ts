@@ -3,7 +3,7 @@ import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} fr
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
-import {last, Observable} from "rxjs";
+import {Observable} from "rxjs";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
@@ -186,20 +186,19 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   getItemMenuOptions() : void {
-    this.items = [ { label: 'add new Course', icon: 'pi pi-file-edit', command:() => {this.addNewCourse()}}]
-
+    this.items = []
     if(!this.rightClickEvent?.event.id){
+      this.items.push({ label: 'nothing here :)', disabled: true});
       return;
     }
 
     const session = this.findSession()
-    const tmp = session!.name.slice(0, 2);
-
     this.items.push(
       { label: session!.fixed ? 'free Course' : 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
       { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
     )
 
+    const tmp = session!.name.slice(0, 2);
     if(tmp == 'PS' || tmp == 'SL'){
       this.items.push(
         { label: 'add Group', icon: 'pi pi-file-edit', command: ()=> { this.addCourseWithPsCharacter()} },
@@ -370,5 +369,9 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   private findSession():CourseSessionDTO | undefined{
     return this.timeTable.courseSessions.find(s => s.id.toString() === this.rightClickEvent!.event.id);
+  }
+
+  clearSelection(){
+    this.rightClickEvent = null;
   }
 }
