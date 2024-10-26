@@ -1,4 +1,4 @@
-import {Component, Input, signal, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, Output, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -25,6 +25,8 @@ import {LocalStorageService} from "ngx-webstorage";
 })
 export class BaseSelectionComponent{
   @Input() globalTable!: TmpTimeTable;
+  @Output() changeDirtyData: EventEmitter<boolean> = new EventEmitter<boolean>();
+
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   selectedRoom: Room | null = null;
 
@@ -222,6 +224,7 @@ export class BaseSelectionComponent{
   }
 
   sendToBackend() {
+    this.changeDirtyData.emit(false);
     this.globalTableService.pushTmpTableObject(this.convertGlobalTableItems())
       .then((message) => {
           this.localStorage.clear('tmptimetable');

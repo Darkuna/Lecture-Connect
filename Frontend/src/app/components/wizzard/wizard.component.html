@@ -91,7 +91,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-prevCallback="prevCallback">
-      <app-base-selection [globalTable]="selectedTable"/>
+      <app-base-selection [globalTable]="selectedTable" (changeDirtyData)="clearDirtyData()"/>
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
         <p-button [disabled]="true" icon="pi pi-arrow-right" class="NextButton"/>

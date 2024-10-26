@@ -57,10 +57,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
+
   changeCalendarView: boolean = false;
   calendarOptions :CalendarOptions = {
     plugins: [
@@ -257,7 +259,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
-      const tmpSub = this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
+      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
         next: (collision: CourseSessionDTO[]) => {
           if (collision.length === 0) {
             this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
@@ -271,10 +273,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
         }
       });
-      tmpSub.unsubscribe();
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
+
   }
 
   /**

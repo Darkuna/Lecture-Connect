@@ -168,10 +168,14 @@ export class WizardComponent {
   }
 
   get dirtyData(): boolean {
-    return this.active === 3 ? true : this._dirtyData;
+    return this._dirtyData;
   }
 
   set dirtyData(value: boolean) {
     this._dirtyData = value;
+  }
+
+  clearDirtyData(){
+    this.dirtyData = false;
   }
 }
