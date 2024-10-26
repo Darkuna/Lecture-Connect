@@ -181,11 +181,12 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
       this.rightClickEvent?.event.remove();
       this.nrOfEvents -= 1;
+      this.rightClickEvent = null;
     }
   }
 
   getItemMenuOptions() : void {
-    this.items = [ { label: 'add Group', icon: 'pi pi-file-edit', disabled: true } ]
+    this.items = [ { label: 'add new Course', icon: 'pi pi-file-edit', command:() => {this.addNewCourse()}}]
 
     if(!this.rightClickEvent?.event.id){
       return;
@@ -202,8 +203,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
     if(tmp == 'PS' || tmp == 'SL'){
       this.items.push(
-        { label: 'add Group', icon: 'pi pi-file-edit', disabled: true },
-        { label: 'remove Group', icon: 'pi pi-file-edit', disabled: true }
+        { label: 'add Group', icon: 'pi pi-file-edit', command: ()=> { this.addCourseWithPsCharacter()} },
+        { label: 'remove Group', icon: 'pi pi-file-edit', command: ()=> { this.removeCourseWithPsCharacter()} }
       )
     } else {
       this.items.push(
@@ -271,11 +272,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       this.rightClickEvent?.event.setProp('editable', session.fixed);
       session.fixed = !session.fixed
 
-      let color = '#666666';
-      if(session.fixed){
-        color = '#7a4444';
-      }
-
+      const color = session.fixed ? '#7a4444' : '#666666';
       this.rightClickEvent?.event.setProp('backgroundColor', color);
     }
   }
@@ -317,5 +314,23 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   unassignedCourses(){
     return this.dragTableEvents.length == 0;
+  }
+
+  addNewCourse(){
+
+  }
+
+  addCourseWithPsCharacter(){
+    const session = this.timeTable.courseSessions
+      .find(s => s.id.toString() === this.rightClickEvent!.event.id);
+
+    console.log(session);
+  }
+
+  removeCourseWithPsCharacter(){
+    const session = this.timeTable.courseSessions
+      .find(s => s.id.toString() === this.rightClickEvent!.event.id);
+
+    console.log(session);
   }
 }
