@@ -196,13 +196,13 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.items.push(
       { label: session!.fixed ? 'free Course' : 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
       { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
+      { label: 'remove Group', icon: 'pi pi-file-edit', command: ()=> { this.deleteCourse()} }
     )
 
     const tmp = session!.name.slice(0, 2);
     if(tmp == 'PS' || tmp == 'SL'){
       this.items.push(
-        { label: 'add Group', icon: 'pi pi-file-edit', command: ()=> { this.addCourseWithPsCharacter()} },
-        { label: 'remove Group', icon: 'pi pi-file-edit', command: ()=> { this.removeCourseWithPsCharacter()} }
+        { label: 'add Group', icon: 'pi pi-file-edit', command: ()=> { this.addCourseWithPsCharacter() } },
       )
     } else {
       this.items.push(
@@ -252,8 +252,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
-    const session = this.findSession()
-
+    const session = this.findSession();
     if(session){
       session!.roomTable = this.selectedRoom!;
       session!.assigned = assigned;
@@ -316,10 +315,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return this.dragTableEvents.length == 0;
   }
 
-  addNewCourse(){
-
-  }
-
   private addCourseWithPsCharacter(){
     const session = this.findSession();
 
@@ -334,10 +329,15 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     );
   }
 
-  private removeCourseWithPsCharacter(){
+  private deleteCourse(){
     const session = this.findSession();
-    const slicedName = session!.name.slice(0, session!.name.length-1);
-    const baseCourse = `${slicedName}${this.findStringWithBiggestNumber(slicedName)}`;
+    let baseCourse = session!.name;
+
+    if(baseCourse.slice(0, 2) === 'PS'){
+      const slicedName = session!.name.slice(0, session!.name.length-1);
+      baseCourse = `${slicedName}${this.findStringWithBiggestNumber(slicedName)}`;
+    }
+
     const deleteCourse = this.timeTable.courseSessions
       .find(s => s.name == baseCourse);
 
@@ -367,11 +367,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return parseInt(maxString!.slice(-1));
   }
 
-  private findSession():CourseSessionDTO | undefined{
+  private findSession():CourseSessionDTO|undefined {
     return this.timeTable.courseSessions.find(s => s.id.toString() === this.rightClickEvent!.event.id);
-  }
-
-  clearSelection(){
-    this.rightClickEvent = null;
   }
 }
