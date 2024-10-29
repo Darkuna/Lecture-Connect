@@ -2,7 +2,6 @@ package com.example.demo.controllers;
 
 import com.example.demo.dto.*;
 import com.example.demo.models.CourseSession;
-import com.example.demo.models.GlobalTableChange;
 import com.example.demo.models.TimeTable;
 import com.example.demo.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,7 +155,7 @@ public class GlobalViewController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping
+    @GetMapping("/changes")
     public ResponseEntity<List<GlobalTableChangeDTO>> getGlobalTableChanges() {
         List<GlobalTableChangeDTO> globalTableChanges = globalTableChangeService.loadAll().stream()
                 .map(dtoConverter::toGlobalTableChangeDTO)
