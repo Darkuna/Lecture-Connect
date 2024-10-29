@@ -219,12 +219,14 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.dirtyData = true;
   }
 
-  eventReceive(args: EventReceiveArg){
+  eventReceive(args: any){
+    this.rightClickEvent = args;
     this.updateSession(args.event, true);
     this.dirtyData = true;
   }
 
-  eventChange(args: EventChangeArg){
+  eventChange(args: any){
+    this.rightClickEvent = args;
     this.updateSession(args.event, true);
     this.dirtyData = true;
   }
