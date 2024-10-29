@@ -22,7 +22,7 @@ export class WizardComponent {
   currentDialog: InfoDialogInterface;
   InfoDialogOptions: InfoDialogInterface[];
 
-  dirtyData: boolean = true;
+  private _dirtyData: boolean = true;
 
   constructor(
     private shareService: TableShareService,
@@ -165,5 +165,17 @@ export class WizardComponent {
       return confirm('You have unsaved changes. Do you really want to leave?');
     }
     return true; // If no unsaved changes, allow navigation
+  }
+
+  get dirtyData(): boolean {
+    return this._dirtyData;
+  }
+
+  set dirtyData(value: boolean) {
+    this._dirtyData = value;
+  }
+
+  clearDirtyData(){
+    this.dirtyData = false;
   }
 }

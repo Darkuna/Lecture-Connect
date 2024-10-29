@@ -1,12 +1,7 @@
 import { Component } from '@angular/core';
-import {Observable} from "rxjs";
-import {TimeTableDTO} from "../../../../assets/Models/dto/time-table-dto";
-import {GlobalTableService} from "../../../services/global-table.service";
-import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
-import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
-import {Status} from "../../../../assets/Models/enums/status";
 import {Router} from "@angular/router";
+import {CourseUpdaterService} from "../../../services/course-updater.service";
 
 @Component({
   selector: 'app-course-selection-page',
@@ -14,19 +9,13 @@ import {Router} from "@angular/router";
   styleUrl: '../home.component.css'
 })
 export class CourseSelectionPageComponent {
-  currentTable: Observable<TimeTableDTO> | null;
-  selectedTable!: TmpTimeTable;
   currentPageIndex: number = 0;
 
   constructor(
-    private globalTableService: GlobalTableService,
-    private localStorage: LocalStorageService,
     private messageService: MessageService,
+    protected updaterService: CourseUpdaterService,
     private router: Router
   ) {
-    this.currentTable = this.globalTableService.currentTimeTable;
-    this.selectedTable = new TmpTimeTable();
-    this.selectedTable.status = Status.NEW;
   }
 
   updateData():void {
@@ -43,15 +32,8 @@ export class CourseSelectionPageComponent {
 
   }
 
-  saveLocal() {
-    this.selectedTable.currentPageIndex = this.currentPageIndex;
-    this.selectedTable.status = Status.LOCAL;
-    this.localStorage.store('tmptimetable', this.selectedTable);
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Info',
-      detail: 'The Table is only cached locally'
-    });
+  saveGlobal() {
+
   }
 
   getColorBasedOnIndex(type: string, index: number): string {
@@ -74,23 +56,6 @@ export class CourseSelectionPageComponent {
       }
     } else {
       return '#070707';
-    }
-  }
-
-  getTextFromEnum(): string {
-    switch (this.selectedTable.status) {
-      case Status.NEW:
-        return "NEW";
-      case Status.EDITED:
-        return "EDITED";
-      case Status.FINISHED:
-        return "FINISHED";
-      case Status.IN_WORK:
-        return "IN WORK";
-      case Status.LOCAL:
-        return "LOCAL SAVE";
-      default:
-        return "DEFAULT";
     }
   }
 }

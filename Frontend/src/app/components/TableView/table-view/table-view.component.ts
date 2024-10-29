@@ -25,7 +25,7 @@ export class TableViewComponent implements OnInit, OnDestroy{
   constructor(
     private cd: ChangeDetectorRef,
     public loadingService: LoaderService,
-  private messageService: MessageService,
+    private messageService: MessageService,
     private tableService: GlobalTableService,
     private confirmationService: ConfirmationService,
   ) {
@@ -59,12 +59,12 @@ export class TableViewComponent implements OnInit, OnDestroy{
   }
 
 
-  deleteSingleItem() {
+  deleteSingleItem(table: TimeTableNames) {
     this.confirmationService.confirm({
       header: 'Are you sure?',
       message: 'Please confirm to proceed.',
       accept: () => {
-        //TODO call api to delete single table
+        this.tableService.deleteTable(table.id).subscribe();
         this.messageService.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
       },
       reject: () => {

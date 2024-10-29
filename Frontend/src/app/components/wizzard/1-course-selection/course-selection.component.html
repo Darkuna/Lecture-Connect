@@ -11,7 +11,7 @@
     </div>
 
     <p-table class="tableOnTop"
-             #dtL dataKey="id"
+             #dtL dataKey="id" [sortOrder]="-1"
              [value]="availableCourses"
              [columns]="headers"
              [rows]="15"

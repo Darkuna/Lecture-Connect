@@ -35,7 +35,7 @@ export class RoomSelectionComponent implements OnDestroy {
     this.headers = [
       {field: 'id', header: 'Id'},
       {field: 'capacity', header: 'Capacity'},
-      {field: 'computersAvailable', header: 'Room has PCs'},
+      {field: 'isComputersAvailable', header: 'Room has PCs'},
     ];
   }
 

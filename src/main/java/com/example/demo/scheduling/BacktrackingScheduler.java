@@ -60,8 +60,6 @@ public class BacktrackingScheduler implements Scheduler {
         availabilityMatricesOfRoomsWithComputers = new ArrayList<>();
         availabilityMatricesOfRoomsWithoutComputers = new ArrayList<>();
         allAvailabilityMatrices = new ArrayList<>();
-        courseSessionsWithoutComputersNeeded = new ArrayList<>();
-        courseSessionsWithComputersNeeded = new ArrayList<>();
         for(RoomTable roomTable : timeTable.getRoomTablesWithComputersAvailable()){
             AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(roomTable);
             availabilityMatricesOfRoomsWithComputers.add(availabilityMatrix);

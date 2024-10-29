@@ -13,8 +13,8 @@
     </ng-template>
   </p-toolbar>
   <p-table
-    #dt dataKey="id"
-    [value]="globalTable!"
+    #dt dataKey="id" [sortOrder]="-1"
+    [value]="courses!"
     [rows]="15"
     [columns]="headers"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
