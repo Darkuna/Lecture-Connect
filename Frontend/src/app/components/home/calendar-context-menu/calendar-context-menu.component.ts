@@ -187,7 +187,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
       },
       {
         label: 'Semester Filter',
-        icon: 'pi pi-filter-fill',
+        icon: 'pi pi-flag',
         items: [
           ...Array.from({ length: 6 }, (_, i) => ({
             label: (i + 1).toString(),
@@ -197,7 +197,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
       },
       {
         label: 'Study Type Filter',
-        icon: 'pi pi-filter-fill',
+        icon: 'pi pi-flag-fill',
         items: [
           ...Object.values(StudyType)
             .map(value => ({
