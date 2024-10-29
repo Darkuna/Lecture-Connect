@@ -62,7 +62,7 @@
     </p-toolbar>
   </div>
 
-  <div id="div3">
+  <div id="div3" (click)="onCalendarClick($event)">
     <full-calendar #calendar [options]='calendarOptions' [events]="combinedTableEvents | async"/>
   </div>
 </div>

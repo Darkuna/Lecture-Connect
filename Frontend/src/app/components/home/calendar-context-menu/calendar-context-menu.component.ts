@@ -61,13 +61,11 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   closeDialog(): void {
     this.showHoverDialogBool = false;
 
-    // Setze Hintergrundfarbe zurück, falls ein Event aktiv ist
     if (this.hoverEventInfo) {
       this.hoverEventInfo.event.setProp("backgroundColor", '#666666');
     }
     this.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
 
-    // Zurücksetzen der Event-Informationen
     this.hoverEventInfo = null;
     this.tmpPartners = [];
   }

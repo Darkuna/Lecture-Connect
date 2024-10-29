@@ -230,6 +230,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     }
   }
 
+  onCalendarClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+
+    if (!target.closest('.fc-event')) {
+      this.calendarContextMenu.closeDialog();
+    }
+  }
+
   removeAll(){
     if(this.shownTableDD){
       this.confirmationService.confirm(
@@ -353,29 +361,18 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   showHoverDialog(event: EventClickArg): void {
-    // Zuvor gesetzte Events zurücksetzen
     if (this.calendarContextMenu.hoverEventInfo) {
       this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", '#666666');
     }
     this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
 
-    // Setze neue Event-Informationen
     this.calendarContextMenu.hoverEventInfo = event;
     this.calendarContextMenu.activateLens = true;
     this.calendarContextMenu.showHoverDialogBool = true;
 
-    // Ändere das Hintergrundfarbe des geklickten Events und seiner Partner
     this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
     event.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
-  }
 
-
-
-  hideHoverDialog():void{
-    this.calendarContextMenu.showHoverDialogBool = false;
-
-
-    this.calendarContextMenu.hoverEventInfo = null;
   }
 
   updateCalendar(calendarOption: any, value: string) {
