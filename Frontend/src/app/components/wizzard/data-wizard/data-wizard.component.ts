@@ -1,4 +1,4 @@
-import {Component, Input, Output} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../../services/table-share.service";
@@ -16,13 +16,16 @@ import {RoomService} from "../../../services/room-service";
 export class DataWizardComponent{
   tmpTimeTable: TmpTimeTable;
   @Input() allCourses: Course[] = [];
-  @Output() initialCourses: Course[] = [];
-  @Output() initialRooms: Room[] = [];
+
+  initialCourses: Course[] = [];
+  initialRooms: Room[] = [];
 
   userHasInteracted: boolean = false;
   userHasInteractedSemester: boolean = false;
+  userHasInteractedRoom: boolean = false;
   filterDataVar: boolean = true;
   filterSemesterVar: boolean = true;
+  filterRoomVar: boolean = false;
   filterStudyType: [string|null, string|null, string|null] = [null, null, null];
   showIndex: number = 0;
 
@@ -102,6 +105,8 @@ export class DataWizardComponent{
  }
 
  addRooms(option: boolean){
+   this.filterRoomVar = true;
+   this.userHasInteractedRoom = true;
    if(option){
      this.roomService.getAllRooms().subscribe(
        ((data:Room[]) => this.initialRooms = data)

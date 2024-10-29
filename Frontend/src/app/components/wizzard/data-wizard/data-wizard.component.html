@@ -63,14 +63,15 @@
     <h4>Do you want to include all Rooms?</h4>
     <button pButton [label]="'yes'"
             [style]="{'margin-top': '.5rem', width: '16rem',
-                      'background-color': filterDataVar && userHasInteracted ? '#889A3E' : '#81A1C1',
-                      'border-color': filterDataVar && userHasInteracted ? '#889A3E' : '#81A1C1'}"
+                      'background-color': filterRoomVar && userHasInteracted ? '#889A3E' : '#81A1C1',
+                      'border-color': filterRoomVar && userHasInteracted ? '#889A3E' : '#81A1C1'}"
             (click)="addRooms(true)">
     </button>
     <button pButton
             [label]="'no'"
-            [style]="{'margin-top': '.5rem', width: '14rem'}"
-            (click)="addRooms(false)">
+            [style]="{'margin-top': '.5rem', width: '16rem',
+                      'background-color': !filterRoomVar && userHasInteractedRoom ? '#889A3E' : '#81A1C1',
+                      'border-color': !filterRoomVar && userHasInteractedRoom ? '#889A3E' : '#81A1C1'}"            (click)="addRooms(false)">
     </button>
   </div>
 
