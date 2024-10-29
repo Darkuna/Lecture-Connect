@@ -4,7 +4,7 @@ import {FullCalendarComponent} from "@fullcalendar/angular";
 import {EventClickArg} from "@fullcalendar/core";
 import {CourseSessionDTO} from "../../../../assets/Models/dto/course-session-dto";
 import {EventImpl} from "@fullcalendar/core/internal";
-import {StudyType} from "../../../../assets/Models/enums/study-type";
+import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
 
 @Injectable()
 @Component({
@@ -199,9 +199,9 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
         label: 'Study Type Filter',
         icon: 'pi pi-flag-fill',
         items: [
-          ...Object.values(StudyType)
+          ...getDegreeOptions()
             .map(value => ({
-              label: value.toString(),
+              label: value,
               command: () => this.renderStudyType(value.toString())
             }))
         ]
