@@ -134,7 +134,6 @@ public class TimeTableService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void removeRoomTable(TimeTable timeTable, RoomTable roomTable){
-        timeTable.removeRoomTable(roomTable);
         log.info("Removed roomTable with id {} from timeTable {}", roomTable.getId(), timeTable.getId());
         roomTableService.deleteRoomTable(roomTable);
     }
@@ -148,7 +147,6 @@ public class TimeTableService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void removeCourseSession(TimeTable timeTable, CourseSession courseSession){
-        timeTable.removeCourseSession(courseSession);
         log.info("Removed courseSession with id {} from timeTable {}", courseSession.getId(), timeTable.getId());
         courseSessionService.deleteCourseSession(courseSession);
     }
@@ -180,14 +178,13 @@ public class TimeTableService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteTimeTable(TimeTable timeTable){
+        unassignAllCourseSessions(timeTable);
         for(CourseSession courseSession : timeTable.getCourseSessions()){
             removeCourseSession(timeTable, courseSession);
-            courseSessionService.deleteCourseSession(courseSession);
         }
 
         for(RoomTable roomTable : timeTable.getRoomTables()){
             removeRoomTable(timeTable, roomTable);
-            roomTableService.deleteRoomTable(roomTable);
         }
         timeTableRepository.delete(timeTable);
     }

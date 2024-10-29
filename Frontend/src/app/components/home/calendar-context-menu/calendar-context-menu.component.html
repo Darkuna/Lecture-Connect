@@ -1,10 +1,14 @@
-<p-contextMenu [global]="true" [model]="contextItems" (onShow)="getItemMenuOptions()"/>
+<p-contextMenu [global]="true" [model]="contextItems"></p-contextMenu>
 
-<p-dialog [(visible)]="showHoverDialogBool && activateLens" header="{{hoverEventInfo?.event!.title}}"
-          [modal]="false" [closable]="false"
-          [style]="{ width: '30rem','position':'absolute',
-          'top.px': calculateDialogPosition(hoverEventInfo?.jsEvent!.clientY, screen.height),
-          'left.px': calculateDialogPosition(hoverEventInfo?.jsEvent!.clientX, screen.width)}">
+<p-dialog [(visible)]="showHoverDialogBool && activateLens"
+          header="{{hoverEventInfo?.event!.title}}"
+          [modal]="false"
+          [closable]="true"
+          (onHide)="closeDialog()"
+          [style]="{ width: '30rem' }"
+          [draggable]="true"
+          [baseZIndex]="1000"
+          [focusOnShow]="false">
   <ng-template pTemplate="content" class="parent">
     <div id="cssportal-grid">
       <div id="startTime">

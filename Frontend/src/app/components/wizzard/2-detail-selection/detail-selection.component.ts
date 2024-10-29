@@ -7,7 +7,7 @@ import {Course} from "../../../../assets/Models/course";
   styleUrl: '../wizard.component.css'
 })
 export class DetailSelectionComponent {
-  @Input() globalTable!: Course[];
+  @Input() courses!: Course[];
   showEditDialog: boolean = false;
   headers: any[];
   selectedCourse!: Course;
