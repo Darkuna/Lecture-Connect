@@ -95,7 +95,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     slotEventOverlap: true,
     nowIndicator: false,
     eventClick: this.showHoverDialog.bind(this),
-    eventMouseLeave: this.hideHoverDialog.bind(this),
   };
 
   constructor(
@@ -353,22 +352,29 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     }
   }
 
-  showHoverDialog(event: EventClickArg):void{
-    if(this.calendarContextMenu.activateLens){
-      this.calendarContextMenu.showHoverDialogBool = true;
-      this.calendarContextMenu.hoverEventInfo = event;
-      this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
-      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
+  showHoverDialog(event: EventClickArg): void {
+    // Zuvor gesetzte Events zurücksetzen
+    if (this.calendarContextMenu.hoverEventInfo) {
+      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", '#666666');
     }
+    this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
+
+    // Setze neue Event-Informationen
+    this.calendarContextMenu.hoverEventInfo = event;
+    this.calendarContextMenu.activateLens = true;
+    this.calendarContextMenu.showHoverDialogBool = true;
+
+    // Ändere das Hintergrundfarbe des geklickten Events und seiner Partner
+    this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
+    event.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
   }
+
+
 
   hideHoverDialog():void{
     this.calendarContextMenu.showHoverDialogBool = false;
 
-    if(this.calendarContextMenu.hoverEventInfo){
-      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", '#666666');
-      this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
-    }
+
     this.calendarContextMenu.hoverEventInfo = null;
   }
 
