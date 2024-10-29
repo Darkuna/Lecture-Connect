@@ -30,7 +30,6 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import {RoomUpdaterService} from "../../services/room-updater.service";
 
 @Component({
   selector: 'app-home',
@@ -48,10 +47,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
-  responsiveOptions: any[] | undefined;
-  items: MenuItem[] = [];
   showNewTableDialog: boolean = false;
-  position: any = 'topleft';
+  items: MenuItem[] = [];
 
   lastSearchedEvent: EventImpl | null = null;
   firstSearchedEvent: EventImpl | null = null;
@@ -93,7 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     slotMaxTime: this.formatTime(this.tmpEndDate),
     slotDuration: this.formatTime(this.tmpDuration),
     slotLabelInterval: this.formatTime(this.tmpSlotInterval),
-    dayHeaderFormat: {weekday: 'long'},
+    dayHeaderFormat: {weekday: 'short'},
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
@@ -110,7 +107,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private cd: ChangeDetectorRef,
-    private roomUpdater: RoomUpdaterService,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -414,24 +410,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   ngOnInit() {
-    this.responsiveOptions = [
-      {
-        breakpoint: '1199px',
-        numVisible: 1,
-        numScroll: 1
-      },
-      {
-        breakpoint: '991px',
-        numVisible: 2,
-        numScroll: 1
-      },
-      {
-        breakpoint: '767px',
-        numVisible: 1,
-        numScroll: 1
-      }
-    ];
-
     this.items = [
       {
         label: 'Editor',
@@ -449,20 +427,20 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
             command: () => this.applyAlgorithm(),
           },
           {
-            label: 'Remove all',
+            label: 'Remove All',
             icon: 'pi pi-delete-left',
             command: () => this.removeAll()
-          },
-          {
-            label: 'Remove collisions',
-            icon: 'pi pi-delete-left',
-            command: () => this.removeCollisions()
           },
           {
             label: 'Collision Check',
             icon: 'pi pi-check-circle',
             command: () => this.applyCollisionCheck()
-          }
+          },
+          {
+            label: 'Remove Collisions',
+            icon: 'pi pi-eraser',
+            command: () => this.removeCollisions()
+          },
         ]
       },
       {
@@ -486,10 +464,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
         label: 'Scheduling',
         items: [
           {
-            label: 'define Status',
-            icon: 'pi pi-check-square',
-          },
-          {
             label: 'last Changes',
             icon: 'pi pi-comments',
             command: () => {
@@ -502,12 +476,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
         label: 'Print',
         items: [
           {
-            label: 'Export Plan (all)',
+            label: 'Export Plan (Current)',
             icon: 'pi pi-folder-open',
             command: () => this.exportCalendarAsPDF()
           },
           {
-            label: 'Export Plan (each)',
+            label: 'Export Plan (Rooms)',
             icon: 'pi pi-folder',
             command: () => {
               this.messageService.add({severity: 'error', summary: 'OFFLINE', detail: 'method not implemented'})
