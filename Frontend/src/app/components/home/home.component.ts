@@ -90,7 +90,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     slotMaxTime: this.formatTime(this.tmpEndDate),
     slotDuration: this.formatTime(this.tmpDuration),
     slotLabelInterval: this.formatTime(this.tmpSlotInterval),
-    dayHeaderFormat: {weekday: 'short'},
+    dayHeaderFormat: {weekday: 'long'},
     eventOverlap: true,
     slotEventOverlap: true,
     nowIndicator: false,
@@ -110,7 +110,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
         this.availableTables = data;
-        this.shownTableDD = this.availableTables[0];
+        this.shownTableDD = this.availableTables
+          .find(t => t.id === this.globalTableService.tableId) ??  this.availableTables[0];
 
         this.loadSpecificTable();
       }
@@ -162,7 +163,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   loadSpecificTable() {
-    console.log('load');
     if(!this.shownTableDD!.id){
       return;
     }

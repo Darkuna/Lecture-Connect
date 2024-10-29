@@ -160,6 +160,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   saveAndGoHome(){
     this.saveChanges();
+    this.globalTableService.tableId = this.timeTable.id;
 
     this.router.navigate(['/user/home']).catch(message => {
       this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
