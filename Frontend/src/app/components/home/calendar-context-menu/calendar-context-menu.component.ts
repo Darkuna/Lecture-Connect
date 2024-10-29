@@ -58,9 +58,21 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     newItems.forEach(e => e.setProp('display', 'none'));
   }
 
-  calculateDialogPosition(coordinate:number, screenMax:number){
-    return Math.min(coordinate, screenMax*0.65);
+  closeDialog(): void {
+    this.showHoverDialogBool = false;
+
+    // Setze Hintergrundfarbe zurück, falls ein Event aktiv ist
+    if (this.hoverEventInfo) {
+      this.hoverEventInfo.event.setProp("backgroundColor", '#666666');
+    }
+    this.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
+
+    // Zurücksetzen der Event-Informationen
+    this.hoverEventInfo = null;
+    this.tmpPartners = [];
   }
+
+
 
   showAllEvents(){
     this.tmpRenderSelection.forEach(e => {
