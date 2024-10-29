@@ -39,7 +39,7 @@ export class GlobalTableService {
   getSpecificTimeTable(id: number):Observable<TimeTableDTO> {
     const newUrl = `${GlobalTableService.API_PATH}/${id}`;
     this.currentTimeTable = this.http.get<TimeTableDTO>(newUrl, this.httpOptions)
-    this.currentTimeTable.subscribe(r => this.tableId = r.id);
+    //this.currentTimeTable.subscribe(r => this.tableId = r.id);
     return this.currentTimeTable;
   }
 

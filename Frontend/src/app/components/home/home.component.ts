@@ -110,13 +110,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
         this.availableTables = data;
-
-        if(this.globalTableService.currentTimeTable !== null){
-          this.shownTableDD = this.availableTables
-            .find(t => t.id === this.globalTableService.tableId) ?? this.availableTables[0];
-        } else {
-          this.shownTableDD = this.availableTables[0];
-        }
+        this.shownTableDD = this.availableTables[0];
 
         this.loadSpecificTable();
       }
@@ -152,7 +146,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   updateCalendarEvents(){
     this.clearCalendar();
 
-    this.selectedTableSub = this.selectedTimeTable$!.subscribe((timeTable: TimeTableDTO) => {
+    this.selectedTimeTable$!.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput('home'),
@@ -168,6 +162,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   loadSpecificTable() {
+    console.log('load');
     if(!this.shownTableDD!.id){
       return;
     }

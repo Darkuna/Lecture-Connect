@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
-import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
+import {CalendarOptions, EventApi, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -8,7 +8,7 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
-import interactionPlugin, {Draggable, DropArg, EventReceiveArg} from "@fullcalendar/interaction";
+import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {MenuItem, MessageService} from "primeng/api";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
@@ -156,8 +156,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.dirtyData = false;
     this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions)
       .subscribe(s => this.timeTable.courseSessions = s);
-
-    this.globalTableService.getSpecificTimeTable(this.timeTable.id);
   }
 
   saveAndGoHome(){
@@ -319,15 +317,23 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   private addCourseWithPsCharacter(){
     const session = this.findSession();
-
     const slicedName = session!.name.slice(0, session!.name.length-1);
     const lastNumber = this.findStringWithBiggestNumber(slicedName);
 
-    session!.name = `${slicedName} ${lastNumber + 1}`;
-    session!.id = 420;
+    let newSession = {
+      id: session!.id = Math.floor(Math.random() * 10000000),
+      name: `${slicedName} ${lastNumber + 1}`,
+      assigned: false,
+      fixed: false,
+      duration: session?.duration,
+      semester: session?.semester,
+      studyType: session?.studyType,
+      timingConstraints: session?.timingConstraints,
+      roomTable: null
+    } as CourseSessionDTO;
 
     this.dragTableEvents.push(
-      this.converter.convertTimingToEventInput(session!, "editor")
+      this.converter.convertTimingToEventInput(newSession, "editor")
     );
   }
 
