@@ -1,5 +1,5 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
+import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
+import {CalendarOptions, EventApi, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
@@ -8,7 +8,7 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
-import interactionPlugin, {Draggable, DropArg, EventReceiveArg} from "@fullcalendar/interaction";
+import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {MenuItem, MessageService} from "primeng/api";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
@@ -22,7 +22,7 @@ import {ContextMenu} from "primeng/contextmenu";
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.css'
 })
-export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
+export class EditorComponent implements AfterViewInit, OnDestroy{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('external') external!: ElementRef;
   @ViewChild('cm') contextMenu!: ContextMenu;
@@ -84,7 +84,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   maxEvents: number = 0;
 
   items: MenuItem[] = [];
-  rightClickEvent: EventMountArg | null = null;
+  rightClickEvent: EventMountArg | null | undefined = null;
   firstSearchedEvent: EventInput | null = null;
   dirtyData: boolean = false;
   searchCourse: string = '';
@@ -106,15 +106,6 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       }
     );
   }
-
-  ngOnInit(): void{
-    this.items = [
-      { label: 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
-      { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
-      { label: 'add Group', icon: 'pi pi-file-edit', disabled: true },
-      { label: 'remove Group', icon: 'pi pi-file-edit', disabled: true },
-      { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
-    ]  }
 
   ngAfterViewInit(): void {
     this.draggable = new Draggable(this.external.nativeElement, {
@@ -165,12 +156,11 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     this.dirtyData = false;
     this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions)
       .subscribe(s => this.timeTable.courseSessions = s);
-
-    this.globalTableService.getSpecificTimeTable(this.timeTable.id);
   }
 
   saveAndGoHome(){
     this.saveChanges();
+    this.globalTableService.tableId = this.timeTable.id;
 
     this.router.navigate(['/user/home']).catch(message => {
       this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
@@ -190,17 +180,33 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
       this.rightClickEvent?.event.remove();
       this.nrOfEvents -= 1;
+      this.rightClickEvent = null;
     }
   }
 
   getItemMenuOptions() : void {
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.rightClickEvent?.event.id);
+    this.items = []
+    if(!this.rightClickEvent?.event.id){
+      this.items.push({ label: 'nothing here :)', disabled: true});
+      return;
+    }
 
-    if(session && session.fixed){
-      this.items[0].label = 'free Course';
+    const session = this.findSession()
+    this.items.push(
+      { label: session!.fixed ? 'free Course' : 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
+      { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
+      { label: 'remove Group', icon: 'pi pi-file-edit', command: ()=> { this.deleteCourse()} }
+    )
+
+    const tmp = session!.name.slice(0, 2);
+    if(tmp == 'PS' || tmp == 'SL'){
+      this.items.push(
+        { label: 'add Group', icon: 'pi pi-file-edit', command: ()=> { this.addCourseWithPsCharacter() } },
+      )
     } else {
-      this.items[0].label = 'fix Course';
+      this.items.push(
+        { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
+      )
     }
   }
 
@@ -212,12 +218,14 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     this.dirtyData = true;
   }
 
-  eventReceive(args: EventReceiveArg){
+  eventReceive(args: any){
+    this.rightClickEvent = args;
     this.updateSession(args.event, true);
     this.dirtyData = true;
   }
 
-  eventChange(args: EventChangeArg){
+  eventChange(args: any){
+    this.rightClickEvent = args;
     this.updateSession(args.event, true);
     this.dirtyData = true;
   }
@@ -229,18 +237,23 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     })
   }
 
-  eventAllow(args: any):boolean{
-    return args.start.getHours() > 7 && args.end.getHours() < 23;
+  eventAllow(args: any): boolean {
+    const startHour = args.start.getHours();
+    const startMinutes = args.start.getMinutes();
+
+    const isBefore815AM = startHour < 8 || (startHour === 8 && startMinutes < 15);
+    const isAfter10PM = args.end.getHours() >= 22;
+
+    return !isBefore815AM && !isAfter10PM;
   }
+
 
   private updateAllEventsList(newSessionID: string, roomTable: string | null){
     this.allEvents.find(e => e['id'] === newSessionID)!['description'] = roomTable;
   }
 
   private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === event.id);
-
+    const session = this.findSession();
     if(session){
       session!.roomTable = this.selectedRoom!;
       session!.assigned = assigned;
@@ -252,22 +265,17 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       const room = assigned ? this.selectedRoom?.roomId! : null;
       this.updateAllEventsList(session.id.toString(), room);
     }
-    return session ;
+    return session;
   }
 
   changeSessionBlockState(){
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.rightClickEvent?.event.id);
+    const session = this.findSession()
 
     if(session){
       this.rightClickEvent?.event.setProp('editable', session.fixed);
       session.fixed = !session.fixed
 
-      let color = '#666666';
-      if(session.fixed){
-        color = '#7a4444';
-      }
-
+      const color = session.fixed ? '#7a4444' : '#666666';
       this.rightClickEvent?.event.setProp('backgroundColor', color);
     }
   }
@@ -289,19 +297,16 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     if (this.dirtyData) {
       return confirm('You have unsaved changes. Do you really want to leave?');
     }
-    return true; // If no unsaved changes, allow navigation
+    return true;
   }
 
 
-  // Filtered events based on search term
   get filteredEvents() {
     if (!this.searchCourse) {
-      return this.dragTableEvents;  // Return all events if there's no search term
+      return this.dragTableEvents;
     }
 
     const lowerSearchTerm = this.searchCourse.toLowerCase();
-
-    // Filter events where the title matches the search term
     return this.dragTableEvents.filter(event =>
       event.title!.toLowerCase().includes(lowerSearchTerm)
     );
@@ -309,5 +314,69 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   unassignedCourses(){
     return this.dragTableEvents.length == 0;
+  }
+
+  private addCourseWithPsCharacter(){
+    const session = this.findSession();
+    const slicedName = session!.name.slice(0, session!.name.length-1);
+    const lastNumber = this.findStringWithBiggestNumber(slicedName);
+
+    let newSession = {
+      id: session!.id = Math.floor(Math.random() * 10000000),
+      name: `${slicedName} ${lastNumber + 1}`,
+      assigned: false,
+      fixed: false,
+      duration: session?.duration,
+      semester: session?.semester,
+      studyType: session?.studyType,
+      timingConstraints: session?.timingConstraints,
+      roomTable: null
+    } as CourseSessionDTO;
+
+    this.dragTableEvents.push(
+      this.converter.convertTimingToEventInput(newSession, "editor")
+    );
+  }
+
+  private deleteCourse(){
+    const session = this.findSession();
+    let baseCourse = session!.name;
+
+    if(baseCourse.slice(0, 2) === 'PS'){
+      const slicedName = session!.name.slice(0, session!.name.length-1);
+      baseCourse = `${slicedName}${this.findStringWithBiggestNumber(slicedName)}`;
+    }
+
+    const deleteCourse = this.timeTable.courseSessions
+      .find(s => s.name == baseCourse);
+
+    this.timeTable.courseSessions = this.timeTable.courseSessions
+      .filter(s => !s.name.includes(baseCourse));
+
+    this.calendarComponent.getApi().getEventById(deleteCourse!.id.toString())?.remove();
+    this.messageService.add({severity: 'error', summary: 'DELETE', detail: `deleted ${baseCourse}`});
+  }
+
+  private findStringWithBiggestNumber(baseCourse: string): number {
+    const allCourses = this.timeTable.courseSessions
+      .filter(str => str.name.includes(baseCourse));
+
+    let maxString = null;
+    let maxNumber = -Infinity;
+
+    for (const str of allCourses) {
+      const number = parseInt(str.name.slice(-1), 10);
+
+      if (!isNaN(number) && number > maxNumber) {
+        maxNumber = number;
+        maxString = str.name;
+      }
+    }
+
+    return parseInt(maxString!.slice(-1));
+  }
+
+  private findSession():CourseSessionDTO|undefined {
+    return this.timeTable.courseSessions.find(s => s.id.toString() === this.rightClickEvent!.event.id);
   }
 }

@@ -38,16 +38,9 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
   ) { }
 
   ngAfterViewInit(): void {
-    if(this.wizardMode){
-      this.courseSub = this.courseService.getAllCourses().subscribe(
-        (data => this.availableCourses = data)
-      );
-
-    } else {
-      this.courseSub = this.courseService.getUnselectedCourses().subscribe(
-        (data => this.availableCourses = data)
-      );
-    }
+    this.courseSub = (this.wizardMode ?
+      this.courseService.getAllCourses() : this.courseService.getUnselectedCourses())
+      .subscribe((data:Course[]) => this.availableCourses = data);
   }
 
   ngOnDestroy(): void {

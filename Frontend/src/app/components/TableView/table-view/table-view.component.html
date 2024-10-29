@@ -39,7 +39,7 @@
           {{ rowData[col.field] }}
         </td>
         <td style="width: 5%">
-          <p-button pButton pRipple icon="pi pi-trash" severity="danger" (click)="deleteSingleItem()"/>
+          <p-button pButton pRipple icon="pi pi-trash" severity="danger" (click)="deleteSingleItem(rowData)"/>
         </td>
       </tr>
     </ng-template>

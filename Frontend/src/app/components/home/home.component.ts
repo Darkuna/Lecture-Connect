@@ -42,14 +42,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   shownTableDD: TimeTableNames | null = null;
 
   creationTable!: TmpTimeTable;
-  selectedTimeTable: Observable<TimeTableDTO> | null = null;
+  selectedTimeTable$: Observable<TimeTableDTO> | null = null;
+  selectedTableSub: Subscription | null = null;
   private combinedTableEventsSubject: BehaviorSubject<EventInput[]> = new BehaviorSubject<EventInput[]>([]);
   combinedTableEvents: Observable<EventInput[]> = this.combinedTableEventsSubject.asObservable();
 
-  responsiveOptions: any[] | undefined;
-  items: MenuItem[] = [];
   showNewTableDialog: boolean = false;
-  position: any = 'topleft';
+  items: MenuItem[] = [];
 
   lastSearchedEvent: EventImpl | null = null;
   firstSearchedEvent: EventImpl | null = null;
@@ -57,10 +56,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
+
   changeCalendarView: boolean = false;
   calendarOptions :CalendarOptions = {
     plugins: [
@@ -94,7 +95,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     slotEventOverlap: true,
     nowIndicator: false,
     eventClick: this.showHoverDialog.bind(this),
-    eventMouseLeave: this.hideHoverDialog.bind(this),
   };
 
   constructor(
@@ -105,18 +105,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
-    private cd: ChangeDetectorRef
+    private cd: ChangeDetectorRef,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
         this.availableTables = data;
-
-        if(this.globalTableService.currentTimeTable !== null){
-          this.shownTableDD = this.availableTables
-            .find(t => t.id === this.globalTableService.tableId) ?? this.availableTables[0];
-        } else {
-          this.shownTableDD = this.availableTables[0];
-        }
+        this.shownTableDD = this.availableTables
+          .find(t => t.id === this.globalTableService.tableId) ??  this.availableTables[0];
 
         this.loadSpecificTable();
       }
@@ -129,7 +124,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   ngOnDestroy(): void {
     this.availableTableSubs.unsubscribe();
-
+    this.selectedTableSub?.unsubscribe();
   }
 
   ngAfterViewChecked() {
@@ -152,7 +147,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   updateCalendarEvents(){
     this.clearCalendar();
 
-    this.selectedTimeTable!.subscribe((timeTable: TimeTableDTO) => {
+    this.selectedTimeTable$!.subscribe((timeTable: TimeTableDTO) => {
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput('home'),
@@ -172,14 +167,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       return;
     }
 
-    this.selectedTimeTable = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
+    this.selectedTimeTable$ = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
     this.updateCalendarEvents();
   }
 
   unselectTable(){
     this.globalTableService.unselectTable();
     this.shownTableDD = null;
-    this.selectedTimeTable = null;
+    this.selectedTimeTable$ = null;
 
     this.clearCalendar();
   }
@@ -221,12 +216,20 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   applyAlgorithm(){
     if(this.shownTableDD){
-      this.selectedTimeTable = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
+      this.selectedTimeTable$ = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
       this.updateCalendarEvents();
 
       this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
+    }
+  }
+
+  onCalendarClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+
+    if (!target.closest('.fc-event')) {
+      this.calendarContextMenu.closeDialog();
     }
   }
 
@@ -240,7 +243,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           acceptIcon:"none",
           rejectIcon:"none",
           accept: () => {
-            this.selectedTimeTable = this.globalTableService.removeAll(this.shownTableDD!.id);
+            this.selectedTimeTable$ = this.globalTableService.removeAll(this.shownTableDD!.id);
             this.updateCalendarEvents();
 
             this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
@@ -257,14 +260,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   removeCollisions(){
     if (this.shownTableDD) {
-      this.selectedTimeTable = this.globalTableService.removeCollisions(this.shownTableDD.id);
+      this.selectedTimeTable$ = this.globalTableService.removeCollisions(this.shownTableDD.id);
       this.updateCalendarEvents();
     }
   }
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
-      const tmpSub = this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
+      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
         next: (collision: CourseSessionDTO[]) => {
           if (collision.length === 0) {
             this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
@@ -281,6 +284,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
+
   }
 
   /**
@@ -351,23 +355,19 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     }
   }
 
-  showHoverDialog(event: EventClickArg):void{
-    if(this.calendarContextMenu.activateLens){
-      this.calendarContextMenu.showHoverDialogBool = true;
-      this.calendarContextMenu.hoverEventInfo = event;
-      this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
-      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
-    }
-  }
-
-  hideHoverDialog():void{
-    this.calendarContextMenu.showHoverDialogBool = false;
-
-    if(this.calendarContextMenu.hoverEventInfo){
+  showHoverDialog(event: EventClickArg): void {
+    if (this.calendarContextMenu.hoverEventInfo) {
       this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", '#666666');
-      this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
     }
-    this.calendarContextMenu.hoverEventInfo = null;
+    this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
+
+    this.calendarContextMenu.hoverEventInfo = event;
+    this.calendarContextMenu.activateLens = true;
+    this.calendarContextMenu.showHoverDialogBool = true;
+
+    this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
+    event.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
+
   }
 
   updateCalendar(calendarOption: any, value: string) {
@@ -408,24 +408,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   ngOnInit() {
-    this.responsiveOptions = [
-      {
-        breakpoint: '1199px',
-        numVisible: 1,
-        numScroll: 1
-      },
-      {
-        breakpoint: '991px',
-        numVisible: 2,
-        numScroll: 1
-      },
-      {
-        breakpoint: '767px',
-        numVisible: 1,
-        numScroll: 1
-      }
-    ];
-
     this.items = [
       {
         label: 'Editor',
@@ -443,35 +425,19 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
             command: () => this.applyAlgorithm(),
           },
           {
-            label: 'Remove all',
+            label: 'Remove All',
             icon: 'pi pi-delete-left',
             command: () => this.removeAll()
-          },
-          {
-            label: 'Remove collisions',
-            icon: 'pi pi-delete-left',
-            command: () => this.removeCollisions()
           },
           {
             label: 'Collision Check',
             icon: 'pi pi-check-circle',
             command: () => this.applyCollisionCheck()
-          }
-        ]
-      },
-      {
-        label: 'Courses',
-        expanded: true,
-        items: [
-          {
-            label: 'Add new Courses',
-            icon: 'pi pi-book',
-            command: () => this.redirectToSelection('/user/tt-courses')
           },
           {
-            label: 'Edit shown Courses',
-            icon: 'pi pi-book',
-            command: () => this.redirectToSelection('/user/tt-courses')
+            label: 'Remove Collisions',
+            icon: 'pi pi-eraser',
+            command: () => this.removeCollisions()
           },
         ]
       },
@@ -496,13 +462,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
         label: 'Scheduling',
         items: [
           {
-            label: 'define Status',
-            icon: 'pi pi-check-square',
-          },
-          {
             label: 'last Changes',
             icon: 'pi pi-comments',
-            command: () => this.redirectToSelection('/user/tt-status')
+            command: () => {
+              this.messageService.add({severity: 'error', summary: 'OFFLINE', detail: 'method not implemented'})
+          }
           }
         ]
       },
@@ -510,13 +474,16 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
         label: 'Print',
         items: [
           {
-            label: 'Export Plan (all)',
+            label: 'Export Plan (Current)',
             icon: 'pi pi-folder-open',
             command: () => this.exportCalendarAsPDF()
           },
           {
-            label: 'Export Plan (each)',
-            icon: 'pi pi-folder'
+            label: 'Export Plan (Rooms)',
+            icon: 'pi pi-folder',
+            command: () => {
+              this.messageService.add({severity: 'error', summary: 'OFFLINE', detail: 'method not implemented'})
+            }
           }
         ]
       },
