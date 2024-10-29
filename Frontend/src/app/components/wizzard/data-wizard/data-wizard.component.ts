@@ -5,6 +5,8 @@ import {TableShareService} from "../../../services/table-share.service";
 import {CourseService} from "../../../services/course-service";
 import {Course} from "../../../../assets/Models/course";
 import {MessageService} from "primeng/api";
+import {Room} from "../../../../assets/Models/room";
+import {RoomService} from "../../../services/room-service";
 
 @Component({
   selector: 'app-data-wizard',
@@ -14,36 +16,37 @@ import {MessageService} from "primeng/api";
 export class DataWizardComponent{
   tmpTimeTable: TmpTimeTable;
   @Input() allCourses: Course[] = [];
-  @Output() initialSelection: Course[] = [];
+  @Output() initialCourses: Course[] = [];
+  @Output() initialRooms: Room[] = [];
 
   userHasInteracted: boolean = false;
   userHasInteractedSemester: boolean = false;
   filterDataVar: boolean = true;
   filterSemesterVar: boolean = true;
-
   filterStudyType: [string|null, string|null, string|null] = [null, null, null];
   showIndex: number = 0;
 
  constructor(
    private router: Router,
    private shareService: TableShareService,
-   private courseService: CourseService,
    private messageService: MessageService,
+   private courseService: CourseService,
+   private roomService: RoomService,
  ) {
    this.tmpTimeTable = this.shareService.selectedTable;
-     this.courseService.getAllCourses().subscribe(
-       ((data:Course[]) => this.allCourses = data)
-     );
  }
 
  filterData(setFilter: boolean): void {
    if(setFilter){
+     this.courseService.getAllCourses().subscribe(
+       ((data:Course[]) => this.allCourses = data)
+     );
+
      this.filterDataVar = setFilter;
      this.userHasInteracted = true;
      this.showIndex += 1;
    } else {
-     this.router.navigate(['/user/wizard'])
-       .catch();
+     this.router.navigate(['/user/wizard']).catch();
    }
  }
 
@@ -52,14 +55,14 @@ export class DataWizardComponent{
 
    if(setFilter){
      if(this.tmpTimeTable.semester == 'SS'){
-       this.initialSelection = this.allCourses
+       this.initialCourses = this.allCourses
          .filter(c => c.semester! % 2 === 0);
      } else {
-       this.initialSelection = this.allCourses
+       this.initialCourses = this.allCourses
          .filter(c => c.semester! % 2 !== 0);
      }
    } else {
-     this.initialSelection = this.allCourses;
+     this.initialCourses = this.allCourses;
    }
 
    this.userHasInteractedSemester = true;
@@ -67,7 +70,9 @@ export class DataWizardComponent{
   }
 
   addStudyTypeFilter(studyType: string, idx: number): void {
-   if(this.filterStudyType[idx] === null){
+    this.showIndex = 3;
+
+    if(this.filterStudyType[idx] === null){
      this.filterStudyType[idx] = studyType;
    } else {
      this.filterStudyType[idx] = null;
@@ -79,20 +84,28 @@ export class DataWizardComponent{
   }
 
   finish(){
-   this.initialSelection = this.initialSelection
+   this.initialCourses = this.initialCourses
      .filter(c =>
        c.studyType == this.filterStudyType[0]
        || c.studyType == this.filterStudyType[1]
        || c.studyType == this.filterStudyType[2]
      )
-    if(this.initialSelection.length == 0){
+    if(this.initialCourses.length == 0){
       this.messageService.add({severity: 'error', summary: 'Initial Data Load', detail: 'There are no entries based on your selection'});
     } else {
       this.messageService.add({severity: 'success', summary: 'Initial Data Load', detail: 'Preselected data got added'});
     }
 
-    this.shareService.selectedTable.courseTable = this.initialSelection;
+    this.shareService.selectedTable.courseTable = this.initialCourses;
+    this.shareService.selectedTable.roomTables = this.initialRooms;
     this.router.navigate(['/user/wizard']).catch();
  }
 
+ addRooms(option: boolean){
+   if(option){
+     this.roomService.getAllRooms().subscribe(
+       ((data:Room[]) => this.initialRooms = data)
+     );
+   }
+ }
 }
