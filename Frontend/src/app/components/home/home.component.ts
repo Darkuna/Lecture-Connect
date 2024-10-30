@@ -50,7 +50,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   showNewTableDialog: boolean = false;
   items: MenuItem[] = [];
-  exportTitle = "title";
+
+  exportTitle = '';
+  displayTitlePrompt: boolean = false;
 
   lastSearchedEvent: EventImpl | null = null;
   firstSearchedEvent: EventImpl | null = null;
@@ -293,9 +295,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
    * This method transforms the fullcalendar html to canvas and creates a pdf out of it. In order to get a better output
    * some properties of the calendar are adjusted before pdf creation and reset afterward.
    */
-  exportCalendarAsPDF() {
-    const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
+  promptTitleAndExport(): void {
+    this.displayTitlePrompt = true;
+  }
 
+  exportCalendarAsPDF() {
+    if (!this.exportTitle) {
+      this.messageService.add({ severity: 'warn', summary: 'Fehler', detail: 'Bitte einen Titel eingeben' });
+      return;
+    }
+
+    const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
     this.adjustEventFontSize('10px');
 
     html2canvas(calendarHTMLElement, { scale: 2 }).then(canvas => {
@@ -311,10 +321,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       pdf.text(titleText, xPosition, 10);
 
       pdf.addImage(imgData, 'JPEG', 0, 15, imgWidth, imgHeight);
-      pdf.save('fullcalendar_a4.pdf');
+      pdf.save('calendar_export.pdf');
 
       this.adjustEventFontSize('');
-
+      this.displayTitlePrompt = false;
     });
   }
 
@@ -533,7 +543,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           {
             label: 'Export Plan (Current)',
             icon: 'pi pi-folder-open',
-            command: () => this.exportCalendarAsPDF()
+            command: () => this.promptTitleAndExport()
           },
           {
             label: 'Export Plan (Rooms)',
