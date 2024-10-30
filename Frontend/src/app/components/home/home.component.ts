@@ -294,17 +294,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   exportCalendarAsPDF() {
     const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
 
-    this.adjustEventFontSize('8px');
+    this.adjustEventFontSize('10px');
 
     html2canvas(calendarHTMLElement, { scale: 2 }).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
 
-      const pdf = new jsPDF('landscape', 'mm', 'a3');
-      const imgWidth = 420;
+      const pdf = new jsPDF('landscape', 'mm', 'a4');
+      const imgWidth = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save('fullcalendar_a3.pdf');
+      pdf.save('fullcalendar_a4.pdf');
 
       this.adjustEventFontSize('');
 
