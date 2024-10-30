@@ -50,6 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   showNewTableDialog: boolean = false;
   items: MenuItem[] = [];
+  exportTitle = "title";
 
   lastSearchedEvent: EventImpl | null = null;
   firstSearchedEvent: EventImpl | null = null;
@@ -298,13 +299,18 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.adjustEventFontSize('10px');
 
     html2canvas(calendarHTMLElement, { scale: 2 }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/jpeg', 0.8);
 
       const pdf = new jsPDF('landscape', 'mm', 'a4');
       const imgWidth = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      const titleText = ` ${this.exportTitle} `;
+      const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
+      const xPosition = (imgWidth - textWidth) / 2;
+      pdf.text(titleText, xPosition, 10);
+
+      pdf.addImage(imgData, 'JPEG', 0, 15, imgWidth, imgHeight);
       pdf.save('fullcalendar_a4.pdf');
 
       this.adjustEventFontSize('');
@@ -333,23 +339,23 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
         this.refreshCalendar(roomEvents);
 
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 200));
 
         const calendarElement = this.calendarElement.nativeElement as HTMLElement;
         const canvas = await html2canvas(calendarElement, { scale: 2 });
 
-        const imgData = canvas.toDataURL('image/png');
+        const imgData = canvas.toDataURL('image/jpeg', 0.8);
         const imgWidth = 270;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
         pdf.setFontSize(16);
         const pageWidth = pdf.internal.pageSize.width;
-        const titleText = `${room.roomId}`;
+        const titleText = ` ${room.roomId} `;
         const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
         const xPosition = (pageWidth - textWidth) / 2;
         pdf.text(titleText, xPosition, 10);
 
-        pdf.addImage(imgData, 'PNG', 10, 20, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'JPEG', 10, 20, imgWidth, imgHeight);
 
         if (index < rooms.length - 1) {
           pdf.addPage();
