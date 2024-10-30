@@ -312,10 +312,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     });
   }
 
-  /** changes begin here
-   *
-   */
-
   refreshCalendar(events: EventInput[]): void {
     this.clearCalendar();
     this.combinedTableEventsSubject.next(events);
@@ -345,7 +341,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
         pdf.setFontSize(16);
         const pageWidth = pdf.internal.pageSize.width;
-        const titleText = `Room: ${room.roomId}`;
+        const titleText = `${room.roomId}`;
         const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
         const xPosition = (pageWidth - textWidth) / 2;
         pdf.text(titleText, xPosition, 10);
@@ -359,13 +355,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
       pdf.save('calendar_per_room.pdf');
     }
+    this.updateCalendarEvents();
   }
 
-
-
-  /** changes end here
-   *
-   */
 
   /**
    * This method adjusts the properties of all calendar events to improve the readability when exporting the global
