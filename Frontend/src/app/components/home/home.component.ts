@@ -327,6 +327,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
       for (const [index, room] of rooms.entries()) {
         const roomEvents = allEvents.filter(e => e['description'] === room.roomId);
+        room.timingConstraints?.forEach(t => {
+          roomEvents.push(this.converter.convertTimingEventInput(t));
+        });
 
         this.refreshCalendar(roomEvents);
 
