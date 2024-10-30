@@ -218,8 +218,7 @@ public class TimeTableService {
             return true;
         }
         catch(AssignmentFailedException e){
-            log.error("Assignment failed for timeTable with id {}. Unassigning all courseSessions ...", timeTable.getId());
-            unassignAllCourseSessions(timeTable);
+            log.error("Assignment failed for timeTable with id {}.", timeTable.getId());
             return false;
         }
     }
@@ -227,7 +226,7 @@ public class TimeTableService {
     /**
      * Method to check the current timeTable for collisions
      * @param timeTable to be checked for collisions
-     * @return list of colliding courseSessions
+     * @return map of colliding courseSessions
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Map<CourseSession,List<CollisionType>> checkCollisions(TimeTable timeTable){
