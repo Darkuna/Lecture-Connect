@@ -16,7 +16,7 @@ import listPlugin from "@fullcalendar/list";
 import {Semester} from "../../../assets/Models/enums/semester";
 import {Router} from "@angular/router";
 import {TableShareService} from "../../services/table-share.service";
-import {BehaviorSubject, catchError, from, Observable, of, Subscription, toArray} from "rxjs";
+import {BehaviorSubject, catchError, firstValueFrom, from, Observable, of, Subscription, toArray} from "rxjs";
 import {GlobalTableService} from "../../services/global-table.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
@@ -30,6 +30,7 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 
 @Component({
   selector: 'app-home',
@@ -49,6 +50,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   showNewTableDialog: boolean = false;
   items: MenuItem[] = [];
+
+  exportTitle = '';
+  displayTitlePrompt: boolean = false;
 
   lastSearchedEvent: EventImpl | null = null;
   firstSearchedEvent: EventImpl | null = null;
@@ -291,25 +295,88 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
    * This method transforms the fullcalendar html to canvas and creates a pdf out of it. In order to get a better output
    * some properties of the calendar are adjusted before pdf creation and reset afterward.
    */
-  exportCalendarAsPDF() {
-    const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
+  promptTitleAndExport(): void {
+    this.displayTitlePrompt = true;
+  }
 
-    this.adjustEventFontSize('8px');
+  exportCalendarAsPDF() {
+    if (!this.exportTitle) {
+      this.messageService.add({ severity: 'warn', summary: 'Fehler', detail: 'Bitte einen Titel eingeben' });
+      return;
+    }
+
+    const calendarHTMLElement = this.calendarElement.nativeElement as HTMLElement;
+    this.adjustEventFontSize('10px');
 
     html2canvas(calendarHTMLElement, { scale: 2 }).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/jpeg', 0.8);
 
-      const pdf = new jsPDF('landscape', 'mm', 'a3');
-      const imgWidth = 420;
+      const pdf = new jsPDF('landscape', 'mm', 'a4');
+      const imgWidth = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save('fullcalendar_a3.pdf');
+      const titleText = ` ${this.exportTitle} `;
+      const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
+      const xPosition = (imgWidth - textWidth) / 2;
+      pdf.text(titleText, xPosition, 10);
+
+      pdf.addImage(imgData, 'JPEG', 0, 15, imgWidth, imgHeight);
+      pdf.save('calendar_export.pdf');
 
       this.adjustEventFontSize('');
-
+      this.displayTitlePrompt = false;
     });
   }
+
+  refreshCalendar(events: EventInput[]): void {
+    this.clearCalendar();
+    this.combinedTableEventsSubject.next(events);
+  }
+
+  async exportCalendarPerRoom(): Promise<void> {
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
+
+    if (this.selectedTimeTable$) {
+      const timeTable = await firstValueFrom(this.selectedTimeTable$);
+      const rooms = timeTable.roomTables;
+      const allEvents = this.converter.convertMultipleCourseSessions(timeTable.courseSessions, 'editor');
+
+      for (const [index, room] of rooms.entries()) {
+        const roomEvents = allEvents.filter(e => e['description'] === room.roomId);
+        room.timingConstraints?.forEach(t => {
+          roomEvents.push(this.converter.convertTimingEventInput(t));
+        });
+
+        this.refreshCalendar(roomEvents);
+
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        const calendarElement = this.calendarElement.nativeElement as HTMLElement;
+        const canvas = await html2canvas(calendarElement, { scale: 2 });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.8);
+        const imgWidth = 270;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        pdf.setFontSize(16);
+        const pageWidth = pdf.internal.pageSize.width;
+        const titleText = ` ${room.roomId} `;
+        const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
+        const xPosition = (pageWidth - textWidth) / 2;
+        pdf.text(titleText, xPosition, 10);
+
+        pdf.addImage(imgData, 'JPEG', 10, 20, imgWidth, imgHeight);
+
+        if (index < rooms.length - 1) {
+          pdf.addPage();
+        }
+      }
+
+      pdf.save('calendar_per_room.pdf');
+    }
+    this.updateCalendarEvents();
+  }
+
 
   /**
    * This method adjusts the properties of all calendar events to improve the readability when exporting the global
@@ -476,14 +543,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           {
             label: 'Export Plan (Current)',
             icon: 'pi pi-folder-open',
-            command: () => this.exportCalendarAsPDF()
+            command: () => this.promptTitleAndExport()
           },
           {
             label: 'Export Plan (Rooms)',
             icon: 'pi pi-folder',
-            command: () => {
-              this.messageService.add({severity: 'error', summary: 'OFFLINE', detail: 'method not implemented'})
-            }
+            command: () => this.exportCalendarPerRoom()
           }
         ]
       },
