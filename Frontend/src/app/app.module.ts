@@ -70,6 +70,7 @@ import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 import { UserSettingsComponent } from './components/header-self/user-settings/user-settings.component';
 import { TableViewComponent } from './components/TableView/table-view/table-view.component';
 import {CheckboxModule} from "primeng/checkbox";
+import { ProgressComponent } from './components/progress/progress.component';
 
 @NgModule({ declarations: [
         AppComponent, HeaderSelfComponent, LoginComponent,
@@ -79,7 +80,7 @@ import {CheckboxModule} from "primeng/checkbox";
         BaseSelectionComponent, CourseSelectionComponent, DetailSelectionComponent,
         RoomSelectionComponent, BaseSelectionComponent, RoomSelectionPageComponent,
         CourseSelectionPageComponent, CalendarContextMenuComponent, EditorComponent,
-        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent,
+        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent,
     ],
   bootstrap: [AppComponent],
     imports: [

@@ -30,7 +30,7 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
+import {ProgressService} from "../../services/progress.service";
 
 @Component({
   selector: 'app-home',
@@ -109,6 +109,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private progressService: ProgressService,
     private cd: ChangeDetectorRef,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
@@ -301,7 +302,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   exportCalendarAsPDF() {
     if (!this.exportTitle) {
-      this.messageService.add({ severity: 'warn', summary: 'Fehler', detail: 'Bitte einen Titel eingeben' });
+      this.messageService.add({ severity: 'warn', summary: 'ERROR', detail: 'Change the title' });
       return;
     }
 
@@ -335,45 +336,50 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   async exportCalendarPerRoom(): Promise<void> {
     const pdf = new jsPDF('landscape', 'mm', 'a4');
+    pdf.setFontSize(16);
 
-    if (this.selectedTimeTable$) {
-      const timeTable = await firstValueFrom(this.selectedTimeTable$);
-      const rooms = timeTable.roomTables;
-      const allEvents = this.converter.convertMultipleCourseSessions(timeTable.courseSessions, 'editor');
+    const timeTable = await firstValueFrom(this.selectedTimeTable$!);
+    const rooms = timeTable.roomTables;
+    const allEvents = this.converter.convertMultipleCourseSessions(timeTable.courseSessions, 'editor');
+    this.progressService.progressMaxCounter = allEvents.length;
 
-      for (const [index, room] of rooms.entries()) {
-        const roomEvents = allEvents.filter(e => e['description'] === room.roomId);
-        room.timingConstraints?.forEach(t => {
-          roomEvents.push(this.converter.convertTimingEventInput(t));
-        });
+    let coursesWithoutConstrains = 0;
+    let calendarElement, canvas;
+    for(const [index, room] of rooms.entries()) {
+      const roomEvents = allEvents.filter(e => e['description'] === room.roomId);
+      coursesWithoutConstrains = roomEvents.length;
 
-        this.refreshCalendar(roomEvents);
+      if(coursesWithoutConstrains == 0) continue
 
-        await new Promise(resolve => setTimeout(resolve, 200));
+      room.timingConstraints?.forEach(t => {
+        roomEvents.push(this.converter.convertTimingEventInput(t));
+      });
 
-        const calendarElement = this.calendarElement.nativeElement as HTMLElement;
-        const canvas = await html2canvas(calendarElement, { scale: 2 });
+      this.refreshCalendar(roomEvents);
+      await new Promise(resolve => setTimeout(resolve, 200));
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.8);
-        const imgWidth = 270;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      calendarElement = this.calendarElement.nativeElement as HTMLElement;
+      canvas = await html2canvas(calendarElement, { scale: 2 });
 
-        pdf.setFontSize(16);
-        const pageWidth = pdf.internal.pageSize.width;
-        const titleText = ` ${room.roomId} `;
-        const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
-        const xPosition = (pageWidth - textWidth) / 2;
-        pdf.text(titleText, xPosition, 10);
+      const imgData = canvas.toDataURL('image/jpeg', 1);
+      const imgWidth = 270;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        pdf.addImage(imgData, 'JPEG', 10, 20, imgWidth, imgHeight);
+      const pageWidth = pdf.internal.pageSize.width;
+      const titleText = ` ${room.roomId} `;
+      const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
 
-        if (index < rooms.length - 1) {
-          pdf.addPage();
-        }
-      }
+      pdf.text(titleText, (pageWidth - textWidth) / 2, 10);
+      pdf.addImage(imgData, 'JPEG', 10, 20, imgWidth, imgHeight);
 
-      pdf.save('calendar_per_room.pdf');
+      if (index < rooms.length - 1) pdf.addPage();
+
+      this.progressService.progressCounter = coursesWithoutConstrains;
     }
+    pdf.save('calendar_per_room.pdf');
+
+
+    this.progressService.finishedLoading();
     this.updateCalendarEvents();
   }
 
@@ -527,6 +533,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       },
       {
         label: 'Scheduling',
+        expanded: true,
         items: [
           {
             label: 'last Changes',
@@ -539,6 +546,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       },
       {
         label: 'Print',
+        expanded: true,
         items: [
           {
             label: 'Export Plan (Current)',
