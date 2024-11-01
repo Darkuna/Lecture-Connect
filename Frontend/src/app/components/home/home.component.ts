@@ -343,17 +343,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     const allEvents = this.converter.convertMultipleCourseSessions(timeTable.courseSessions, 'editor');
     this.progressService.progressMaxCounter = allEvents.length;
 
-    let coursesWithoutConstrains = 0;
-    let calendarElement, canvas;
+    let courseCounter = 0;
+    let calendarElement, canvas, imgData, imgHeight, textWidth;
+
     for(const [index, room] of rooms.entries()) {
       const roomEvents = allEvents.filter(e => e['description'] === room.roomId);
-      coursesWithoutConstrains = roomEvents.length;
-
-      if(coursesWithoutConstrains == 0) continue
-
-      room.timingConstraints?.forEach(t => {
-        roomEvents.push(this.converter.convertTimingEventInput(t));
-      });
+      courseCounter = roomEvents.length;
+      if(courseCounter == 0) continue
 
       this.refreshCalendar(roomEvents);
       await new Promise(resolve => setTimeout(resolve, 200));
@@ -361,24 +357,19 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       calendarElement = this.calendarElement.nativeElement as HTMLElement;
       canvas = await html2canvas(calendarElement, { scale: 2 });
 
-      const imgData = canvas.toDataURL('image/jpeg', 1);
-      const imgWidth = 270;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      imgData = canvas.toDataURL('image/jpeg', 1);
+      imgHeight = (canvas.height * 270) / canvas.width;
 
-      const pageWidth = pdf.internal.pageSize.width;
-      const titleText = ` ${room.roomId} `;
-      const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
+      textWidth = pdf.getStringUnitWidth(room.roomId) * pdf.getFontSize() / pdf.internal.scaleFactor;
 
-      pdf.text(titleText, (pageWidth - textWidth) / 2, 10);
-      pdf.addImage(imgData, 'JPEG', 10, 20, imgWidth, imgHeight);
+      pdf.text(room.roomId, (pdf.internal.pageSize.width - textWidth) / 2, 10);
+      pdf.addImage(imgData, 'JPEG', 10, 20, 270, imgHeight);
 
       if (index < rooms.length - 1) pdf.addPage();
-
-      this.progressService.progressCounter = coursesWithoutConstrains;
+      this.progressService.progressCounter = courseCounter;
     }
+
     pdf.save('calendar_per_room.pdf');
-
-
     this.progressService.finishedLoading();
     this.updateCalendarEvents();
   }
