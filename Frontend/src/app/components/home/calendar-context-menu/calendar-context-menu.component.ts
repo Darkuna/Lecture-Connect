@@ -107,7 +107,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     return partner;
   }
 
-  clearAll(){
+  resetAllChanges(){
     this.clearEvents();
     this.showAllEvents();
     this.activateLens = false;
@@ -222,9 +222,9 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
         command: () => this.changeLensStatus()
       },
       {
-        label: 'Clear',
-        icon: 'pi pi-trash',
-        command: () => this.clearAll()
+        label: 'Reset',
+        icon: 'pi pi-sync',
+        command: () => this.resetAllChanges()
       }
     ];
   }

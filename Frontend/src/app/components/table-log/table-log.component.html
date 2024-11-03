@@ -1,0 +1,32 @@
+<p-dialog
+  header="Header" (close)="closeView()"
+  [(visible)]="visible" [modal]="true" [closable]="true"
+  [style]="{ width: '35rem', 'height':'25rem' }" [position]="'bottomright'">
+  <ng-template pTemplate="header">
+    Table Changes
+  </ng-template>
+
+  <p-table
+    [value]="(changes | async)!"
+    styleClass="p-datatable-striped"
+    [tableStyle]="{'min-width': '50rem'}">
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th *ngFor="let col of columns">
+          {{ col.header }}
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <tr>
+        <td *ngFor="let col of columns">
+          {{ rowData[col.field] }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <ng-template pTemplate="footer">
+    currently shown Table: {{ tableName?.name }} {{ tableName?.semester }} {{ tableName?.year }}
+  </ng-template>
+</p-dialog>

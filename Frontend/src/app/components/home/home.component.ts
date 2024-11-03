@@ -31,6 +31,7 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import {ProgressService} from "../../services/progress.service";
+import {TableLogComponent} from "../table-log/table-log.component";
 
 @Component({
   selector: 'app-home',
@@ -90,10 +91,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     eventBackgroundColor: "#666666",
     eventBorderColor: "#050505",
     eventTextColor: "var(--system-color-primary-white)",
-    slotMinTime: this.formatTime(this.tmpStartDate),
-    slotMaxTime: this.formatTime(this.tmpEndDate),
-    slotDuration: this.formatTime(this.tmpDuration),
-    slotLabelInterval: this.formatTime(this.tmpSlotInterval),
+    slotMinTime: this.converter.formatTime(this.tmpStartDate),
+    slotMaxTime: this.converter.formatTime(this.tmpEndDate),
+    slotDuration: this.converter.formatTime(this.tmpDuration),
+    slotLabelInterval: this.converter.formatTime(this.tmpSlotInterval),
     dayHeaderFormat: {weekday: 'long'},
     eventOverlap: true,
     slotEventOverlap: true,
@@ -106,11 +107,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private shareService: TableShareService,
     private globalTableService: GlobalTableService,
     private localStorage: LocalStorageService,
-    private converter: EventConverterService,
+    protected converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private progressService: ProgressService,
     private cd: ChangeDetectorRef,
+    private logView: TableLogComponent
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -125,6 +127,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   ngAfterViewInit(): void {
     this.calendarContextMenu.calendarComponent = this.calendarComponent;
+    this.logView.tableName = this.shownTableDD!;
   }
 
   ngOnDestroy(): void {
@@ -153,12 +156,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.clearCalendar();
 
     this.selectedTimeTable$!.subscribe((timeTable: TimeTableDTO) => {
+      this.logView.table = timeTable;
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput('home'),
         toArray(),
-        catchError(error => {
-          console.error('Error converting sessions:', error);
+        catchError(() => {
           return of([]);
         })
       ).subscribe(events => {
@@ -316,10 +319,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       const imgWidth = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      const titleText = ` ${this.exportTitle} `;
-      const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
+      const textWidth = pdf.getStringUnitWidth(this.exportTitle.toString()) * pdf.getFontSize() / pdf.internal.scaleFactor;
       const xPosition = (imgWidth - textWidth) / 2;
-      pdf.text(titleText, xPosition, 10);
+      pdf.text(this.exportTitle.toString(), xPosition, 10);
 
       pdf.addImage(imgData, 'JPEG', 0, 15, imgWidth, imgHeight);
       pdf.save('calendar_export.pdf');
@@ -340,7 +342,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
     const timeTable = await firstValueFrom(this.selectedTimeTable$!);
     const rooms = timeTable.roomTables;
-    const allEvents = this.converter.convertMultipleCourseSessions(timeTable.courseSessions, 'editor');
+    const allEvents = this.converter.convertMultipleCourseSessions(timeTable.courseSessions, 'home');
     this.progressService.progressMaxCounter = allEvents.length;
 
     let courseCounter = 0;
@@ -441,11 +443,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.calendarComponent.getApi().setOption(calendarOption, value);
   }
 
-  formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
-    return date.toString().split(' ')[4];
-  }
-
   getCalendarEvents(): EventImpl[]{
     if(this.calendarComponent){
       return this.calendarComponent.getApi().getEvents();
@@ -529,9 +526,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           {
             label: 'last Changes',
             icon: 'pi pi-comments',
-            command: () => {
-              this.messageService.add({severity: 'error', summary: 'OFFLINE', detail: 'method not implemented'})
-          }
+            command: () => {this.logView.showChanges() }
           }
         ]
       },

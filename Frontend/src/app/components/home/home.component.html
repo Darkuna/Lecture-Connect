@@ -121,7 +121,7 @@
           <div class="divTableCell">
             <p-calendar id="start-time" inputId="calendar-timeonly"
                         [timeOnly]="true" [ngModel]="tmpStartDate"
-                        (ngModelChange)="updateCalendar('slotMinTime', formatTime($event))"/>
+                        (ngModelChange)="updateCalendar('slotMinTime', converter.formatTime($event))"/>
           </div>
         </div>
         <div class="divTableRow">
@@ -131,7 +131,7 @@
           <div class="divTableCell">
             <p-calendar id="end-time" inputId="calendar-timeonly"
                         [timeOnly]="true" [ngModel]="tmpEndDate"
-                        (ngModelChange)="updateCalendar('slotMaxTime', formatTime($event))"/>
+                        (ngModelChange)="updateCalendar('slotMaxTime', converter.formatTime($event))"/>
           </div>
         </div>
         <div class="divTableRow">
@@ -141,7 +141,7 @@
           <div class="divTableCell">
             <p-calendar id="duration" inputId="calendar-timeonly"
                         [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
-                        (ngModelChange)="updateCalendar('slotDuration', formatTime($event))"/>
+                        (ngModelChange)="updateCalendar('slotDuration', converter.formatTime($event))"/>
           </div>
         </div>
         <div class="divTableRow">
@@ -151,7 +151,7 @@
           <div class="divTableCell">
             <p-calendar id="interval" inputId="calendar-timeonly"
                         [timeOnly]="true" [ngModel]="tmpSlotInterval"
-                        (ngModelChange)="updateCalendar('slotLabelInterval', formatTime($event))"/>
+                        (ngModelChange)="updateCalendar('slotLabelInterval', converter.formatTime($event))"/>
           </div>
         </div>
         <div class="divTableRow">
