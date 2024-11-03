@@ -3,11 +3,12 @@ import {GlobalTableChangeDTO} from "../../../assets/Models/dto/global-table-chan
 import {TableLogService} from "../../services/table-log.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
 import {Observable} from "rxjs";
+import {getChangeTypes} from "../../../assets/Models/enums/change-type";
 
 @Component({
   selector: 'app-table-log',
   templateUrl: './table-log.component.html',
-  styleUrl: './table-log.component.css'
+  styleUrl: './table-log.component.css',
 })
 export class TableLogComponent implements OnInit{
   tableName: TimeTableNames | null = null;
@@ -39,7 +40,10 @@ export class TableLogComponent implements OnInit{
     this.cols = [
       {field: 'changeType', header: 'Type'},
       {field: 'description', header: 'Description'},
-      {field: 'changeUser', header: 'Made by'}
+      {field: 'changeUser', header: 'Made by'},
+      {field: 'date', header: 'Date'}
     ];
   }
+
+  protected readonly getChangeTypes = getChangeTypes;
 }
