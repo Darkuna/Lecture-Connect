@@ -32,6 +32,8 @@ import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import {ProgressService} from "../../services/progress.service";
 import {TableLogComponent} from "../table-log/table-log.component";
+import {GlobalTableChangeDTO} from "../../../assets/Models/dto/global-table-change-dto";
+import {TableLogService} from "../../services/table-log.service";
 
 @Component({
   selector: 'app-home',
@@ -61,6 +63,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  @ViewChild('tableLog') tableLog!: TableLogComponent;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
@@ -112,7 +115,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private confirmationService: ConfirmationService,
     private progressService: ProgressService,
     private cd: ChangeDetectorRef,
-    private logView: TableLogComponent
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -127,7 +129,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   ngAfterViewInit(): void {
     this.calendarContextMenu.calendarComponent = this.calendarComponent;
-    this.logView.tableName = this.shownTableDD!;
   }
 
   ngOnDestroy(): void {
@@ -156,7 +157,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.clearCalendar();
 
     this.selectedTimeTable$!.subscribe((timeTable: TimeTableDTO) => {
-      this.logView.table = timeTable;
       let sessions = timeTable.courseSessions;
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput('home'),
@@ -468,6 +468,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     }
   }
 
+  private loadChanges(){
+    this.tableLog.tableName = this.shownTableDD;
+    this.tableLog.showChanges();
+  }
+
   ngOnInit() {
     this.items = [
       {
@@ -526,7 +531,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
           {
             label: 'last Changes',
             icon: 'pi pi-comments',
-            command: () => {this.logView.showChanges() }
+            command: () => { this.loadChanges() }
           }
         ]
       },

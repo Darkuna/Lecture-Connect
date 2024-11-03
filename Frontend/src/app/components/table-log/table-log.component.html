@@ -1,15 +1,15 @@
 <p-dialog
   header="Header" (close)="closeView()"
-  [(visible)]="visible" [modal]="true" [closable]="true"
-  [style]="{ width: '35rem', 'height':'25rem' }" [position]="'bottomright'">
+  [(visible)]="visible" [modal]="false" [closable]="true"
+  [style]="{ width: '55rem', 'height':'25rem' }" [position]="'bottomright'">
   <ng-template pTemplate="header">
     Table Changes
   </ng-template>
-
+  this is a test
   <p-table
     [value]="(changes | async)!"
-    styleClass="p-datatable-striped"
-    [tableStyle]="{'min-width': '50rem'}">
+    [columns]="cols"
+    styleClass="p-datatable-striped">
     <ng-template pTemplate="header" let-columns>
       <tr>
         <th *ngFor="let col of columns">
@@ -25,7 +25,7 @@
       </tr>
     </ng-template>
   </p-table>
-
+  and this is a test
   <ng-template pTemplate="footer">
     currently shown Table: {{ tableName?.name }} {{ tableName?.semester }} {{ tableName?.year }}
   </ng-template>

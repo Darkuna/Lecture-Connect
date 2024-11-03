@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {GlobalTableChangeDTO} from "../../../assets/Models/dto/global-table-change-dto";
 import {TableLogService} from "../../services/table-log.service";
 import {TimeTableNames} from "../../../assets/Models/time-table-names";
@@ -11,7 +10,6 @@ import {Observable} from "rxjs";
   styleUrl: './table-log.component.css'
 })
 export class TableLogComponent implements OnInit{
-  table: TimeTableDTO | null = null;
   tableName: TimeTableNames | null = null;
   visible: boolean = false;
   changes: Observable<GlobalTableChangeDTO[]> | null = null;

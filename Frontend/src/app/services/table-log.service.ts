@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import {environment} from "../environment/environment";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {GlobalTableChangeDTO} from "../../assets/Models/dto/global-table-change-dto";
+import {tap} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TableLogService {
-  static API_PATH = `${environment.baseUrl}/global/changes`;
+  static API_PATH = `${environment.baseUrl}/api/global/changes`;
   private readonly httpOptions = {
     headers: new HttpHeaders({
       'Content-Type': 'application/json',
