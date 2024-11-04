@@ -20,17 +20,10 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
   @Output() removeCourseInParent: EventEmitter<Course> = new EventEmitter<Course>();
 
   courseSub!: Subscription;
-  availableCourses!: Course[];
+  availableCourses: Course[] = [];
 
   CreateDialogVisible: boolean = false;
-  selectedCourses: Course[] | null = null;
   draggedCourse: Course | undefined | null;
-  headers: any[] = [
-    {field: 'id', header: 'Id'},
-    {field: 'courseType', header: 'Type'},
-    {field: 'name', header: 'Name'},
-    {field: 'semester', header: 'Semester'}
-  ];
 
   constructor(
     private courseService: CourseService,
@@ -79,40 +72,6 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
       this.draggedCourse = null;
       this.hideDialog();
     }
-  }
-
-  dragStart(item: Course) {
-    this.draggedCourse = item;
-  }
-
-  drag() { }
-
-  drop() {
-    if(this.draggedCourse) {
-      this.addCourseInParent.emit(this.draggedCourse);
-    }
-  }
-
-  dragEnd() {
-    this.draggedCourse = null;
-  }
-
-  deleteSingleItem(course: Course) {
-    this.removeCourseInParent.emit(course);
-  }
-
-  coursesSelected() : boolean{
-    if(this.selectedCourses){
-      return this.selectedCourses.length === 0 || this.courseTable.length === 0;
-    }
-    return true; //method is called to tell if a button should be disabled or not
-  }
-
-  deleteMultipleItems() {
-    this.selectedCourses?.forEach(c => {
-      this.deleteSingleItem(c);
-    })
-    this.selectedCourses = null;
   }
 
   protected readonly getRoleOptions = getRoleOptions;
