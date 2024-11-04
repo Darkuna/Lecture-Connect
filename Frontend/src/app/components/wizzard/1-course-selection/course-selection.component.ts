@@ -24,12 +24,6 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
 
   CreateDialogVisible: boolean = false;
   draggedCourse: Course | undefined | null;
-  headers: any[] = [
-    {field: 'id', header: 'Id'},
-    {field: 'courseType', header: 'Type'},
-    {field: 'name', header: 'Name'},
-    {field: 'semester', header: 'Semester'}
-  ];
 
   constructor(
     private courseService: CourseService,

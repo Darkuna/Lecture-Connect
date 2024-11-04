@@ -20,9 +20,7 @@ export class RoomSelectionComponent implements OnDestroy {
   availableRooms!: Room[];
 
   CreateDialogVisible: boolean = false;
-  selectedRooms: Room[] = [];
   draggedRoom: Room | undefined | null;
-  headers: any[];
 
   constructor(
     private roomService: RoomService,
@@ -31,12 +29,6 @@ export class RoomSelectionComponent implements OnDestroy {
     this.courseSub = this.roomService.getAllRooms().subscribe(
       (data => this.availableRooms = data)
     );
-
-    this.headers = [
-      {field: 'id', header: 'Id'},
-      {field: 'capacity', header: 'Capacity'},
-      {field: 'isComputersAvailable', header: 'Room has PCs'},
-    ];
   }
 
   ngOnDestroy(): void {
@@ -66,39 +58,5 @@ export class RoomSelectionComponent implements OnDestroy {
     }
   }
 
-  dragStart(item: Room) {
-    this.draggedRoom = item;
-  }
-
-  drag() {
-  }
-
-  drop() {
-    if (this.draggedRoom) {
-      this.addRoomInParent.emit(this.draggedRoom);
-    }
-  }
-
-  dragEnd() {
-    this.draggedRoom = null;
-  }
-
-  deleteSingleItem(room: Room) {
-    this.removeRoomInParent.emit(room);
-  }
-
-  roomsSelected() : boolean{
-    return this.selectedRooms.length !== 0;
-  }
-
-  deleteMultipleItems() {
-    if(this.roomsSelected()){
-      this.selectedRooms.forEach(
-        c => this.deleteSingleItem(c)
-      );
-    }
-  }
-
   protected readonly String = String;
-  protected readonly screen = screen;
 }
