@@ -1,4 +1,4 @@
-<div class="Context">
+<div class="Context" #container>
   <p-pickList
     [source]="availableRooms"
     [target]="roomTables"
@@ -6,8 +6,8 @@
     targetHeader="Selected Rooms"
     [dragdrop]="true"
     [responsive]="true"
-    [sourceStyle]="{ height: '30rem' }"
-    [targetStyle]="{ height: '30rem' }"
+    [sourceStyle]=getTableSettings(container)
+    [targetStyle]=getTableSettings(container)
     filterBy="name"
     sourceFilterPlaceholder="Search by name"
     targetFilterPlaceholder="Search by name"

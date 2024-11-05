@@ -1,4 +1,4 @@
-import {Component, ElementRef} from '@angular/core';
+import {Component} from '@angular/core';
 import {TableShareService} from "../../services/table-share.service";
 import {Status} from "../../../assets/Models/enums/status";
 import {TmpTimeTable} from "../../../assets/Models/tmp-time-table";
@@ -182,4 +182,8 @@ export class WizardComponent {
 
 export function calculateTableHeight(contextContainer: HTMLDivElement){
   return contextContainer.clientHeight ? contextContainer.clientHeight * 0.8 : 600;
+}
+
+export function getTableSettings(container: HTMLDivElement) {
+  return {'height': `${calculateTableHeight(container)}px`};
 }

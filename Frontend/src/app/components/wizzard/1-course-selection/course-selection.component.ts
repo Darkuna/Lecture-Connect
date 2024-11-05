@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
@@ -19,8 +19,6 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
 
   @Output() addCourseInParent: EventEmitter<Course> = new EventEmitter<Course>();
   @Output() removeCourseInParent: EventEmitter<Course> = new EventEmitter<Course>();
-
-  @ViewChild('container') contextContainer!: ElementRef;
 
   courseSub!: Subscription;
   availableCourses: Course[] = [];
@@ -78,7 +76,6 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
   }
 
   getTableSettings(container: HTMLDivElement) {
-    console.log("return ",{'height': `${calculateTableHeight(container)}px`})
     return {'height': `${calculateTableHeight(container)}px`};
   }
 

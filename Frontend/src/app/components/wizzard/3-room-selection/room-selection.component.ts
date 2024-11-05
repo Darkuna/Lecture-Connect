@@ -3,6 +3,7 @@ import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {RoomService} from "../../../services/room-service";
 import {Room} from "../../../../assets/Models/room";
+import {getTableSettings} from "../wizard.component";
 
 @Component({
   selector: 'app-room-selection',
@@ -59,4 +60,5 @@ export class RoomSelectionComponent implements OnDestroy {
   }
 
   protected readonly String = String;
+  protected readonly getTableSettings = getTableSettings;
 }
