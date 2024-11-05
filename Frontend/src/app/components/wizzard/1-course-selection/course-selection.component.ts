@@ -1,10 +1,11 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
 import {Subscription} from "rxjs";
 import {MessageService} from "primeng/api";
 import {getRoleOptions} from "../../../../assets/Models/enums/course-type";
 import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
+import {calculateTableHeight} from "../wizard.component";
 
 @Component({
   selector: 'app-course-selection',
@@ -18,6 +19,8 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
 
   @Output() addCourseInParent: EventEmitter<Course> = new EventEmitter<Course>();
   @Output() removeCourseInParent: EventEmitter<Course> = new EventEmitter<Course>();
+
+  @ViewChild('container') contextContainer!: ElementRef;
 
   courseSub!: Subscription;
   availableCourses: Course[] = [];
@@ -74,8 +77,12 @@ export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
     }
   }
 
+  getTableSettings(container: HTMLDivElement) {
+    console.log("return ",{'height': `${calculateTableHeight(container)}px`})
+    return {'height': `${calculateTableHeight(container)}px`};
+  }
+
   protected readonly getRoleOptions = getRoleOptions;
   protected readonly getDegreeOptions = getDegreeOptions;
-  protected readonly screen = screen;
   protected readonly String = String;
 }
