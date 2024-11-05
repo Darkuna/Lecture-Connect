@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Injectable,  OnInit} from '@angular/core';
+import {Component, Injectable,  OnInit} from '@angular/core';
 import {MenuItem, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {EventClickArg} from "@fullcalendar/core";
@@ -12,13 +12,11 @@ import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
   templateUrl: './calendar-context-menu.component.html',
   styleUrl: './calendar-context-menu.component.css'
 })
-export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
+export class CalendarContextMenuComponent implements OnInit{
   private _calendarComponent!: FullCalendarComponent;
-  protected readonly screen = screen;
-
   contextItems: MenuItem[] = [];
-  showHoverDialogBool: boolean = false;
 
+  showHoverDialogBool: boolean = false;
   activateLens: boolean = true;
   hoverEventInfo: EventClickArg |null = null;
 
@@ -29,10 +27,6 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   constructor(
     private messageService: MessageService,
   ) { }
-
-  ngAfterViewInit(): void {
-    this.activateLens = true
-  }
 
   renderEventType(type: string){
     let newItems = this._calendarComponent.getApi().getEvents()
@@ -110,7 +104,6 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
   resetAllChanges(){
     this.clearEvents();
     this.showAllEvents();
-    this.activateLens = false;
   }
 
   changeLensStatus(){
@@ -120,6 +113,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
       severity: this.activateLens ? 'success' : 'error',
       summary: 'Hover Mode',
       detail: `Lens is ${this.activateLens ? 'activated' : 'deactivated' }`})
+    this.getItemMenuOptions();
   }
 
   colorCollisionEvents(collision: CourseSessionDTO[]) {
@@ -217,7 +211,7 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
         ]
       },
       {
-        label: 'Lens ',
+        label: `Lens (${this.activateLens ? 'activated' : 'deactivated'})`,
         icon: 'pi pi-bullseye',
         command: () => this.changeLensStatus()
       },

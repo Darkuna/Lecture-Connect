@@ -32,8 +32,6 @@ import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import {ProgressService} from "../../services/progress.service";
 import {TableLogComponent} from "../table-log/table-log.component";
-import {GlobalTableChangeDTO} from "../../../assets/Models/dto/global-table-change-dto";
-import {TableLogService} from "../../services/table-log.service";
 
 @Component({
   selector: 'app-home',
@@ -295,10 +293,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   }
 
-  /**
-   * This method transforms the fullcalendar html to canvas and creates a pdf out of it. In order to get a better output
-   * some properties of the calendar are adjusted before pdf creation and reset afterward.
-   */
   promptTitleAndExport(): void {
     this.displayTitlePrompt = true;
   }
@@ -351,6 +345,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     for(const [index, room] of rooms.entries()) {
       const roomEvents = allEvents.filter(e => e['description'] === room.roomId);
       courseCounter = roomEvents.length;
+
       if(courseCounter == 0) continue
 
       this.refreshCalendar(roomEvents);
@@ -376,12 +371,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.updateCalendarEvents();
   }
 
-
-  /**
-   * This method adjusts the properties of all calendar events to improve the readability when exporting the global
-   * calendar to pdf
-   * @param fontSize of the calendar events in the pdf output
-   */
   adjustEventFontSize(fontSize: string) {
     const eventElements = document.querySelectorAll('.fc-event-title, .fc-event-time');
 
@@ -422,18 +411,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   showHoverDialog(event: EventClickArg): void {
-    if (this.calendarContextMenu.hoverEventInfo) {
-      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", '#666666');
-    }
-    this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
+    if (!this.calendarContextMenu.activateLens) return;
 
     this.calendarContextMenu.hoverEventInfo = event;
-    this.calendarContextMenu.activateLens = true;
     this.calendarContextMenu.showHoverDialogBool = true;
 
+    this.calendarContextMenu.hoverEventInfo!.event.setProp("backgroundColor", '#666666');
+    this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
     this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
     event.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
-
   }
 
   updateCalendar(calendarOption: any, value: string) {
@@ -444,11 +430,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   getCalendarEvents(): EventImpl[]{
-    if(this.calendarComponent){
-      return this.calendarComponent.getApi().getEvents();
-    } else {
-      return [];
-    }
+    return this.calendarComponent ? this.calendarComponent.getApi().getEvents() : [];
   }
 
   colorSpecificEvent(event: EventImpl){
