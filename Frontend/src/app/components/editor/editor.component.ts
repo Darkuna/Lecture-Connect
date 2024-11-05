@@ -3,7 +3,7 @@ import {CalendarOptions, EventApi, EventInput, EventMountArg} from "@fullcalenda
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
-import {Observable} from "rxjs";
+import {Observable, retry} from "rxjs";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
@@ -82,6 +82,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   nrOfEvents: number = 0;
   maxEvents: number = 0;
+  nrOfNewEvents: number = 0;
 
   items: MenuItem[] = [];
   rightClickEvent: EventMountArg | null | undefined = null;
@@ -199,15 +200,10 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     )
 
     const tmp = session!.name.slice(0, 2);
-    if(tmp == 'PS' || tmp == 'SL'){
-      this.items.push(
-        { label: 'add Group', icon: 'pi pi-file-edit', command: ()=> { this.addCourseWithPsCharacter() } },
+    this.items.push((tmp == 'PS' || tmp == 'SL') ?
+      { label: 'add Group', icon: 'pi pi-file-edit', command: ()=> { this.addCourseWithPsCharacter() } }
+        : { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
       )
-    } else {
-      this.items.push(
-        { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
-      )
-    }
   }
 
   drop(arg: DropArg) {
@@ -248,7 +244,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
 
-  private updateAllEventsList(newSessionID: string, roomTable: string | null){
+  private assignRoomToCourseSession(newSessionID: string, roomTable: string | null){
     this.allEvents.find(e => e['id'] === newSessionID)!['description'] = roomTable;
   }
 
@@ -263,7 +259,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       session!.timing!.day = this.converter.weekNumberToDay(event.start?.getDay() || 1);
 
       const room = assigned ? this.selectedRoom?.roomId! : null;
-      this.updateAllEventsList(session.id.toString(), room);
+      this.assignRoomToCourseSession(session.id.toString(), room);
     }
     return session;
   }
@@ -294,10 +290,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   canDeactivate(): boolean {
-    if (this.dirtyData) {
-      return confirm('You have unsaved changes. Do you really want to leave?');
-    }
-    return true;
+    return this.dirtyData ? confirm('You have unsaved changes. Do you really want to leave?') : true;
   }
 
 
@@ -318,12 +311,12 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   private addCourseWithPsCharacter(){
     const session = this.findSession();
-    const slicedName = session!.name.slice(0, session!.name.length-1);
+    const slicedName = session!.name.replace(/[0-9]/g, '');
     const lastNumber = this.findStringWithBiggestNumber(slicedName);
 
     let newSession = {
-      id: session!.id = Math.floor(Math.random() * 10000000),
-      name: `${slicedName} ${lastNumber + 1}`,
+      id: Math.floor(Math.random() * 10000000),
+      name: `${slicedName}${lastNumber + 1}`,
       assigned: false,
       fixed: false,
       duration: session?.duration,
@@ -333,9 +326,12 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       roomTable: null
     } as CourseSessionDTO;
 
-    this.dragTableEvents.push(
-      this.converter.convertTimingToEventInput(newSession, "editor")
-    );
+    const convertedCourse = this.converter.convertTimingToEventInput(newSession, "editor")
+
+    this.timeTable.courseSessions.push(newSession);
+    this.dragTableEvents.push(convertedCourse);
+    this.allEvents.push(convertedCourse);
+    this.nrOfNewEvents += 1;
   }
 
   private deleteCourse(){
@@ -353,30 +349,36 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.timeTable.courseSessions = this.timeTable.courseSessions
       .filter(s => !s.name.includes(baseCourse));
 
-    this.calendarComponent.getApi().getEventById(deleteCourse!.id.toString())?.remove();
+    this.allEvents = this.allEvents
+      .filter(e => e.title !== deleteCourse?.name);
+    this.dragTableEvents = this.dragTableEvents
+      .filter(e => e.title !== deleteCourse?.name);
+    this.combinedTableEvents = this.combinedTableEvents
+      .filter(e => e.title !== deleteCourse?.name);
+
+    this.nrOfEvents -= 1;
     this.messageService.add({severity: 'error', summary: 'DELETE', detail: `deleted ${baseCourse}`});
   }
 
   private findStringWithBiggestNumber(baseCourse: string): number {
     const allCourses = this.timeTable.courseSessions
-      .filter(str => str.name.includes(baseCourse));
+            .filter(str => str.name.includes(baseCourse));
 
-    let maxString = null;
     let maxNumber = -Infinity;
 
     for (const str of allCourses) {
-      const number = parseInt(str.name.slice(-1), 10);
-
-      if (!isNaN(number) && number > maxNumber) {
-        maxNumber = number;
-        maxString = str.name;
-      }
+      const number = str.name.match(/\d+(\.\d+)?/g)?.map(Number) || [0]
+      if (number[0] > maxNumber) maxNumber = number[0];
     }
 
-    return parseInt(maxString!.slice(-1));
+    return maxNumber;
   }
 
   private findSession():CourseSessionDTO|undefined {
-    return this.timeTable.courseSessions.find(s => s.id.toString() === this.rightClickEvent!.event.id);
+    return this.timeTable.courseSessions.find(s => s.id.toString() === this.rightClickEvent!.event.id.toString());
+  }
+
+  newAddedCourses():string {
+    return (this.nrOfNewEvents != 0) ? `(+${this.nrOfNewEvents})` : '';
   }
 }
