@@ -89,6 +89,9 @@ public class CourseSessionService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourseSession(CourseSession courseSession){
+        if(courseSession.getTiming() != null){
+            timingService.deleteTiming(courseSession.getTiming());
+        }
         courseSessionRepository.delete(courseSession);
         log.info("Deleted course session {}", courseSession.getName());
     }
@@ -227,26 +230,28 @@ public class CourseSessionService {
 
     }
 
-    public CourseSession createCourseSession(CourseSession courseSession) {
+    public void createCourseSession(CourseSession courseSession, TimeTable timeTable) {
         CourseSession newCourseSession = new CourseSession();
         newCourseSession.setName(courseSession.getName());
-        newCourseSession.setCourseId(courseSession.getCourseId());
-        newCourseSession.setSemester(courseSession.getSemester());
-        newCourseSession.setLecturer(courseSession.getLecturer());
-        newCourseSession.setStudyType(courseSession.getStudyType());
-        newCourseSession.setDuration(courseSession.getDuration());
-        newCourseSession.setTimeTable(courseSession.getTimeTable());
-        newCourseSession.setNumberOfParticipants(courseSession.getNumberOfParticipants());
         newCourseSession.setRoomTable(courseSession.getRoomTable());
+        newCourseSession.setAssigned(courseSession.isAssigned());
+        newCourseSession.setFixed(courseSession.isFixed());
         if(courseSession.getTiming() != null){
             Timing timing = timingService.createTiming(courseSession.getTiming());
             newCourseSession.setTiming(timing);
         }
-        newCourseSession.setFixed(courseSession.isFixed());
-        newCourseSession.setElective(courseSession.isElective());
-        newCourseSession.setComputersNecessary(courseSession.isComputersNecessary());
-        newCourseSession.setAssigned(courseSession.isAssigned());
 
-        return courseSessionRepository.save(newCourseSession);
+        CourseSession toCopy = courseSessionRepository.findFirstByCourseIdAndTimeTable(courseSession.getCourseId(), timeTable);
+        newCourseSession.setCourseId(toCopy.getCourseId());
+        newCourseSession.setSemester(toCopy.getSemester());
+        newCourseSession.setLecturer(toCopy.getLecturer());
+        newCourseSession.setStudyType(toCopy.getStudyType());
+        newCourseSession.setDuration(toCopy.getDuration());
+        newCourseSession.setTimeTable(toCopy.getTimeTable());
+        newCourseSession.setNumberOfParticipants(toCopy.getNumberOfParticipants());
+        newCourseSession.setElective(toCopy.isElective());
+        newCourseSession.setComputersNecessary(toCopy.isComputersNecessary());
+
+        courseSessionRepository.save(newCourseSession);
     }
 }

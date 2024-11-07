@@ -269,20 +269,33 @@ public class TimeTableService {
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
         List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
+        List<Long> newIds = courseSessions.stream().map(CourseSession::getId).toList();
+        List<Long> oldIds = originalCourseSessions.stream().map(CourseSession::getId).toList();
         Map<Long, CourseSession> orig = originalCourseSessions.stream().collect(Collectors.toMap(CourseSession::getId, c -> c));
-        for(CourseSession courseSession : courseSessions){
+        List<CourseSession> toDelete = originalCourseSessions.stream()
+                .filter(cs -> !newIds.contains(cs.getId()))
+                .toList();
+        List<CourseSession> toCreate = courseSessions.stream()
+                .filter(cs -> !oldIds.contains(cs.getId()))
+                .toList();
+        List<CourseSession> toUpdate = courseSessions.stream()
+                .filter(cs -> oldIds.contains(cs.getId()))
+                .toList();
+        for(CourseSession courseSession : toDelete){
+            courseSessionService.deleteCourseSession(courseSession);
+        }
+        for(CourseSession courseSession : toCreate){
+            courseSessionService.createCourseSession(courseSession, timeTable);
+        }
+
+        for(CourseSession courseSession : toUpdate){
             CourseSession toCompare = orig.get(courseSession.getId());
-            if(toCompare == null){
-                toCompare = courseSessionService.createCourseSession(courseSession);
-                toCompare.setTimeTable(timeTable);
-                continue;
-            }
+
             if(!toCompare.courseSessionChanged(courseSession)){
                 continue;
             }
             courseSessionService.updateCourseSession(timeTable, courseSession, toCompare);
         }
-        timeTableRepository.save(timeTable);
     }
 
 }
