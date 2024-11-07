@@ -62,6 +62,7 @@ public class DTOConverter {
         courseSession.setRoomTable(toRoomTable(dto.getRoomTable()));
         courseSession.setSemester(dto.getSemester());
         courseSession.setStudyType(StudyType.valueOf(dto.getStudyType()));
+        courseSession.setCourseId(dto.getCourseId());
         return courseSession;
     }
 
