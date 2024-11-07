@@ -39,6 +39,7 @@ public class DTOConverter {
         if(courseSession.getTiming() != null){
             dto.setTiming(toTimingDTO(courseSession.getTiming()));
         }
+        dto.setCourseId(courseSession.getCourseId());
         return dto;
     }
     /**

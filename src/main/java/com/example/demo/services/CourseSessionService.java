@@ -226,4 +226,27 @@ public class CourseSessionService {
         courseSessionRepository.save(original);
 
     }
+
+    public CourseSession createCourseSession(CourseSession courseSession) {
+        CourseSession newCourseSession = new CourseSession();
+        newCourseSession.setName(courseSession.getName());
+        newCourseSession.setCourseId(courseSession.getCourseId());
+        newCourseSession.setSemester(courseSession.getSemester());
+        newCourseSession.setLecturer(courseSession.getLecturer());
+        newCourseSession.setStudyType(courseSession.getStudyType());
+        newCourseSession.setDuration(courseSession.getDuration());
+        newCourseSession.setTimeTable(courseSession.getTimeTable());
+        newCourseSession.setNumberOfParticipants(courseSession.getNumberOfParticipants());
+        newCourseSession.setRoomTable(courseSession.getRoomTable());
+        if(courseSession.getTiming() != null){
+            Timing timing = timingService.createTiming(courseSession.getTiming());
+            newCourseSession.setTiming(timing);
+        }
+        newCourseSession.setFixed(courseSession.isFixed());
+        newCourseSession.setElective(courseSession.isElective());
+        newCourseSession.setComputersNecessary(courseSession.isComputersNecessary());
+        newCourseSession.setAssigned(courseSession.isAssigned());
+
+        return courseSessionRepository.save(newCourseSession);
+    }
 }
