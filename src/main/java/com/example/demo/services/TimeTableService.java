@@ -272,11 +272,17 @@ public class TimeTableService {
         Map<Long, CourseSession> orig = originalCourseSessions.stream().collect(Collectors.toMap(CourseSession::getId, c -> c));
         for(CourseSession courseSession : courseSessions){
             CourseSession toCompare = orig.get(courseSession.getId());
+            if(toCompare == null){
+                toCompare = courseSessionService.createCourseSession(courseSession);
+                toCompare.setTimeTable(timeTable);
+                continue;
+            }
             if(!toCompare.courseSessionChanged(courseSession)){
                 continue;
             }
             courseSessionService.updateCourseSession(timeTable, courseSession, toCompare);
         }
+        timeTableRepository.save(timeTable);
     }
 
 }
