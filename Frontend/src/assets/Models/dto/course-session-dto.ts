@@ -7,6 +7,7 @@ export interface CourseSessionDTO {
   assigned: boolean;
   fixed: boolean;
   duration: number;
+  courseId: number;
   semester: number;
   studyType: string;
   timingConstraints: TimingDTO[];

@@ -320,6 +320,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       assigned: false,
       fixed: false,
       duration: session?.duration,
+      courseId: session?.courseId,
       semester: session?.semester,
       studyType: session?.studyType,
       timingConstraints: session?.timingConstraints,
