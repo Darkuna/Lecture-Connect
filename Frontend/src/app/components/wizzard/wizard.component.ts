@@ -175,7 +175,15 @@ export class WizardComponent {
     this._dirtyData = value;
   }
 
-  clearDirtyData(){
+  clearDirtyData() {
     this.dirtyData = false;
   }
+}
+
+export function calculateTableHeight(contextContainer: HTMLDivElement){
+  return contextContainer.clientHeight ? contextContainer.clientHeight * 0.8 : 600;
+}
+
+export function getTableSettings(container: HTMLDivElement) {
+  return {'height': `${calculateTableHeight(container)}px`};
 }

@@ -26,10 +26,6 @@
               (click)="redirectToPage('/admin/users')"></button>
     </div>
     <div class="itemRight" *ngIf="isLoggedIn()">
-      <button pButton type="button" label="Settings" class="headerButton"
-              (click)="redirectToPage('/user/settings')"></button>
-    </div>
-    <div class="itemRight" *ngIf="isLoggedIn()">
       <button pButton type="button" label="logout" class="headerButton"
               (click)="logout()"></button>
     </div>

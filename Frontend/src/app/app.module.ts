@@ -70,6 +70,9 @@ import {LoadingInterceptor} from "./interceptor/loading.interceptor";
 import { UserSettingsComponent } from './components/header-self/user-settings/user-settings.component';
 import { TableViewComponent } from './components/TableView/table-view/table-view.component';
 import {CheckboxModule} from "primeng/checkbox";
+import { ProgressComponent } from './components/progress/progress.component';
+import { TableLogComponent } from './components/table-log/table-log.component';
+import {PickListModule} from "primeng/picklist";
 
 @NgModule({ declarations: [
         AppComponent, HeaderSelfComponent, LoginComponent,
@@ -79,16 +82,16 @@ import {CheckboxModule} from "primeng/checkbox";
         BaseSelectionComponent, CourseSelectionComponent, DetailSelectionComponent,
         RoomSelectionComponent, BaseSelectionComponent, RoomSelectionPageComponent,
         CourseSelectionPageComponent, CalendarContextMenuComponent, EditorComponent,
-        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent,
+        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent, TableLogComponent,
     ],
   bootstrap: [AppComponent],
-    imports: [
-        NgxWebstorageModule.forRoot(),
-        BrowserAnimationsModule, BrowserModule, AppRoutingModule, ButtonModule, CardModule, InputTextModule, PasswordModule, ToastModule,
-        FormsModule, RippleModule, TableModule, FileUploadModule, ToolbarModule, MultiSelectModule, DialogModule, DropdownModule, TagModule, RadioButtonModule,
-        InputNumberModule, ConfirmDialogModule, InputTextareaModule, InputSwitchModule, SelectButtonModule,
-        FullCalendarModule, MenuModule, BadgeModule, AvatarModule, CarouselModule, MenubarModule, CalendarModule, StepperModule, IconFieldModule, InputIconModule, ToggleButtonModule,
-        DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule, CheckboxModule],
+  imports: [
+    NgxWebstorageModule.forRoot(),
+    BrowserAnimationsModule, BrowserModule, AppRoutingModule, ButtonModule, CardModule, InputTextModule, PasswordModule, ToastModule,
+    FormsModule, RippleModule, TableModule, FileUploadModule, ToolbarModule, MultiSelectModule, DialogModule, DropdownModule, TagModule, RadioButtonModule,
+    InputNumberModule, ConfirmDialogModule, InputTextareaModule, InputSwitchModule, SelectButtonModule,
+    FullCalendarModule, MenuModule, BadgeModule, AvatarModule, CarouselModule, MenubarModule, CalendarModule, StepperModule, IconFieldModule, InputIconModule, ToggleButtonModule,
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule, CheckboxModule, PickListModule],
   providers: [
     ConfirmationService,
     MessageService,

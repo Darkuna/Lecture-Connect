@@ -11,6 +11,7 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^17.3.0",
+    "@angular/cdk": "^18.2.11",
     "@angular/common": "^17.3.0",
     "@angular/compiler": "^17.3.0",
     "@angular/core": "^17.3.0",
@@ -26,6 +27,8 @@
     "@fullcalendar/rrule": "^6.1.14",
     "@fullcalendar/timegrid": "^6.1.14",
     "@popperjs/core": "^2.11.8",
+    "@progress/kendo-angular-navigation": "^16.11.0",
+    "@progress/kendo-angular-utils": "^16.11.0",
     "bootstrap": "^5.3.3",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.1",

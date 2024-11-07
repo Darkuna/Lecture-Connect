@@ -30,7 +30,8 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
+import {ProgressService} from "../../services/progress.service";
+import {TableLogComponent} from "../table-log/table-log.component";
 
 @Component({
   selector: 'app-home',
@@ -60,6 +61,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
+  @ViewChild('tableLog') tableLog!: TableLogComponent;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
@@ -90,10 +92,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     eventBackgroundColor: "#666666",
     eventBorderColor: "#050505",
     eventTextColor: "var(--system-color-primary-white)",
-    slotMinTime: this.formatTime(this.tmpStartDate),
-    slotMaxTime: this.formatTime(this.tmpEndDate),
-    slotDuration: this.formatTime(this.tmpDuration),
-    slotLabelInterval: this.formatTime(this.tmpSlotInterval),
+    slotMinTime: this.converter.formatTime(this.tmpStartDate),
+    slotMaxTime: this.converter.formatTime(this.tmpEndDate),
+    slotDuration: this.converter.formatTime(this.tmpDuration),
+    slotLabelInterval: this.converter.formatTime(this.tmpSlotInterval),
     dayHeaderFormat: {weekday: 'long'},
     eventOverlap: true,
     slotEventOverlap: true,
@@ -106,9 +108,10 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private shareService: TableShareService,
     private globalTableService: GlobalTableService,
     private localStorage: LocalStorageService,
-    private converter: EventConverterService,
+    protected converter: EventConverterService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    private progressService: ProgressService,
     private cd: ChangeDetectorRef,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
@@ -156,8 +159,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       from(sessions!).pipe(
         this.converter.convertCourseSessionToEventInput('home'),
         toArray(),
-        catchError(error => {
-          console.error('Error converting sessions:', error);
+        catchError(() => {
           return of([]);
         })
       ).subscribe(events => {
@@ -291,17 +293,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   }
 
-  /**
-   * This method transforms the fullcalendar html to canvas and creates a pdf out of it. In order to get a better output
-   * some properties of the calendar are adjusted before pdf creation and reset afterward.
-   */
   promptTitleAndExport(): void {
     this.displayTitlePrompt = true;
   }
 
   exportCalendarAsPDF() {
     if (!this.exportTitle) {
-      this.messageService.add({ severity: 'warn', summary: 'Fehler', detail: 'Bitte einen Titel eingeben' });
+      this.messageService.add({ severity: 'warn', summary: 'ERROR', detail: 'Change the title' });
       return;
     }
 
@@ -315,10 +313,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       const imgWidth = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      const titleText = ` ${this.exportTitle} `;
-      const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
+      const textWidth = pdf.getStringUnitWidth(this.exportTitle.toString()) * pdf.getFontSize() / pdf.internal.scaleFactor;
       const xPosition = (imgWidth - textWidth) / 2;
-      pdf.text(titleText, xPosition, 10);
+      pdf.text(this.exportTitle.toString(), xPosition, 10);
 
       pdf.addImage(imgData, 'JPEG', 0, 15, imgWidth, imgHeight);
       pdf.save('calendar_export.pdf');
@@ -335,54 +332,45 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   async exportCalendarPerRoom(): Promise<void> {
     const pdf = new jsPDF('landscape', 'mm', 'a4');
+    pdf.setFontSize(16);
 
-    if (this.selectedTimeTable$) {
-      const timeTable = await firstValueFrom(this.selectedTimeTable$);
-      const rooms = timeTable.roomTables;
-      const allEvents = this.converter.convertMultipleCourseSessions(timeTable.courseSessions, 'editor');
+    const timeTable = await firstValueFrom(this.selectedTimeTable$!);
+    const rooms = timeTable.roomTables;
+    const allEvents = this.converter.convertMultipleCourseSessions(timeTable.courseSessions, 'home');
+    this.progressService.progressMaxCounter = allEvents.length;
 
-      for (const [index, room] of rooms.entries()) {
-        const roomEvents = allEvents.filter(e => e['description'] === room.roomId);
-        room.timingConstraints?.forEach(t => {
-          roomEvents.push(this.converter.convertTimingEventInput(t));
-        });
+    let courseCounter = 0;
+    let calendarElement, canvas, imgData, imgHeight, textWidth;
 
-        this.refreshCalendar(roomEvents);
+    for(const [index, room] of rooms.entries()) {
+      const roomEvents = allEvents.filter(e => e['description'] === room.roomId);
+      courseCounter = roomEvents.length;
 
-        await new Promise(resolve => setTimeout(resolve, 200));
+      if(courseCounter == 0) continue
 
-        const calendarElement = this.calendarElement.nativeElement as HTMLElement;
-        const canvas = await html2canvas(calendarElement, { scale: 2 });
+      this.refreshCalendar(roomEvents);
+      await new Promise(resolve => setTimeout(resolve, 200));
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.8);
-        const imgWidth = 270;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      calendarElement = this.calendarElement.nativeElement as HTMLElement;
+      canvas = await html2canvas(calendarElement, { scale: 2 });
 
-        pdf.setFontSize(16);
-        const pageWidth = pdf.internal.pageSize.width;
-        const titleText = ` ${room.roomId} `;
-        const textWidth = pdf.getStringUnitWidth(titleText) * pdf.getFontSize() / pdf.internal.scaleFactor;
-        const xPosition = (pageWidth - textWidth) / 2;
-        pdf.text(titleText, xPosition, 10);
+      imgData = canvas.toDataURL('image/jpeg', 1);
+      imgHeight = (canvas.height * 270) / canvas.width;
 
-        pdf.addImage(imgData, 'JPEG', 10, 20, imgWidth, imgHeight);
+      textWidth = pdf.getStringUnitWidth(room.roomId) * pdf.getFontSize() / pdf.internal.scaleFactor;
 
-        if (index < rooms.length - 1) {
-          pdf.addPage();
-        }
-      }
+      pdf.text(room.roomId, (pdf.internal.pageSize.width - textWidth) / 2, 10);
+      pdf.addImage(imgData, 'JPEG', 10, 20, 270, imgHeight);
 
-      pdf.save('calendar_per_room.pdf');
+      if (index < rooms.length - 1) pdf.addPage();
+      this.progressService.progressCounter = courseCounter;
     }
+
+    pdf.save('calendar_per_room.pdf');
+    this.progressService.finishedLoading();
     this.updateCalendarEvents();
   }
 
-
-  /**
-   * This method adjusts the properties of all calendar events to improve the readability when exporting the global
-   * calendar to pdf
-   * @param fontSize of the calendar events in the pdf output
-   */
   adjustEventFontSize(fontSize: string) {
     const eventElements = document.querySelectorAll('.fc-event-title, .fc-event-time');
 
@@ -423,18 +411,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   showHoverDialog(event: EventClickArg): void {
-    if (this.calendarContextMenu.hoverEventInfo) {
-      this.calendarContextMenu.hoverEventInfo.event.setProp("backgroundColor", '#666666');
-    }
-    this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
+    if (!this.calendarContextMenu.activateLens) return;
 
     this.calendarContextMenu.hoverEventInfo = event;
-    this.calendarContextMenu.activateLens = true;
     this.calendarContextMenu.showHoverDialogBool = true;
 
+    this.calendarContextMenu.hoverEventInfo!.event.setProp("backgroundColor", '#666666');
+    this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
     this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
     event.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
-
   }
 
   updateCalendar(calendarOption: any, value: string) {
@@ -444,17 +429,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.calendarComponent.getApi().setOption(calendarOption, value);
   }
 
-  formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
-    return date.toString().split(' ')[4];
-  }
-
   getCalendarEvents(): EventImpl[]{
-    if(this.calendarComponent){
-      return this.calendarComponent.getApi().getEvents();
-    } else {
-      return [];
-    }
+    return this.calendarComponent ? this.calendarComponent.getApi().getEvents() : [];
   }
 
   colorSpecificEvent(event: EventImpl){
@@ -472,6 +448,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     if(this.lastSearchedEvent){
       this.lastSearchedEvent.setProp("backgroundColor", '#666666');
     }
+  }
+
+  private loadChanges(){
+    this.tableLog.tableName = this.shownTableDD;
+    this.tableLog.showChanges();
   }
 
   ngOnInit() {
@@ -527,18 +508,18 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       },
       {
         label: 'Scheduling',
+        expanded: true,
         items: [
           {
             label: 'last Changes',
             icon: 'pi pi-comments',
-            command: () => {
-              this.messageService.add({severity: 'error', summary: 'OFFLINE', detail: 'method not implemented'})
-          }
+            command: () => { this.loadChanges() }
           }
         ]
       },
       {
         label: 'Print',
+        expanded: true,
         items: [
           {
             label: 'Export Plan (Current)',

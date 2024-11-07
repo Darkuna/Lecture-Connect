@@ -33,16 +33,15 @@ export class BaseSelectionComponent{
   protected readonly CourseColor = CourseColor;
   lastUsedColor: CourseColor = CourseColor.COMPUTER_SCIENCE;
 
-  activeDialog: boolean = true;
+  activeDialog: boolean = false;
   showTimeDialog: boolean = false;
   dataSelectStart!: Date;
   dataSelectEnd!: Date;
 
-  //to be saved in the config file
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
-  tmpDuration: Date = new Date('2024-07-10T00:20:00');
-  tmpSlotInterval: Date = new Date('2024-07-10T01:00:00');
+  tmpDuration: Date = new Date('2024-07-10T00:15:00');
+  tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
   constructor(
     private confirmationService: ConfirmationService,
@@ -119,6 +118,7 @@ export class BaseSelectionComponent{
     eventClick: this.handleEventClick.bind(this),
     eventAdd: this.interactWithModel.bind(this),
     eventRemove: this.interactWithModel.bind(this),
+    eventAllow: this.eventAllow.bind(this),
     allDaySlot: false,
     height: "auto",
     eventBackgroundColor: this.lastUsedColor,
@@ -134,7 +134,6 @@ export class BaseSelectionComponent{
     nowIndicator: false,
     eventDurationEditable: true,
     eventStartEditable: true,
-
   });
 
   handleDateSelect(selectInfo: DateSelectArg) {
@@ -142,8 +141,13 @@ export class BaseSelectionComponent{
     this.dataSelectEnd = selectInfo.end;
     this.showDialog();
 
-    if(!this.activeDialog){
+    const onlyOnASingleDay = selectInfo.start.getDay() == selectInfo.end.getDay();
+
+    if(!this.activeDialog && onlyOnASingleDay){
       this.saveEvent();
+    } else {
+      this.calendarComponent.getApi().unselect();
+      this.messageService.add({severity:'error', summary:'Rejected', detail:'Multiple Day Events are not allowed'});
     }
   }
 
@@ -221,6 +225,16 @@ export class BaseSelectionComponent{
     dto.status = getStatusKey(this.globalTable.status);
 
     return dto;
+  }
+
+  eventAllow(args: any): boolean {
+    const startHour = args.start?.getHours();
+    const startMinutes = args.start?.getMinutes();
+
+    const isBefore815AM = startHour! < 8 || (startHour === 8 && startMinutes! < 15);
+    const isAfter10PM = args.end!.getHours() >= 22;
+
+    return !isBefore815AM && !isAfter10PM;
   }
 
   sendToBackend() {
