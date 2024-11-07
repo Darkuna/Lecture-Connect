@@ -360,7 +360,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.messageService.add({severity: 'error', summary: 'DELETE', detail: `deleted ${baseCourse}`});
   }
 
-  private findStringWithBiggestNumber(baseCourse: string): number {
+  private findStringWithBiggestNumber(baseCourse: string): number{
     const allCourses = this.timeTable.courseSessions
             .filter(str => str.name.includes(baseCourse));
 
@@ -374,7 +374,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return maxNumber;
   }
 
-  private findSession():CourseSessionDTO|undefined {
+  private findSession():CourseSessionDTO | undefined{
     return this.timeTable.courseSessions.find(s => s.id.toString() === this.rightClickEvent!.event.id.toString());
   }
 
