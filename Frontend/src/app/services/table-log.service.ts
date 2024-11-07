@@ -20,7 +20,8 @@ export class TableLogService {
     private http: HttpClient,
   ) { }
 
-  getTimeTableLogs() {
-    return this.http.get<GlobalTableChangeDTO[]>(TableLogService.API_PATH, this.httpOptions);
+  getTimeTableLogs(id: number) {
+    const newUrl = `${TableLogService.API_PATH}/${id}`;
+    return this.http.get<GlobalTableChangeDTO[]>(newUrl, this.httpOptions);
   }
 }

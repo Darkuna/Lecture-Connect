@@ -452,7 +452,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   private loadChanges(){
     this.tableLog.tableName = this.shownTableDD;
-    this.tableLog.showChanges();
+    this.tableLog.showChanges(this.shownTableDD!.id);
   }
 
   ngOnInit() {
