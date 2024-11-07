@@ -99,7 +99,15 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   ) {
     this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
     this.selectedTimeTable.subscribe( r => {
-        this.availableRooms = r.roomTables;
+        this.availableRooms = r.roomTables.sort((a, b) => {
+          if (a.capacity == null) return 1;
+          if (b.capacity == null) return -1;
+
+          const capacityComparison = b.capacity - a.capacity;
+          if (capacityComparison !== 0) return capacityComparison;
+
+          return a.roomId.localeCompare(b.roomId);
+        });
         this.selectedRoom = r.roomTables[0];
 
         this.timeTable = r;

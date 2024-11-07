@@ -335,7 +335,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     pdf.setFontSize(16);
 
     const timeTable = await firstValueFrom(this.selectedTimeTable$!);
-    const rooms = timeTable.roomTables;
+    const rooms = timeTable.roomTables.sort((a, b) => {
+      if (a.capacity == null) return 1;
+      if (b.capacity == null) return -1;
+
+      const capacityComparison = b.capacity - a.capacity;
+      if (capacityComparison !== 0) return capacityComparison;
+
+      return a.roomId.localeCompare(b.roomId);
+    });
     const allEvents = this.converter.convertMultipleCourseSessions(timeTable.courseSessions, 'home');
     this.progressService.progressMaxCounter = allEvents.length;
 
