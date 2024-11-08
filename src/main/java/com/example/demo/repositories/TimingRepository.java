@@ -9,6 +9,5 @@ import java.util.List;
 
 public interface TimingRepository extends JpaRepository<Timing, Long> {
     List<Timing> findAllByRoomTable(RoomTable roomTable);
-    List<Timing> findAllByCourse(Course course);
     List<Timing> findAllByCourseId(String courseId);
 }
