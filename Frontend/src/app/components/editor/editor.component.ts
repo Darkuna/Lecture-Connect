@@ -99,7 +99,15 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   ) {
     this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
     this.selectedTimeTable.subscribe( r => {
-        this.availableRooms = r.roomTables;
+        this.availableRooms = r.roomTables.sort((a, b) => {
+          if (a.capacity == null) return 1;
+          if (b.capacity == null) return -1;
+
+          const capacityComparison = b.capacity - a.capacity;
+          if (capacityComparison !== 0) return capacityComparison;
+
+          return a.roomId.localeCompare(b.roomId);
+        });
         this.selectedRoom = r.roomTables[0];
 
         this.timeTable = r;
@@ -361,7 +369,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     this.messageService.add({severity: 'error', summary: 'DELETE', detail: `deleted ${baseCourse}`});
   }
 
-  private findStringWithBiggestNumber(baseCourse: string): number {
+  private findStringWithBiggestNumber(baseCourse: string): number{
     const allCourses = this.timeTable.courseSessions
             .filter(str => str.name.includes(baseCourse));
 
@@ -375,7 +383,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return maxNumber;
   }
 
-  private findSession():CourseSessionDTO|undefined {
+  private findSession():CourseSessionDTO | undefined{
     return this.timeTable.courseSessions.find(s => s.id.toString() === this.rightClickEvent!.event.id.toString());
   }
 

@@ -1,6 +1,5 @@
 package com.example.demo.models;
 
-import com.example.demo.scheduling.AvailabilityMatrix;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -14,7 +13,6 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@EqualsAndHashCode
 public class RoomTable implements Persistable<Long>, Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

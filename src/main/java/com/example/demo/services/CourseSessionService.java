@@ -89,6 +89,9 @@ public class CourseSessionService {
     @Transactional
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void deleteCourseSession(CourseSession courseSession){
+        if(courseSession.getTiming() != null){
+            timingService.deleteTiming(courseSession.getTiming());
+        }
         courseSessionRepository.delete(courseSession);
         log.info("Deleted course session {}", courseSession.getName());
     }
@@ -225,5 +228,30 @@ public class CourseSessionService {
 
         courseSessionRepository.save(original);
 
+    }
+
+    public void createCourseSession(CourseSession courseSession, TimeTable timeTable) {
+        CourseSession newCourseSession = new CourseSession();
+        newCourseSession.setName(courseSession.getName());
+        newCourseSession.setRoomTable(courseSession.getRoomTable());
+        newCourseSession.setAssigned(courseSession.isAssigned());
+        newCourseSession.setFixed(courseSession.isFixed());
+        if(courseSession.getTiming() != null){
+            Timing timing = timingService.createTiming(courseSession.getTiming());
+            newCourseSession.setTiming(timing);
+        }
+
+        CourseSession toCopy = courseSessionRepository.findFirstByCourseIdAndTimeTable(courseSession.getCourseId(), timeTable);
+        newCourseSession.setCourseId(toCopy.getCourseId());
+        newCourseSession.setSemester(toCopy.getSemester());
+        newCourseSession.setLecturer(toCopy.getLecturer());
+        newCourseSession.setStudyType(toCopy.getStudyType());
+        newCourseSession.setDuration(toCopy.getDuration());
+        newCourseSession.setTimeTable(toCopy.getTimeTable());
+        newCourseSession.setNumberOfParticipants(toCopy.getNumberOfParticipants());
+        newCourseSession.setElective(toCopy.isElective());
+        newCourseSession.setComputersNecessary(toCopy.isComputersNecessary());
+
+        courseSessionRepository.save(newCourseSession);
     }
 }

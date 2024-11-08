@@ -36,4 +36,7 @@ public class GlobalTableChangeService {
         return globalTableChangeRepository.findAll();
     }
 
+    public List<GlobalTableChange> loadAllByTimeTable(TimeTable timeTable){
+        return globalTableChangeRepository.findAllByTimeTable(timeTable.getName());
+    }
 }

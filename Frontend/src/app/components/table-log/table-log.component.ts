@@ -21,14 +21,12 @@ export class TableLogComponent implements OnInit{
   ) {
   }
 
-  private loadChanges(): void {
-    if (this.changes == null) {
-      this.changes = this.logService.getTimeTableLogs();
-    }
+  private loadChanges(id: number): void {
+    this.changes = this.logService.getTimeTableLogs(id);
   }
 
-  showChanges(){
-    this.loadChanges();
+  showChanges(id: number){
+    this.loadChanges(id);
     this.visible = true;
   }
 

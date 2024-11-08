@@ -155,9 +155,10 @@ public class GlobalViewController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/changes")
-    public ResponseEntity<List<GlobalTableChangeDTO>> getGlobalTableChanges() {
-        List<GlobalTableChangeDTO> globalTableChanges = globalTableChangeService.loadAll().stream()
+    @GetMapping("/changes/{id}")
+    public ResponseEntity<List<GlobalTableChangeDTO>> getGlobalTableChanges(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+        List<GlobalTableChangeDTO> globalTableChanges = globalTableChangeService.loadAllByTimeTable(timeTable).stream()
                 .map(dtoConverter::toGlobalTableChangeDTO)
                 .collect(Collectors.toList());
 

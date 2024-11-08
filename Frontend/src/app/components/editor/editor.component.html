@@ -2,7 +2,6 @@
   <p-toolbar>
     <div class="p-toolbar-group-start">
       {{nrOfEvents}} of {{maxEvents}}{{newAddedCourses()}} Courses are assigned
-
     </div>
 
     <div class="p-toolbar-group-center">
@@ -15,7 +14,7 @@
                   (onChange)="loadNewRoom($event.value)">
         <ng-template let-item pTemplate="item">
           <div class="flex align-items-center gap-2">
-            <div>{{ item.roomId }}</div>
+            <div>{{ item.roomId }} | Seats: {{ item.capacity }}</div>
           </div>
         </ng-template>
       </p-dropdown>

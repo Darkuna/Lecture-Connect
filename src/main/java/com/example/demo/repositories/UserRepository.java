@@ -16,14 +16,5 @@ import java.util.Optional;
  * course "Software Architecture" offered by Innsbruck University.
  */
 public interface UserRepository extends JpaRepository<Userx, String> {
-
-    Iterable<Userx> findByUsernameContaining(String username);
-
-    @Query("SELECT u FROM Userx u WHERE CONCAT(u.firstName, ' ', u.lastName) = :wholeName")
-    Iterable<Userx> findByWholeNameConcat(@Param("wholeName") String wholeName);
-
-    @Query("SELECT u FROM Userx u WHERE :role MEMBER OF u.roles")
-    Iterable<Userx> findByRole(@Param("role") UserxRole role);
-
     Optional<Userx> findByUsername(String username);
 }

@@ -1,7 +1,7 @@
 The following steps are necessary to build a new version of Lecture-Connect:
 
-1. Enter the src/ directory and build the .jar file using `./mvnw clean install -DskipTests`
-2. Enter the docker/ directory and run docker-compose up --build
+1. Enter the root directory and build the .jar file using `./mvnw clean install -DskipTests`
+2. Enter the docker/ directory and run docker compose up --build
 
 The application as well as the mysql database should start automatically now.
 
