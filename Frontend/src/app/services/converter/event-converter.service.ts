@@ -59,15 +59,9 @@ export class EventConverterService {
 
     timing.id = 0;
     timing.timingType = event.title;
-    if(event.start){
-      timing.day = this.weekNumberToDay(event.start?.getDay());
-    }
-    if (event.start) {
-      timing.startTime = this.convertLocalDateToString(event.start);
-    }
-    if (event.end) {
-      timing.endTime = this.convertLocalDateToString(event.end);
-    }
+    if(event.start) timing.day = this.weekNumberToDay(event.start?.getDay());
+    if (event.start) timing.startTime = this.convertLocalDateToString(event.start);
+    if (event.end) timing.endTime = this.convertLocalDateToString(event.end);
 
     return timing;
   }

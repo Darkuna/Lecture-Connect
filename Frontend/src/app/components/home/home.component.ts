@@ -498,23 +498,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
         ]
       },
       {
-        label: 'Rooms',
-        expanded: true,
-        items: [
-          {
-            label: 'Add new Rooms',
-            icon: 'pi pi-warehouse',
-            command: () => this.redirectToSelection('/user/tt-rooms')
-          },
-
-          {
-            label: 'Edit shown Rooms',
-            icon: 'pi pi-warehouse',
-            command: () => this.redirectToSelection('/user/tt-rooms')
-          },
-        ]
-      },
-      {
         label: 'Scheduling',
         expanded: true,
         items: [
