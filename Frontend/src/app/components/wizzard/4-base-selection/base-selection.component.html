@@ -32,7 +32,7 @@
                         onIcon="pi pi-eye" offIcon="pi pi-eye-slash" [style]="{'width':'100%', 'height': '3.6rem'}"
                         [(ngModel)]="activeDialog" (ngModelChange)="handleOptionChange($event)"/>
         <br>
-        <p-button icon="pi pi-bars" label="Calendar Settings"
+        <p-button icon="pi pi-bars" label="Calendar Settings" [style]="{'width':'100%', 'height': '3.6rem'}"
                   (click)="op.show($event, actualTarget)"/>
         <br>
        <p-button label="finish" icon="pi pi-flag"

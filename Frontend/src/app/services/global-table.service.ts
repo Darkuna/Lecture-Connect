@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TmpTimeTableDTO} from "../../assets/Models/dto/tmp-time-table-dto";
-import {Observable} from "rxjs";
+import {firstValueFrom, Observable} from "rxjs";
 import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
 import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 import {environment} from "../environment/environment";
@@ -42,17 +42,7 @@ export class GlobalTableService {
 
   pushTmpTableObject(table: TmpTimeTableDTO): Promise<string> {
     const newUrl = `${GlobalTableService.API_PATH}/create`;
-
-    return new Promise((resolve, reject) => {
-      this.http.post<any>(newUrl, table, this.httpOptions).subscribe({
-        next: () => {
-        resolve('upload successfully');
-      },
-      error: (err: HttpErrorResponse) => {
-        reject(err.message);
-      }
-      });
-    });
+    return firstValueFrom(this.http.post<any>(newUrl, table, this.httpOptions));
   }
 
   getScheduledTimeTable(id: number): Observable<TimeTableDTO> {

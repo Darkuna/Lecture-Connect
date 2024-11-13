@@ -29,8 +29,8 @@ export class CourseService {
   ) {
   }
 
-  getAllCourses() {
-    return this.http.get<Course[]>(this.courseApiPath, this.httpOptions);
+  async getAllCourses() {
+    return firstValueFrom(this.http.get<Course[]>(this.courseApiPath, this.httpOptions));
   }
 
   getUnselectedCourses(): Observable<Course[]> {

@@ -39,11 +39,9 @@ export class DataWizardComponent{
    this.tmpTimeTable = this.shareService.selectedTable;
  }
 
- filterData(setFilter: boolean): void {
+ async filterData(setFilter: boolean) {
    if(setFilter){
-     this.courseService.getAllCourses().subscribe(
-       ((data:Course[]) => this.allCourses = data)
-     );
+     this.allCourses = await this.courseService.getAllCourses();
 
      this.filterDataVar = setFilter;
      this.userHasInteracted = true;
