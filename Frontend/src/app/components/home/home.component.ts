@@ -276,13 +276,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
       this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
         next: (collision: CourseSessionDTO[]) => {
           if (collision.length === 0) {
-            this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collisions checks were successful'})}
+            this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collision checks were successful'})}
           else {
-            this.calendarContextMenu.colorCollisionEvents(collision);
             this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
+            this.calendarContextMenu.colorCollisionEvents(collision);
           }
         },
-
         error: err => {
           this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
         }
