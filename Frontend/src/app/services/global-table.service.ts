@@ -4,9 +4,6 @@ import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TmpTimeTableDTO} from "../../assets/Models/dto/tmp-time-table-dto";
 import {Observable} from "rxjs";
 import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
-import {TableLogDto} from "../../assets/Models/dto/table-log-dto";
-import {Room} from "../../assets/Models/room";
-import {Course} from "../../assets/Models/course";
 import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 import {environment} from "../environment/environment";
 
@@ -88,19 +85,5 @@ export class GlobalTableService {
   deleteTable(id: number){
     const newUrl = `${GlobalTableService.API_PATH}/${id}`;
     return this.http.delete(newUrl, this.httpOptions);
-  }
-
-  //TODO change with correct api path
-  updateTableRooms(id: number, rooms : Room[], newLogs : TableLogDto[]){
-    const newUrl = `${GlobalTableService.API_PATH}/roomupdate/${id}`;
-    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, [rooms, newLogs] ,this.httpOptions);
-    return this.currentTimeTable;
-  }
-
-  //TODO change with correct api path
-  updateTableCourses(id: number, courses : Course[], newLogs : TableLogDto[]){
-    const newUrl = `${GlobalTableService.API_PATH}/courseupdate/${id}`;
-    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, [courses, newLogs], this.httpOptions);
-    return this.currentTimeTable;
   }
 }
