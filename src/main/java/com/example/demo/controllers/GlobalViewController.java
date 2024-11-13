@@ -1,8 +1,10 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.*;
+import com.example.demo.models.Course;
 import com.example.demo.models.CourseSession;
 import com.example.demo.models.TimeTable;
+import com.example.demo.scheduling.CollisionType;
 import com.example.demo.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -10,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -99,14 +103,15 @@ public class GlobalViewController {
     }
 
     @PostMapping("/collision/{id}")
-    public ResponseEntity<List<CourseSessionDTO>> checkCollision(@PathVariable Long id) {
+    public ResponseEntity<Map<CourseSessionDTO, List<CollisionType>>> checkCollision(@PathVariable Long id) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
-        //TODO: the new collision check return a Map<CourseSession, List<CollisionType>. Make use of that
-        List<CourseSession> collisions = timeTableService.checkCollisions(timeTable).keySet().stream().toList();
-        List<CourseSessionDTO> collisionDTOs = collisions.stream()
-                .map(dtoConverter::toCourseSessionDTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok().body(collisionDTOs);
+        Map<CourseSession, List<CollisionType>> collisions = timeTableService.checkCollisions(timeTable);
+        Map<CourseSessionDTO, List<CollisionType>> dtoCollisions = collisions.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> dtoConverter.toCourseSessionDTO(entry.getKey()),
+                        Map.Entry::getValue
+                ));
+        return ResponseEntity.ok(dtoCollisions);
     }
 
     @GetMapping("/courses/{id}")
@@ -128,12 +133,19 @@ public class GlobalViewController {
     }
 
     @PostMapping("/add-courses-to-timetable/{id}")
-    public ResponseEntity<Void> addCoursesToTimeTable(@PathVariable Long id, @RequestBody List<CourseDTO> courseDTOs) {
+    public ResponseEntity<List<CourseSessionDTO>> addCoursesToTimeTable(@PathVariable Long id, @RequestBody List<CourseDTO> courseDTOs) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
+        List<CourseSession> courseSessions = new ArrayList<>();
         for(CourseDTO courseDTO : courseDTOs) {
-            timeTableService.createCourseSessions(timeTable, dtoConverter.toCourse(courseDTO));
+            Course course = dtoConverter.toCourse(courseDTO);
+            course.setNumberOfGroups(1);
+            course.setSplit(false);
+            courseSessions.addAll(timeTableService.createCourseSessions(timeTable, course));
         }
-        return ResponseEntity.ok().build();
+        List<CourseSessionDTO> courseSessionDTOs = courseSessions.stream()
+                .map(dtoConverter::toCourseSessionDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(courseSessionDTOs);
     }
 
     @PostMapping("/add-rooms-to-timetable/{id}")
