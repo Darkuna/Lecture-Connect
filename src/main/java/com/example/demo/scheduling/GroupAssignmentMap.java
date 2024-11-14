@@ -53,7 +53,10 @@ public class GroupAssignmentMap {
      */
     public void addEntry(CourseSession courseSession, Candidate candidate) {
         if(assignedGroupCourseSessions.containsKey(courseSession.getCourseId())){
-            assignedGroupCourseSessions.get(courseSession.getCourseId()).add(candidate.getDay() * 100 + candidate.getSlot());
+            List<Integer> values = assignedGroupCourseSessions.get(courseSession.getCourseId());
+            for(int i = candidate.getSlot(); i <= candidate.getEndSlot(); i++){
+                values.add(candidate.getDay() * 100 + i);
+            }
         }
     }
 
@@ -61,9 +64,13 @@ public class GroupAssignmentMap {
      * This method is used to remove an entry, if the backtracking algorithm has to go one step back
      * @param courseSession to remove latest entry from
      */
-    public void removeEntry(CourseSession courseSession) {
-        if(assignedGroupCourseSessions.containsKey(courseSession.getCourseId())) {
-            assignedGroupCourseSessions.get(courseSession.getCourseId()).removeLast();
+    public void removeEntry(CourseSession courseSession, Candidate candidate) {
+        if (assignedGroupCourseSessions.containsKey(courseSession.getCourseId())) {
+            List<Integer> values = assignedGroupCourseSessions.get(courseSession.getCourseId());
+            for (int i = candidate.getSlot(); i <= candidate.getEndSlot(); i++) {
+                values.remove((Integer) (candidate.getDay() * 100 + i));
+            }
         }
     }
+
 }

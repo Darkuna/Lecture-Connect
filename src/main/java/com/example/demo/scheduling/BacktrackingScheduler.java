@@ -124,6 +124,88 @@ public class BacktrackingScheduler implements Scheduler {
     }
 
     /**
+     * Filters and sorts a list of courseSessions to obtain only single and split courseSessions sorted descending by
+     * duration and descending by numberOfParticipants.
+     * @param courseSessions to be filtered and sorted
+     * @return sorted list of single courseSessions
+     */
+    private List<CourseSession> filterAndSortSingleCourseSessions(List<CourseSession> courseSessions){
+        return courseSessions.stream()
+                .filter(c -> !c.isGroupCourse())
+                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
+                        .thenComparing(CourseSession::getNumberOfParticipants).reversed())
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Filters and sorts a list of courseSessions to obtain only group courseSessions sorted descending by duration and
+     * ascending by groupID.
+     * @param courseSessions to be filtered and sorted
+     * @return sorted list of group courseSessions
+     */
+    private List<CourseSession> filterAndSortGroupCourseSessions(List<CourseSession> courseSessions){
+        return courseSessions.stream()
+                .filter(CourseSession::isGroupCourse)
+                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
+                        .thenComparing(CourseSession::getStudyType).reversed()
+                        .thenComparing(CourseSession::getSemester).reversed()
+                        .thenComparing(CourseSession::getCourseId))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * This method finds all possible candidates for the single and split courseSessions and collects them in a map
+     * @param map to collect courseSessions and their corresponding candidates
+     * @param courseSessions to be prepared
+     * @param availabilityMatrices to find possible candidates in
+     */
+    private void prepareCandidatesForSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        for(CourseSession courseSession : courseSessions){
+            List<Candidate> candidates = new ArrayList<>();
+            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
+                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
+            }
+            List<Candidate> filteredCandidates = candidates.stream()
+                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
+                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
+                            thenComparingInt(Candidate::getSlot))
+                    .collect(Collectors.toList());
+            map.put(courseSession, filteredCandidates);
+        }
+    }
+
+    /**
+     * This method finds all possible candidates for the group courseSessions and collects them in a map
+     * @param map to collect courseSessions and their corresponding candidates
+     * @param courseSessions to be prepared
+     * @param availabilityMatrices to find possible candidates in
+     */
+    private void prepareCandidatesForGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+        String currentGroup;
+        if(courseSessions == null || courseSessions.isEmpty()){
+            return;
+        }
+        currentGroup = courseSessions.getFirst().getCourseId();
+        groupAssignmentMap.initGroup(currentGroup);
+        for(CourseSession courseSession: courseSessions){
+            List<Candidate> candidates = new ArrayList<>();
+            if(!courseSession.getCourseId().equals(currentGroup)){
+                currentGroup = courseSession.getCourseId();
+                groupAssignmentMap.initGroup(currentGroup);
+            }
+            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
+                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
+            }
+            List<Candidate> filteredCandidates = candidates.stream()
+                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
+                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed()
+                            .thenComparingInt(Candidate::getSlot))
+                    .collect(Collectors.toList());
+            map.put(courseSession, filteredCandidates);
+        }
+    }
+
+    /**
      * This method executes the backtracking algorithm to find an assignment for all courseSessions that fits all
      * constraints.
      * @param possibleCandidatesForCourseSessions map to start the backtracking algorithm from
@@ -212,7 +294,7 @@ public class BacktrackingScheduler implements Scheduler {
     private void unassignLatestEntry(){
         AssignmentStackEntry entry = assignmentStack.pop();
         entry.candidate.clearInAvailabilityMatrix();
-        groupAssignmentMap.removeEntry(entry.courseSession);
+        groupAssignmentMap.removeEntry(entry.courseSession, entry.candidate);
     }
 
     /**
@@ -295,88 +377,6 @@ public class BacktrackingScheduler implements Scheduler {
             filteredCandidates.put(cs, candidates);
         }
         return filteredCandidates;
-    }
-
-    /**
-     * This method finds all possible candidates for the single and split courseSessions and collects them in a map
-     * @param map to collect courseSessions and their corresponding candidates
-     * @param courseSessions to be prepared
-     * @param availabilityMatrices to find possible candidates in
-     */
-    private void prepareCandidatesForSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        for(CourseSession courseSession : courseSessions){
-            List<Candidate> candidates = new ArrayList<>();
-            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
-            }
-            List<Candidate> filteredCandidates = candidates.stream()
-                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
-                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
-                            thenComparingInt(Candidate::getSlot))
-                    .collect(Collectors.toList());
-            map.put(courseSession, filteredCandidates);
-        }
-    }
-
-    /**
-     * This method finds all possible candidates for the group courseSessions and collects them in a map
-     * @param map to collect courseSessions and their corresponding candidates
-     * @param courseSessions to be prepared
-     * @param availabilityMatrices to find possible candidates in
-     */
-    private void prepareCandidatesForGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        String currentGroup;
-        if(courseSessions == null || courseSessions.isEmpty()){
-            return;
-        }
-        currentGroup = courseSessions.getFirst().getCourseId();
-        groupAssignmentMap.initGroup(currentGroup);
-        for(CourseSession courseSession: courseSessions){
-            List<Candidate> candidates = new ArrayList<>();
-            if(!courseSession.getCourseId().equals(currentGroup)){
-                currentGroup = courseSession.getCourseId();
-                groupAssignmentMap.initGroup(currentGroup);
-            }
-            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
-            }
-            List<Candidate> filteredCandidates = candidates.stream()
-                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
-                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed()
-                            .thenComparingInt(Candidate::getSlot))
-                    .collect(Collectors.toList());
-            map.put(courseSession, filteredCandidates);
-        }
-    }
-
-    /**
-     * Filters and sorts a list of courseSessions to obtain only single and split courseSessions sorted descending by
-     * duration and descending by numberOfParticipants.
-     * @param courseSessions to be filtered and sorted
-     * @return sorted list of single courseSessions
-     */
-    private List<CourseSession> filterAndSortSingleCourseSessions(List<CourseSession> courseSessions){
-        return courseSessions.stream()
-                .filter(c -> !c.isGroupCourse())
-                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
-                        .thenComparing(CourseSession::getNumberOfParticipants).reversed())
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Filters and sorts a list of courseSessions to obtain only group courseSessions sorted descending by duration and
-     * ascending by groupID.
-     * @param courseSessions to be filtered and sorted
-     * @return sorted list of group courseSessions
-     */
-    private List<CourseSession> filterAndSortGroupCourseSessions(List<CourseSession> courseSessions){
-        return courseSessions.stream()
-                .filter(CourseSession::isGroupCourse)
-                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
-                        .thenComparing(CourseSession::getStudyType).reversed()
-                        .thenComparing(CourseSession::getSemester).reversed()
-                        .thenComparing(CourseSession::getCourseId))
-                .collect(Collectors.toList());
     }
 
     /**
