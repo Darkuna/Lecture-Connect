@@ -116,7 +116,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
           return a.roomId.localeCompare(b.roomId);
         });
         this.selectedRoom = r.roomTables[0];
-
         this.timeTable = r;
         this.loadNewRoom(this.selectedRoom!);
       }
