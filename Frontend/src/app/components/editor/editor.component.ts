@@ -3,9 +3,10 @@ import {CalendarOptions, EventApi, EventInput, EventMountArg} from "@fullcalenda
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
-import {Observable} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
+import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
@@ -14,6 +15,9 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {EditorService} from "../../services/editor.service";
 import {Router} from "@angular/router";
+import {ContextMenu} from "primeng/contextmenu";
+import {CourseService} from "../../services/course-service";
+import {CourseDTO} from "../../../assets/Models/dto/course-dto";
 
 @Component({
   selector: 'app-editor',
@@ -21,7 +25,9 @@ import {Router} from "@angular/router";
   styleUrl: './editor.component.css'
 })
 export class EditorComponent implements AfterViewInit, OnDestroy{
+  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('external') external!: ElementRef;
+  @ViewChild('cm') contextMenu!: ContextMenu;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
@@ -86,12 +92,17 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   dirtyData: boolean = false;
   searchCourse: string = '';
 
+  showNewDialog: boolean = false;
+  private tmpUnassignedCoursesSubject = new BehaviorSubject<CourseDTO[]>([]);
+  tmpUnassignedCourses$: Observable<CourseDTO[]> = this.tmpUnassignedCoursesSubject.asObservable();
+
   constructor(
     private globalTableService: GlobalTableService,
     private converter: EventConverterService,
     private editorService: EditorService,
     private router: Router,
     private messageService: MessageService,
+    private courseService: CourseService
   ) {
     this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
     this.selectedTimeTable.subscribe( r => {
@@ -101,9 +112,11 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
           const capacityComparison = b.capacity - a.capacity;
           if (capacityComparison !== 0) return capacityComparison;
+
           return a.roomId.localeCompare(b.roomId);
         });
         this.selectedRoom = r.roomTables[0];
+
         this.timeTable = r;
         this.loadNewRoom(this.selectedRoom!);
       }
@@ -189,9 +202,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   getItemMenuOptions() : void {
-    this.items = []
+    this.items = [{label: 'add new Course', icon: 'pi pi-book', command: () => this.addNewCourse() }];
     if(!this.rightClickEvent?.event.id){
-      this.items.push({ label: 'nothing here :)', disabled: true});
       return;
     }
 
@@ -399,5 +411,26 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   newAddedCourses():string {
     return (this.nrOfNewEvents != 0) ? `(+${this.nrOfNewEvents})` : '';
+  }
+
+  async addNewCourse(){
+    this.showNewDialog = true;
+    this.tmpUnassignedCoursesSubject.next(await this.courseService.getUnassignedCourses(this.timeTable.id));
+  }
+
+  async receiveNewSession(course: CourseDTO){
+    const newSession = await this.courseService.getNewSession(this.timeTable.id, course);
+    const convertedCourse = this.converter.convertTimingToEventInput(newSession[0], "editor")
+
+    const updatedCourses = this.tmpUnassignedCoursesSubject.value
+      .filter(course => course.id !== newSession[0].courseId.toString());
+    this.tmpUnassignedCoursesSubject.next(updatedCourses);
+
+    this.timeTable.courseSessions.push(newSession[0]);
+    this.dragTableEvents.push(convertedCourse);
+    this.allEvents.push(convertedCourse);
+    this.nrOfNewEvents += 1;
+
+    this.messageService.add({severity: 'info', summary: 'Added new Course!', detail: `added new Course ${newSession[0].name}`});
   }
 }

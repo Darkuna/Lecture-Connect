@@ -219,3 +219,80 @@ p-tag#status {
   height: 100%;
   padding: .5rem;
 }
+
+/* Main container for the item */
+.item-container {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.5rem; /* 8px padding */
+  align-items: center;
+  gap: 0.75rem; /* 12px gap */
+}
+
+/* Row styles */
+.row {
+  display: flex;
+  width: 100%;
+}
+
+/* First row: Space items between left and right */
+.justify-between {
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Styling for product name */
+.product-name {
+  font-weight: bold;
+}
+
+/* Styling for study type aligned on the right */
+.study-type {
+  margin-left: auto;
+}
+
+/* Second row: space between elements */
+.gap {
+  gap: 0.5rem; /* 8px gap between elements */
+  align-items: center;
+}
+
+/* Icon styling */
+.icon {
+  font-size: 0.875rem; /* Equivalent to text-sm */
+}
+
+/* Main container for the room item */
+.room-item-container {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.5rem; /* 8px padding */
+  align-items: center;
+  gap: 0.75rem; /* 12px gap */
+}
+
+/* Flex column for room info */
+.room-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* 8px gap between elements in the column */
+}
+
+/* Bold styling for room ID */
+.room-id {
+  font-weight: bold;
+}
+
+/* Room details with aligned content and spacing */
+.room-details {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* 8px gap between elements */
+}
+
+/* Bold text for computers availability status */
+.computers-available {
+  font-weight: bold;
+  color: #212121; /* Equivalent to text-900 */
+}
