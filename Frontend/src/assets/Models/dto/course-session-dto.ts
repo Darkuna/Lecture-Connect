@@ -10,6 +10,7 @@ export interface CourseSessionDTO {
   courseId: number;
   semester: number;
   studyType: string;
+  numberOfParticipants: number;
   timingConstraints: TimingDTO[];
   timing: TimingDTO | null;
   roomTable: RoomTableDTO | null;

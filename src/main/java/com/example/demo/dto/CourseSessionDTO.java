@@ -15,6 +15,7 @@ public class CourseSessionDTO {
     private int duration;
     private int semester;
     private String studyType;
+    private int numberOfParticipants;
     private List<TimingDTO> timingConstraints;
     private TimingDTO timing;
     private RoomTableDTO roomTable;

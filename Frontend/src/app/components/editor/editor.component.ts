@@ -3,10 +3,9 @@ import {CalendarOptions, EventApi, EventInput, EventMountArg} from "@fullcalenda
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
-import {Observable, retry} from "rxjs";
+import {Observable} from "rxjs";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
-import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
 import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
@@ -15,7 +14,6 @@ import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {EditorService} from "../../services/editor.service";
 import {Router} from "@angular/router";
-import {ContextMenu} from "primeng/contextmenu";
 
 @Component({
   selector: 'app-editor',
@@ -23,9 +21,7 @@ import {ContextMenu} from "primeng/contextmenu";
   styleUrl: './editor.component.css'
 })
 export class EditorComponent implements AfterViewInit, OnDestroy{
-  @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('external') external!: ElementRef;
-  @ViewChild('cm') contextMenu!: ContextMenu;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
@@ -105,11 +101,9 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
           const capacityComparison = b.capacity - a.capacity;
           if (capacityComparison !== 0) return capacityComparison;
-
           return a.roomId.localeCompare(b.roomId);
         });
         this.selectedRoom = r.roomTables[0];
-
         this.timeTable = r;
         this.loadNewRoom(this.selectedRoom!);
       }
@@ -125,7 +119,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
           title: eventEl.getAttribute('data-title'),
           duration: eventEl.getAttribute('data-duration'),
           editable: true,
-        };
+          extendedProps: {nrOfParticipants: eventEl.getAttribute('data-participants')}
+          };
       }
     });
   }
@@ -223,9 +218,15 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   }
 
   eventReceive(args: any){
-    this.rightClickEvent = args;
-    this.updateSession(args.event, true);
-    this.dirtyData = true;
+    const nrOfParticipants = Number(args.event.extendedProps['nrOfParticipants']);
+    const roomCapacity = this.selectedRoom?.capacity;
+    if(nrOfParticipants <= roomCapacity!){
+      this.dirtyData = true;
+      this.rightClickEvent = args;
+      this.updateSession(args.event, true);
+      this.messageService.add({severity: 'error', summary: 'ROOM CAPACITY  COLLISION',
+        detail: `The selected course (${args.event.title}) has to many participants (${nrOfParticipants}) for the selected room(${roomCapacity})`});
+    }
   }
 
   eventChange(args: any){
@@ -307,9 +308,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       return this.dragTableEvents;
     }
 
-    const lowerSearchTerm = this.searchCourse.toLowerCase();
     return this.dragTableEvents.filter(event =>
-      event.title!.toLowerCase().includes(lowerSearchTerm)
+      event.title!.toLowerCase().includes(this.searchCourse.toLowerCase())
     );
   }
 

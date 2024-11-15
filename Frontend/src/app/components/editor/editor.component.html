@@ -44,7 +44,7 @@
   </p-toolbar>
   <div class="col-left" style="width: 85%">
     <div id="calendarScroll">
-      <full-calendar #calendar id="calendarID"
+      <full-calendar id="calendarID"
                      [options]='destCalendarOptions'
                      [events]="combinedTableEvents"/>
     </div>
@@ -61,7 +61,8 @@
       <div *ngFor="let event of filteredEvents" class="fc-event"
            [attr.data-id]="event['id']"
            [attr.data-title]="event['title']"
-           [attr.data-duration]="event.extendedProps?.['duration']">
+           [attr.data-duration]="event.extendedProps?.['duration']"
+           [attr.data-participants]="event.extendedProps?.['nrOfParticipants']">
         {{ event['title'] }}
       </div>
     </div>
