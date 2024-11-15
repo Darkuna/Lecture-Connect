@@ -1,6 +1,5 @@
-<div class="Context">
+<div class="Context" #container>
   <p-toolbar styleClass="mb-4 gap-2">
-
     <ng-template pTemplate="left">
       <p-multiSelect [options]="headers" [(ngModel)]="headers" optionLabel="header"
                      selectedItemsLabel="{0} columns selected" [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
@@ -14,16 +13,11 @@
   </p-toolbar>
   <p-table
     #dt dataKey="id" [sortOrder]="-1"
-    [value]="courses!"
-    [rows]="15"
-    [columns]="headers"
+    [value]="courses!" [columns]="headers" [scrollHeight]="calculateTableHeight(container).toString().concat('px')"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-    [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[10, 15, 25, 50]"
-    [paginator]="true"
-    [globalFilterFields]="['id', 'lecturer', 'name']"
-    [filterDelay]="0"
-    [rowHover]="true" [scrollable]="true" [scrollHeight]="String(screen.height * 0.5).concat('px')">
+    [showCurrentPageReport]="true" [paginator]="true" [rowHover]="true" [scrollable]="true"
+    [rows]="15" [rowsPerPageOptions]="[10, 15, 25, 50]"
+    [globalFilterFields]="['id', 'lecturer', 'name']" [filterDelay]="0">
     <ng-template pTemplate="header">
       <tr>
         <th class="flex-header"

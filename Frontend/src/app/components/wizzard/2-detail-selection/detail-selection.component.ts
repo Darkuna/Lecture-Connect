@@ -1,5 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
+import {calculateTableHeight, getTableSettings} from "../wizard.component";
 
 @Component({
   selector: 'app-detail-selection',
@@ -111,4 +112,6 @@ export class DetailSelectionComponent {
 
     protected readonly String = String;
     protected readonly screen = screen;
+  protected readonly getTableSettings = getTableSettings;
+  protected readonly calculateTableHeight = calculateTableHeight;
 }
