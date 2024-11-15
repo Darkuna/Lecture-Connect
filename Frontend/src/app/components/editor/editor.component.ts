@@ -209,40 +209,50 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       )
   }
 
-  drop(arg: DropArg) {
-    this.dragTableEvents =
-      this.dragTableEvents.filter(
-        e => e.id !== arg.draggedEl.getAttribute('data-id'))
-    this.nrOfEvents += 1;
-    this.dirtyData = true;
+  private allowDrop(nrOfParticipants: number):boolean{
+    const roomCapacity = this.selectedRoom?.capacity;
+
+    return (nrOfParticipants > roomCapacity!);
   }
 
-  eventReceive(args: any){
-    const nrOfParticipants = Number(args.event.extendedProps['nrOfParticipants']);
-    const roomCapacity = this.selectedRoom?.capacity;
-    if(nrOfParticipants <= roomCapacity!){
+  private drop(arg: DropArg) {
+    const nrOfParticipants = Number(arg.draggedEl.getAttribute('data-participants'));
+    if(this.allowDrop(nrOfParticipants)){
+      this.messageService.add({severity: 'error', summary: 'ROOM CAPACITY  COLLISION', life: 5000,
+        detail: `The selected course (${arg.draggedEl.getAttribute('data-title')}) has to many participants (${nrOfParticipants})
+         for the selected room(${this.selectedRoom?.capacity})`});
+    } else {
+      this.dragTableEvents = this.dragTableEvents.filter(
+        e => e.id !== arg.draggedEl.getAttribute('data-id'))
+      this.nrOfEvents += 1;
       this.dirtyData = true;
-      this.rightClickEvent = args;
-      this.updateSession(args.event, true);
-      this.messageService.add({severity: 'error', summary: 'ROOM CAPACITY  COLLISION',
-        detail: `The selected course (${args.event.title}) has to many participants (${nrOfParticipants}) for the selected room(${roomCapacity})`});
     }
   }
 
-  eventChange(args: any){
+  private eventReceive(args: any){
+    if(this.allowDrop(args.event.extendedProps['nrOfParticipants'])){
+      args.revert();
+    } else {
+      this.dirtyData = true;
+      this.rightClickEvent = args;
+      this.updateSession(args.event, true);
+    }
+  }
+
+  private eventChange(args: any){
     this.rightClickEvent = args;
     this.updateSession(args.event, true);
     this.dirtyData = true;
   }
 
-  eventDidMount(arg: EventMountArg){
+  private eventDidMount(arg: EventMountArg){
     arg.el.addEventListener("contextmenu", (jsEvent)=>{
       jsEvent.preventDefault()
       this.rightClickEvent = arg;
     })
   }
 
-  eventAllow(args: any): boolean {
+  private eventAllow(args: any): boolean {
     const startHour = args.start.getHours();
     const startMinutes = args.start.getMinutes();
 
@@ -273,7 +283,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return session;
   }
 
-  changeSessionBlockState(){
+  private changeSessionBlockState(){
     const session = this.findSession()
 
     if(session){

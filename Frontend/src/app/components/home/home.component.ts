@@ -502,7 +502,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
         expanded: true,
         items: [
           {
-            label: 'last Changes',
+            label: 'Last Changes',
             icon: 'pi pi-comments',
             command: () => { this.loadChanges() }
           }
