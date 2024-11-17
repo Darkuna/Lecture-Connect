@@ -58,8 +58,6 @@ import {InplaceModule} from "primeng/inplace";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {InputGroupModule} from "primeng/inputgroup";
 import {FloatLabelModule} from "primeng/floatlabel";
-import { RoomSelectionPageComponent } from './components/home/room-selection-page/room-selection-page.component';
-import { CourseSelectionPageComponent } from './components/home/course-selection-page/course-selection-page.component';
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import { CalendarContextMenuComponent } from './components/home/calendar-context-menu/calendar-context-menu.component';
 import { EditorComponent } from './components/editor/editor.component';
@@ -81,8 +79,7 @@ import { CollisionDialogComponent } from './components/collision-dialog/collisio
         CourseViewComponent, UsersViewComponent, WizardComponent,
         CourseSelectionComponent, DetailSelectionComponent, RoomSelectionComponent,
         BaseSelectionComponent, CourseSelectionComponent, DetailSelectionComponent,
-        RoomSelectionComponent, BaseSelectionComponent, RoomSelectionPageComponent,
-        CourseSelectionPageComponent, CalendarContextMenuComponent, EditorComponent,
+        RoomSelectionComponent, BaseSelectionComponent, CalendarContextMenuComponent, EditorComponent,
         DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent, TableLogComponent, CollisionDialogComponent,
     ],
   bootstrap: [AppComponent],

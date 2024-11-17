@@ -30,8 +30,8 @@ import {EventImpl} from "@fullcalendar/core/internal";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import {ProgressService} from "../../services/progress.service";
-import {TableLogComponent} from "../table-log/table-log.component";
 import {CollisionService} from "../../services/collision.service";
+import {TableLogService} from "../../services/table-log.service";
 
 @Component({
   selector: 'app-home',
@@ -61,7 +61,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
-  @ViewChild('tableLog') tableLog!: TableLogComponent;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
@@ -113,7 +112,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private confirmationService: ConfirmationService,
     private progressService: ProgressService,
     private cd: ChangeDetectorRef,
-    private collisionService: CollisionService
+    private collisionService: CollisionService,
+    private logService: TableLogService
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -139,6 +139,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   showTableDialog() {
+    this.collisionService.clearCollisions();
+    this.logService.clearChanges();
+
     this.creationTable = new TmpTimeTable();
     this.showNewTableDialog = true;
   }
@@ -170,6 +173,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   loadSpecificTable() {
     this.collisionService.clearCollisions();
+    this.logService.clearChanges();
     if(!this.shownTableDD!.id){
       return;
     }
@@ -180,6 +184,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   unselectTable(){
     this.collisionService.clearCollisions();
+    this.logService.clearChanges();
     this.globalTableService.unselectTable();
     this.shownTableDD = null;
     this.selectedTimeTable$ = null;
@@ -199,6 +204,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   loadTmpTable() {
+    this.collisionService.clearCollisions();
+    this.logService.clearChanges();
+
     let tmpTable = this.isTmpTableAvailable();
     if (tmpTable !== null) {
       this.shareService.selectedTable = tmpTable;
@@ -392,6 +400,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   redirectToSelection(page: string){
     this.collisionService.clearCollisions();
+    this.logService.clearChanges();
     if(this.shownTableDD){
       this.router.navigate([page]).catch(message => {
         this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
@@ -442,8 +451,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   private loadChanges(){
-    this.tableLog.tableName = this.shownTableDD;
-    this.tableLog.showChanges(this.shownTableDD!.id);
+    this.logService.handleChanges(this.shownTableDD!.id);
   }
 
   ngOnInit() {

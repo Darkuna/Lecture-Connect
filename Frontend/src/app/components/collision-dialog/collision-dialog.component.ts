@@ -25,5 +25,9 @@ export class CollisionDialogComponent implements OnInit{
     return this.collisionService.getAllCollisions();
   }
 
+  closeView(){
+    this.collisionService.showCollisionDialog = false;
+  }
+
   protected readonly getCollisionTypes = getCollisionTypes;
 }

@@ -1,10 +1,7 @@
 <p-dialog
-  header="Table Changes"
-  [(visible)]="collisionService.showCollisionDialog"
-  [modal]="false"
-  [closable]="true"
-  [style]="{ width: '45rem', 'max-height': '55rem' }"
-  [position]="'right'">
+  header="Table Changes" (close)="closeView()"
+  [(visible)]="collisionService.showCollisionDialog" [modal]="false" [closable]="true"
+  [style]="{ width: '45rem', 'max-height': '55rem' }" [position]="'right'">
 
   <p-table [globalFilterFields]="['changeType']"
            [value]="getAllCollisions() | keyvalue"
