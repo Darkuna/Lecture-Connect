@@ -44,14 +44,13 @@
   </p-toolbar>
   <div class="col-left" style="width: 85%">
     <div id="calendarScroll">
-      <full-calendar #calendar id="calendarID"
+      <full-calendar id="calendarID"
                      [options]='destCalendarOptions'
                      [events]="combinedTableEvents"/>
     </div>
   </div>
 
   <div class="col-left" #external style="width: 15%; position: fixed; padding: 5px; height:90%">
-
     <p-button label='finished' (onClick)="saveAndGoHome()" [style]="{'width':'90%', 'margin-bottom': '.5rem'}"/>
     <input type="text" pInputText [style]="{'width':'90%', 'margin-bottom': '.5rem'}"
            placeholder="{{unassignedCourses() ? 'nothing to search':'Search unassigned course'}}"
@@ -61,7 +60,8 @@
       <div *ngFor="let event of filteredEvents" class="fc-event"
            [attr.data-id]="event['id']"
            [attr.data-title]="event['title']"
-           [attr.data-duration]="event.extendedProps?.['duration']">
+           [attr.data-duration]="event.extendedProps?.['duration']"
+           [attr.data-participants]="event.extendedProps?.['nrOfParticipants']">
         {{ event['title'] }}
       </div>
     </div>
@@ -70,3 +70,32 @@
 
 <p-contextMenu [model]="items" [global]="true"
                (onShow)="getItemMenuOptions()"/>
+
+<p-dialog header="Add new Courses" [modal]="true" [closable]="true"
+          [(visible)]="showNewDialog" [style]="{ width: '45rem' }">
+  <p-table [value]="(tmpUnassignedCourses$ | async)!"
+           [tableStyle]="{ 'min-width': '42rem' }">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Course Nr</th>
+        <th>Course Type</th>
+        <th>Name</th>
+        <th>Study Type</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-course>
+      <tr>
+        <td>{{ course.id }}</td>
+        <td>{{ course.courseType }}</td>
+        <td>{{course.name}}</td>
+        <td>{{ course.studyType }}</td>
+        <td>
+          <button type="button" pButton
+            icon="pi pi-plus" (click)="receiveNewSession(course)">
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</p-dialog>

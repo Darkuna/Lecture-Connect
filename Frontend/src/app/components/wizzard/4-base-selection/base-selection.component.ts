@@ -237,19 +237,17 @@ export class BaseSelectionComponent{
     return !isBefore815AM && !isAfter10PM;
   }
 
-  sendToBackend() {
+  async sendToBackend() {
     this.changeDirtyData.emit(false);
-    this.globalTableService.pushTmpTableObject(this.convertGlobalTableItems())
-      .then((message) => {
-          this.localStorage.clear('tmptimetable');
-          this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
+    const tableID = await this.globalTableService.pushTmpTableObject(this.convertGlobalTableItems());
+    this.globalTableService.tableId = Number(tableID);
+    if(Number(tableID)){
+      this.localStorage.clear('tmptimetable');
+      this.messageService.add({severity: 'success', summary: 'Upload Success', detail: 'upload successfully'});
+      this.router.navigate(['/user/home']).catch(() => {})
+    } else {
+      this.messageService.add({severity: 'error', summary: 'Failure', detail: 'there was an unexpected error'});
+    }
 
-          this.router.navigate(['/user/home']).catch(message => {
-            this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
-          });
-      })
-      .catch((message) => {
-        this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
-      });
   }
 }

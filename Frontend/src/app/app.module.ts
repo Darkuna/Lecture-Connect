@@ -58,8 +58,6 @@ import {InplaceModule} from "primeng/inplace";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {InputGroupModule} from "primeng/inputgroup";
 import {FloatLabelModule} from "primeng/floatlabel";
-import { RoomSelectionPageComponent } from './components/home/room-selection-page/room-selection-page.component';
-import { CourseSelectionPageComponent } from './components/home/course-selection-page/course-selection-page.component';
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import { CalendarContextMenuComponent } from './components/home/calendar-context-menu/calendar-context-menu.component';
 import { EditorComponent } from './components/editor/editor.component';
@@ -73,6 +71,8 @@ import {CheckboxModule} from "primeng/checkbox";
 import { ProgressComponent } from './components/progress/progress.component';
 import { TableLogComponent } from './components/table-log/table-log.component';
 import {PickListModule} from "primeng/picklist";
+import { CollisionDialogComponent } from './components/collision-dialog/collision-dialog.component';
+import { CollisionTableComponent } from './components/collision-dialog/collision-table/collision-table.component';
 
 @NgModule({ declarations: [
         AppComponent, HeaderSelfComponent, LoginComponent,
@@ -80,9 +80,8 @@ import {PickListModule} from "primeng/picklist";
         CourseViewComponent, UsersViewComponent, WizardComponent,
         CourseSelectionComponent, DetailSelectionComponent, RoomSelectionComponent,
         BaseSelectionComponent, CourseSelectionComponent, DetailSelectionComponent,
-        RoomSelectionComponent, BaseSelectionComponent, RoomSelectionPageComponent,
-        CourseSelectionPageComponent, CalendarContextMenuComponent, EditorComponent,
-        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent, TableLogComponent,
+        RoomSelectionComponent, BaseSelectionComponent, CalendarContextMenuComponent, EditorComponent,
+        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent, TableLogComponent, CollisionDialogComponent, CollisionTableComponent,
     ],
   bootstrap: [AppComponent],
   imports: [

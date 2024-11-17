@@ -57,7 +57,6 @@
             </div>
           </ng-template>
         </p-dropdown>
-        <p-button icon="pi pi-cog" (click)="op.show($event, op)" />
       </div>
     </p-toolbar>
   </div>
@@ -110,67 +109,6 @@
   </ng-template>
 </p-dialog>
 
-<p-overlayPanel #op showCloseIcon="true" [dismissable]="true">
-  <ng-template pTemplate="content">
-    <div class="divTable">
-      <div class="divTableBody">
-        <div class="divTableRow">
-          <div class="divTableCell">
-            <label for="start-time" style="padding-right: .7rem; padding-left: .3rem">Start Time</label>
-          </div>
-          <div class="divTableCell">
-            <p-calendar id="start-time" inputId="calendar-timeonly"
-                        [timeOnly]="true" [ngModel]="tmpStartDate"
-                        (ngModelChange)="updateCalendar('slotMinTime', converter.formatTime($event))"/>
-          </div>
-        </div>
-        <div class="divTableRow">
-          <div class="divTableCell">
-            <label for="end-time" style="padding-right: .7rem; padding-left: .3rem">End Time</label>
-          </div>
-          <div class="divTableCell">
-            <p-calendar id="end-time" inputId="calendar-timeonly"
-                        [timeOnly]="true" [ngModel]="tmpEndDate"
-                        (ngModelChange)="updateCalendar('slotMaxTime', converter.formatTime($event))"/>
-          </div>
-        </div>
-        <div class="divTableRow">
-          <div class="divTableCell">
-            <label for="duration" style="padding-right: .7rem; padding-left: .3rem">Time Slot Duration</label>
-          </div>
-          <div class="divTableCell">
-            <p-calendar id="duration" inputId="calendar-timeonly"
-                        [timeOnly]="true" [ngModel]="tmpDuration" stepMinute="5"
-                        (ngModelChange)="updateCalendar('slotDuration', converter.formatTime($event))"/>
-          </div>
-        </div>
-        <div class="divTableRow">
-          <div class="divTableCell">
-            <label for="interval" style="padding-right: .7rem; padding-left: .3rem">Time Label Interval </label>
-          </div>
-          <div class="divTableCell">
-            <p-calendar id="interval" inputId="calendar-timeonly"
-                        [timeOnly]="true" [ngModel]="tmpSlotInterval"
-                        (ngModelChange)="updateCalendar('slotLabelInterval', converter.formatTime($event))"/>
-          </div>
-        </div>
-        <div class="divTableRow">
-          <div class="divTableCell">
-            <label for="view" style="padding-right: .7rem; padding-left: .3rem">decrease Events shown</label>
-          </div>
-          <div class="divTableCell">
-            <p-toggleButton id="view"
-                            [(ngModel)]="changeCalendarView"
-                            (onChange)="changeCalenderEventView()"
-                            onLabel="On"
-                            offLabel="Off"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  </ng-template>
-</p-overlayPanel>
-
 <app-calendar-context-menu #calendarContextMenu/>
-<app-table-log #tableLog/>
+<app-table-log/>
+<app-collision-dialog/>
