@@ -5,9 +5,9 @@
           [draggable]="true" [focusOnShow]="false"
           [modal]="false" [closable]="true"
           (onHide)="closeDialog()"
-          [style]="{ width: '32rem' }"
-          [baseZIndex]="1000">
+          >
   <ng-template pTemplate="content" class="parent">
+
     <div id="cssportal-grid">
       <div id="startTime">
         <label for="start">Start Time</label>
@@ -17,7 +17,6 @@
         <input pInputText id="studyType"
                [ngModel]="hoverEventInfo?.event!.extendedProps['studyType']" [disabled]="true"/>
       </div>
-
       <div id="endTime">
         <label for="end">End Time</label>
         <input pInputText id="end"
@@ -33,6 +32,9 @@
         <input pInputText id="room"
                [ngModel]="hoverEventInfo?.event!.extendedProps['description']" [disabled]="true"/>
       </div>
+    </div>
+    <div style="height: 10rem; overflow: scroll">
+      <app-collision-table [collisions]="getCourseCollisions()"/>
     </div>
   </ng-template>
 </p-dialog>

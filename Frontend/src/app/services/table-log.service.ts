@@ -49,4 +49,8 @@ export class TableLogService {
     this.showChangeDialog = false;
     this.changes = null;
   }
+
+  getCourseChanges(course: string){
+    return this.changes?.filter(c => c.description.includes(course));
+  }
 }

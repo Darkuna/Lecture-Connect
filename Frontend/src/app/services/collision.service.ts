@@ -45,6 +45,16 @@ export class CollisionService {
     return this.currentCollisions!;
   }
 
+  getCourseCollisions(key: string): Record<string, CollisionType[]> {
+    return Object.entries(this.currentCollisions!)
+      .filter(([collisionKey, _]) => collisionKey === key) // Filter entries where the key matches
+      .reduce((acc, [collisionKey, value]) => {
+        acc[collisionKey] = value;
+        return acc;
+      }, {} as Record<string, CollisionType[]>);
+  }
+
+
   clearCollisions(){
     this.showCollisionDialog = false;
     this.currentCollisions = null;

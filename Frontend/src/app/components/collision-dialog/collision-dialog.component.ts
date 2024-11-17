@@ -1,25 +1,16 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {CollisionService} from "../../services/collision.service";
-import {CollisionType, getCollisionTypes} from "../../../assets/Models/enums/collision-type";
+import {CollisionType} from "../../../assets/Models/enums/collision-type";
 
 @Component({
   selector: 'app-collision-dialog',
   templateUrl: './collision-dialog.component.html',
   styleUrl: './collision-dialog.component.css'
 })
-export class CollisionDialogComponent implements OnInit{
-  cols: any[] = [];
-
+export class CollisionDialogComponent{
   constructor(
     protected collisionService: CollisionService
   ) {}
-
-  ngOnInit(): void {
-    this.cols = [
-      {field: 'key', header: 'Course'},
-      {field: 'value', header: 'Type'},
-    ];
-  }
 
   getAllCollisions(): Record<string, CollisionType[]>{
     return this.collisionService.getAllCollisions();
@@ -28,6 +19,4 @@ export class CollisionDialogComponent implements OnInit{
   closeView(){
     this.collisionService.showCollisionDialog = false;
   }
-
-  protected readonly getCollisionTypes = getCollisionTypes;
 }

@@ -72,6 +72,7 @@ import { ProgressComponent } from './components/progress/progress.component';
 import { TableLogComponent } from './components/table-log/table-log.component';
 import {PickListModule} from "primeng/picklist";
 import { CollisionDialogComponent } from './components/collision-dialog/collision-dialog.component';
+import { CollisionTableComponent } from './components/collision-dialog/collision-table/collision-table.component';
 
 @NgModule({ declarations: [
         AppComponent, HeaderSelfComponent, LoginComponent,
@@ -80,7 +81,7 @@ import { CollisionDialogComponent } from './components/collision-dialog/collisio
         CourseSelectionComponent, DetailSelectionComponent, RoomSelectionComponent,
         BaseSelectionComponent, CourseSelectionComponent, DetailSelectionComponent,
         RoomSelectionComponent, BaseSelectionComponent, CalendarContextMenuComponent, EditorComponent,
-        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent, TableLogComponent, CollisionDialogComponent,
+        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent, TableLogComponent, CollisionDialogComponent, CollisionTableComponent,
     ],
   bootstrap: [AppComponent],
   imports: [

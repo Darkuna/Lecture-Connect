@@ -5,6 +5,8 @@ import {EventClickArg} from "@fullcalendar/core";
 import {CourseSessionDTO} from "../../../../assets/Models/dto/course-session-dto";
 import {EventImpl} from "@fullcalendar/core/internal";
 import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
+import {TableLogService} from "../../../services/table-log.service";
+import {CollisionService} from "../../../services/collision.service";
 
 @Injectable()
 @Component({
@@ -26,7 +28,13 @@ export class CalendarContextMenuComponent implements OnInit{
 
   constructor(
     private messageService: MessageService,
+    protected logService: TableLogService,
+    protected collisionService: CollisionService
   ) { }
+
+  getCourseCollisions(){
+    return this.collisionService.getCourseCollisions(this.hoverEventInfo?.event!.title!);
+  }
 
   renderEventType(type: string){
     let newItems = this._calendarComponent.getApi().getEvents()
@@ -114,21 +122,6 @@ export class CalendarContextMenuComponent implements OnInit{
       summary: 'Hover Mode',
       detail: `Lens is ${this.activateLens ? 'activated' : 'deactivated' }`})
     this.getItemMenuOptions();
-  }
-
-  colorCollisionEvents(collision: CourseSessionDTO[]) {
-    const calendarApi = this.calendarComponent.getApi();
-    const originalColors: { [eventId: string]: string } = {};
-
-    collision.forEach(collisionEvent => {
-      calendarApi.getEvents().forEach(event => {
-        if (event.id === collisionEvent.id.toString()) {
-          this.tmpColorSelection.push(event) //so i can clear the events again
-          originalColors[event.id] = event.backgroundColor;
-          event.setProp("backgroundColor", "#34675C");
-        }
-      });
-    });
   }
 
   getItemMenuOptions() : void {
