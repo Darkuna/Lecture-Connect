@@ -220,16 +220,51 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     });
   }
 
-  applyAlgorithm(){
-    if(this.shownTableDD){
-      this.selectedTimeTable$ = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
-      this.updateCalendarEvents();
+  applyAlgorithm() {
+    if (this.shownTableDD) {
+      this.globalTableService.getScheduledTimeTable(this.shownTableDD.id).subscribe({
+        next: (timeTable) => {
+          // Wrap the value in an Observable and assign it to selectedTimeTable$
+          this.selectedTimeTable$ = new Observable<TimeTableDTO>((observer) => {
+            observer.next(timeTable);
+            observer.complete();
+          });
 
-      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
+          this.updateCalendarEvents();
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Updated Scheduler',
+            detail: 'Algorithm was applied successfully',
+          });
+        },
+        error: (error) => {
+          let message = 'An unexpected error occurred. Please try again later.';
+          if (error.status === 400) {
+            message = 'Precondition failed: Not enough time available to assign all course sessions.';
+          } else if (error.status === 404) {
+            message = 'The selected timetable could not be found.';
+          } else if (error.status === 500) {
+            message = 'Assignment failed due to an internal server error.';
+          }
+
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error during assignment',
+            detail: message,
+          });
+        },
+      });
     } else {
-      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Missing Resources',
+        detail: 'There is currently no table selected!',
+      });
     }
   }
+
+
 
   onCalendarClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;

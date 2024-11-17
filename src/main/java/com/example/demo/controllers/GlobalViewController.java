@@ -1,6 +1,9 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dto.*;
+import com.example.demo.exceptions.scheduler.AssignmentFailedException;
+import com.example.demo.exceptions.scheduler.NoCandidatesForCourseSessionException;
+import com.example.demo.exceptions.scheduler.PreconditionFailedException;
 import com.example.demo.models.Course;
 import com.example.demo.models.CourseSession;
 import com.example.demo.models.TimeTable;
@@ -70,23 +73,23 @@ public class GlobalViewController {
 
     @PostMapping("/assignment/{id}")
     public ResponseEntity<TimeTableDTO> calculateAndUpdateTimeTable(@PathVariable Long id) {
-
         TimeTable timeTable = timeTableService.loadTimeTable(id);
 
         if (timeTable == null) {
-
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
-        if (timeTableService.assignCourseSessionsToRooms(timeTable)) {
+        try {
+            timeTableService.assignCourseSessionsToRooms(timeTable);
             TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
             return ResponseEntity.ok().body(updatedTimeTableDTO);
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(null);
+        } catch (PreconditionFailedException | NoCandidatesForCourseSessionException | AssignmentFailedException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new RuntimeException("Unexpected error occurred during assignment processing", ex);
         }
     }
+
 
     @PostMapping("/assignment/remove/{id}")
     public ResponseEntity<TimeTableDTO> removeAllAssignedCourseSessionsFromTimeTable(@PathVariable Long id) {

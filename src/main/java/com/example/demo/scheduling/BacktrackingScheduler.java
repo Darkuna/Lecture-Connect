@@ -82,13 +82,25 @@ public class BacktrackingScheduler implements Scheduler {
      * don't need rooms with computers are processed, then all courseSessions that need computer rooms.
      */
     @Transactional
-    public void assignUnassignedCourseSessions(){
-        log.info("> Processing courseSessions that don't need computers ...");
-        assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers);
-        log.info("Finished processing courseSessions that don't need computers");
-        log.info("> Processing courseSessions that need computers ...");
-        assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
-        log.info("Finished processing courseSessions that need computers");
+    public void assignUnassignedCourseSessions() {
+        try {
+            log.info("> Processing courseSessions that don't need computers ...");
+            assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers);
+            log.info("Finished processing courseSessions that don't need computers");
+
+            log.info("> Processing courseSessions that need computers ...");
+            assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
+            log.info("Finished processing courseSessions that need computers");
+        } catch (PreconditionFailedException exception) {
+            log.error("Error while checking preconditions: {}", exception.getMessage());
+            throw exception;
+        } catch (NoCandidatesForCourseSessionException exception) {
+            log.error("Error while searching for assignment candidates: {}", exception.getMessage());
+            throw exception;
+        } catch (AssignmentFailedException exception) {
+            log.error("Error while processing assignment: {}", exception.getMessage());
+            throw exception;
+        }
     }
 
     /**
@@ -104,30 +116,19 @@ public class BacktrackingScheduler implements Scheduler {
         List<CourseSession> singleCourseSessions;
         List<CourseSession> groupCourseSessions;
 
-        try{
-            log.info("Starting precondition checks ...");
-            checkPreConditions(courseSessions, availabilityMatrices);
-            log.info("Precondition checks successful");
+        log.info("Starting precondition checks ...");
+        checkPreConditions(courseSessions, availabilityMatrices);
+        log.info("Precondition checks successful");
 
-            singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
-            groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
+        singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
+        groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
 
-            prepareCandidatesForSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
-            prepareCandidatesForGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
+        prepareCandidatesForSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
+        prepareCandidatesForGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
 
-            log.info("Starting assignment");
-            processAssignment(possibleCandidatesForCourseSessions);
-            log.info("Finished processing assignment.");
-        }
-        catch (PreconditionFailedException exception){
-            log.error("Error while checking preconditions: {}", exception.getMessage());
-        }
-        catch (NoCandidatesForCourseSessionException exception){
-            log.error("Error while searching for assignment candidates: {}", exception.getMessage());
-        }
-        catch (AssignmentFailedException exception){
-            log.error("Error while processing assignment: {}", exception.getMessage());
-        }
+        log.info("Starting assignment");
+        processAssignment(possibleCandidatesForCourseSessions);
+        log.info("Finished processing assignment.");
     }
 
     /**
