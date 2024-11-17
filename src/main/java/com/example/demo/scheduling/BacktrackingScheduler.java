@@ -1,6 +1,8 @@
 package com.example.demo.scheduling;
 
 import com.example.demo.exceptions.scheduler.AssignmentFailedException;
+import com.example.demo.exceptions.scheduler.NoCandidatesForCourseSessionException;
+import com.example.demo.exceptions.scheduler.PreconditionFailedException;
 import com.example.demo.models.*;
 import com.example.demo.services.CourseSessionService;
 import com.example.demo.services.TimingService;
@@ -97,29 +99,34 @@ public class BacktrackingScheduler implements Scheduler {
      * @param courseSessions to be processed
      * @param availabilityMatrices to be used for assigning the courseSessions
      */
-    private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+    private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions = new HashMap<>();
         List<CourseSession> singleCourseSessions;
         List<CourseSession> groupCourseSessions;
 
-        if(!checkPreConditions(courseSessions, availabilityMatrices)){
-            log.error("preconditions failed");
-            throw new AssignmentFailedException("Preconditions failed");
+        try{
+            log.info("Starting precondition checks ...");
+            checkPreConditions(courseSessions, availabilityMatrices);
+            log.info("Precondition checks successful");
+
+            singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
+            groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
+
+            prepareCandidatesForSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
+            prepareCandidatesForGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
+
+            log.info("Starting assignment");
+            processAssignment(possibleCandidatesForCourseSessions);
+            log.info("Finished processing assignment.");
         }
-
-        singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
-        groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
-
-        prepareCandidatesForSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
-        prepareCandidatesForGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
-
-        log.info("Starting assignment");
-        try {
-            if (processAssignment(possibleCandidatesForCourseSessions)) {
-                log.info("Finished processing assignment.");
-            }
-        } catch (AssignmentFailedException e) {
-            log.error(e.getMessage());
+        catch (PreconditionFailedException exception){
+            log.error("Error while checking preconditions: {}", exception.getMessage());
+        }
+        catch (NoCandidatesForCourseSessionException exception){
+            log.error("Error while searching for assignment candidates: {}", exception.getMessage());
+        }
+        catch (AssignmentFailedException exception){
+            log.error("Error while processing assignment: {}", exception.getMessage());
         }
     }
 
@@ -170,6 +177,9 @@ public class BacktrackingScheduler implements Scheduler {
                     .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
                             thenComparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
+            if(filteredCandidates.isEmpty()){
+                throw new NoCandidatesForCourseSessionException(String.format("No assignment candidates available for CourseSession %s", courseSession));
+            }
             map.put(courseSession, filteredCandidates);
         }
     }
@@ -201,6 +211,9 @@ public class BacktrackingScheduler implements Scheduler {
                     .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed()
                             .thenComparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
+            if(filteredCandidates.isEmpty()){
+                throw new NoCandidatesForCourseSessionException(String.format("No assignment candidates available for CourseSession %s", courseSession));
+            }
             map.put(courseSession, filteredCandidates);
         }
     }
@@ -209,13 +222,12 @@ public class BacktrackingScheduler implements Scheduler {
      * This method executes the backtracking algorithm to find an assignment for all courseSessions that fits all
      * constraints.
      * @param possibleCandidatesForCourseSessions map to start the backtracking algorithm from
-     * @return true, if the assignment was successful, else false
      */
-    private boolean processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions){
+    private void processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions){
         int courseSessionSize = possibleCandidatesForCourseSessions.size();
 
         if(possibleCandidatesForCourseSessions.isEmpty()){
-            return true;
+            return;
         }
 
         Stack<AssignmentState> stack = new Stack<>();
@@ -244,7 +256,7 @@ public class BacktrackingScheduler implements Scheduler {
             //if all candidates of the current state are iterated
             if(currentIndex >= candidateSize){
                 if(stack.isEmpty()){
-                    return false;
+                    throw new AssignmentFailedException("Assignment not possible after trying all combinations");
                 }
                 unassignLatestEntry();
                 currentState = stack.pop();
@@ -269,7 +281,7 @@ public class BacktrackingScheduler implements Scheduler {
             for(Map.Entry<CourseSession, List<Candidate>> entry : filteredCourseSessions.entrySet()){
                 if(entry.getValue().isEmpty()){
                     if(stack.isEmpty()){
-                        return false;
+                        throw new AssignmentFailedException("Assignment not possible after trying all combinations");
                     }
                     unassignLatestEntry();
                     currentState = stack.pop();
@@ -285,7 +297,6 @@ public class BacktrackingScheduler implements Scheduler {
 
         //if all courseSessions have been processed, finish assignment
         finishAssignment();
-        return true;
     }
 
     /**
@@ -386,26 +397,20 @@ public class BacktrackingScheduler implements Scheduler {
      *
      * @param courseSessions to be checked
      * @param availabilityMatrices to be checked
-     * @return true if all checks were successful, false if at least one check failed
      */
-    private boolean checkPreConditions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
-        log.info("Starting precondition checks ...");
+    private void checkPreConditions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         if(!checkAvailableTime(courseSessions, availabilityMatrices)){
-            log.error("Not enough time available to assign all courseSessions");
-            return false;
+            throw new PreconditionFailedException("Not enough time available to assign all courseSessions");
         }
         else{
             log.info("+ Available time check successful");
         }
         if(!checkAvailableTimePerRoomCapacity(courseSessions, availabilityMatrices)){
-            log.error("- Not enough time available to assign all courseSessions based on their numberOfParticipants");
-            return false;
+            throw new PreconditionFailedException("Not enough time available to assign all courseSessions based on their numberOfParticipants");
         }
         else{
             log.info("+ Available time per capacity check successful");
         }
-        log.info("Precondition checks successful");
-        return true;
     }
 
     /**
