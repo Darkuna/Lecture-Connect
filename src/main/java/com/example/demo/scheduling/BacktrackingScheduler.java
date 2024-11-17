@@ -388,7 +388,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @param availabilityMatrices to be checked
      * @return true if all checks were successful, false if at least one check failed
      */
-    protected boolean checkPreConditions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
+    private boolean checkPreConditions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         log.info("Starting precondition checks ...");
         if(!checkAvailableTime(courseSessions, availabilityMatrices)){
             log.error("Not enough time available to assign all courseSessions");
@@ -418,7 +418,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @return true if there is enough available time for all numbers of participants, false if at least one does not
      * have enough space
      */
-    protected boolean checkAvailableTimePerRoomCapacity(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
+    private boolean checkAvailableTimePerRoomCapacity(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         Set<Integer> numbersOfParticipants = new HashSet<>();
         List<Integer> numbersOfParticipantsSorted = new ArrayList<>();
         long totalTimeAvailable;
@@ -458,7 +458,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @param availabilityMatrices to be checked
      * @return true if there is enough space to assign all courseSessions, false if not
      */
-    protected boolean checkAvailableTime(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
+    private boolean checkAvailableTime(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         int totalTimeNeeded = 0;
         int totalTimeAvailable = 0;
         int totalPreferredTimeAvailable = 0;
@@ -489,7 +489,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @param candidate where the courseSession might be assigned
      * @return true if all checks are successful, false if at least one was not
      */
-    protected boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
+    private boolean checkConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
         if(!checkRoomCapacity(courseSession, candidate.getAvailabilityMatrix())){
             log.debug("room capacity of candidate is not fitting courseSession");
             return false;
@@ -514,7 +514,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @param availabilityMatrix of the room to be checked
      * @return true if the check was successful, false if not
      */
-    protected boolean checkRoomCapacity(CourseSession courseSession, AvailabilityMatrix availabilityMatrix){
+    private boolean checkRoomCapacity(CourseSession courseSession, AvailabilityMatrix availabilityMatrix){
         return availabilityMatrix.getCapacity() >= courseSession.getNumberOfParticipants()
                 && availabilityMatrix.getCapacity() / 2 <= courseSession.getNumberOfParticipants();
     }
@@ -525,7 +525,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @param candidate to be checked
      * @return true if there is no intersection, false if there is.
      */
-    protected boolean checkTimingConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
+    private boolean checkTimingConstraintsFulfilled(CourseSession courseSession, Candidate candidate){
         Timing timing = AvailabilityMatrix.toTiming(candidate);
         List<Timing> timingConstraints = courseSession.getTimingConstraints();
         if(timingConstraints != null){
@@ -547,7 +547,7 @@ public class BacktrackingScheduler implements Scheduler {
      * @return true if there is no intersection with any other courseSession of the same semester, false if there is
      * at least one intersection
      */
-    protected boolean checkCoursesOfSameSemester(CourseSession courseSession, Candidate candidate){
+    private boolean checkCoursesOfSameSemester(CourseSession courseSession, Candidate candidate){
         if(courseSession.isElective()){
             return true;
         }
@@ -604,7 +604,6 @@ public class BacktrackingScheduler implements Scheduler {
                     }
                 }
             }
-            //TODO: consider the number of group courses allowed to be assigned at the same time in the next iteration
 
             if(!collisions.isEmpty()){
                 collisionMap.put(courseSession, collisions);
