@@ -67,7 +67,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
-  changeCalendarView: boolean = false;
   calendarOptions :CalendarOptions = {
     plugins: [
       interactionPlugin,
@@ -190,13 +189,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.selectedTimeTable$ = null;
 
     this.clearCalendar();
-  }
-
-  changeCalenderEventView(){
-    let eventMaxValue: string = '2';
-
-    if (this.changeCalendarView)eventMaxValue = 'null';
-    this.updateCalendar('eventMaxStack', eventMaxValue);
   }
 
   isTmpTableAvailable(): TmpTimeTable {
@@ -420,13 +412,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
     this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
     event.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
-  }
-
-  updateCalendar(calendarOption: any, value: string) {
-    if(value === '00:00:00'){
-      value = '00:00:05';
-    }
-    this.calendarComponent.getApi().setOption(calendarOption, value);
   }
 
   getCalendarEvents(): EventImpl[]{
