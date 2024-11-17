@@ -1,0 +1,25 @@
+.collision-card {
+  border: 2px solid black;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #888; /* Gray background */
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.collision-card .header {
+  background-color: #e0e0e0; /* Light gray header background */
+  color: black; /* Dark text for header */
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 1px solid black;
+}
+
+.collision-card .body {
+  margin-top: 1rem;
+  font-size: 1rem;
+  text-align: center;
+}

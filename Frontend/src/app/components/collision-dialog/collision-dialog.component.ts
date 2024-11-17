@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {CollisionService} from "../../services/collision.service";
+import {CollisionType} from "../../../assets/Models/enums/collision-type";
 
 @Component({
   selector: 'app-collision-dialog',
@@ -10,4 +11,8 @@ export class CollisionDialogComponent {
   constructor(
     protected collisionService: CollisionService
   ) {}
+
+  getAllCollisions(): Record<string, CollisionType[]>{
+    return this.collisionService.getAllCollisions();
+  }
 }

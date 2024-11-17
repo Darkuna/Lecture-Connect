@@ -103,15 +103,15 @@ public class GlobalViewController {
     }
 
     @PostMapping("/collision/{id}")
-    public ResponseEntity<Map<Long, List<CollisionType>>> checkCollision(@PathVariable Long id) {
+    public ResponseEntity<Map<String, List<CollisionType>>> checkCollision(@PathVariable Long id) {
         TimeTable timeTable = timeTableService.loadTimeTable(id);
         Map<CourseSession, List<CollisionType>> collisions = timeTableService.checkCollisions(timeTable);
-        Map<Long, List<CollisionType>> idCollisions = collisions.entrySet().stream()
+        Map<String, List<CollisionType>> dtoCollisions = collisions.entrySet().stream()
                 .collect(Collectors.toMap(
-                        entry -> entry.getKey().getId(),
+                        entry -> entry.getKey().getName(),
                         Map.Entry::getValue
                 ));
-        return ResponseEntity.ok(idCollisions);
+        return ResponseEntity.ok(dtoCollisions);
     }
 
     @GetMapping("/courses/{id}")

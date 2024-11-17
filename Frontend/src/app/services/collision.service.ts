@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import {environment} from "../environment/environment";
-import {CollisionResponse} from "../../assets/Models/dto/collision";
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {firstValueFrom} from "rxjs";
+import {CollisionType} from "../../assets/Models/enums/collision-type";
+import {MessageService} from "primeng/api";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CollisionService {
-  currentCollisions: CollisionResponse | null = null;
+  currentCollisions: Record<string, CollisionType[]> | null = null;
   showCollisionDialog: boolean = false;
 
   static API_PATH = `${environment.baseUrl}/api/global`;
@@ -21,29 +22,31 @@ export class CollisionService {
   }
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private messageService: MessageService,
   ) { }
 
   async handleCollisions(tableID: number):Promise<void>{
     if(this.currentCollisions == null) this.currentCollisions = await this.getCurrentCollisions(tableID);
-    this.showCollisionDialog = true;
-    return;
+    if(Object.entries(this.currentCollisions).length !== 0) {
+      this.showCollisionDialog = true
+    } else {
+    this.messageService
+      .add({severity: 'success', summary: 'Collision Check', detail: 'Your table has currently no collisions'});
+    }
   }
 
-  private getCurrentCollisions(tableID: number):Promise<CollisionResponse>{
+  private getCurrentCollisions(tableID: number):Promise<Record<string, CollisionType[]>>{
     const newUrl = `${CollisionService.API_PATH}/collision/${tableID}`;
-    return firstValueFrom(this.http.post<CollisionResponse>(newUrl, this.httpOptions));
+    return firstValueFrom(this.http.post<Record<string, CollisionType[]>>(newUrl, this.httpOptions));
   }
 
-  getAllCollisions(): CollisionResponse{
+  getAllCollisions(): Record<string, CollisionType[]>{
     return this.currentCollisions!;
   }
 
-  getCourseCollisions(courseID: string){
-    return this.currentCollisions
-  }
-
   clearCollisions(){
+    this.showCollisionDialog = false;
     this.currentCollisions = null;
   }
 }
