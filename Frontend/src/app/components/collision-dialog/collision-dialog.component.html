@@ -3,7 +3,7 @@
   [(visible)]="collisionService.showCollisionDialog"
   [modal]="false"
   [closable]="true"
-  [style]="{ width: '45rem', 'min-height': '25rem' }"
+  [style]="{ width: '45rem', 'max-height': '55rem' }"
   [position]="'right'">
 
   <p-table [globalFilterFields]="['changeType']"
@@ -45,6 +45,10 @@
         </td>
       </tr>
     </ng-template>
-
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="2">No Collisions with your settings!</td>
+      </tr>
+    </ng-template>
   </p-table>
 </p-dialog>
