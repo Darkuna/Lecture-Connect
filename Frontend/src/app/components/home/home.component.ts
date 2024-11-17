@@ -27,11 +27,11 @@ import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {EventImpl} from "@fullcalendar/core/internal";
-import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import {ProgressService} from "../../services/progress.service";
 import {TableLogComponent} from "../table-log/table-log.component";
+import {CollisionService} from "../../services/collision.service";
 
 @Component({
   selector: 'app-home',
@@ -113,13 +113,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private confirmationService: ConfirmationService,
     private progressService: ProgressService,
     private cd: ChangeDetectorRef,
+    private collisionService: CollisionService
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
         this.availableTables = data.reverse();
         this.shownTableDD = this.availableTables
           .find(t => t.id === this.globalTableService.tableId) ??  this.availableTables[0];
-
         this.loadSpecificTable();
       }
     });
@@ -169,6 +169,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   loadSpecificTable() {
+    this.collisionService.clearCollisions();
     if(!this.shownTableDD!.id){
       return;
     }
@@ -178,6 +179,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   unselectTable(){
+    this.collisionService.clearCollisions();
     this.globalTableService.unselectTable();
     this.shownTableDD = null;
     this.selectedTimeTable$ = null;
@@ -188,10 +190,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   changeCalenderEventView(){
     let eventMaxValue: string = '2';
 
-    if (this.changeCalendarView){
-      eventMaxValue = 'null';
-    }
-
+    if (this.changeCalendarView)eventMaxValue = 'null';
     this.updateCalendar('eventMaxStack', eventMaxValue);
   }
 
@@ -243,15 +242,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     if(this.shownTableDD){
       this.confirmationService.confirm(
         {
-          message: 'Are you sure that you want to proceed?',
-          header: 'Confirmation',
-          icon: 'pi pi-exclamation-triangle',
-          acceptIcon:"none",
-          rejectIcon:"none",
+          message: 'Are you sure that you want to proceed?', header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle', acceptIcon:"none", rejectIcon:"none",
           accept: () => {
             this.selectedTimeTable$ = this.globalTableService.removeAll(this.shownTableDD!.id);
             this.updateCalendarEvents();
-
             this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
           },
           reject: () => {
@@ -273,19 +268,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
-      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
-        next: (collision: CourseSessionDTO[]) => {
-          if (collision.length === 0) {
-            this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collision checks were successful'})}
-          else {
-            this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
-            this.calendarContextMenu.colorCollisionEvents(collision);
-          }
-        },
-        error: err => {
-          this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
-        }
-      });
+      this.collisionService.handleCollisions(this.shownTableDD.id);
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
@@ -408,6 +391,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   redirectToSelection(page: string){
+    this.collisionService.clearCollisions();
     if(this.shownTableDD){
       this.router.navigate([page]).catch(message => {
         this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});

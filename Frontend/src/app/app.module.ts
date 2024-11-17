@@ -73,6 +73,7 @@ import {CheckboxModule} from "primeng/checkbox";
 import { ProgressComponent } from './components/progress/progress.component';
 import { TableLogComponent } from './components/table-log/table-log.component';
 import {PickListModule} from "primeng/picklist";
+import { CollisionDialogComponent } from './components/collision-dialog/collision-dialog.component';
 
 @NgModule({ declarations: [
         AppComponent, HeaderSelfComponent, LoginComponent,
@@ -82,7 +83,7 @@ import {PickListModule} from "primeng/picklist";
         BaseSelectionComponent, CourseSelectionComponent, DetailSelectionComponent,
         RoomSelectionComponent, BaseSelectionComponent, RoomSelectionPageComponent,
         CourseSelectionPageComponent, CalendarContextMenuComponent, EditorComponent,
-        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent, TableLogComponent,
+        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent, TableLogComponent, CollisionDialogComponent,
     ],
   bootstrap: [AppComponent],
   imports: [
