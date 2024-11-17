@@ -1,40 +1,40 @@
 <p-contextMenu [global]="true" [model]="contextItems"/>
 
 <p-dialog [(visible)]="activateLens && showHoverDialogBool"
-          header="{{hoverEventInfo?.event!.title}}"
           [draggable]="true" [focusOnShow]="false"
           [modal]="false" [closable]="true"
-          (onHide)="closeDialog()"
-          >
-  <ng-template pTemplate="content" class="parent">
-
-    <div id="cssportal-grid">
-      <div id="startTime">
-        <label for="start">Start Time</label>
-        <input pInputText id="start"
-               [ngModel]="hoverEventInfo?.event!.start!.toLocaleTimeString()" [disabled]="true"/>
-        <label for="studyType">Degree</label>
-        <input pInputText id="studyType"
-               [ngModel]="hoverEventInfo?.event!.extendedProps['studyType']" [disabled]="true"/>
+          (onHide)="closeDialog()" [style]="{width: '25rem'}">
+  <ng-template pTemplate="content">
+    <div class="plan">
+      <div class="inner">
+			<span class="pricing">
+				<span>
+					Course
+				</span>
+			</span>
+        <p class="title">{{ hoverEventInfo?.event!.title }}</p>
+        <ul class="features">
+          <li>
+            <span> Time:
+              {{hoverEventInfo?.event!.start!.toLocaleTimeString()}}
+              -
+              {{hoverEventInfo?.event!.end!.toLocaleTimeString()}}
+            </span>
+          </li>
+          <li>
+            <span>Degree: {{ hoverEventInfo?.event!.extendedProps['studyType'] }}</span>
+          </li>
+          <li>
+            <span>Semester: {{hoverEventInfo?.event!.extendedProps['semester']}}</span>
+          </li>
+          <li>
+            <span>Room: {{hoverEventInfo?.event!.extendedProps['description'] ?? 'not assigned'}}</span>
+          </li>
+          <li style="height: 15rem; overflow: auto">
+              <app-collision-table [showAllColumns]="false" [collisions]="getCourseCollisions()"/>
+          </li>
+        </ul>
       </div>
-      <div id="endTime">
-        <label for="end">End Time</label>
-        <input pInputText id="end"
-               [ngModel]="hoverEventInfo?.event!.end!.toLocaleTimeString()" [disabled]="true"/>
-        <label for="semester">Semester</label>
-        <input pInputText id="semester"
-               [ngModel]="hoverEventInfo?.event!.extendedProps['semester']" [disabled]="true"/>
-      </div>
-
-      <div id="details">
-        <br>
-        <label for="room">Room</label>
-        <input pInputText id="room"
-               [ngModel]="hoverEventInfo?.event!.extendedProps['description']" [disabled]="true"/>
-      </div>
-    </div>
-    <div style="height: 10rem; overflow: scroll">
-      <app-collision-table [collisions]="getCourseCollisions()"/>
     </div>
   </ng-template>
 </p-dialog>

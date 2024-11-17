@@ -9,15 +9,17 @@ import {CollisionType, getCollisionTypes} from "../../../../assets/Models/enums/
 export class CollisionTableComponent implements OnInit{
   cols: any[] = [];
   @Input() collisions!: Record<string, CollisionType[]>;
+  @Input() showAllColumns: boolean = true;
 
   constructor(
   ) {}
 
   ngOnInit(): void {
     this.cols = [
-      {field: 'key', header: 'Course'},
       {field: 'value', header: 'Type'},
     ];
+    if (this.showAllColumns)
+      this.cols.push({field: 'key', header: 'Course'})
   }
 
   protected readonly getCollisionTypes = getCollisionTypes;
