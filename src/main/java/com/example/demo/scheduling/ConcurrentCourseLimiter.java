@@ -28,7 +28,7 @@ public class ConcurrentCourseLimiter <T>{
 
     /**
      * This method checks if the numberOfAllowedOverlapsPerCourse is exceeded by a certain course
-     * @param courseSession to check
+     * @param key to check
      * @param candidate is needed to calculate the correct value in the integer list
      * @return true if limit is reached, else false
      */
