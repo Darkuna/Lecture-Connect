@@ -28,12 +28,14 @@ public class BacktrackingScheduler implements Scheduler {
 
     private final TimingService timingService;
     private final CourseSessionService courseSessionService;
-    private final GroupAssignmentMap groupAssignmentMap;
+    private final ConcurrentCourseLimiter<String> concurrentGroupCourseLimiter;
+    private final ConcurrentCourseLimiter<Integer> concurrentElectiveCourseLimiter;
 
     public BacktrackingScheduler(TimingService timingService, CourseSessionService courseSessionService) {
         this.timingService = timingService;
         this.courseSessionService = courseSessionService;
-        this.groupAssignmentMap = new GroupAssignmentMap(2);
+        this.concurrentGroupCourseLimiter = new ConcurrentCourseLimiter<>(2);
+        this.concurrentElectiveCourseLimiter = new ConcurrentCourseLimiter<>(2);
     }
 
     /**
@@ -113,36 +115,19 @@ public class BacktrackingScheduler implements Scheduler {
      */
     private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
         Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions = new HashMap<>();
-        List<CourseSession> singleCourseSessions;
-        List<CourseSession> groupCourseSessions;
+        List<CourseSession> sortedCourseSessions;
 
         log.info("Starting precondition checks ...");
         checkPreConditions(courseSessions, availabilityMatrices);
         log.info("Precondition checks successful");
 
-        singleCourseSessions = filterAndSortSingleCourseSessions(courseSessions);
-        groupCourseSessions =filterAndSortGroupCourseSessions(courseSessions);
+        sortedCourseSessions = sortCourseSessions(courseSessions);
 
-        prepareCandidatesForSingleCourseSessions(possibleCandidatesForCourseSessions, singleCourseSessions, availabilityMatrices);
-        prepareCandidatesForGroupCourseSessions(possibleCandidatesForCourseSessions, groupCourseSessions, availabilityMatrices);
+        prepareCandidatesForCourseSessions(possibleCandidatesForCourseSessions, sortedCourseSessions, availabilityMatrices);
 
         log.info("Starting assignment");
         processAssignment(possibleCandidatesForCourseSessions);
         log.info("Finished processing assignment.");
-    }
-
-    /**
-     * Filters and sorts a list of courseSessions to obtain only single and split courseSessions sorted descending by
-     * duration and descending by numberOfParticipants.
-     * @param courseSessions to be filtered and sorted
-     * @return sorted list of single courseSessions
-     */
-    private List<CourseSession> filterAndSortSingleCourseSessions(List<CourseSession> courseSessions){
-        return courseSessions.stream()
-                .filter(c -> !c.isGroupCourse())
-                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
-                        .thenComparing(CourseSession::getNumberOfParticipants).reversed())
-                .collect(Collectors.toList());
     }
 
     /**
@@ -151,38 +136,18 @@ public class BacktrackingScheduler implements Scheduler {
      * @param courseSessions to be filtered and sorted
      * @return sorted list of group courseSessions
      */
-    private List<CourseSession> filterAndSortGroupCourseSessions(List<CourseSession> courseSessions){
+    private List<CourseSession> sortCourseSessions(List<CourseSession> courseSessions){
         return courseSessions.stream()
-                .filter(CourseSession::isGroupCourse)
                 .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
+                        .thenComparing(CourseSession::getNumberOfParticipants).reversed()
                         .thenComparing(CourseSession::getStudyType).reversed()
                         .thenComparing(CourseSession::getSemester).reversed()
                         .thenComparing(CourseSession::getCourseId))
                 .collect(Collectors.toList());
     }
 
-    /**
-     * This method finds all possible candidates for the single and split courseSessions and collects them in a map
-     * @param map to collect courseSessions and their corresponding candidates
-     * @param courseSessions to be prepared
-     * @param availabilityMatrices to find possible candidates in
-     */
-    private void prepareCandidatesForSingleCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        for(CourseSession courseSession : courseSessions){
-            List<Candidate> candidates = new ArrayList<>();
-            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
-            }
-            List<Candidate> filteredCandidates = candidates.stream()
-                    .filter(c -> checkConstraintsFulfilled(courseSession, c))
-                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
-                            thenComparingInt(Candidate::getSlot))
-                    .collect(Collectors.toList());
-            if(filteredCandidates.isEmpty()){
-                throw new NoCandidatesForCourseSessionException(String.format("No assignment candidates available for CourseSession %s", courseSession));
-            }
-            map.put(courseSession, filteredCandidates);
-        }
+    private int createKey(CourseSession courseSession){
+        return courseSession.getStudyType().ordinal() + courseSession.getSemester();
     }
 
     /**
@@ -191,19 +156,15 @@ public class BacktrackingScheduler implements Scheduler {
      * @param courseSessions to be prepared
      * @param availabilityMatrices to find possible candidates in
      */
-    private void prepareCandidatesForGroupCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
-        String currentGroup;
-        if(courseSessions == null || courseSessions.isEmpty()){
-            return;
-        }
-        currentGroup = courseSessions.getFirst().getCourseId();
-        groupAssignmentMap.initGroup(currentGroup);
+    private void prepareCandidatesForCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
         for(CourseSession courseSession: courseSessions){
-            List<Candidate> candidates = new ArrayList<>();
-            if(!courseSession.getCourseId().equals(currentGroup)){
-                currentGroup = courseSession.getCourseId();
-                groupAssignmentMap.initGroup(currentGroup);
+            if(courseSession.isElective()){
+                concurrentElectiveCourseLimiter.initGroup(createKey(courseSession));
             }
+            if(courseSession.isGroupCourse()){
+                concurrentGroupCourseLimiter.initGroup(courseSession.getCourseId());
+            }
+            List<Candidate> candidates = new ArrayList<>();
             for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
                 candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
             }
@@ -266,9 +227,7 @@ public class BacktrackingScheduler implements Scheduler {
             }
             //assign candidate
             Candidate currentCandidate = currentCourseSessionMap.get(currentCourseSession).get(currentIndex);
-            currentCandidate.assignToCourseSession(currentCourseSession);
-            assignmentStack.push(new AssignmentStackEntry(currentCourseSession, currentCandidate));
-            groupAssignmentMap.addEntry(currentCourseSession, currentCandidate);
+            assignEntry(currentCourseSession, currentCandidate);
 
             //filter candidates
             filteredCourseSessions = filterCandidates(currentCourseSessionMap, currentCourseSession, currentCandidate);
@@ -306,7 +265,24 @@ public class BacktrackingScheduler implements Scheduler {
     private void unassignLatestEntry(){
         AssignmentStackEntry entry = assignmentStack.pop();
         entry.candidate.clearInAvailabilityMatrix();
-        groupAssignmentMap.removeEntry(entry.courseSession, entry.candidate);
+        if(entry.courseSession.isGroupCourse()){
+            concurrentGroupCourseLimiter.removeEntry(entry.courseSession.getCourseId(), entry.candidate);
+        }
+        else if(entry.courseSession.isElective()){
+            concurrentElectiveCourseLimiter.removeEntry(createKey(entry.courseSession), entry.candidate);
+        }
+    }
+
+    private void assignEntry(CourseSession currentCourseSession, Candidate currentCandidate){
+        currentCandidate.assignToCourseSession(currentCourseSession);
+        assignmentStack.push(new AssignmentStackEntry(currentCourseSession, currentCandidate));
+        if(currentCourseSession.isGroupCourse()){
+            concurrentGroupCourseLimiter.addEntry(currentCourseSession.getCourseId(), currentCandidate);
+        }
+        else if(currentCourseSession.isElective()){
+            concurrentElectiveCourseLimiter.addEntry(createKey(currentCourseSession), currentCandidate);
+        }
+
     }
 
     /**
@@ -359,7 +335,7 @@ public class BacktrackingScheduler implements Scheduler {
                 //if it is part of the same course, and it is a group course
                 //filter all candidates intersecting in the same roomTable
                 else if (cs.isGroupCourse()) {
-                    if(!groupAssignmentMap.isLimitExceeded(currentCourseSession, currentCandidate)){
+                    if(!concurrentGroupCourseLimiter.isLimitExceeded(currentCourseSession.getCourseId(), currentCandidate)){
                         candidates = candidates.stream()
                                 .filter(c -> !c.intersects(currentCandidate) || !c.isInSameRoom(currentCandidate))
                                 .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().

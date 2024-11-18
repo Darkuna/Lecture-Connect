@@ -7,26 +7,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This class is used to ensure that every group courseSession only overlaps with a specified number of courseSessions
- * withing the same group. For example, if the numberOfAllowedOverlapsPerCourse is 3, only three courseSessions
- * can be assigned at the same day at the same time.
- */
-public class GroupAssignmentMap {
-    private final Map<String, List<Integer>> assignedGroupCourseSessions;
+public class ConcurrentCourseLimiter <T>{
+    private final Map<T, List<Integer>> assignedGroupCourseSessions;
     private final int numberOfAllowedOverlapsPerCourse;
 
-    public GroupAssignmentMap(int numberOfAllowedOverlapsPerCourse) {
+    public ConcurrentCourseLimiter(int numberOfAllowedOverlapsPerCourse) {
         this.assignedGroupCourseSessions = new HashMap<>();
         this.numberOfAllowedOverlapsPerCourse = numberOfAllowedOverlapsPerCourse;
     }
 
     /**
      * This method initializes a certain group course
-     * @param courseID to initialize
+     * @param key to initialize
      */
-    public void initGroup(String courseID){
-        assignedGroupCourseSessions.put(courseID, new ArrayList<>());
+    public void initGroup(T key){
+        if(!assignedGroupCourseSessions.containsKey(key)){
+            assignedGroupCourseSessions.put(key, new ArrayList<>());
+        }
     }
 
     /**
@@ -35,12 +32,12 @@ public class GroupAssignmentMap {
      * @param candidate is needed to calculate the correct value in the integer list
      * @return true if limit is reached, else false
      */
-    public boolean isLimitExceeded(CourseSession courseSession, Candidate candidate){
-        if(!assignedGroupCourseSessions.containsKey(courseSession.getCourseId())){
+    public boolean isLimitExceeded(T key, Candidate candidate){
+        if(!assignedGroupCourseSessions.containsKey(key)){
             return false;
         }
 
-        return assignedGroupCourseSessions.get(courseSession.getCourseId()).stream()
+        return assignedGroupCourseSessions.get(key).stream()
                 .filter(t -> t == candidate.getDay() * 100 + candidate.getSlot())
                 .count() >= numberOfAllowedOverlapsPerCourse;
     }
@@ -48,12 +45,12 @@ public class GroupAssignmentMap {
     /**
      * This method add a new entry to the map. The value of the new entry is calculated by multiplying the day number by
      * 100 and adding the slot number
-     * @param courseSession to get the courseId key from
+     * @param key to get the courseId key from
      * @param candidate to calculate and add the value from
      */
-    public void addEntry(CourseSession courseSession, Candidate candidate) {
-        if(assignedGroupCourseSessions.containsKey(courseSession.getCourseId())){
-            List<Integer> values = assignedGroupCourseSessions.get(courseSession.getCourseId());
+    public void addEntry(T key, Candidate candidate) {
+        if(assignedGroupCourseSessions.containsKey(key)){
+            List<Integer> values = assignedGroupCourseSessions.get(key);
             for(int i = candidate.getSlot(); i <= candidate.getEndSlot(); i++){
                 values.add(candidate.getDay() * 100 + i);
             }
@@ -62,15 +59,15 @@ public class GroupAssignmentMap {
 
     /**
      * This method is used to remove an entry, if the backtracking algorithm has to go one step back
-     * @param courseSession to remove latest entry from
+     * @param key to remove latest entry from
+     * @param candidate to remove latest entry from
      */
-    public void removeEntry(CourseSession courseSession, Candidate candidate) {
-        if (assignedGroupCourseSessions.containsKey(courseSession.getCourseId())) {
-            List<Integer> values = assignedGroupCourseSessions.get(courseSession.getCourseId());
+    public void removeEntry(T key, Candidate candidate) {
+        if (assignedGroupCourseSessions.containsKey(key)) {
+            List<Integer> values = assignedGroupCourseSessions.get(key);
             for (int i = candidate.getSlot(); i <= candidate.getEndSlot(); i++) {
                 values.remove((Integer) (candidate.getDay() * 100 + i));
             }
         }
     }
-
 }
