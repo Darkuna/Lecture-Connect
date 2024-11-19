@@ -50,4 +50,8 @@ public class Candidate {
     public String toString(){
         return String.format("Candidate %s, Day: %d, Slot: %d", availabilityMatrix.getRoomTable().getRoomId(), day, slot);
     }
+
+    public int getEndSlot(){
+        return slot + duration / 15 - 1;
+    }
 }

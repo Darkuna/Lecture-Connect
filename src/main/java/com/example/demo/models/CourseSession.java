@@ -4,11 +4,13 @@ import com.example.demo.models.enums.StudyType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.util.List;
 
+@ToString
 @Entity
 @Getter
 @Setter
