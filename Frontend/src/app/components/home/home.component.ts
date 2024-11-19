@@ -63,7 +63,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
-  tmpEndDate: Date = new Date('2024-07-10T22:00:00');
+  tmpEndDate: Date = new Date('2024-07-10T21:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
