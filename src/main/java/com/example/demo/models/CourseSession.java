@@ -65,10 +65,9 @@ public class CourseSession implements Persistable<Long>, Serializable {
         return name.contains("Split");
     }
 
-    public boolean isAllowedToIntersectWith(CourseSession courseSession) {
-        return this.semester != courseSession.semester ||
-                this.studyType != courseSession.studyType ||
-                this.isElective() || courseSession.isElective();
+    public boolean isFromSameDegreeAndSemester(CourseSession courseSession) {
+        return this.semester == courseSession.semester &&
+                this.studyType == courseSession.studyType;
     }
 
     @Override
