@@ -173,9 +173,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   loadSpecificTable() {
     this.collisionService.clearCollisions();
     this.logService.clearChanges();
-    if(!this.shownTableDD!.id){
-      return;
-    }
+    if(!this.shownTableDD!.id) return;
 
     this.selectedTimeTable$ = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
     this.updateCalendarEvents();

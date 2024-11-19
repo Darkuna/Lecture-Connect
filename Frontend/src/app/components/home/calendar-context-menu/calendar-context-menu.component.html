@@ -1,6 +1,7 @@
 <p-contextMenu [global]="true" [model]="contextItems"/>
 
 <p-dialog [(visible)]="activateLens && showHoverDialogBool"
+          [title]="hoverEventInfo?.event!.title"
           [draggable]="true" [focusOnShow]="false"
           [modal]="false" [closable]="true"
           (onHide)="closeDialog()" [style]="{width: '25rem'}">
@@ -12,7 +13,6 @@
 					Course
 				</span>
 			</span>
-        <p class="title">{{ hoverEventInfo?.event!.title }}</p>
         <ul class="features">
           <li>
             <span> Time:
@@ -29,9 +29,6 @@
           </li>
           <li>
             <span>Room: {{hoverEventInfo?.event!.extendedProps['description'] ?? 'not assigned'}}</span>
-          </li>
-          <li style="height: 15rem; overflow: auto">
-              <app-collision-table [showAllColumns]="false" [collisions]="getCourseCollisions()"/>
           </li>
         </ul>
       </div>
