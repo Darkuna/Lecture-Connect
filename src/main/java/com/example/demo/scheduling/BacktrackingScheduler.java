@@ -35,7 +35,7 @@ public class BacktrackingScheduler implements Scheduler {
         this.timingService = timingService;
         this.courseSessionService = courseSessionService;
         this.concurrentGroupCourseLimiter = new ConcurrentCourseLimiter<>(2);
-        this.concurrentElectiveCourseLimiter = new ConcurrentCourseLimiter<>(7);
+        this.concurrentElectiveCourseLimiter = new ConcurrentCourseLimiter<>(3);
     }
 
     /**
@@ -177,6 +177,22 @@ public class BacktrackingScheduler implements Scheduler {
             map.put(courseSession, filteredCandidates);
         }
     }
+    // Method to visualize the backtracking algorithm
+    /*
+    private String statesToList(Stack<AssignmentState> stack) {
+        Iterator<AssignmentState> iterator = stack.iterator();
+        List<Integer> indices = new ArrayList<>();
+        while (iterator.hasNext()) {
+            indices.add(iterator.next().index); // Sammle alle Indizes
+        }
+        // Erstelle einen String aus den Indizes
+        StringBuilder sb = new StringBuilder();
+        for (int index : indices) {
+            sb.append(String.format("%2d ", index)); // Füge die Indizes formatiert hinzu
+        }
+        return sb.toString().trim(); // Entferne abschließende Leerzeichen
+    }
+    */
 
     /**
      * This method executes the backtracking algorithm to find an assignment for all courseSessions that fits all
@@ -185,7 +201,6 @@ public class BacktrackingScheduler implements Scheduler {
      */
     private void processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
         final int initialCourseSessionSize = possibleCandidatesForCourseSessions.size();
-
         if (initialCourseSessionSize == 0) {
             return;
         }
@@ -203,13 +218,6 @@ public class BacktrackingScheduler implements Scheduler {
         while (true) {
             currentCourseSessionMap = currentState.possibleCandidateMap;
             currentIndex = currentState.index;
-
-            System.out.printf("State: %d, Index %d%n",
-                    initialCourseSessionSize - currentCourseSessionMap.size(), currentIndex);
-
-            if(initialCourseSessionSize - currentCourseSessionMap.size() == 20){
-                int x = 0;
-            }
 
             // Find CourseSession with the fewest candidates
             Map<CourseSession, List<Candidate>> finalCurrentCourseSessionMap = currentCourseSessionMap;
@@ -373,8 +381,8 @@ public class BacktrackingScheduler implements Scheduler {
             }
             else{
                 candidates = candidates.stream()
-                        .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
-                                thenComparingInt((Candidate::getSlot)))
+                        .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed()
+                                .thenComparingInt((Candidate::getSlot)))
                         .collect(Collectors.toList());
             }
             if(candidates.isEmpty()){
