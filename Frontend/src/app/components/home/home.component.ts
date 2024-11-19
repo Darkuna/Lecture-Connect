@@ -27,11 +27,11 @@ import {Status} from "../../../assets/Models/enums/status";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {EventImpl} from "@fullcalendar/core/internal";
-import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import {ProgressService} from "../../services/progress.service";
-import {TableLogComponent} from "../table-log/table-log.component";
+import {CollisionService} from "../../services/collision.service";
+import {TableLogService} from "../../services/table-log.service";
 
 @Component({
   selector: 'app-home',
@@ -61,14 +61,12 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   @ViewChild('calendar', {read: ElementRef}) calendarElement!: ElementRef;
   @ViewChild('calendarContextMenu') calendarContextMenu! : CalendarContextMenuComponent;
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
-  @ViewChild('tableLog') tableLog!: TableLogComponent;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
   tmpEndDate: Date = new Date('2024-07-10T22:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
-  changeCalendarView: boolean = false;
   calendarOptions :CalendarOptions = {
     plugins: [
       interactionPlugin,
@@ -113,16 +111,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private confirmationService: ConfirmationService,
     private progressService: ProgressService,
     private cd: ChangeDetectorRef,
+    private collisionService: CollisionService,
+    private logService: TableLogService
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
-        this.availableTables = data;
+        this.availableTables = data.reverse();
         this.shownTableDD = this.availableTables
           .find(t => t.id === this.globalTableService.tableId) ??  this.availableTables[0];
-
         this.loadSpecificTable();
       }
-  });
+    });
   }
 
   ngAfterViewInit(): void {
@@ -139,6 +138,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   showTableDialog() {
+    this.collisionService.clearCollisions();
+    this.logService.clearChanges();
+
     this.creationTable = new TmpTimeTable();
     this.showNewTableDialog = true;
   }
@@ -169,6 +171,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   loadSpecificTable() {
+    this.collisionService.clearCollisions();
+    this.logService.clearChanges();
     if(!this.shownTableDD!.id){
       return;
     }
@@ -178,6 +182,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   unselectTable(){
+    this.collisionService.clearCollisions();
+    this.logService.clearChanges();
     this.globalTableService.unselectTable();
     this.shownTableDD = null;
     this.selectedTimeTable$ = null;
@@ -185,21 +191,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.clearCalendar();
   }
 
-  changeCalenderEventView(){
-    let eventMaxValue: string = '2';
-
-    if (this.changeCalendarView){
-      eventMaxValue = 'null';
-    }
-
-    this.updateCalendar('eventMaxStack', eventMaxValue);
-  }
-
   isTmpTableAvailable(): TmpTimeTable {
     return this.localStorage.retrieve('tmptimetable');
   }
 
   loadTmpTable() {
+    this.collisionService.clearCollisions();
+    this.logService.clearChanges();
+
     let tmpTable = this.isTmpTableAvailable();
     if (tmpTable !== null) {
       this.shareService.selectedTable = tmpTable;
@@ -243,15 +242,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     if(this.shownTableDD){
       this.confirmationService.confirm(
         {
-          message: 'Are you sure that you want to proceed?',
-          header: 'Confirmation',
-          icon: 'pi pi-exclamation-triangle',
-          acceptIcon:"none",
-          rejectIcon:"none",
+          message: 'Are you sure that you want to proceed?', header: 'Confirmation',
+          icon: 'pi pi-exclamation-triangle', acceptIcon:"none", rejectIcon:"none",
           accept: () => {
             this.selectedTimeTable$ = this.globalTableService.removeAll(this.shownTableDD!.id);
             this.updateCalendarEvents();
-
             this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'cleared calendar'});
           },
           reject: () => {
@@ -273,19 +268,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
 
   applyCollisionCheck() {
     if (this.shownTableDD) {
-      this.globalTableService.getCollisions(this.shownTableDD.id).subscribe({
-        next: (collision: CourseSessionDTO[]) => {
-          if (collision.length === 0) {
-            this.messageService.add({severity: 'success', summary: 'No collisions', detail: 'All collision checks were successful'})}
-          else {
-            this.messageService.add({severity: 'warn', summary: `Collisions found`, detail: `Number of collisions: ${collision.length}`});
-            this.calendarContextMenu.colorCollisionEvents(collision);
-          }
-        },
-        error: err => {
-          this.messageService.add({severity: 'error', summary: 'Error occurred', detail: err});
-        }
-      });
+      this.collisionService.handleCollisions(this.shownTableDD.id);
     } else {
       this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
     }
@@ -408,6 +391,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   redirectToSelection(page: string){
+    this.collisionService.clearCollisions();
+    this.logService.clearChanges();
     if(this.shownTableDD){
       this.router.navigate([page]).catch(message => {
         this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
@@ -427,13 +412,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     this.calendarContextMenu.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
     this.calendarContextMenu.tmpPartners = this.calendarContextMenu.colorPartnerEvents(event.event, '#ad7353');
     event.event.setProp("backgroundColor", 'var(--system-color-primary-red)');
-  }
-
-  updateCalendar(calendarOption: any, value: string) {
-    if(value === '00:00:00'){
-      value = '00:00:05';
-    }
-    this.calendarComponent.getApi().setOption(calendarOption, value);
   }
 
   getCalendarEvents(): EventImpl[]{
@@ -458,8 +436,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   private loadChanges(){
-    this.tableLog.tableName = this.shownTableDD;
-    this.tableLog.showChanges(this.shownTableDD!.id);
+    this.logService.handleChanges(this.shownTableDD!.id);
   }
 
   ngOnInit() {
@@ -497,28 +474,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
         ]
       },
       {
-        label: 'Rooms',
-        expanded: true,
-        items: [
-          {
-            label: 'Add new Rooms',
-            icon: 'pi pi-warehouse',
-            command: () => this.redirectToSelection('/user/tt-rooms')
-          },
-
-          {
-            label: 'Edit shown Rooms',
-            icon: 'pi pi-warehouse',
-            command: () => this.redirectToSelection('/user/tt-rooms')
-          },
-        ]
-      },
-      {
         label: 'Scheduling',
         expanded: true,
         items: [
           {
-            label: 'last Changes',
+            label: 'Last Changes',
             icon: 'pi pi-comments',
             command: () => { this.loadChanges() }
           }

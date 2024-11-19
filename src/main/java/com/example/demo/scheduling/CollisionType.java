@@ -6,3 +6,4 @@ public enum CollisionType {
     ROOM_COMPUTERS,
     ROOM_CAPACITY
 }
+

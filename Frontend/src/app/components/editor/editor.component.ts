@@ -116,7 +116,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
           return a.roomId.localeCompare(b.roomId);
         });
         this.selectedRoom = r.roomTables[0];
-
         this.timeTable = r;
         this.loadNewRoom(this.selectedRoom!);
       }
@@ -132,7 +131,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
           title: eventEl.getAttribute('data-title'),
           duration: eventEl.getAttribute('data-duration'),
           editable: true,
-        };
+          extendedProps: {nrOfParticipants: eventEl.getAttribute('data-participants')}
+          };
       }
     });
   }
@@ -220,34 +220,50 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       )
   }
 
-  drop(arg: DropArg) {
-    this.dragTableEvents =
-      this.dragTableEvents.filter(
+  private allowDrop(nrOfParticipants: number):boolean{
+    const roomCapacity = this.selectedRoom?.capacity;
+
+    return (nrOfParticipants > roomCapacity!);
+  }
+
+  private drop(arg: DropArg) {
+    const nrOfParticipants = Number(arg.draggedEl.getAttribute('data-participants'));
+    if(this.allowDrop(nrOfParticipants)){
+      this.messageService.add({severity: 'error', summary: 'ROOM CAPACITY  COLLISION', life: 5000,
+        detail: `The selected course (${arg.draggedEl.getAttribute('data-title')}) has to many participants (${nrOfParticipants})
+         for the selected room(${this.selectedRoom?.capacity})`});
+    } else {
+      this.dragTableEvents = this.dragTableEvents.filter(
         e => e.id !== arg.draggedEl.getAttribute('data-id'))
-    this.nrOfEvents += 1;
-    this.dirtyData = true;
+      this.nrOfEvents += 1;
+      this.dirtyData = true;
+    }
   }
 
-  eventReceive(args: any){
+  private eventReceive(args: any){
+    if(this.allowDrop(args.event.extendedProps['nrOfParticipants'])){
+      args.revert();
+    } else {
+      this.dirtyData = true;
+      this.rightClickEvent = args;
+      this.updateSession(args.event, true);
+    }
+  }
+
+  private eventChange(args: any){
     this.rightClickEvent = args;
     this.updateSession(args.event, true);
     this.dirtyData = true;
   }
 
-  eventChange(args: any){
-    this.rightClickEvent = args;
-    this.updateSession(args.event, true);
-    this.dirtyData = true;
-  }
-
-  eventDidMount(arg: EventMountArg){
+  private eventDidMount(arg: EventMountArg){
     arg.el.addEventListener("contextmenu", (jsEvent)=>{
       jsEvent.preventDefault()
       this.rightClickEvent = arg;
     })
   }
 
-  eventAllow(args: any): boolean {
+  private eventAllow(args: any): boolean {
     const startHour = args.start.getHours();
     const startMinutes = args.start.getMinutes();
 
@@ -278,7 +294,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     return session;
   }
 
-  changeSessionBlockState(){
+  private changeSessionBlockState(){
     const session = this.findSession()
 
     if(session){
@@ -313,9 +329,8 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       return this.dragTableEvents;
     }
 
-    const lowerSearchTerm = this.searchCourse.toLowerCase();
     return this.dragTableEvents.filter(event =>
-      event.title!.toLowerCase().includes(lowerSearchTerm)
+      event.title!.toLowerCase().includes(this.searchCourse.toLowerCase())
     );
   }
 

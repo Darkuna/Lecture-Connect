@@ -69,9 +69,10 @@
     </button>
     <button pButton
             [label]="'no'"
-            [style]="{'margin-top': '.5rem', width: '16rem',
+            [style]="{'margin-top': '.5rem', width: '14rem',
                       'background-color': !filterRoomVar && userHasInteractedRoom ? '#889A3E' : '#81A1C1',
-                      'border-color': !filterRoomVar && userHasInteractedRoom ? '#889A3E' : '#81A1C1'}"            (click)="addRooms(false)">
+                      'border-color': !filterRoomVar && userHasInteractedRoom ? '#889A3E' : '#81A1C1'}"
+            (click)="addRooms(false)">
     </button>
   </div>
 
