@@ -6,6 +6,9 @@ import com.example.demo.models.TimeTable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This interface defines a Scheduler for the assignment of courseSessions to RoomTables.
+ */
 public interface Scheduler {
     /**
      * Initialize the Scheduler with a specific timeTable

@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TmpTimeTableDTO} from "../../assets/Models/dto/tmp-time-table-dto";
-import {firstValueFrom, Observable} from "rxjs";
+import {catchError, Observable, throwError} from "rxjs";
 import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
 import {environment} from "../environment/environment";
 
@@ -46,8 +46,11 @@ export class GlobalTableService {
 
   getScheduledTimeTable(id: number): Observable<TimeTableDTO> {
     const newUrl = `${GlobalTableService.API_PATH}/assignment/${id}`;
-    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, this.httpOptions);
-    return this.currentTimeTable;
+    return this.http.post<TimeTableDTO>(newUrl, this.httpOptions).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      })
+    );
   }
 
   removeAll(id: number): Observable<TimeTableDTO> {

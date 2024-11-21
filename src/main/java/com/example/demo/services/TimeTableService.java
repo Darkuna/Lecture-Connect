@@ -207,20 +207,13 @@ public class TimeTableService {
      * @param timeTable The timetable for executing the algorithm
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public boolean assignCourseSessionsToRooms(TimeTable timeTable){
+    public void assignCourseSessionsToRooms(TimeTable timeTable){
         log.info("Starting assignment algorithm for timeTable with id {}", timeTable.getId());
         scheduler.setTimeTable(timeTable);
-        try{
-            scheduler.assignUnassignedCourseSessions();
-            timeTableRepository.save(timeTable);
-            log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
-            globalTableChangeService.create(ChangeType.APPLY_ALGORITHM, timeTable, "Assignment algorithm was processed successfully.");
-            return true;
-        }
-        catch(AssignmentFailedException e){
-            log.error("Assignment failed for timeTable with id {}.", timeTable.getId());
-            return false;
-        }
+        scheduler.assignUnassignedCourseSessions();
+        timeTableRepository.save(timeTable);
+        log.info("Finished assignment algorithm for timeTable with id {}", timeTable.getId());
+        globalTableChangeService.create(ChangeType.APPLY_ALGORITHM, timeTable, "Assignment algorithm was processed successfully.");
     }
 
     /**

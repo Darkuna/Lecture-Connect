@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class AssignmentFailedException extends RuntimeException {
-    public AssignmentFailedException(String message) {
+public class NoCandidatesForCourseSessionException extends RuntimeException {
+    public NoCandidatesForCourseSessionException(String message) {
         super(message);
     }
 }
