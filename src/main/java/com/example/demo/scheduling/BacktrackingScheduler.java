@@ -146,7 +146,7 @@ public class BacktrackingScheduler implements Scheduler {
                                       boolean useBacktracking) {
         Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions = new HashMap<>();
         List<CourseSession> sortedCourseSessions;
-        List<CourseSession> failedToAssignCourseSessions = new ArrayList<>();
+        List<CourseSession> failedToAssignCourseSessions;
 
         log.info("Starting precondition checks ...");
         checkPreConditions(courseSessions, availabilityMatrices);
@@ -257,9 +257,9 @@ public class BacktrackingScheduler implements Scheduler {
 
             // If all candidates for the current session have been tried, backtrack
             if (currentIndex == numberOfCandidates) {
-                unassignLatestEntry(); // Revert the last assignment
                 failedToAssignCourseSessions.add(currentCourseSession);
                 currentCourseSessionMap.remove(currentCourseSession);
+                currentIndex = 0;
                 continue;
             }
 
