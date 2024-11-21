@@ -71,11 +71,12 @@ export class WizardComponent {
 
   addCourse(course: Course) {
     if (course) {
+      console.log('add course: ', course.id);
       if (this.selectedTable.courseTable.findIndex(x => x.id == course.id) > -1) {
+        console.log('course list: ', course);
         this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
       } else {
         this.selectedTable.courseTable.push(course);
-
       }
     }
   }

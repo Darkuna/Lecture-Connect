@@ -1,13 +1,9 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TmpTimeTableDTO} from "../../assets/Models/dto/tmp-time-table-dto";
 import {catchError, Observable, throwError} from "rxjs";
 import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
-import {TableLogDto} from "../../assets/Models/dto/table-log-dto";
-import {Room} from "../../assets/Models/room";
-import {Course} from "../../assets/Models/course";
-import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 import {environment} from "../environment/environment";
 
 @Injectable({
@@ -45,17 +41,7 @@ export class GlobalTableService {
 
   pushTmpTableObject(table: TmpTimeTableDTO): Promise<string> {
     const newUrl = `${GlobalTableService.API_PATH}/create`;
-
-    return new Promise((resolve, reject) => {
-      this.http.post<any>(newUrl, table, this.httpOptions).subscribe({
-        next: () => {
-        resolve('upload successfully');
-      },
-      error: (err: HttpErrorResponse) => {
-        reject(err.message);
-      }
-      });
-    });
+    return firstValueFrom(this.http.post<any>(newUrl, table, this.httpOptions));
   }
 
   getScheduledTimeTable(id: number): Observable<TimeTableDTO> {
@@ -79,11 +65,6 @@ export class GlobalTableService {
     return this.currentTimeTable;
   }
 
-  getCollisions(id: number): Observable<CourseSessionDTO[]>{
-    const newUrl = `${GlobalTableService.API_PATH}/collision/${id}`;
-    return this.http.post<CourseSessionDTO[]>(newUrl, this.httpOptions);
-  }
-
   unselectTable(){
     this.currentTimeTable = null;
   }
@@ -91,19 +72,5 @@ export class GlobalTableService {
   deleteTable(id: number){
     const newUrl = `${GlobalTableService.API_PATH}/${id}`;
     return this.http.delete(newUrl, this.httpOptions);
-  }
-
-  //TODO change with correct api path
-  updateTableRooms(id: number, rooms : Room[], newLogs : TableLogDto[]){
-    const newUrl = `${GlobalTableService.API_PATH}/roomupdate/${id}`;
-    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, [rooms, newLogs] ,this.httpOptions);
-    return this.currentTimeTable;
-  }
-
-  //TODO change with correct api path
-  updateTableCourses(id: number, courses : Course[], newLogs : TableLogDto[]){
-    const newUrl = `${GlobalTableService.API_PATH}/courseupdate/${id}`;
-    this.currentTimeTable =  this.http.post<TimeTableDTO>(newUrl, [courses, newLogs], this.httpOptions);
-    return this.currentTimeTable;
   }
 }

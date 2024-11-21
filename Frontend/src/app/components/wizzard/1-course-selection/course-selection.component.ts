@@ -1,10 +1,6 @@
-import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, Output} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
 import {CourseService} from "../../../services/course-service";
-import {Subscription} from "rxjs";
-import {MessageService} from "primeng/api";
-import {getRoleOptions} from "../../../../assets/Models/enums/course-type";
-import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
 import {calculateTableHeight} from "../wizard.component";
 
 @Component({
@@ -13,73 +9,26 @@ import {calculateTableHeight} from "../wizard.component";
   styleUrl: '../wizard.component.css',
 })
 
-export class CourseSelectionComponent implements OnDestroy, AfterViewInit {
+export class CourseSelectionComponent implements AfterViewInit {
   @Input() courseTable: Course[] = [];
   @Input() wizardMode: boolean = true;
 
   @Output() addCourseInParent: EventEmitter<Course> = new EventEmitter<Course>();
   @Output() removeCourseInParent: EventEmitter<Course> = new EventEmitter<Course>();
 
-  courseSub!: Subscription;
   availableCourses: Course[] = [];
-
-  CreateDialogVisible: boolean = false;
-  draggedCourse: Course | undefined | null;
 
   constructor(
     private courseService: CourseService,
-    private messageService: MessageService,
   ) { }
 
-  ngAfterViewInit(): void {
-    this.courseSub = (this.wizardMode ?
-      this.courseService.getAllCourses() : this.courseService.getUnselectedCourses())
-      .subscribe((data:Course[]) => this.availableCourses = data);
-  }
-
-  ngOnDestroy(): void {
-    this.courseSub.unsubscribe();
-  }
-
-  showCreateDialog(): void {
-    this.draggedCourse = new Course();
-    this.CreateDialogVisible = true;
-  }
-
-  hideDialog() {
-    this.CreateDialogVisible = false;
-  }
-
-  saveNewItem(): void {
-    if (this.draggedCourse) {
-      this.draggedCourse.timingConstraints = [];
-      this.draggedCourse.createdAt = undefined;
-      this.draggedCourse.updatedAt = undefined;
-
-
-      this.courseService.createSingleCourse(this.draggedCourse!).subscribe({
-        next: value => {
-          this.availableCourses.push(value);
-          this.hideDialog();
-          this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
-        },
-
-        error: err => {
-          this.messageService.add({severity: 'error', summary: 'Upload', detail: err.toString()});
-        }
-      });
-
-      this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
-      this.draggedCourse = null;
-      this.hideDialog();
-    }
+  async ngAfterViewInit(): Promise<void> {
+    const allCourses = await this.courseService.getAllCourses();
+    const courseTableIds = new Set(this.courseTable.map(course => course.id));
+    this.availableCourses = allCourses.filter(course => !courseTableIds.has(course.id));
   }
 
   getTableSettings(container: HTMLDivElement) {
     return {'height': `${calculateTableHeight(container)}px`};
   }
-
-  protected readonly getRoleOptions = getRoleOptions;
-  protected readonly getDegreeOptions = getDegreeOptions;
-  protected readonly String = String;
 }
