@@ -85,14 +85,43 @@ public class BacktrackingScheduler implements Scheduler {
      */
     @Transactional
     public void assignUnassignedCourseSessions() {
+        List<CourseSession> failedToAssignCourseSessions = new ArrayList<>();
+        List<CourseSession> failedCourseSessions;
         try {
             log.info("> Processing courseSessions that don't need computers ...");
-            assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers);
-            log.info("Finished processing courseSessions that don't need computers");
+            failedCourseSessions = assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers, false);
+            if(failedCourseSessions.isEmpty()){
+                log.info("Finished processing courseSessions that don't need computers");
+            }
+            else{
+                log.warn("Failed assignment of {} courseSessions that don't need computers.", failedCourseSessions.size());
+                failedToAssignCourseSessions.addAll(failedCourseSessions);
+            }
 
             log.info("> Processing courseSessions that need computers ...");
-            assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers);
-            log.info("Finished processing courseSessions that need computers");
+            failedCourseSessions = assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers, false);
+            if(failedCourseSessions.isEmpty()){
+                log.info("Finished processing courseSessions that need computers");
+            }
+            else{
+                log.warn("Failed assignment of {} courseSessions that need computers.", failedCourseSessions.size());
+                failedToAssignCourseSessions.addAll(failedCourseSessions);
+            }
+
+            if(!failedToAssignCourseSessions.isEmpty()){
+                log.info("Retrying assignment of {} courseSessions using backtracking", failedToAssignCourseSessions.size());
+                failedCourseSessions = assignCourseSessions(failedToAssignCourseSessions, allAvailabilityMatrices, true);
+                if(failedCourseSessions.isEmpty()){
+                    log.info("Finished processing courseSessions using backtracking");
+                }
+                else{
+                    log.warn("Finished assignment algorithm with {} courseSessions left unassigned", failedCourseSessions.size());
+                }
+            }
+            else{
+                log.info("Finished assignment of all courseSessions successfully");
+            }
+
         } catch (PreconditionFailedException exception) {
             log.error("Error while checking preconditions: {}", exception.getMessage());
             throw exception;
@@ -113,9 +142,11 @@ public class BacktrackingScheduler implements Scheduler {
      * @param courseSessions to be processed
      * @param availabilityMatrices to be used for assigning the courseSessions
      */
-    private void assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices) {
+    private List<CourseSession> assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices,
+                                      boolean useBacktracking) {
         Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions = new HashMap<>();
         List<CourseSession> sortedCourseSessions;
+        List<CourseSession> failedToAssignCourseSessions = new ArrayList<>();
 
         log.info("Starting precondition checks ...");
         checkPreConditions(courseSessions, availabilityMatrices);
@@ -126,8 +157,14 @@ public class BacktrackingScheduler implements Scheduler {
         prepareCandidatesForCourseSessions(possibleCandidatesForCourseSessions, sortedCourseSessions, availabilityMatrices);
 
         log.info("Starting assignment");
-        processAssignment(possibleCandidatesForCourseSessions);
+        if(useBacktracking){
+            failedToAssignCourseSessions = processAssignmentWithBacktracking(possibleCandidatesForCourseSessions);
+        } else {
+            failedToAssignCourseSessions = processAssignmentWithoutBacktracking(possibleCandidatesForCourseSessions);
+        }
         log.info("Finished processing assignment.");
+
+        return failedToAssignCourseSessions;
     }
 
     /**
@@ -183,14 +220,14 @@ public class BacktrackingScheduler implements Scheduler {
         Iterator<AssignmentState> iterator = stack.iterator();
         List<Integer> indices = new ArrayList<>();
         while (iterator.hasNext()) {
-            indices.add(iterator.next().index); // Sammle alle Indizes
+            indices.add(iterator.next().index);
         }
-        // Erstelle einen String aus den Indizes
+
         StringBuilder sb = new StringBuilder();
         for (int index : indices) {
-            sb.append(String.format("%2d ", index)); // Füge die Indizes formatiert hinzu
+            sb.append(String.format("%2d ", index));
         }
-        return sb.toString().trim(); // Entferne abschließende Leerzeichen
+        return sb.toString().trim();
     }
     */
 
@@ -199,10 +236,68 @@ public class BacktrackingScheduler implements Scheduler {
      * constraints.
      * @param possibleCandidatesForCourseSessions map to start the backtracking algorithm from
      */
-    private void processAssignment(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
-        final int initialCourseSessionSize = possibleCandidatesForCourseSessions.size();
-        if (initialCourseSessionSize == 0) {
-            return;
+    private List<CourseSession> processAssignmentWithoutBacktracking(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
+        if (possibleCandidatesForCourseSessions.isEmpty()) {
+            return List.of();
+        }
+        List<CourseSession> failedToAssignCourseSessions = new ArrayList<>();
+        Map<CourseSession, List<Candidate>> currentCourseSessionMap = possibleCandidatesForCourseSessions;
+        int currentIndex = 0;
+        int numberOfCandidates;
+        Map<CourseSession, List<Candidate>> filteredCourseSessions;
+
+        while (true) {
+            // Find CourseSession with the fewest candidates
+            Map<CourseSession, List<Candidate>> finalCurrentCourseSessionMap = currentCourseSessionMap;
+            CourseSession currentCourseSession = currentCourseSessionMap.keySet().stream()
+                    .min(Comparator.comparingInt((CourseSession c) -> finalCurrentCourseSessionMap.get(c).size())
+                            .thenComparingLong(CourseSession::getId))
+                    .orElseThrow();
+            numberOfCandidates = currentCourseSessionMap.get(currentCourseSession).size();
+
+            // If all candidates for the current session have been tried, backtrack
+            if (currentIndex == numberOfCandidates) {
+                unassignLatestEntry(); // Revert the last assignment
+                failedToAssignCourseSessions.add(currentCourseSession);
+                currentCourseSessionMap.remove(currentCourseSession);
+                continue;
+            }
+
+            // Assign the current candidate
+            Candidate currentCandidate = currentCourseSessionMap.get(currentCourseSession).get(currentIndex);
+            assignEntry(currentCourseSession, currentCandidate);
+
+            // Filter candidates for the new state
+            filteredCourseSessions = filterCandidates(currentCourseSessionMap, currentCourseSession, currentCandidate);
+
+            // If any list is empty after filtering, backtrack
+            if (filteredCourseSessions == null) {
+                unassignLatestEntry();
+                currentIndex++; // Move to the next candidate in the current state
+                continue;
+            }
+
+            // If no more sessions need to be assigned, finish the assignment
+            if (filteredCourseSessions.isEmpty()) {
+                break;
+            }
+            currentCourseSessionMap = filteredCourseSessions;
+            currentIndex = 0;
+        }
+
+        // Complete the assignment
+        finishAssignment();
+        return failedToAssignCourseSessions;
+    }
+
+    /**
+     * This method executes the backtracking algorithm to find an assignment for all courseSessions that fits all
+     * constraints.
+     * @param possibleCandidatesForCourseSessions map to start the backtracking algorithm from
+     */
+    private List<CourseSession> processAssignmentWithBacktracking(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
+        if (possibleCandidatesForCourseSessions.isEmpty()) {
+            return List.of();
         }
 
         Stack<AssignmentState> stack = new Stack<>();
@@ -230,7 +325,7 @@ public class BacktrackingScheduler implements Scheduler {
             // If all candidates for the current session have been tried, backtrack
             if (currentIndex >= numberOfCandidates) {
                 if (stack.isEmpty()) {
-                    throw new AssignmentFailedException("Assignment not possible after trying all combinations");
+                    break;
                 }
                 unassignLatestEntry(); // Revert the last assignment
                 currentState = stack.pop(); // Go back to the previous state
@@ -254,7 +349,8 @@ public class BacktrackingScheduler implements Scheduler {
 
             // If no more sessions need to be assigned, finish the assignment
             if (filteredCourseSessions.isEmpty()) {
-                break;
+                finishAssignment();
+                return List.of();
             }
 
             // Push the new state and move forward
@@ -262,9 +358,7 @@ public class BacktrackingScheduler implements Scheduler {
             stack.push(currentState); // Save the current state
             currentState = newState; // Update to the new state
         }
-
-        // Complete the assignment
-        finishAssignment();
+        return possibleCandidatesForCourseSessions.keySet().stream().toList();
     }
 
 
