@@ -13,6 +13,17 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents availability and allocation of time slots
+ * for course sessions in a room over a working week. The AvailabilityMatrix supports
+ * assigning, clearing, and checking availability of time slots, as well as handling
+ * timing constraints and preferences for course sessions.
+ *
+ * The matrix tracks the availability of each time slot for specific days, allowing
+ * course sessions to be scheduled based on constraints like blocked times and preferred
+ * times. It also provides utility methods to calculate available candidates for scheduling
+ * and to convert between various scheduling models.
+ */
 @Getter
 public class AvailabilityMatrix {
     private static final int DURATION_PER_SLOT = 15;
@@ -66,6 +77,9 @@ public class AvailabilityMatrix {
         }
     }
 
+    /**
+     * This method initializes slots with timing constraints BLOCKED and COMPUTER_SCIENCE
+     */
     private void initializeTimingConstraints() {
         int dayIndex;
         int startSlot;
@@ -94,6 +108,9 @@ public class AvailabilityMatrix {
         }
     }
 
+    /**
+     * This method initializes slots that are already assigned
+     */
     private void initializeAssignedCourseSessions() {
         int dayIndex;
         int startSlot;
@@ -116,6 +133,15 @@ public class AvailabilityMatrix {
         }
     }
 
+    /**
+     * This method checks if specific slots are available in the matrix
+     * @param dayIndex index of the weekday starting at 0 for monday until 4 for friday
+     * @param slotIndex index of the slot starting at 0
+     * @param numberOfSlots number of slots to be checked starting at slotIndex
+     * @param preferredOnly specifies if only preferred slots (reserved for computer science) or also empty slots count
+     *                      as available
+     * @return true, if all slots specified slots are available, false if not.
+     */
     private boolean isSlotsAvailable(int dayIndex, int slotIndex, int numberOfSlots, boolean preferredOnly) {
         if(slotIndex + numberOfSlots >= SLOTS_PER_DAY){
             return false;
@@ -137,6 +163,13 @@ public class AvailabilityMatrix {
         return true;
     }
 
+    /**
+     * This method checks if a specific assignment candidate intersects with one of the already assigned courses of the
+     * same degree and semester
+     * @param candidate to be checked
+     * @param courseSession to be assigned to that candidate
+     * @return true, if there is an intersection, false if not
+     */
     public boolean semesterIntersects(Candidate candidate, CourseSession courseSession) {
         //guarantees that collision check works as expected
         if(matrix[candidate.getDay()][candidate.getSlot()] != null &&
@@ -156,6 +189,12 @@ public class AvailabilityMatrix {
         return false;
     }
 
+    /**
+     * This method assigns a new courseSession in the availability matrix using the spacial information saved in the
+     * corresponding candidate
+     * @param candidate with the assignment information
+     * @param courseSession to be assigned
+     */
     public void assignCourseSession(Candidate candidate, CourseSession courseSession) {
         for (int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
             if(matrix[candidate.getDay()][i] != null && matrix[candidate.getDay()][i] != CourseSession.PREFERRED){
@@ -169,6 +208,10 @@ public class AvailabilityMatrix {
         }
     }
 
+    /**
+     * This method removes the assignment of a specific courseSession using the information of its candidate.
+     * @param candidate with the information about the assignment of the courseSession
+     */
     public void clearCandidate(Candidate candidate) {
         CourseSession courseSession = candidate.isPreferredSlots() ? CourseSession.PREFERRED : null;
         for(int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
@@ -180,17 +223,11 @@ public class AvailabilityMatrix {
         }
     }
 
-    public void addTimingConstraint(Timing timing) {
-        int startSlot = timeToSlotIndex(timing.getStartTime());
-        int endSlot = timeToSlotIndex(timing.getEndTime());
-        int day = timing.getDay().ordinal();
-
-        for(int i = startSlot; i < endSlot; i++) {
-            matrix[day][i] = CourseSession.BLOCKED;
-        }
-        totalAvailableTime -= timing.getDuration();
-    }
-
+    /**
+     * This static method converts the spacial information of a candidate into a timing object
+     * @param candidate with the timing information
+     * @return a timing object
+     */
     public static Timing toTiming(Candidate candidate) {
         Timing timing = new Timing();
         int minutes = candidate.getSlot() * DURATION_PER_SLOT;
@@ -202,16 +239,20 @@ public class AvailabilityMatrix {
         return timing;
     }
 
-    public static Candidate toCandidate(CourseSession courseSession) {
-        return new Candidate(new AvailabilityMatrix(courseSession.getRoomTable()),
-                courseSession.getTiming().getDay().ordinal(),timeToSlotIndex(courseSession.getTiming().getStartTime()),
-                (int) courseSession.getTiming().getDuration(), true);
-    }
-
+    /**
+     * This method converts a specific time into the corresponding slot index in the matrix.
+     * @param time to be converted into slot index
+     * @return the corresponding slot index
+     */
     public static int timeToSlotIndex(LocalTime time) {
         return (int) Duration.between(START_TIME, time).toMinutes() * 4 / 60;
     }
 
+    /**
+     * This method creates and returns a list of all assignment candidates available for a specific course session.
+     * @param courseSession to search candidates for
+     * @return a list of all available candidates
+     */
     public List<Candidate> getAllAvailableCandidates(CourseSession courseSession) {
         int numberOfSlots = courseSession.getDuration() / DURATION_PER_SLOT;
         List<Candidate> possibleCandidates = new ArrayList<>();
