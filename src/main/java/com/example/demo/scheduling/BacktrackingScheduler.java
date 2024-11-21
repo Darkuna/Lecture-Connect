@@ -14,6 +14,12 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Implements a scheduling algorithm using backtracking to assign course sessions to rooms
+ * while respecting constraints such as timing, room capacity, and course requirements.
+ * The BacktrackingScheduler processes unassigned course sessions and determines possible
+ * assignments that fulfill all constraints or identifies sessions that cannot be scheduled.
+ */
 @Service
 @Scope("session")
 public class BacktrackingScheduler implements Scheduler {
@@ -80,8 +86,15 @@ public class BacktrackingScheduler implements Scheduler {
     }
 
     /**
-     * Starts the assignment algorithm for all unassigned courseSessions of a timeTable. First, all courseSessions that
-     * don't need rooms with computers are processed, then all courseSessions that need computer rooms.
+     * Starts the assignment algorithm for all unassigned courseSessions of a timeTable. It consists of three steps:
+     *
+     * 1. Try assignment of all courseSessions that don't need computers (no backtracking) only using rooms without
+     *    computers available.
+     * 2. Try assignment of all courseSessions that need computers (no backtracking) only using computer rooms.
+     * 3. Try assignment of all courseSessions that failed in step 1 or 2 using all rooms and backtracking.
+     *
+     * If there are still courseSessions that couldn't be assigned at the end of these steps, they remain unassigned to
+     * ensure that the algorithm assigns as much as possible.
      */
     @Transactional
     public void assignUnassignedCourseSessions() {
@@ -115,13 +128,19 @@ public class BacktrackingScheduler implements Scheduler {
                     log.info("Finished processing courseSessions using backtracking");
                 }
                 else{
-                    log.warn("Finished assignment algorithm with {} courseSessions left unassigned", failedCourseSessions.size());
+                    log.info("Retrying assignment of {} courseSessions without backtracking", failedCourseSessions.size());
+                    failedCourseSessions = assignCourseSessions(failedToAssignCourseSessions, allAvailabilityMatrices, false);
+                    if(failedCourseSessions.isEmpty()){
+                        log.info("Finished assignment of all courseSessions successfully.");
+                    }
+                    else{
+                        log.warn("Finished assignment with {} courseSessions remaining unassigned", failedCourseSessions.size());
+                    }
                 }
             }
             else{
                 log.info("Finished assignment of all courseSessions successfully");
             }
-
         } catch (PreconditionFailedException exception) {
             log.error("Error while checking preconditions: {}", exception.getMessage());
             throw exception;
@@ -181,6 +200,11 @@ public class BacktrackingScheduler implements Scheduler {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Creates a key for the elective course limiter.
+     * @param courseSession to create key for
+     * @return key for elective course limiter.
+     */
     private int createKey(CourseSession courseSession){
         return courseSession.getStudyType().ordinal() * 100 + courseSession.getSemester();
     }
@@ -232,9 +256,10 @@ public class BacktrackingScheduler implements Scheduler {
     */
 
     /**
-     * This method executes the backtracking algorithm to find an assignment for all courseSessions that fits all
-     * constraints.
+     * This method executes tries to find an assignment candidate for all courseSessions in the parameter map. If the
+     * assignment is not possible for some courseSessions, they are returned as a list
      * @param possibleCandidatesForCourseSessions map to start the backtracking algorithm from
+     * @return a list of courseSessions that were not assigned successfully.
      */
     private List<CourseSession> processAssignmentWithoutBacktracking(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions) {
         if (possibleCandidatesForCourseSessions.isEmpty()) {
@@ -247,7 +272,7 @@ public class BacktrackingScheduler implements Scheduler {
         Map<CourseSession, List<Candidate>> filteredCourseSessions;
 
         while (true) {
-            // Find CourseSession with the fewest candidates
+            // Find courseSession with the fewest candidates
             Map<CourseSession, List<Candidate>> finalCurrentCourseSessionMap = currentCourseSessionMap;
             CourseSession currentCourseSession = currentCourseSessionMap.keySet().stream()
                     .min(Comparator.comparingInt((CourseSession c) -> finalCurrentCourseSessionMap.get(c).size())
@@ -255,7 +280,7 @@ public class BacktrackingScheduler implements Scheduler {
                     .orElseThrow();
             numberOfCandidates = currentCourseSessionMap.get(currentCourseSession).size();
 
-            // If all candidates for the current session have been tried, backtrack
+            // If all candidates for the current session have been tried, remove from map
             if (currentIndex == numberOfCandidates) {
                 failedToAssignCourseSessions.add(currentCourseSession);
                 currentCourseSessionMap.remove(currentCourseSession);
@@ -263,17 +288,17 @@ public class BacktrackingScheduler implements Scheduler {
                 continue;
             }
 
-            // Assign the current candidate
+            // Assign courseSession to candidate
             Candidate currentCandidate = currentCourseSessionMap.get(currentCourseSession).get(currentIndex);
             assignEntry(currentCourseSession, currentCandidate);
 
-            // Filter candidates for the new state
+            // Filter candidates of remaining courseSessions
             filteredCourseSessions = filterCandidates(currentCourseSessionMap, currentCourseSession, currentCandidate);
 
-            // If any list is empty after filtering, backtrack
+            // If any of the candidates have no candidates left, try the next candidate
             if (filteredCourseSessions == null) {
                 unassignLatestEntry();
-                currentIndex++; // Move to the next candidate in the current state
+                currentIndex++;
                 continue;
             }
 
@@ -324,12 +349,13 @@ public class BacktrackingScheduler implements Scheduler {
 
             // If all candidates for the current session have been tried, backtrack
             if (currentIndex >= numberOfCandidates) {
+                // if the beginning of the stack is reached, the algorithm failed
                 if (stack.isEmpty()) {
                     break;
                 }
-                unassignLatestEntry(); // Revert the last assignment
-                currentState = stack.pop(); // Go back to the previous state
-                currentState.index++; // Try the next candidate in the previous state
+                unassignLatestEntry();
+                currentState = stack.pop();
+                currentState.index++;
                 continue;
             }
 
@@ -343,7 +369,7 @@ public class BacktrackingScheduler implements Scheduler {
             // If any list is empty after filtering, backtrack
             if (filteredCourseSessions == null) {
                 unassignLatestEntry();
-                currentState.index++; // Move to the next candidate in the current state
+                currentState.index++;
                 continue;
             }
 
@@ -355,12 +381,11 @@ public class BacktrackingScheduler implements Scheduler {
 
             // Push the new state and move forward
             AssignmentState newState = new AssignmentState(filteredCourseSessions, 0);
-            stack.push(currentState); // Save the current state
-            currentState = newState; // Update to the new state
+            stack.push(currentState);
+            currentState = newState;
         }
         return possibleCandidatesForCourseSessions.keySet().stream().toList();
     }
-
 
     /**
      * This method removes the latest entry from the assignmentStack, the AvailabilityMatrix and the groupAssignmentMap
@@ -376,6 +401,11 @@ public class BacktrackingScheduler implements Scheduler {
         }
     }
 
+    /**
+     * This method assign a courseSession to a specific candidate.
+     * @param currentCourseSession to be assigned
+     * @param currentCandidate to assign to
+     */
     private void assignEntry(CourseSession currentCourseSession, Candidate currentCandidate){
         currentCandidate.assignToCourseSession(currentCourseSession);
         assignmentStack.push(new AssignmentStackEntry(currentCourseSession, currentCandidate));
@@ -414,7 +444,8 @@ public class BacktrackingScheduler implements Scheduler {
      * @param possibleCandidatesForCourseSessions current state of the courseSession map
      * @param currentCourseSession courseSession that was assigned is this step
      * @param currentCandidate candidate the currentCourseSession was assigned to
-     * @return the filtered map of courseSessions and their corresponding possible candidates
+     * @return the filtered map of courseSessions and their corresponding possible candidates or null, if one of the
+     * courseSession has no candidates left
      */
     private Map<CourseSession, List<Candidate>> filterCandidates(Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions,
                                                                  CourseSession currentCourseSession, Candidate currentCandidate){
@@ -458,7 +489,6 @@ public class BacktrackingScheduler implements Scheduler {
             }
 
             // sort
-            // make sure that cs a
             if(cs.isGroupCourse()){
                 candidates = candidates.stream()
                         .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
@@ -706,13 +736,10 @@ public class BacktrackingScheduler implements Scheduler {
                     }
                 }
             }
-
             if(!collisions.isEmpty()){
                 collisionMap.put(courseSession, collisions);
             }
         }
         return collisionMap;
     }
-
-
 }
