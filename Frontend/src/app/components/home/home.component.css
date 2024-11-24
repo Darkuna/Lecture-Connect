@@ -31,7 +31,7 @@
   grid-area: 2 / 1 / 3 / 3;
   overflow-y: auto; /* Add scrollbar if content overflows vertically */
   max-height: 83vh; /* Set a maximum height for the container */
-  height: 100%; /* Ensure div3 fills its container */
+  height: 100%;
   padding: .5rem 0 0 1rem;
 
   .th {

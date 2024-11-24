@@ -63,7 +63,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
-  tmpEndDate: Date = new Date('2024-07-10T22:00:00');
+  tmpEndDate: Date = new Date('2024-07-10T21:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:20:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
@@ -173,9 +173,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   loadSpecificTable() {
     this.collisionService.clearCollisions();
     this.logService.clearChanges();
-    if(!this.shownTableDD!.id){
-      return;
-    }
+    if(!this.shownTableDD!.id) return;
 
     this.selectedTimeTable$ = this.globalTableService.getSpecificTimeTable(this.shownTableDD!.id);
     this.updateCalendarEvents();
@@ -219,16 +217,51 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     });
   }
 
-  applyAlgorithm(){
-    if(this.shownTableDD){
-      this.selectedTimeTable$ = this.globalTableService.getScheduledTimeTable(this.shownTableDD!.id);
-      this.updateCalendarEvents();
+  applyAlgorithm() {
+    if (this.shownTableDD) {
+      this.globalTableService.getScheduledTimeTable(this.shownTableDD.id).subscribe({
+        next: (timeTable) => {
+          // Wrap the value in an Observable and assign it to selectedTimeTable$
+          this.selectedTimeTable$ = new Observable<TimeTableDTO>((observer) => {
+            observer.next(timeTable);
+            observer.complete();
+          });
 
-      this.messageService.add({severity: 'success', summary: 'Updated Scheduler', detail: 'algorithm was applied successfully'});
+          this.updateCalendarEvents();
+
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Updated Scheduler',
+            detail: 'Algorithm was applied successfully',
+          });
+        },
+        error: (error) => {
+          let message = 'An unexpected error occurred. Please try again later.';
+          if (error.status === 400) {
+            message = 'Precondition failed: Not enough time available to assign all course sessions.';
+          } else if (error.status === 404) {
+            message = 'The selected timetable could not be found.';
+          } else if (error.status === 500) {
+            message = 'Assignment failed due to an internal server error.';
+          }
+
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error during assignment',
+            detail: message,
+          });
+        },
+      });
     } else {
-      this.messageService.add({severity: 'info', summary: 'missing resources', detail: 'there is currently no table selected!'});
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Missing Resources',
+        detail: 'There is currently no table selected!',
+      });
     }
   }
+
+
 
   onCalendarClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;

@@ -30,7 +30,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   @ViewChild('cm') contextMenu!: ContextMenu;
 
   tmpStartDate: Date = new Date('2024-07-10T08:00:00');
-  tmpEndDate: Date = new Date('2024-07-10T22:00:00');
+  tmpEndDate: Date = new Date('2024-07-10T21:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:15:00');
   tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
@@ -268,9 +268,9 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
     const startMinutes = args.start.getMinutes();
 
     const isBefore815AM = startHour < 8 || (startHour === 8 && startMinutes < 15);
-    const isAfter10PM = args.end.getHours() >= 22;
+    const isAfter9PM = args.end.getHours() >= 21;
 
-    return !isBefore815AM && !isAfter10PM;
+    return !isBefore815AM && !isAfter9PM;
   }
 
 

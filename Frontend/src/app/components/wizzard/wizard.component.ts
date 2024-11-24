@@ -55,7 +55,7 @@ export class WizardComponent {
         header: 'Define Details',
         infoText: 'Finally, the fixed times must be determined for the respective subject of study.',
         subTextHeader: 'Important!',
-        subText: 'To ensure the accuracy and efficiency of the algorithm, all timeslots (computer science, architecture, mathematics...) must be entered. Otherwise it can happen that a course is placed in a timeslot that is actually blocked.'
+        subText: 'To ensure the accuracy and efficiency of the algorithm, all timeslots (computer_science and blocked) must be entered. Otherwise it can happen that a course is placed in a timeslot that is actually blocked.'
       }
     ];
     this.currentDialog = this.InfoDialogOptions[this.active];

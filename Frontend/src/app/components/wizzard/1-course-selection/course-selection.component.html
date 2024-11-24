@@ -11,15 +11,13 @@
     filterBy="name"
     sourceFilterPlaceholder="Search..."
     targetFilterPlaceholder="Search..."
-    breakpoint="2400px">
+    breakpoint="400px">
     <ng-template let-product pTemplate="item">
       <div class="item-container">
-        <!-- First row with product name on the left and studyType on the right -->
         <div class="row justify-between">
           <span class="product-name">{{ product.name }}</span>
           <span class="study-type">{{ product.studyType }}</span>
         </div>
-        <!-- Second row with courseType and semester -->
         <div class="row gap">
           <i class="pi pi-tag icon"></i>
           <span>{{ product.courseType }}</span>
