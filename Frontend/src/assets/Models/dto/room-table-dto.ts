@@ -6,5 +6,4 @@ export class RoomTableDTO {
   capacity?: number;
   isComputersAvailable?: boolean;
   timingConstraints?: TimingDTO[];
-
 }

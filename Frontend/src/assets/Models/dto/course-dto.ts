@@ -2,9 +2,9 @@ import { TimingDTO } from './timing-dto';
 
 export class CourseDTO {
   id!: string;
+  name?: string;
   courseType?: string;
   studyType?: string;
-  name?: string;
   lecturer?: string;
   semester?: number;
   duration?: number;

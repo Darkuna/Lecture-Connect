@@ -162,7 +162,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
   reloadNewBackgroundEvents(room: RoomTableDTO) :EventInput[]{
     let combinedEvents: EventInput[] = [];
     room.timingConstraints?.forEach(t => {
-      combinedEvents.push(this.converter.convertTimingEventInput(t));
+      combinedEvents.push(this.converter.convertToBackgroundEvent(t));
     });
 
     return combinedEvents;
@@ -191,7 +191,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       this.dirtyData = true;
 
       this.dragTableEvents.push(
-        this.converter.convertTimingToEventInput(updatedSession, 'editor')
+        this.converter.convertSessionToEvent(updatedSession, 'editor')
       );
 
       this.rightClickEvent?.event.remove();
@@ -356,7 +356,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       roomTable: null
     } as CourseSessionDTO;
 
-    const convertedCourse = this.converter.convertTimingToEventInput(newSession, "editor")
+    const convertedCourse = this.converter.convertSessionToEvent(newSession, "editor")
 
     this.timeTable.courseSessions.push(newSession);
     this.dragTableEvents.push(convertedCourse);
@@ -419,7 +419,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
 
   async receiveNewSession(course: CourseDTO){
     const newSession = await this.courseService.getNewSession(this.timeTable.id, course);
-    const convertedCourse = this.converter.convertTimingToEventInput(newSession[0], "editor")
+    const convertedCourse = this.converter.convertSessionToEvent(newSession[0], "editor")
 
     const updatedCourses = this.tmpUnassignedCoursesSubject.value
       .filter(course => course.id !== newSession[0].courseId.toString());

@@ -10,16 +10,16 @@ import {CourseColor} from "../../../assets/Models/enums/lecture-color";
   providedIn: 'root'
 })
 export class EventConverterService {
-  getValueBasedOnPage(session: CourseSessionDTO, call: 'editor' | 'home'): boolean{
+  private getEditablePage(session: CourseSessionDTO, call: 'editor' | 'home'): boolean{
     return (call === 'home') ? false : !session.fixed;
   }
 
-  getColorBasedOnPage(session: CourseSessionDTO, call: 'editor' | 'home'): string{
+  private getColorBasedOnPage(session: CourseSessionDTO, call: 'editor' | 'home'): string{
     if (session.fixed && call === 'editor') return  '#7a4444';
     else return '#666666';
   }
 
-  convertTimingToEventInput(session: CourseSessionDTO, call: 'editor' | 'home'): EventInput {
+  convertSessionToEvent(session: CourseSessionDTO, call: 'editor' | 'home'): EventInput {
     return {
       id: session.id.toString(),
       title: session.name,
@@ -27,7 +27,7 @@ export class EventConverterService {
       daysOfWeek: this.weekDayToNumber(session.timing?.day!),
       startTime: session.timing?.startTime ?? '',
       endTime: session.timing?.endTime ?? '',
-      editable: this.getValueBasedOnPage(session, call),
+      editable: this.getEditablePage(session, call),
       backgroundColor: this.getColorBasedOnPage(session, call),
       durationEditable: false,
       droppable: true,
@@ -42,7 +42,7 @@ export class EventConverterService {
     };
   }
 
-  convertTimingEventInput(timing: TimingDTO): EventInput {
+  convertToBackgroundEvent(timing: TimingDTO): EventInput {
     return {
       title: timing.timingType,
       daysOfWeek: this.weekDayToNumber(timing.day),
@@ -92,7 +92,7 @@ export class EventConverterService {
   convertMultipleCourseSessions(sessions: CourseSessionDTO[], call: 'editor' | 'home'){
     return sessions
       .map((s:CourseSessionDTO) =>
-        this.convertTimingToEventInput(s, call)
+        this.convertSessionToEvent(s, call)
       );
   }
 
@@ -123,7 +123,7 @@ export class EventConverterService {
   }
 
   convertCourseSessionToEventInput(call: 'editor' | 'home'): OperatorFunction<CourseSessionDTO, EventInput> {
-    return map((session: CourseSessionDTO) => this.convertTimingToEventInput(session, call));
+    return map((session: CourseSessionDTO) => this.convertSessionToEvent(session, call));
   }
 
   formatTime(date: Date): string {

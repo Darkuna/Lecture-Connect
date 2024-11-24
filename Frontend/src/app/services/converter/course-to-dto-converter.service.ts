@@ -36,7 +36,7 @@ export class CourseToDtoConverterService {
     let dto: CourseDTO[] = [];
 
     courses.forEach(c => {
-      dto.push( this.convertCourseToDto(c) )
+      dto.push(this.convertCourseToDto(c) )
     })
 
     return dto;
