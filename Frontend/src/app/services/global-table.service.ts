@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {TimeTableNames} from "../../assets/Models/time-table-names";
 import {TmpTimeTableDTO} from "../../assets/Models/dto/tmp-time-table-dto";
-import {catchError, Observable, throwError} from "rxjs";
+import {catchError, Observable, throwError, firstValueFrom} from "rxjs";
 import {TimeTableDTO} from "../../assets/Models/dto/time-table-dto";
 import {environment} from "../environment/environment";
 
