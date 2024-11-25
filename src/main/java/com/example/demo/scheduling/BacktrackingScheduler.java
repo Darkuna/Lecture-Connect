@@ -269,15 +269,28 @@ public class BacktrackingScheduler implements Scheduler {
         Map<CourseSession, List<Candidate>> currentCourseSessionMap = possibleCandidatesForCourseSessions;
         int currentIndex = 0;
         int numberOfCandidates;
+        CourseSession currentCourseSession;
         Map<CourseSession, List<Candidate>> filteredCourseSessions;
+        List<CourseSession> groupCourseSessions = new ArrayList<>();
 
         while (true) {
             // Find courseSession with the fewest candidates
             Map<CourseSession, List<Candidate>> finalCurrentCourseSessionMap = currentCourseSessionMap;
-            CourseSession currentCourseSession = currentCourseSessionMap.keySet().stream()
-                    .min(Comparator.comparingInt((CourseSession c) -> finalCurrentCourseSessionMap.get(c).size())
-                            .thenComparingLong(CourseSession::getId))
-                    .orElseThrow();
+            if(groupCourseSessions.isEmpty()){
+                currentCourseSession = currentCourseSessionMap.keySet().stream()
+                        .min(Comparator.comparingInt((CourseSession c) -> finalCurrentCourseSessionMap.get(c).size()))
+                        .orElseThrow();
+                if(currentCourseSession.isGroupCourse()){
+                    CourseSession finalCurrentCourseSession = currentCourseSession;
+                    groupCourseSessions.addAll(currentCourseSessionMap.keySet().stream().
+                            filter(c -> c.getCourseId().equals(finalCurrentCourseSession.getCourseId()) && !c.equals(finalCurrentCourseSession))
+                            .toList());
+                }
+            }
+            else{
+                currentCourseSession = groupCourseSessions.removeFirst();
+            }
+
             numberOfCandidates = currentCourseSessionMap.get(currentCourseSession).size();
 
             // If all candidates for the current session have been tried, remove from map
