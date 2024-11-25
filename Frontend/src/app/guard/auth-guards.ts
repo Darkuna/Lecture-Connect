@@ -6,8 +6,9 @@ import {WizardComponent} from "../components/wizzard/wizard.component";
 
 export const AuthGuardRemember: CanActivateFn = () => {
   const userService: LoginUserInfoService = inject(LoginUserInfoService);
-  const router: Router = inject(Router);
+
   if (userService.isLoggedIn()) {
+    const router: Router = inject(Router);
     router.navigate(['/user/home']);
     return false;
   }
@@ -17,7 +18,11 @@ export const AuthGuardRemember: CanActivateFn = () => {
 
 export const AuthGuardLogin: CanActivateFn = () => {
   const userService:LoginUserInfoService = inject(LoginUserInfoService);
-  return userService.isLoggedIn();
+  if(userService.isLoggedIn()) return true;
+
+  const router: Router = inject(Router);
+  router.navigate(['/login']);
+  return false;
 };
 
 export const AuthGuardEditorClose: CanDeactivateFn<any> = (component: EditorComponent) => {

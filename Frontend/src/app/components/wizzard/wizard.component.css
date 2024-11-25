@@ -16,7 +16,7 @@
   padding: .8rem;
   text-align: center;
   border-radius: 15px;
-  background-color: #E2E1DF;
+  background-color: var(--system-color-primary-white);
 }
 
 .box {
@@ -58,7 +58,7 @@
   margin-right: auto;
 
   width: 98%;
-  background-color: #E2E1DF;
+  background-color: var(--system-color-primary-white);
   border-radius: 15px;
 }
 
@@ -129,7 +129,7 @@
   position: absolute;
   top: calc(7% + 5px);
   right: 90%;
-  background-color: #E2E1DF;
+  background-color: var(--system-color-primary-white);
   border-radius: 20px;
 
   display: flex;
@@ -294,5 +294,5 @@ p-tag#status {
 /* Bold text for computers availability status */
 .computers-available {
   font-weight: bold;
-  color: #212121; /* Equivalent to text-900 */
+  color: var(--system-color-primary-grey-dark);
 }

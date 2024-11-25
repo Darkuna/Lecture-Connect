@@ -16,7 +16,6 @@ import {
   AuthGuardRemember,
   AuthGuardWizardClose
 } from "./guard/auth-guards";
-import {UserSettingsComponent} from "./components/header-self/user-settings/user-settings.component";
 import {TableViewComponent} from "./components/TableView/table-view/table-view.component";
 
 const routes: Routes = [
@@ -28,7 +27,6 @@ const routes: Routes = [
       {path: 'wizard', component: WizardComponent, canDeactivate: [AuthGuardWizardClose]},
       {path: 'editor', component: EditorComponent, canDeactivate: [AuthGuardEditorClose]},
       {path: 'preselection', component: DataWizardComponent},
-      {path: 'settings', component: UserSettingsComponent},
     ]},
   {path: 'admin', canActivateChild: [AuthGuardAdmin], children:[
       {path: 'users', component: UsersViewComponent},

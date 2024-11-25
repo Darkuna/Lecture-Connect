@@ -62,7 +62,7 @@
   position: absolute;
   top: calc(7% + 5px);
   right: 90%;
-  background-color: #E2E1DF;
+  background-color: var(--system-color-primary-white);;
   border-radius: 20px;
 
   display: flex;
@@ -118,7 +118,7 @@
   padding: .8rem;
   text-align: center;
   border-radius: 15px;
-  background-color: #E2E1DF;
+  background-color: var(--system-color-primary-white);;
 }
 
 .box {
@@ -168,7 +168,7 @@
 }
 
 .p-panelmenu-item-self {
-  color: #4c566a;
+  color: var(--system-color-primary-grey);;
   padding: 0.75rem 1rem;
   -webkit-user-select: none;
   user-select: none;

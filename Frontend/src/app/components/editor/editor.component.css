@@ -9,7 +9,7 @@
 
   width: 98%;
   height: 94%;
-  background-color: #E2E1DF;
+  background-color: var(--system-color-primary-white);
   border-radius: 15px;
 }
 
@@ -35,10 +35,10 @@
 }
 
 .fc-event{
-  background-color: #6e6e6e; /* Gray background */
-  color: white; /* White text */
+  background-color: var(--system-color-primary-grey);
+  color: var(--system-color-primary-white);
   border-radius: 8px; /* Rounded corners */
-  border: 1px solid #4e4e4e; /* Optional: Darker border for emphasis */
+  border: 1px solid var(--system-color-primary-grey-dark);;
   width: 100%; /* Full width of the container */
   box-sizing: border-box; /* Ensure padding doesn’t affect width */
   margin: 5px 0;
