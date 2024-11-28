@@ -29,7 +29,7 @@ public class GlobalViewController {
     private final RoomService roomService;
     private final CourseService courseService;
     private final GlobalTableChangeService globalTableChangeService;
-    private TimeTable timeTable;
+
 
     @Autowired
     public GlobalViewController(TimeTableService timeTableService, DTOConverter dtoConverter, RoomService roomService,
@@ -53,7 +53,7 @@ public class GlobalViewController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TimeTableDTO> getTimeTableById(@PathVariable Long id){
-        timeTable = timeTableService.loadTimeTable(id);
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
         TimeTableDTO timeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok(timeTableDTO);
     }
@@ -93,6 +93,7 @@ public class GlobalViewController {
 
     @PostMapping("/assignment/remove/{id}")
     public ResponseEntity<TimeTableDTO> removeAllAssignedCourseSessionsFromTimeTable(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
         timeTable = timeTableService.unassignAllCourseSessions(timeTable);
         TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok().body(updatedTimeTableDTO);
@@ -100,6 +101,7 @@ public class GlobalViewController {
 
     @PostMapping("/assignment/removeCollisions/{id}")
     public ResponseEntity<TimeTableDTO> removeCollisionsFromTimeTable(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
         timeTable = timeTableService.unassignCollisions(timeTable);
         TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok().body(updatedTimeTableDTO);

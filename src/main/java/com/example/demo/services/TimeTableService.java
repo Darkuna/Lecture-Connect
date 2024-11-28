@@ -227,13 +227,16 @@ public class TimeTableService {
     }
 
     /**
-     * Method to unassign all assigned courseSessions of a certain timeTable
+     * Method to unassign all assigned courseSessions of a certain timeTable that are not fixed
      * @param timeTable to unassign all courseSessions of
      * @return updated timeTable
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable unassignAllCourseSessions(TimeTable timeTable){
-        courseSessionService.unassignCourseSessions(timeTable.getAssignedCourseSessions());
+        List<CourseSession> courseSessionsToUnassign = timeTable.getAssignedCourseSessions().stream()
+                .filter(cs -> !cs.isFixed())
+                .collect(Collectors.toList());
+        courseSessionService.unassignCourseSessions(courseSessionsToUnassign);
         log.info("Unassigned all assigned courseSessions of timeTable {}", timeTable.getId());
         globalTableChangeService.create(ChangeType.CLEAR_TABLE, timeTable, String.format("All assigned courseSessions of timeTable %s %d were unassigned",
                 timeTable.getSemester(), timeTable.getYear()));
@@ -261,6 +264,9 @@ public class TimeTableService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
+        if(timeTable.getId() == null){
+            return;
+        }
         List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
         List<Long> newIds = courseSessions.stream().map(CourseSession::getId).toList();
         List<Long> oldIds = originalCourseSessions.stream().map(CourseSession::getId).toList();
