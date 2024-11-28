@@ -97,7 +97,7 @@ public class CourseSession implements Persistable<Long>, Serializable {
     public boolean wasMoved(CourseSession toCompare){
         return this.isAssigned &&
                 toCompare.isAssigned &&
-                (this.timing != toCompare.timing || this.roomTable != toCompare.roomTable);
+                (!this.timing.hasSameDayAndTime(toCompare.timing) || !this.roomTable.equals(toCompare.roomTable));
     }
 
     public boolean wasAssigned(CourseSession toCompare){

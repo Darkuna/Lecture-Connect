@@ -281,9 +281,11 @@ public class TimeTableService {
                 .filter(cs -> oldIds.contains(cs.getId()))
                 .toList();
         for(CourseSession courseSession : toDelete){
+            globalTableChangeService.create(ChangeType.REMOVE_COURSE, timeTable, String.format("Course '%s' was deleted", courseSession.getName()));
             courseSessionService.deleteCourseSession(courseSession);
         }
         for(CourseSession courseSession : toCreate){
+            globalTableChangeService.create(ChangeType.ADD_COURSE, timeTable, String.format("Course '%s' was added", courseSession.getName()));
             courseSessionService.createCourseSession(courseSession, timeTable);
         }
 

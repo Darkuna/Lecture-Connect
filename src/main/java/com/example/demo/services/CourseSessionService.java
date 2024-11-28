@@ -242,6 +242,9 @@ public class CourseSessionService {
         if(courseSession.getTiming() != null){
             Timing timing = timingService.createTiming(courseSession.getTiming());
             newCourseSession.setTiming(timing);
+            globalTableChangeService.create(ChangeType.ASSIGN_COURSE, timeTable,
+                    String.format("Course '%s' was assigned in room %s at %s", courseSession.getName(),
+                            courseSession.getRoomTable(), courseSession.getTiming()));
         }
 
         CourseSession toCopy = courseSessionRepository.findFirstByCourseIdAndTimeTable(courseSession.getCourseId(), timeTable);
