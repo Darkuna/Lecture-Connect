@@ -462,7 +462,6 @@ public class BacktrackingScheduler implements Scheduler {
             else if(cs.isSplitCourse()){
                 candidates = candidates.stream()
                         .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
-                                thenComparingInt(c -> Math.abs(c.getDay() - currentCandidate.getDay())).
                                 thenComparingInt(Candidate::getSlot))
                         .collect(Collectors.toList());
             }
