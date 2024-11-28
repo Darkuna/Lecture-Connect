@@ -1,7 +1,6 @@
 package com.example.demo.services;
 
 import com.example.demo.dto.*;
-import com.example.demo.exceptions.scheduler.AssignmentFailedException;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.ChangeType;
 import com.example.demo.models.enums.Semester;

@@ -74,10 +74,10 @@ public class BacktrackingScheduler implements Scheduler {
     /**
      * Starts the assignment algorithm for all unassigned courseSessions of a timeTable. It consists of three steps:
      *
-     * 1. Try assignment of all courseSessions that don't need computers (no backtracking) only using rooms without
-     *    computers available.
-     * 2. Try assignment of all courseSessions that need computers (no backtracking) only using computer rooms.
-     * 3. Try assignment of all courseSessions that failed in step 1 or 2 using all rooms and backtracking.
+     * 1. Try greedy assignment of all courseSessions (no backtracking) only using rooms.
+     * 2. Try assignment of all courseSessions that failed in step 1 using backtracking.
+     * 3. Try assignment of all courseSessions that failed in step 1 or 2 without backtracking and without distinguishing
+     *    between computer rooms and rooms without computers.
      *
      * If there are still courseSessions that couldn't be assigned at the end of these steps, they remain unassigned to
      * ensure that the algorithm assigns as much as possible.
@@ -130,6 +130,9 @@ public class BacktrackingScheduler implements Scheduler {
      *
      * @param courseSessions to be processed
      * @param availabilityMatrices to be used for assigning the courseSessions
+     * @param useBacktracking true if the courseSessions should be processed using backtracking or not
+     * @param considerComputersNeeded true if computer courses should only be assigned to computer rooms and vice versa,
+     *                                false if the opposite is also allowed
      */
     private List<CourseSession> assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices,
                                       boolean useBacktracking, boolean considerComputersNeeded) {
