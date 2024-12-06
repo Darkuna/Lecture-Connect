@@ -1,0 +1,59 @@
+.container {
+  display: flex;
+  gap: 16px;
+  height: 100%;
+}
+
+.course-session {
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.course-session span {
+  flex: 1;
+}
+
+.course-session span.active {
+  color: #007ad9;
+}
+
+.candidate {
+  padding: 8px;
+  margin-bottom: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.candidate.active {
+  background-color: #007ad9;
+  color: white;
+}
+
+.scroll-container {
+  flex: 1;
+  display: flex;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.left-panel,
+.right-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+p-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+}
+
+
+

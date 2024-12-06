@@ -1,5 +1,6 @@
 package com.example.demo.scheduling;
 
+import com.example.demo.dto.CandidateDTO;
 import com.example.demo.exceptions.scheduler.AssignmentFailedException;
 import com.example.demo.exceptions.scheduler.NoCandidatesForCourseSessionException;
 import com.example.demo.exceptions.scheduler.PreconditionFailedException;
@@ -136,14 +137,14 @@ public class BacktrackingScheduler implements Scheduler {
      */
     private List<CourseSession> assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices,
                                       boolean useBacktracking, boolean considerComputersNeeded) {
-        Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions = new HashMap<>();
+        Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions;
         List<CourseSession> failedToAssignCourseSessions;
 
         log.info("Starting precondition checks ...");
         checkPreConditions(courseSessions, availabilityMatrices);
         log.info("Precondition checks successful");
 
-        prepareCandidatesForCourseSessions(possibleCandidatesForCourseSessions, courseSessions, availabilityMatrices, considerComputersNeeded);
+        possibleCandidatesForCourseSessions = prepareCandidatesForCourseSessions(courseSessions, availabilityMatrices, considerComputersNeeded);
 
         log.info("Starting assignment");
         if(useBacktracking){
@@ -167,12 +168,12 @@ public class BacktrackingScheduler implements Scheduler {
 
     /**
      * This method finds all possible candidates for the group courseSessions and collects them in a map
-     * @param map to collect courseSessions and their corresponding candidates
      * @param courseSessions to be prepared
      * @param availabilityMatrices to find possible candidates in
      */
-    private void prepareCandidatesForCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions,
+    private Map<CourseSession, List<Candidate>> prepareCandidatesForCourseSessions(List<CourseSession> courseSessions,
                                                     List<AvailabilityMatrix> availabilityMatrices, boolean considerComputersNeeded){
+        Map<CourseSession, List<Candidate>> map = new HashMap<>();
         for(CourseSession courseSession: courseSessions){
             if(courseSession.isElective()){
                 concurrentElectiveCourseLimiter.initGroup(createKey(courseSession));
@@ -204,6 +205,7 @@ public class BacktrackingScheduler implements Scheduler {
             }
             map.put(courseSession, filteredCandidates);
         }
+        return map;
     }
 
     /**
@@ -706,5 +708,21 @@ public class BacktrackingScheduler implements Scheduler {
             }
         }
         return collisionMap;
+    }
+
+    public Map<CourseSession, List<Candidate>> updateAndReturnCandidatesMap(TimeTable timeTable, List<CourseSession> courseSessionsForAutoFill,
+                                                                            CourseSession courseSessionToAssign, CandidateDTO candidateDTO){
+        if(courseSessionsForAutoFill != null){
+            log.info("Assigning {} courseSessions", courseSessionsForAutoFill.size());
+            Map<CourseSession, List<Candidate>> courseSessionsToAssign = prepareCandidatesForCourseSessions(courseSessionsForAutoFill,availabilityMatrices,true);
+            processAssignmentWithoutBacktracking(courseSessionsToAssign);
+        }
+        else if (courseSessionToAssign != null){
+            log.info("Assigning courseSession {} to candidate {}", courseSessionToAssign, candidateDTO);
+            Map<CourseSession, List<Candidate>> courseSessionsToAssign = new HashMap<>();
+            courseSessionsToAssign.put(courseSessionToAssign, List.of(candidateDTO));
+            processAssignmentWithoutBacktracking(courseSessionsToAssign);
+        }
+        return prepareCandidatesForCourseSessions(timeTable.getUnassignedCourseSessions(),availabilityMatrices,true);
     }
 }

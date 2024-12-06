@@ -28,10 +28,13 @@ import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {CalendarContextMenuComponent} from "./calendar-context-menu/calendar-context-menu.component";
 import {EventImpl} from "@fullcalendar/core/internal";
 import { jsPDF } from 'jspdf';
+import { DialogService } from 'primeng/dynamicdialog';
 import html2canvas from 'html2canvas';
 import {ProgressService} from "../../services/progress.service";
 import {CollisionService} from "../../services/collision.service";
 import {TableLogService} from "../../services/table-log.service";
+import {SemiAutoAssignmentComponent} from "../semi-auto-assignment/semi-auto-assignment.component";
+import {SemiAutoService} from "../../services/semi-auto.service";
 
 @Component({
   selector: 'app-home',
@@ -112,7 +115,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private progressService: ProgressService,
     private cd: ChangeDetectorRef,
     private collisionService: CollisionService,
-    private logService: TableLogService
+    private logService: TableLogService,
+    private dialogService: DialogService,
+    private semiautoService: SemiAutoService,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -437,6 +442,23 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     }
   }
 
+  openSemiAutoDialog() {
+    console.log(this.shownTableDD!.id)
+    const ref = this.dialogService.open(SemiAutoAssignmentComponent, {
+      header: 'Semi-Automatic Assignment',
+      width: '70%',
+      styleClass: 'semi-auto-dialog',
+      data: {
+        timeTableId: this.shownTableDD!.id,
+      },
+    });
+
+    ref.onClose.subscribe(() => {
+      this.updateCalendarEvents();
+      console.log('Dialog closed');
+    });
+  }
+
   showHoverDialog(event: EventClickArg): void {
     if (!this.calendarContextMenu.activateLens) return;
 
@@ -490,6 +512,11 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
             icon: 'pi pi-microchip',
             badge: '3',
             command: () => this.applyAlgorithm(),
+          },
+          {
+            label: 'Semi-Automatic Assignment',
+            icon: 'pi pi-cog',
+            command: () => this.openSemiAutoDialog(),
           },
           {
             label: 'Remove All',

@@ -1,5 +1,6 @@
 package com.example.demo.scheduling;
 
+import com.example.demo.dto.CandidateDTO;
 import com.example.demo.models.CourseSession;
 import com.example.demo.models.TimeTable;
 
@@ -27,4 +28,16 @@ public interface Scheduler {
      * @return a map of conflicting courseSessions
      */
     Map<CourseSession, List<CollisionType>> collisionCheck(TimeTable timeTable);
+
+    /**
+     * This method is used for the semi-automatic assignment.
+     * @param timeTable to be worked on.
+     * @param courseSessionsForAutoFill a list of courseSessions to be automatically assigned
+     * @param courseSessionToAssign a courseSession that was manually assigned
+     * @param candidateToAssign a candidate the courseSessionToAssign shall be assigned to
+     * @return the updated candidates map
+     */
+    Map<CourseSession, List<Candidate>> updateAndReturnCandidatesMap(TimeTable timeTable, List<CourseSession> courseSessionsForAutoFill,
+                                                                     CourseSession courseSessionToAssign, CandidateDTO candidateToAssign);
+
 }

@@ -110,8 +110,4 @@ public class RoomTableService {
         log.info("Loaded all roomTables of timeTable {} ({})", timeTable.getId(), roomTables.size());
         return roomTables;
     }
-
-
-
-
 }

@@ -6,6 +6,7 @@ import com.example.demo.models.enums.ChangeType;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
 import com.example.demo.repositories.TimeTableRepository;
+import com.example.demo.scheduling.Candidate;
 import com.example.demo.scheduling.CollisionType;
 import com.example.demo.scheduling.Scheduler;
 import com.example.demo.scheduling.BacktrackingScheduler;
@@ -225,6 +226,13 @@ public class TimeTableService {
         return scheduler.collisionCheck(timeTable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Map<CourseSession, List<Candidate>> updateAndReturnCandidatesMap(TimeTable timeTable, List<CourseSession> courseSessions,
+                                                                            CourseSession courseSession, CandidateDTO candidate){
+        scheduler.setTimeTable(timeTable);
+        return scheduler.updateAndReturnCandidatesMap(timeTable, courseSessions, courseSession, candidate);
+    }
+
     /**
      * Method to unassign all assigned courseSessions of a certain timeTable that are not fixed
      * @param timeTable to unassign all courseSessions of
@@ -298,4 +306,11 @@ public class TimeTableService {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public CourseSession findCourseSessionByName(TimeTable timeTable, String name) {
+        return timeTable.getUnassignedCourseSessions().stream()
+                .filter(courseSession -> courseSession.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+    }
 }

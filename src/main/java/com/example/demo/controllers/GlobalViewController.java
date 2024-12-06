@@ -7,6 +7,7 @@ import com.example.demo.exceptions.scheduler.PreconditionFailedException;
 import com.example.demo.models.Course;
 import com.example.demo.models.CourseSession;
 import com.example.demo.models.TimeTable;
+import com.example.demo.scheduling.Candidate;
 import com.example.demo.scheduling.CollisionType;
 import com.example.demo.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +90,6 @@ public class GlobalViewController {
             throw new RuntimeException("Unexpected error occurred during assignment processing", ex);
         }
     }
-
 
     @PostMapping("/assignment/remove/{id}")
     public ResponseEntity<TimeTableDTO> removeAllAssignedCourseSessionsFromTimeTable(@PathVariable Long id) {
@@ -180,5 +180,53 @@ public class GlobalViewController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(globalTableChanges);
+    }
+
+    @GetMapping("/semi-auto/{id}")
+    public ResponseEntity<Map<String, List<CandidateDTO>>> getCandidatesMap(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+
+        Map<CourseSession, List<Candidate>> updatedMap = timeTableService.updateAndReturnCandidatesMap(timeTable, null, null, null);
+
+        Map<String, List<CandidateDTO>> resultMap = updatedMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().getName(),
+                        entry -> entry.getValue().stream()
+                                .map(dtoConverter::toCandidateDTO)
+                                .collect(Collectors.toList())
+                ));
+
+        return ResponseEntity.ok(resultMap);
+    }
+
+    @PostMapping("/semi-auto/{id}/assign")
+    public ResponseEntity<Map<String, List<CandidateDTO>>> updateAndReturnCandidatesMap(@PathVariable Long id,
+                                                                                        @RequestBody(required = false) List<String> courseSessions,
+                                                                                        @RequestBody(required = false) String courseSession,
+                                                                                        @RequestBody(required = false) CandidateDTO candidate) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+        List<CourseSession> css = null;
+        CourseSession cs = null;
+        Candidate c = null;
+
+        if (courseSessions != null) {
+            css = courseSessions.stream()
+                    .map(courseSessionToFind -> timeTableService.findCourseSessionByName(timeTable,courseSessionToFind))
+                    .collect(Collectors.toList());
+        } else if (courseSession != null) {
+            cs = timeTableService.findCourseSessionByName(timeTable, courseSession);
+        }
+
+        Map<CourseSession, List<Candidate>> updatedMap = timeTableService.updateAndReturnCandidatesMap(timeTable, css, cs, candidate);
+
+        Map<String, List<CandidateDTO>> resultMap = updatedMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().getName(),
+                        entry -> entry.getValue().stream()
+                                .map(dtoConverter::toCandidateDTO)
+                                .collect(Collectors.toList())
+                ));
+
+        return ResponseEntity.ok(resultMap);
     }
 }

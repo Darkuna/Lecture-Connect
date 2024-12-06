@@ -3,9 +3,12 @@ package com.example.demo.services;
 import com.example.demo.dto.*;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.*;
+import com.example.demo.scheduling.AvailabilityMatrix;
+import com.example.demo.scheduling.Candidate;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -352,6 +355,13 @@ public class DTOConverter {
         dto.setChangeUser(dto.getChangeUser());
         dto.setDate(globalTableChange.getDate());
 
+        return dto;
+    }
+
+    public CandidateDTO toCandidateDTO(Candidate candidate) {
+        CandidateDTO dto = new CandidateDTO();
+        dto.setTiming(toTimingDTO(AvailabilityMatrix.toTiming(candidate)));
+        dto.setRoomTable(candidate.getRoomTable().getRoomId());
         return dto;
     }
 }
