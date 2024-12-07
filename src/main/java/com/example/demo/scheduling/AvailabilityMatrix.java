@@ -123,7 +123,7 @@ public class AvailabilityMatrix {
             startSlot = timeToSlotIndex(timing.getStartTime());
             endSlot = timeToSlotIndex(timing.getEndTime());
 
-            for (int slot = startSlot; slot < endSlot - 1; slot++) {
+            for (int slot = startSlot; slot < endSlot; slot++) {
                 if(matrix[dayIndex][slot] == CourseSession.PREFERRED){
                     totalAvailablePreferredTime -= DURATION_PER_SLOT;
                 }
@@ -178,7 +178,7 @@ public class AvailabilityMatrix {
                 matrix[candidate.getDay()][candidate.getSlot()].equals(courseSession)){
             return false;
         }
-        for (int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
+        for (int i = candidate.getSlot(); i <= candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
             if (matrix[candidate.getDay()][i] != null &&
                     matrix[candidate.getDay()][i].getSemester() == courseSession.getSemester() &&
                     matrix[candidate.getDay()][i].getStudyType().equals(courseSession.getStudyType()) &&

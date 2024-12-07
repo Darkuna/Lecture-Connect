@@ -31,14 +31,12 @@ public class BacktrackingScheduler implements Scheduler {
 
     private final TimingService timingService;
     private final CourseSessionService courseSessionService;
-    private final ConcurrentCourseLimiter<String> concurrentGroupCourseLimiter;
-    private final ConcurrentCourseLimiter<Integer> concurrentElectiveCourseLimiter;
+    private ConcurrentCourseLimiter<String> concurrentGroupCourseLimiter;
+    private ConcurrentCourseLimiter<Integer> concurrentElectiveCourseLimiter;
 
     public BacktrackingScheduler(TimingService timingService, CourseSessionService courseSessionService) {
         this.timingService = timingService;
         this.courseSessionService = courseSessionService;
-        this.concurrentGroupCourseLimiter = new ConcurrentCourseLimiter<>(2);
-        this.concurrentElectiveCourseLimiter = new ConcurrentCourseLimiter<>(3);
     }
 
     /**
@@ -173,6 +171,20 @@ public class BacktrackingScheduler implements Scheduler {
      */
     private Map<CourseSession, List<Candidate>> prepareCandidatesForCourseSessions(List<CourseSession> courseSessions,
                                                     List<AvailabilityMatrix> availabilityMatrices, boolean considerComputersNeeded){
+        concurrentGroupCourseLimiter = new ConcurrentCourseLimiter<>(2);
+        concurrentElectiveCourseLimiter = new ConcurrentCourseLimiter<>(3);
+        List<CourseSession> assignedCourseSessions = timeTable.getAssignedCourseSessions();
+
+        for(CourseSession courseSession : assignedCourseSessions){
+            if(courseSession.isElective()){
+                concurrentElectiveCourseLimiter.initGroup(createKey(courseSession));
+                concurrentElectiveCourseLimiter.addEntry(createKey(courseSession), courseSession);
+            }
+            if(courseSession.isGroupCourse()){
+                concurrentGroupCourseLimiter.initGroup(courseSession.getCourseId());
+                concurrentGroupCourseLimiter.addEntry(courseSession.getCourseId(), courseSession);
+            }
+        }
         Map<CourseSession, List<Candidate>> map = new HashMap<>();
         for(CourseSession courseSession: courseSessions){
             if(courseSession.isElective()){
@@ -201,11 +213,22 @@ public class BacktrackingScheduler implements Scheduler {
                             .thenComparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
             if(filteredCandidates.isEmpty()){
-                throw new NoCandidatesForCourseSessionException(String.format("No assignment candidates available for CourseSession %s", courseSession));
+                log.info("No candidates found for courseSession {}", courseSession.getCourseId());
             }
             map.put(courseSession, filteredCandidates);
         }
+
+        for(CourseSession courseSession: assignedCourseSessions){
+            filterCandidates(map, courseSession, assignedCourseSessionToCandidate(courseSession));
+        }
+
         return map;
+    }
+
+    public Candidate assignedCourseSessionToCandidate(CourseSession courseSession){
+        return new Candidate(getAvailabilityMatrixOfRoomTable(courseSession.getRoomTable().getRoomId()),
+                courseSession.getTiming().getDay().ordinal(), AvailabilityMatrix.timeToSlotIndex(courseSession.getTiming().getStartTime()),
+                courseSession.getDuration(), false);
     }
 
     /**
