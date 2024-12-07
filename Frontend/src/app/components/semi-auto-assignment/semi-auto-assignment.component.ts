@@ -20,8 +20,15 @@ export class SemiAutoAssignmentComponent implements OnInit {
   autoAssignEnabled = false;
   assignEnabled = false;
 
+  currentPage: number = 1;
+  itemsPerPage: number = 10;
+  totalPages: number = 0;
+  courseSessionsCurrentPage: number = 1; // Startseite
+  courseSessionsItemsPerPage: number = 10; // Anzahl der CourseSessions pro Seite
+  courseSessionsTotalPages: number = 0; // Gesamtanzahl der Seiten
+
   constructor(
-    private semiautoService: SemiAutoService,
+    private semiAutoService: SemiAutoService,
     private config: DynamicDialogConfig,
     private dialogRef: DynamicDialogRef) {}
 
@@ -31,7 +38,7 @@ export class SemiAutoAssignmentComponent implements OnInit {
   }
 
   loadCourseSessionMap(): void {
-    this.semiautoService.getCourseSessionMap(this.timeTableId).subscribe({
+    this.semiAutoService.getCourseSessionMap(this.timeTableId).subscribe({
       next: (data) => {
         this.courseSessionMap = new Map<String, CandidateDTO[]>(Object.entries(data));
         this.courseSessions = Array.from(this.courseSessionMap.keys());
@@ -45,6 +52,7 @@ export class SemiAutoAssignmentComponent implements OnInit {
   onCourseSessionSelect(courseSession: String): void {
     this.selectedCourseSession = courseSession;
     this.selectedCandidate = null;
+    this.currentPage = 1;
     this.updateButtonStates();
   }
 
@@ -69,7 +77,7 @@ export class SemiAutoAssignmentComponent implements OnInit {
 
   autoAssignSelection(): void {
     if (this.timeTableId && this.selectedCourseSessions.length > 0) {
-      this.semiautoService.autoAssignCourseSessions(this.timeTableId, this.selectedCourseSessions).subscribe({
+      this.semiAutoService.autoAssignCourseSessions(this.timeTableId, this.selectedCourseSessions).subscribe({
         next: (response) => {
           console.log('Auto-Assign Success', response);
           this.loadCourseSessionMap();
@@ -86,7 +94,7 @@ export class SemiAutoAssignmentComponent implements OnInit {
     console.log(this.selectedCourseSession);
     console.log(this.selectedCandidate);
     if (this.timeTableId && this.selectedCourseSession && this.selectedCandidate) {
-      this.semiautoService
+      this.semiAutoService
         .assignCandidateToCourseSession(this.timeTableId, this.selectedCourseSession, this.selectedCandidate)
         .subscribe({
           next: (response) => {
@@ -102,5 +110,44 @@ export class SemiAutoAssignmentComponent implements OnInit {
 
   closeDialog(): void {
     this.dialogRef.close();
+  }
+
+  get paginatedCandidates(): CandidateDTO[] {
+    const allCandidates = this.courseSessionMap.get(this.selectedCourseSession!) || [];
+    this.totalPages = Math.ceil(allCandidates.length / this.itemsPerPage);
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return allCandidates.slice(startIndex, endIndex);
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  get paginatedCourseSessions(): String[] {
+    this.courseSessionsTotalPages = Math.ceil(this.courseSessions.length / this.courseSessionsItemsPerPage);
+    const startIndex = (this.courseSessionsCurrentPage - 1) * this.courseSessionsItemsPerPage;
+    const endIndex = startIndex + this.courseSessionsItemsPerPage;
+    return this.courseSessions.slice(startIndex, endIndex);
+  }
+
+  goToNextCourseSessionsPage(): void {
+    if (this.courseSessionsCurrentPage < this.courseSessionsTotalPages) {
+      this.courseSessionsCurrentPage++;
+    }
+  }
+
+  goToPreviousCourseSessionsPage(): void {
+    if (this.courseSessionsCurrentPage > 1) {
+      this.courseSessionsCurrentPage--;
+    }
   }
 }
