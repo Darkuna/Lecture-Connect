@@ -1,6 +1,5 @@
 package com.example.demo.scheduling;
 
-import com.example.demo.dto.CandidateDTO;
 import com.example.demo.exceptions.scheduler.AssignmentFailedException;
 import com.example.demo.exceptions.scheduler.NoCandidatesForCourseSessionException;
 import com.example.demo.exceptions.scheduler.PreconditionFailedException;
@@ -12,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -711,18 +711,24 @@ public class BacktrackingScheduler implements Scheduler {
     }
 
     public Map<CourseSession, List<Candidate>> updateAndReturnCandidatesMap(TimeTable timeTable, List<CourseSession> courseSessionsForAutoFill,
-                                                                            CourseSession courseSessionToAssign, CandidateDTO candidateDTO){
+                                                                            CourseSession courseSessionToAssign, Candidate candidate, String roomTable){
         if(courseSessionsForAutoFill != null){
             log.info("Assigning {} courseSessions", courseSessionsForAutoFill.size());
             Map<CourseSession, List<Candidate>> courseSessionsToAssign = prepareCandidatesForCourseSessions(courseSessionsForAutoFill,availabilityMatrices,true);
             processAssignmentWithoutBacktracking(courseSessionsToAssign);
         }
         else if (courseSessionToAssign != null){
-            log.info("Assigning courseSession {} to candidate {}", courseSessionToAssign, candidateDTO);
+            log.info("Assigning courseSession {}", courseSessionToAssign);
             Map<CourseSession, List<Candidate>> courseSessionsToAssign = new HashMap<>();
-            courseSessionsToAssign.put(courseSessionToAssign, List.of(candidateDTO));
+            candidate.setAvailabilityMatrix(getAvailabilityMatrixOfRoomTable(roomTable));
+            courseSessionsToAssign.put(courseSessionToAssign, List.of(candidate));
             processAssignmentWithoutBacktracking(courseSessionsToAssign);
         }
         return prepareCandidatesForCourseSessions(timeTable.getUnassignedCourseSessions(),availabilityMatrices,true);
+    }
+
+    private AvailabilityMatrix getAvailabilityMatrixOfRoomTable(String roomTable){
+        return availabilityMatrices.stream().filter(a -> a.getRoomTable().getRoomId().equals(roomTable))
+                .toList().getFirst();
     }
 }

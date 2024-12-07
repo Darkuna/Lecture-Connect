@@ -35,8 +35,7 @@ export class SemiAutoService {
    * Trigger auto-assign logic for selected CourseSessions.
    */
   autoAssignCourseSessions(id: number, selectedCourseSessions: String[]): Observable<any> {
-    const url = `${SemiAutoService.API_PATH}/${id}/assign`;
-    console.log(selectedCourseSessions);
+    const url = `${SemiAutoService.API_PATH}/${id}/auto-assign`;
     return this.http.post<any>(url, selectedCourseSessions, this.httpOptions).pipe(
       catchError((error) => {
         return throwError(() => error);
@@ -44,15 +43,12 @@ export class SemiAutoService {
     );
   }
 
+
   /**
    * Assign a specific Candidate to a CourseSession.
    */
-  assignCandidateToCourseSession(
-    id: number,
-    courseSession: String,
-    candidate: CandidateDTO
-  ): Observable<any> {
-    const url = `${SemiAutoService.API_PATH}/${id}/assign`;
+  assignCandidateToCourseSession(id: number, courseSession: String, candidate: CandidateDTO): Observable<any> {
+    const url = `${SemiAutoService.API_PATH}/${id}/manual-assign`;
     const payload = {
       courseSession,
       candidate,
@@ -63,4 +59,5 @@ export class SemiAutoService {
       })
     );
   }
+
 }

@@ -6,6 +6,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CandidateDTO {
+    int day;
+    int slot;
+    int duration;
+    boolean preferredSlots;
     TimingDTO timing;
     String roomTable;
 }

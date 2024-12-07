@@ -8,8 +8,9 @@ import com.example.demo.scheduling.Candidate;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -249,34 +250,6 @@ public class DTOConverter {
 
         return dto;
     }
-    /**
-     * Converts a TimeTableDTO object into a TimeTable object
-     *
-     * @param dto to be converted
-     * @return TimeTable object
-     */
-    public TimeTable toTimeTable(TimeTableDTO dto) {
-        if (dto == null) {
-            return null;
-        }
-        TimeTable timeTable = new TimeTable();
-        timeTable.setId(dto.getId());
-        timeTable.setSemester(Semester.valueOf(dto.getSemester()));
-        timeTable.setStatus(Status.valueOf(dto.getStatus()));
-        timeTable.setYear(dto.getYear());
-        timeTable.setCreatedAt(dto.getCreatedAt());
-        timeTable.setUpdatedAt(dto.getUpdatedAt());
-
-        timeTable.setRoomTables(dto.getRoomTables().stream()
-                .map(this::toRoomTable)
-                .collect(Collectors.toList()));
-
-        timeTable.setCourseSessions(dto.getCourseSessions().stream()
-                .map(this::toCourseSession)
-                .collect(Collectors.toList()));
-
-        return timeTable;
-    }
 
     /**
      * Converts a Timing object into a TimingDTO object
@@ -361,7 +334,47 @@ public class DTOConverter {
     public CandidateDTO toCandidateDTO(Candidate candidate) {
         CandidateDTO dto = new CandidateDTO();
         dto.setTiming(toTimingDTO(AvailabilityMatrix.toTiming(candidate)));
-        dto.setRoomTable(candidate.getRoomTable().getRoomId());
+        if(candidate.getAvailabilityMatrix() != null){
+            dto.setRoomTable(candidate.getRoomTable().getRoomId());
+        }
+        dto.setSlot(candidate.getSlot());
+        dto.setDay(candidate.getDay());
+        dto.setDuration(candidate.getDuration());
+        dto.setPreferredSlots(candidate.isPreferredSlots());
         return dto;
     }
+
+    public Candidate toCandidate(CandidateDTO dto) {
+        return new Candidate(null, dto.getDay(), dto.getSlot(), dto.getDuration(), dto.isPreferredSlots());
+    }
+
+    public CandidateDTO mapToCandidateDTO(Map<String, Object> candidateMap) {
+        CandidateDTO candidateDTO = new CandidateDTO();
+        candidateDTO.setDay((Integer) candidateMap.get("day"));
+        candidateDTO.setSlot((Integer) candidateMap.get("slot"));
+        candidateDTO.setDuration((Integer) candidateMap.get("duration"));
+        candidateDTO.setPreferredSlots((Boolean) candidateMap.get("preferredSlots"));
+
+        Map<String, Object> timingMap = (Map<String, Object>) candidateMap.get("timing");
+        TimingDTO timingDTO = new TimingDTO();
+
+        String startTimeString = (String) timingMap.get("startTime");
+        String endTimeString = (String) timingMap.get("endTime");
+
+        if (startTimeString != null && !startTimeString.isEmpty()) {
+            timingDTO.setStartTime(LocalTime.parse(startTimeString));
+        }
+        if (endTimeString != null && !endTimeString.isEmpty()) {
+            timingDTO.setEndTime(LocalTime.parse(endTimeString));
+        }
+
+        timingDTO.setDay((String) timingMap.get("day"));
+        candidateDTO.setTiming(timingDTO);
+
+        candidateDTO.setRoomTable((String) candidateMap.get("roomTable"));
+
+        return candidateDTO;
+    }
+
+
 }

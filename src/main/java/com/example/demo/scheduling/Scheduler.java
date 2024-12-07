@@ -38,6 +38,6 @@ public interface Scheduler {
      * @return the updated candidates map
      */
     Map<CourseSession, List<Candidate>> updateAndReturnCandidatesMap(TimeTable timeTable, List<CourseSession> courseSessionsForAutoFill,
-                                                                     CourseSession courseSessionToAssign, CandidateDTO candidateToAssign);
+                                                                     CourseSession courseSessionToAssign, Candidate candidateToAssign, String roomTable);
 
 }

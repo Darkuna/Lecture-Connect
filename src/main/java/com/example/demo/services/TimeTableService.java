@@ -228,9 +228,9 @@ public class TimeTableService {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Map<CourseSession, List<Candidate>> updateAndReturnCandidatesMap(TimeTable timeTable, List<CourseSession> courseSessions,
-                                                                            CourseSession courseSession, CandidateDTO candidate){
+                                                                            CourseSession courseSession, Candidate candidate, String roomTable){
         scheduler.setTimeTable(timeTable);
-        return scheduler.updateAndReturnCandidatesMap(timeTable, courseSessions, courseSession, candidate);
+        return scheduler.updateAndReturnCandidatesMap(timeTable, courseSessions, courseSession, candidate, roomTable);
     }
 
     /**
