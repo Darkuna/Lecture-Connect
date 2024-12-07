@@ -61,7 +61,7 @@ public class ConcurrentCourseLimiter <T>{
      * This method add a new entry to the map. The value of the new entry is calculated by multiplying the day number by
      * 100 and adding the slot number
      * @param key to get the courseId key from
-     * @param candidate to calculate and add the value from
+     * @param courseSession to calculate and add the value from
      */
     public void addEntry(T key, CourseSession courseSession) {
         if(assignedGroupCourseSessions.containsKey(key)){
@@ -90,7 +90,7 @@ public class ConcurrentCourseLimiter <T>{
     /**
      * This method is used to remove an entry, if the backtracking algorithm has to go one step back
      * @param key to remove latest entry from
-     * @param candidate to remove latest entry from
+     * @param courseSession to remove latest entry from
      */
     public void removeEntry(T key, CourseSession courseSession) {
         if (assignedGroupCourseSessions.containsKey(key)) {
