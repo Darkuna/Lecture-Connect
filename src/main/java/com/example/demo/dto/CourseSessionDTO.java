@@ -23,7 +23,7 @@ public class CourseSessionDTO {
 
     @Override
     public String toString(){
-        return String.format("%s: %s %s %s %s", name, studyType, roomTable.getRoomId(), timing, courseId);
+        return String.format("%s", name);
     }
 }
 

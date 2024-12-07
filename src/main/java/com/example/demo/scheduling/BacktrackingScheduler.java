@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,25 +24,19 @@ import java.util.stream.Collectors;
 @Service
 @Scope("session")
 public class BacktrackingScheduler implements Scheduler {
-    private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithComputers;
-    private List<AvailabilityMatrix> availabilityMatricesOfRoomsWithoutComputers;
-    private List<AvailabilityMatrix> allAvailabilityMatrices;
-    private List<CourseSession> courseSessionsWithComputersNeeded;
-    private List<CourseSession> courseSessionsWithoutComputersNeeded;
+    private List<AvailabilityMatrix> availabilityMatrices;
     private final Logger log = LoggerFactory.getLogger(BacktrackingScheduler.class);
     private TimeTable timeTable;
     Stack<AssignmentStackEntry> assignmentStack;
 
     private final TimingService timingService;
     private final CourseSessionService courseSessionService;
-    private final ConcurrentCourseLimiter<String> concurrentGroupCourseLimiter;
-    private final ConcurrentCourseLimiter<Integer> concurrentElectiveCourseLimiter;
+    private ConcurrentCourseLimiter<String> concurrentGroupCourseLimiter;
+    private ConcurrentCourseLimiter<Integer> concurrentElectiveCourseLimiter;
 
     public BacktrackingScheduler(TimingService timingService, CourseSessionService courseSessionService) {
         this.timingService = timingService;
         this.courseSessionService = courseSessionService;
-        this.concurrentGroupCourseLimiter = new ConcurrentCourseLimiter<>(2);
-        this.concurrentElectiveCourseLimiter = new ConcurrentCourseLimiter<>(3);
     }
 
     /**
@@ -67,74 +62,48 @@ public class BacktrackingScheduler implements Scheduler {
      */
     public void setTimeTable(TimeTable timeTable){
         this.timeTable = timeTable;
-        availabilityMatricesOfRoomsWithComputers = new ArrayList<>();
-        availabilityMatricesOfRoomsWithoutComputers = new ArrayList<>();
-        allAvailabilityMatrices = new ArrayList<>();
-        for(RoomTable roomTable : timeTable.getRoomTablesWithComputersAvailable()){
+        availabilityMatrices = new ArrayList<>();
+        for(RoomTable roomTable : timeTable.getRoomTables()){
             AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(roomTable);
-            availabilityMatricesOfRoomsWithComputers.add(availabilityMatrix);
-            allAvailabilityMatrices.add(availabilityMatrix);
+            availabilityMatrices.add(availabilityMatrix);
         }
-        for(RoomTable roomTable : timeTable.getRoomTablesWithoutComputersAvailable()){
-            AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(roomTable);
-            availabilityMatricesOfRoomsWithoutComputers.add(availabilityMatrix);
-            allAvailabilityMatrices.add(availabilityMatrix);
-        }
-        this.courseSessionsWithComputersNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithComputersNeeded());
-        this.courseSessionsWithoutComputersNeeded = new ArrayList<>(timeTable.getUnassignedCourseSessionsWithoutComputersNeeded());
         this.assignmentStack = new Stack<>();
     }
 
     /**
      * Starts the assignment algorithm for all unassigned courseSessions of a timeTable. It consists of three steps:
      *
-     * 1. Try assignment of all courseSessions that don't need computers (no backtracking) only using rooms without
-     *    computers available.
-     * 2. Try assignment of all courseSessions that need computers (no backtracking) only using computer rooms.
-     * 3. Try assignment of all courseSessions that failed in step 1 or 2 using all rooms and backtracking.
+     * 1. Try greedy assignment of all courseSessions (no backtracking) only using rooms.
+     * 2. Try assignment of all courseSessions that failed in step 1 using backtracking.
+     * 3. Try assignment of all courseSessions that failed in step 1 or 2 without backtracking and without distinguishing
+     *    between computer rooms and rooms without computers.
      *
      * If there are still courseSessions that couldn't be assigned at the end of these steps, they remain unassigned to
      * ensure that the algorithm assigns as much as possible.
      */
     @Transactional
     public void assignUnassignedCourseSessions() {
-        List<CourseSession> failedToAssignCourseSessions = new ArrayList<>();
-        List<CourseSession> failedCourseSessions;
+        List<CourseSession> failedToAssignCourseSessions;
         try {
-            log.info("> Processing courseSessions that don't need computers ...");
-            failedCourseSessions = assignCourseSessions(courseSessionsWithoutComputersNeeded, availabilityMatricesOfRoomsWithoutComputers, false);
-            if(failedCourseSessions.isEmpty()){
-                log.info("Finished processing courseSessions that don't need computers");
-            }
-            else{
-                log.warn("Failed assignment of {} courseSessions that don't need computers.", failedCourseSessions.size());
-                failedToAssignCourseSessions.addAll(failedCourseSessions);
-            }
-
-            log.info("> Processing courseSessions that need computers ...");
-            failedCourseSessions = assignCourseSessions(courseSessionsWithComputersNeeded, availabilityMatricesOfRoomsWithComputers, false);
-            if(failedCourseSessions.isEmpty()){
-                log.info("Finished processing courseSessions that need computers");
-            }
-            else{
-                log.warn("Failed assignment of {} courseSessions that need computers.", failedCourseSessions.size());
-                failedToAssignCourseSessions.addAll(failedCourseSessions);
-            }
+            log.info("Step 1: Greedy assignment considering computers needed");
+            failedToAssignCourseSessions = assignCourseSessions(timeTable.getUnassignedCourseSessions(), availabilityMatrices, false, true);
 
             if(!failedToAssignCourseSessions.isEmpty()){
+                log.info("Step 2: Backtracking assignment considering computers needed");
                 log.info("Retrying assignment of {} courseSessions using backtracking", failedToAssignCourseSessions.size());
-                failedCourseSessions = assignCourseSessions(failedToAssignCourseSessions, allAvailabilityMatrices, true);
-                if(failedCourseSessions.isEmpty()){
+                failedToAssignCourseSessions = assignCourseSessions(failedToAssignCourseSessions, availabilityMatrices, true, true);
+                if(failedToAssignCourseSessions.isEmpty()){
                     log.info("Finished processing courseSessions using backtracking");
                 }
                 else{
-                    log.info("Retrying assignment of {} courseSessions without backtracking", failedCourseSessions.size());
-                    failedCourseSessions = assignCourseSessions(failedToAssignCourseSessions, allAvailabilityMatrices, false);
-                    if(failedCourseSessions.isEmpty()){
+                    log.info("Step 3: Greedy assignment not considering computers needed");
+                    log.info("Retrying assignment of {} courseSessions without backtracking", failedToAssignCourseSessions.size());
+                    failedToAssignCourseSessions = assignCourseSessions(failedToAssignCourseSessions, availabilityMatrices, false, false);
+                    if(failedToAssignCourseSessions.isEmpty()){
                         log.info("Finished assignment of all courseSessions successfully.");
                     }
                     else{
-                        log.warn("Finished assignment with {} courseSessions remaining unassigned", failedCourseSessions.size());
+                        log.warn("Finished assignment with {} courseSessions remaining unassigned", failedToAssignCourseSessions.size());
                     }
                 }
             }
@@ -160,20 +129,20 @@ public class BacktrackingScheduler implements Scheduler {
      *
      * @param courseSessions to be processed
      * @param availabilityMatrices to be used for assigning the courseSessions
+     * @param useBacktracking true if the courseSessions should be processed using backtracking or not
+     * @param considerComputersNeeded true if computer courses should only be assigned to computer rooms and vice versa,
+     *                                false if the opposite is also allowed
      */
     private List<CourseSession> assignCourseSessions(List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices,
-                                      boolean useBacktracking) {
-        Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions = new HashMap<>();
-        List<CourseSession> sortedCourseSessions;
+                                      boolean useBacktracking, boolean considerComputersNeeded) {
+        Map<CourseSession, List<Candidate>> possibleCandidatesForCourseSessions;
         List<CourseSession> failedToAssignCourseSessions;
 
         log.info("Starting precondition checks ...");
         checkPreConditions(courseSessions, availabilityMatrices);
         log.info("Precondition checks successful");
 
-        sortedCourseSessions = sortCourseSessions(courseSessions);
-
-        prepareCandidatesForCourseSessions(possibleCandidatesForCourseSessions, sortedCourseSessions, availabilityMatrices);
+        possibleCandidatesForCourseSessions = prepareCandidatesForCourseSessions(courseSessions, availabilityMatrices, considerComputersNeeded);
 
         log.info("Starting assignment");
         if(useBacktracking){
@@ -187,20 +156,6 @@ public class BacktrackingScheduler implements Scheduler {
     }
 
     /**
-     * Filters and sorts a list of courseSessions to obtain only group courseSessions sorted descending by duration and
-     * ascending by groupID.
-     * @param courseSessions to be filtered and sorted
-     * @return sorted list of group courseSessions
-     */
-    private List<CourseSession> sortCourseSessions(List<CourseSession> courseSessions){
-        return courseSessions.stream()
-                .sorted(Comparator.comparingInt(CourseSession::getDuration).reversed()
-                        .thenComparing(CourseSession::getNumberOfParticipants).reversed()
-                        .thenComparing(CourseSession::getCourseId))
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Creates a key for the elective course limiter.
      * @param courseSession to create key for
      * @return key for elective course limiter.
@@ -211,11 +166,26 @@ public class BacktrackingScheduler implements Scheduler {
 
     /**
      * This method finds all possible candidates for the group courseSessions and collects them in a map
-     * @param map to collect courseSessions and their corresponding candidates
      * @param courseSessions to be prepared
      * @param availabilityMatrices to find possible candidates in
      */
-    private void prepareCandidatesForCourseSessions(Map<CourseSession, List<Candidate>> map, List<CourseSession> courseSessions, List<AvailabilityMatrix> availabilityMatrices){
+    private Map<CourseSession, List<Candidate>> prepareCandidatesForCourseSessions(List<CourseSession> courseSessions,
+                                                    List<AvailabilityMatrix> availabilityMatrices, boolean considerComputersNeeded){
+        concurrentGroupCourseLimiter = new ConcurrentCourseLimiter<>(2);
+        concurrentElectiveCourseLimiter = new ConcurrentCourseLimiter<>(3);
+        List<CourseSession> assignedCourseSessions = timeTable.getAssignedCourseSessions();
+
+        for(CourseSession courseSession : assignedCourseSessions){
+            if(courseSession.isElective()){
+                concurrentElectiveCourseLimiter.initGroup(createKey(courseSession));
+                concurrentElectiveCourseLimiter.addEntry(createKey(courseSession), courseSession);
+            }
+            if(courseSession.isGroupCourse()){
+                concurrentGroupCourseLimiter.initGroup(courseSession.getCourseId());
+                concurrentGroupCourseLimiter.addEntry(courseSession.getCourseId(), courseSession);
+            }
+        }
+        Map<CourseSession, List<Candidate>> map = new HashMap<>();
         for(CourseSession courseSession: courseSessions){
             if(courseSession.isElective()){
                 concurrentElectiveCourseLimiter.initGroup(createKey(courseSession));
@@ -224,36 +194,42 @@ public class BacktrackingScheduler implements Scheduler {
                 concurrentGroupCourseLimiter.initGroup(courseSession.getCourseId());
             }
             List<Candidate> candidates = new ArrayList<>();
-            for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
-                candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
+            if(considerComputersNeeded){
+                for(AvailabilityMatrix availabilityMatrix: availabilityMatrices.stream()
+                        .filter(a -> a.isComputersAvailable() == courseSession.isComputersNecessary())
+                        .toList()){
+                    candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
+                }
             }
+            else{
+                for(AvailabilityMatrix availabilityMatrix : availabilityMatrices) {
+                    candidates.addAll(availabilityMatrix.getAllAvailableCandidates(courseSession));
+                }
+            }
+
             List<Candidate> filteredCandidates = candidates.stream()
                     .filter(c -> checkConstraintsFulfilled(courseSession, c))
                     .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed()
                             .thenComparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
             if(filteredCandidates.isEmpty()){
-                throw new NoCandidatesForCourseSessionException(String.format("No assignment candidates available for CourseSession %s", courseSession));
+                log.info("No candidates found for courseSession {}", courseSession.getCourseId());
             }
             map.put(courseSession, filteredCandidates);
         }
-    }
-    // Method to visualize the backtracking algorithm
-    /*
-    private String statesToList(Stack<AssignmentState> stack) {
-        Iterator<AssignmentState> iterator = stack.iterator();
-        List<Integer> indices = new ArrayList<>();
-        while (iterator.hasNext()) {
-            indices.add(iterator.next().index);
+
+        for(CourseSession courseSession: assignedCourseSessions){
+            filterCandidates(map, courseSession, assignedCourseSessionToCandidate(courseSession));
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (int index : indices) {
-            sb.append(String.format("%2d ", index));
-        }
-        return sb.toString().trim();
+        return map;
     }
-    */
+
+    public Candidate assignedCourseSessionToCandidate(CourseSession courseSession){
+        return new Candidate(getAvailabilityMatrixOfRoomTable(courseSession.getRoomTable().getRoomId()),
+                courseSession.getTiming().getDay().ordinal(), AvailabilityMatrix.timeToSlotIndex(courseSession.getTiming().getStartTime()),
+                courseSession.getDuration(), false);
+    }
 
     /**
      * This method executes tries to find an assignment candidate for all courseSessions in the parameter map. If the
@@ -502,17 +478,18 @@ public class BacktrackingScheduler implements Scheduler {
             }
 
             // sort
-            if(cs.isGroupCourse()){
+            if(cs.isGroupCourse() && cs.isFromSameCourse(currentCourseSession)){
                 candidates = candidates.stream()
-                        .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
-                                thenComparingInt(c -> Math.abs(c.getDay() - currentCandidate.getDay())).
-                                thenComparingInt(Candidate::getSlot))
+                        .sorted(Comparator.comparingInt((Candidate c) -> Math.abs(c.getDay() - currentCandidate.getDay()))
+                                .thenComparing(Candidate::isPreferredSlots, Comparator.reverseOrder())
+                                .thenComparingInt(Candidate::getSlot))
                         .collect(Collectors.toList());
+
+
             }
             else if(cs.isSplitCourse()){
                 candidates = candidates.stream()
                         .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
-                                thenComparingInt(c -> Math.abs(c.getDay() - currentCandidate.getDay())).
                                 thenComparingInt(Candidate::getSlot))
                         .collect(Collectors.toList());
             }
@@ -696,7 +673,7 @@ public class BacktrackingScheduler implements Scheduler {
         if(courseSession.isElective()){
             return true;
         }
-        for(AvailabilityMatrix availabilityMatrix : allAvailabilityMatrices){
+        for(AvailabilityMatrix availabilityMatrix : availabilityMatrices){
             if(availabilityMatrix.semesterIntersects(candidate, courseSession)){
                 return false;
             }
@@ -754,5 +731,27 @@ public class BacktrackingScheduler implements Scheduler {
             }
         }
         return collisionMap;
+    }
+
+    public Map<CourseSession, List<Candidate>> updateAndReturnCandidatesMap(TimeTable timeTable, List<CourseSession> courseSessionsForAutoFill,
+                                                                            CourseSession courseSessionToAssign, Candidate candidate, String roomTable){
+        if(courseSessionsForAutoFill != null){
+            log.info("Assigning {} courseSessions", courseSessionsForAutoFill.size());
+            Map<CourseSession, List<Candidate>> courseSessionsToAssign = prepareCandidatesForCourseSessions(courseSessionsForAutoFill,availabilityMatrices,true);
+            processAssignmentWithoutBacktracking(courseSessionsToAssign);
+        }
+        else if (courseSessionToAssign != null){
+            log.info("Assigning courseSession {}", courseSessionToAssign);
+            Map<CourseSession, List<Candidate>> courseSessionsToAssign = new HashMap<>();
+            candidate.setAvailabilityMatrix(getAvailabilityMatrixOfRoomTable(roomTable));
+            courseSessionsToAssign.put(courseSessionToAssign, List.of(candidate));
+            processAssignmentWithoutBacktracking(courseSessionsToAssign);
+        }
+        return prepareCandidatesForCourseSessions(timeTable.getUnassignedCourseSessions(),availabilityMatrices,true);
+    }
+
+    private AvailabilityMatrix getAvailabilityMatrixOfRoomTable(String roomTable){
+        return availabilityMatrices.stream().filter(a -> a.getRoomTable().getRoomId().equals(roomTable))
+                .toList().getFirst();
     }
 }

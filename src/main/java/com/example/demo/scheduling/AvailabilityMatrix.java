@@ -123,7 +123,7 @@ public class AvailabilityMatrix {
             startSlot = timeToSlotIndex(timing.getStartTime());
             endSlot = timeToSlotIndex(timing.getEndTime());
 
-            for (int slot = startSlot; slot < endSlot - 1; slot++) {
+            for (int slot = startSlot; slot < endSlot; slot++) {
                 if(matrix[dayIndex][slot] == CourseSession.PREFERRED){
                     totalAvailablePreferredTime -= DURATION_PER_SLOT;
                 }
@@ -178,7 +178,7 @@ public class AvailabilityMatrix {
                 matrix[candidate.getDay()][candidate.getSlot()].equals(courseSession)){
             return false;
         }
-        for (int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
+        for (int i = candidate.getSlot(); i <= candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
             if (matrix[candidate.getDay()][i] != null &&
                     matrix[candidate.getDay()][i].getSemester() == courseSession.getSemester() &&
                     matrix[candidate.getDay()][i].getStudyType().equals(courseSession.getStudyType()) &&
@@ -271,40 +271,6 @@ public class AvailabilityMatrix {
         return possibleCandidates;
     }
 
-    /*
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        int time = START_TIME.getHour();
-        String mark;
-        sb.append(this.getRoomTable().getRoomId());
-        sb.append(String.format("\nTotal time available: %d, Preferred time available: %d", totalAvailableTime, totalAvailablePreferredTime));
-        sb.append("\n");
-        sb.append(String.format("      | %20.20s | %20.20s | %20.20s | %20.20s | %20.20s |\n",
-                "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag"));
-        for (int i = 0; i < SLOTS_PER_DAY; i++) {
-            if (i % 4 == 0) {
-                sb.append(String.format("%2d Uhr", time));
-                time += 1;
-            } else {
-                sb.append("      ");
-            }
-            for (int j = 0; j < DAYS_IN_WEEK; j++) {
-                if (matrix[j][i] == null) {
-                    mark = " ";
-                } else if (matrix[j][i] == CourseSession.BLOCKED) {
-                    mark = "BLOCK";
-                } else if (matrix[j][i] == CourseSession.PREFERRED) {
-                    mark = "PREFERRED";
-                } else {
-                    mark = matrix[j][i].getName();
-                }
-                sb.append(String.format("| %20.20s ", mark));
-            }
-            sb.append("|\n");
-        }
-        return sb.toString();
-    }
-    */
 }
 
 

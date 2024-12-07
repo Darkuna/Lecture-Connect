@@ -1,12 +1,12 @@
 package com.example.demo.services;
 
 import com.example.demo.dto.*;
-import com.example.demo.exceptions.scheduler.AssignmentFailedException;
 import com.example.demo.models.*;
 import com.example.demo.models.enums.ChangeType;
 import com.example.demo.models.enums.Semester;
 import com.example.demo.models.enums.Status;
 import com.example.demo.repositories.TimeTableRepository;
+import com.example.demo.scheduling.Candidate;
 import com.example.demo.scheduling.CollisionType;
 import com.example.demo.scheduling.Scheduler;
 import com.example.demo.scheduling.BacktrackingScheduler;
@@ -226,14 +226,24 @@ public class TimeTableService {
         return scheduler.collisionCheck(timeTable);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public Map<CourseSession, List<Candidate>> updateAndReturnCandidatesMap(TimeTable timeTable, List<CourseSession> courseSessions,
+                                                                            CourseSession courseSession, Candidate candidate, String roomTable){
+        scheduler.setTimeTable(timeTable);
+        return scheduler.updateAndReturnCandidatesMap(timeTable, courseSessions, courseSession, candidate, roomTable);
+    }
+
     /**
-     * Method to unassign all assigned courseSessions of a certain timeTable
+     * Method to unassign all assigned courseSessions of a certain timeTable that are not fixed
      * @param timeTable to unassign all courseSessions of
      * @return updated timeTable
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public TimeTable unassignAllCourseSessions(TimeTable timeTable){
-        courseSessionService.unassignCourseSessions(timeTable.getAssignedCourseSessions());
+        List<CourseSession> courseSessionsToUnassign = timeTable.getAssignedCourseSessions().stream()
+                .filter(cs -> !cs.isFixed())
+                .collect(Collectors.toList());
+        courseSessionService.unassignCourseSessions(courseSessionsToUnassign);
         log.info("Unassigned all assigned courseSessions of timeTable {}", timeTable.getId());
         globalTableChangeService.create(ChangeType.CLEAR_TABLE, timeTable, String.format("All assigned courseSessions of timeTable %s %d were unassigned",
                 timeTable.getSemester(), timeTable.getYear()));
@@ -261,6 +271,9 @@ public class TimeTableService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public void updateCourseSessions(TimeTable timeTable, List<CourseSession> courseSessions){
+        if(timeTable.getId() == null){
+            return;
+        }
         List<CourseSession> originalCourseSessions = timeTable.getCourseSessions();
         List<Long> newIds = courseSessions.stream().map(CourseSession::getId).toList();
         List<Long> oldIds = originalCourseSessions.stream().map(CourseSession::getId).toList();
@@ -275,9 +288,11 @@ public class TimeTableService {
                 .filter(cs -> oldIds.contains(cs.getId()))
                 .toList();
         for(CourseSession courseSession : toDelete){
+            globalTableChangeService.create(ChangeType.REMOVE_COURSE, timeTable, String.format("Course '%s' was deleted", courseSession.getName()));
             courseSessionService.deleteCourseSession(courseSession);
         }
         for(CourseSession courseSession : toCreate){
+            globalTableChangeService.create(ChangeType.ADD_COURSE, timeTable, String.format("Course '%s' was added", courseSession.getName()));
             courseSessionService.createCourseSession(courseSession, timeTable);
         }
 
@@ -291,4 +306,11 @@ public class TimeTableService {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
+    public CourseSession findCourseSessionByName(TimeTable timeTable, String name) {
+        return timeTable.getUnassignedCourseSessions().stream()
+                .filter(courseSession -> courseSession.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+    }
 }

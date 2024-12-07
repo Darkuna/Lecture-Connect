@@ -7,6 +7,7 @@ import com.example.demo.exceptions.scheduler.PreconditionFailedException;
 import com.example.demo.models.Course;
 import com.example.demo.models.CourseSession;
 import com.example.demo.models.TimeTable;
+import com.example.demo.scheduling.Candidate;
 import com.example.demo.scheduling.CollisionType;
 import com.example.demo.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class GlobalViewController {
     private final RoomService roomService;
     private final CourseService courseService;
     private final GlobalTableChangeService globalTableChangeService;
-    private TimeTable timeTable;
+
 
     @Autowired
     public GlobalViewController(TimeTableService timeTableService, DTOConverter dtoConverter, RoomService roomService,
@@ -53,7 +54,7 @@ public class GlobalViewController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TimeTableDTO> getTimeTableById(@PathVariable Long id){
-        timeTable = timeTableService.loadTimeTable(id);
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
         TimeTableDTO timeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok(timeTableDTO);
     }
@@ -90,9 +91,9 @@ public class GlobalViewController {
         }
     }
 
-
     @PostMapping("/assignment/remove/{id}")
     public ResponseEntity<TimeTableDTO> removeAllAssignedCourseSessionsFromTimeTable(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
         timeTable = timeTableService.unassignAllCourseSessions(timeTable);
         TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok().body(updatedTimeTableDTO);
@@ -100,6 +101,7 @@ public class GlobalViewController {
 
     @PostMapping("/assignment/removeCollisions/{id}")
     public ResponseEntity<TimeTableDTO> removeCollisionsFromTimeTable(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
         timeTable = timeTableService.unassignCollisions(timeTable);
         TimeTableDTO updatedTimeTableDTO = dtoConverter.toTimeTableDTO(timeTable);
         return ResponseEntity.ok().body(updatedTimeTableDTO);
@@ -179,4 +181,81 @@ public class GlobalViewController {
 
         return ResponseEntity.ok(globalTableChanges);
     }
+
+    @GetMapping("/semi-auto/{id}")
+    public ResponseEntity<Map<String, List<CandidateDTO>>> getCandidatesMap(@PathVariable Long id) {
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+
+        Map<CourseSession, List<Candidate>> updatedMap = timeTableService.updateAndReturnCandidatesMap(timeTable, null, null, null, null);
+
+        Map<String, List<CandidateDTO>> resultMap = updatedMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().getName(),
+                        entry -> entry.getValue().stream()
+                                .map(dtoConverter::toCandidateDTO)
+                                .collect(Collectors.toList())
+                ));
+
+        return ResponseEntity.ok(resultMap);
+    }
+
+    @PostMapping("/semi-auto/{id}/auto-assign")
+    public ResponseEntity<Map<String, List<CandidateDTO>>> autoAssignCourseSessions(
+            @PathVariable Long id,
+            @RequestBody List<String> courseSessions) {
+
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+
+        // Convert course session names to CourseSession objects
+        List<CourseSession> css = courseSessions.stream()
+                .map(courseSessionToFind -> timeTableService.findCourseSessionByName(timeTable, courseSessionToFind))
+                .collect(Collectors.toList());
+
+        // Perform the auto-assignment logic
+        Map<CourseSession, List<Candidate>> updatedMap = timeTableService.updateAndReturnCandidatesMap(timeTable, css, null, null, null);
+
+        // Convert result to DTO format
+        Map<String, List<CandidateDTO>> resultMap = updatedMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().getName(),
+                        entry -> entry.getValue().stream()
+                                .map(dtoConverter::toCandidateDTO)
+                                .collect(Collectors.toList())
+                ));
+
+        return ResponseEntity.ok(resultMap);
+    }
+
+    @PostMapping("/semi-auto/{id}/manual-assign")
+    public ResponseEntity<Map<String, List<CandidateDTO>>> assignCandidateToCourseSession(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> requestBody) {
+
+        TimeTable timeTable = timeTableService.loadTimeTable(id);
+
+        // Parse courseSession and candidate from the request body
+        String courseSessionName = (String) requestBody.get("courseSession");
+        Map<String, Object> candidateMap = (Map<String, Object>) requestBody.get("candidate");
+
+        // Convert JSON data to CandidateDTO and CourseSession objects
+        CourseSession cs = timeTableService.findCourseSessionByName(timeTable, courseSessionName);
+        CandidateDTO candidateDTO = dtoConverter.mapToCandidateDTO(candidateMap);
+        Candidate candidate = dtoConverter.toCandidate(candidateDTO);
+
+        // Perform the manual assignment logic
+        Map<CourseSession, List<Candidate>> updatedMap = timeTableService.updateAndReturnCandidatesMap(timeTable, null, cs, candidate, candidateDTO.getRoomTable());
+
+        // Convert result to DTO format
+        Map<String, List<CandidateDTO>> resultMap = updatedMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().getName(),
+                        entry -> entry.getValue().stream()
+                                .map(dtoConverter::toCandidateDTO)
+                                .collect(Collectors.toList())
+                ));
+
+        return ResponseEntity.ok(resultMap);
+    }
+
+
 }

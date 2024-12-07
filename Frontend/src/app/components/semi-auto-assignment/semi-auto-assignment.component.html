@@ -1,0 +1,67 @@
+<div class="container" style="display: flex; flex-direction: column; height: 100%;">
+  <div class="scroll-container" style="flex: 1; display: flex; gap: 10px; overflow: hidden;">
+    <div class="left-panel" style="flex: 1; overflow: auto;">
+      <p-scrollPanel>
+        <div *ngFor="let courseSession of paginatedCourseSessions" class="course-session">
+          <p-checkbox
+            [value]="courseSession"
+            (onChange)="onCheckboxChange($event, courseSession)">
+          </p-checkbox>
+          <span
+            (click)="onCourseSessionSelect(courseSession)"
+            [class.active]="courseSession === selectedCourseSession">
+            {{ courseSession }}
+          </span>
+        </div>
+        <!-- Pagination controls for CourseSessions -->
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+          <button pButton label="Previous" [disabled]="courseSessionsCurrentPage === 1"
+                  (click)="goToPreviousCourseSessionsPage()"></button>
+          <span>Page {{ courseSessionsCurrentPage }} of {{ courseSessionsTotalPages }}</span>
+          <button pButton label="Next" [disabled]="courseSessionsCurrentPage === courseSessionsTotalPages"
+                  (click)="goToNextCourseSessionsPage()"></button>
+        </div>
+      </p-scrollPanel>
+    </div>
+
+    <div class="right-panel" style="flex: 1; overflow: auto;">
+      <p-scrollPanel>
+        <div *ngIf="selectedCourseSession">
+          <div *ngFor="let candidate of paginatedCandidates" class="candidate"
+               (click)="onCandidateSelect(candidate)"
+               [class.active]="candidate === selectedCandidate">
+            {{ candidate.roomTable }} - {{ candidate.timing.day }},
+            {{ candidate.timing.startTime }} to {{ candidate.timing.endTime }}
+          </div>
+          <!-- Pagination controls for Candidates -->
+          <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+            <button pButton label="Previous" [disabled]="currentPage === 1" (click)="goToPreviousPage()"></button>
+            <span>Page {{ currentPage }} of {{ totalPages }}</span>
+            <button pButton label="Next" [disabled]="currentPage === totalPages" (click)="goToNextPage()"></button>
+          </div>
+        </div>
+      </p-scrollPanel>
+    </div>
+  </div>
+
+  <p-footer style="display: flex; justify-content: flex-end; gap: 10px;">
+    <button
+      pButton
+      label="Auto-Assign Selection"
+      [disabled]="!autoAssignEnabled"
+      (click)="autoAssignSelection()">
+    </button>
+    <button
+      pButton
+      label="Assign"
+      [disabled]="!assignEnabled"
+      (click)="assign()">
+    </button>
+    <button
+      pButton
+      label="Close"
+      class="p-button-secondary"
+      (click)="closeDialog()">
+    </button>
+  </p-footer>
+</div>

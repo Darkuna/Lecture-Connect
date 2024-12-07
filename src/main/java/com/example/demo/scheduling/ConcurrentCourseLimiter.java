@@ -1,5 +1,7 @@
 package com.example.demo.scheduling;
 
+import com.example.demo.models.CourseSession;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +58,22 @@ public class ConcurrentCourseLimiter <T>{
     }
 
     /**
+     * This method add a new entry to the map. The value of the new entry is calculated by multiplying the day number by
+     * 100 and adding the slot number
+     * @param key to get the courseId key from
+     * @param courseSession to calculate and add the value from
+     */
+    public void addEntry(T key, CourseSession courseSession) {
+        if(assignedGroupCourseSessions.containsKey(key)){
+            List<Integer> values = assignedGroupCourseSessions.get(key);
+            for(int i = AvailabilityMatrix.timeToSlotIndex(courseSession.getTiming().getStartTime());
+                i <= AvailabilityMatrix.timeToSlotIndex(courseSession.getTiming().getEndTime()); i++){
+                values.add(courseSession.getTiming().getDay().ordinal() * 100 + i);
+            }
+        }
+    }
+
+    /**
      * This method is used to remove an entry, if the backtracking algorithm has to go one step back
      * @param key to remove latest entry from
      * @param candidate to remove latest entry from
@@ -65,6 +83,21 @@ public class ConcurrentCourseLimiter <T>{
             List<Integer> values = assignedGroupCourseSessions.get(key);
             for (int i = candidate.getSlot(); i <= candidate.getEndSlot(); i++) {
                 values.remove((Integer) (candidate.getDay() * 100 + i));
+            }
+        }
+    }
+
+    /**
+     * This method is used to remove an entry, if the backtracking algorithm has to go one step back
+     * @param key to remove latest entry from
+     * @param courseSession to remove latest entry from
+     */
+    public void removeEntry(T key, CourseSession courseSession) {
+        if (assignedGroupCourseSessions.containsKey(key)) {
+            List<Integer> values = assignedGroupCourseSessions.get(key);
+            for (int i = AvailabilityMatrix.timeToSlotIndex(courseSession.getTiming().getStartTime());
+                 i <= AvailabilityMatrix.timeToSlotIndex(courseSession.getTiming().getEndTime()); i++) {
+                values.remove((Integer) (courseSession.getTiming().getDay().ordinal() * 100 + i));
             }
         }
     }

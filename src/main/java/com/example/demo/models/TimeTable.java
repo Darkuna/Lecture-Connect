@@ -51,21 +51,9 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
         }
     }
 
-    public void removeRoomTable(RoomTable roomTable){
-        if(roomTable != null){
-            roomTables.remove(roomTable);
-        }
-    }
-
     public void addCourseSessions(List<CourseSession> courseSessions){
         if(courseSessions != null){
             this.courseSessions.addAll(courseSessions);
-        }
-    }
-
-    public void removeCourseSession(CourseSession courseSession){
-        if(courseSessions != null){
-            this.courseSessions.remove(courseSession);
         }
     }
 
@@ -82,20 +70,10 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
         return Objects.hash(id);
     }
 
-    public List<CourseSession> getUnassignedCourseSessionsWithComputersNeeded(){
+    public List<CourseSession> getUnassignedCourseSessions(){
         List<CourseSession> unassignedCourseSessions = new ArrayList<>();
         for(CourseSession courseSession : courseSessions){
-            if(!courseSession.isAssigned() && courseSession.isComputersNecessary()){
-                unassignedCourseSessions.add(courseSession);
-            }
-        }
-        return unassignedCourseSessions;
-    }
-
-    public List<CourseSession> getUnassignedCourseSessionsWithoutComputersNeeded(){
-        List<CourseSession> unassignedCourseSessions = new ArrayList<>();
-        for(CourseSession courseSession : courseSessions){
-            if(!courseSession.isAssigned()  && !courseSession.isComputersNecessary()){
+            if(!courseSession.isAssigned()){
                 unassignedCourseSessions.add(courseSession);
             }
         }
@@ -110,26 +88,6 @@ public class TimeTable extends TimestampedEntity implements Persistable<Long>, S
             }
         }
         return assignedCourseSessions;
-    }
-
-    public List<RoomTable> getRoomTablesWithComputersAvailable(){
-        List<RoomTable> roomTablesWithComputersAvailable = new ArrayList<>();
-        for(RoomTable roomTable : roomTables){
-            if(roomTable.isComputersAvailable()){
-                roomTablesWithComputersAvailable.add(roomTable);
-            }
-        }
-        return roomTablesWithComputersAvailable;
-    }
-
-    public List<RoomTable> getRoomTablesWithoutComputersAvailable(){
-        List<RoomTable> roomTablesWithoutComputersAvailable = new ArrayList<>();
-        for(RoomTable roomTable : roomTables){
-            if(!roomTable.isComputersAvailable()){
-                roomTablesWithoutComputersAvailable.add(roomTable);
-            }
-        }
-        return roomTablesWithoutComputersAvailable;
     }
 
     public String toString(){

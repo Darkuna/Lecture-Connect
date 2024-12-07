@@ -7,5 +7,4 @@ public enum CourseType {
     SE,
     SL,
     PR
-
 }

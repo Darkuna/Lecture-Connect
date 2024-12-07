@@ -73,6 +73,9 @@ import { TableLogComponent } from './components/table-log/table-log.component';
 import {PickListModule} from "primeng/picklist";
 import { CollisionDialogComponent } from './components/collision-dialog/collision-dialog.component';
 import { CollisionTableComponent } from './components/collision-dialog/collision-table/collision-table.component';
+import { ScrollPanelModule } from "primeng/scrollpanel";
+import {SemiAutoAssignmentModule} from "./components/semi-auto-assignment/semi-auto-assignment.module";
+import {DialogService} from "primeng/dynamicdialog";
 
 @NgModule({ declarations: [
         AppComponent, HeaderSelfComponent, LoginComponent,
@@ -88,12 +91,13 @@ import { CollisionTableComponent } from './components/collision-dialog/collision
     NgxWebstorageModule.forRoot(),
     BrowserAnimationsModule, BrowserModule, AppRoutingModule, ButtonModule, CardModule, InputTextModule, PasswordModule, ToastModule,
     FormsModule, RippleModule, TableModule, FileUploadModule, ToolbarModule, MultiSelectModule, DialogModule, DropdownModule, TagModule, RadioButtonModule,
-    InputNumberModule, ConfirmDialogModule, InputTextareaModule, InputSwitchModule, SelectButtonModule,
+    InputNumberModule, ConfirmDialogModule, InputTextareaModule, InputSwitchModule, SelectButtonModule, SemiAutoAssignmentModule,
     FullCalendarModule, MenuModule, BadgeModule, AvatarModule, CarouselModule, MenubarModule, CalendarModule, StepperModule, IconFieldModule, InputIconModule, ToggleButtonModule,
-    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule, CheckboxModule, PickListModule],
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule, CheckboxModule, PickListModule, ScrollPanelModule],
   providers: [
     ConfirmationService,
     MessageService,
+    DialogService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: LoadingInterceptor,
