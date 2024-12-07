@@ -30,9 +30,6 @@
           <li>
             <span>Room: {{hoverEventInfo?.event!.extendedProps['description'] ?? 'not assigned'}}</span>
           </li>
-          <li style="height: 15rem; overflow: auto">
-              <app-collision-table [showAllColumns]="false" [collisions]="getCourseCollisions()"/>
-          </li>
         </ul>
       </div>
     </div>
