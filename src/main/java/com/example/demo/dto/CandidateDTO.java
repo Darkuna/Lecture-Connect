@@ -9,7 +9,7 @@ public class CandidateDTO {
     int day;
     int slot;
     int duration;
-    boolean preferredSlots;
+    float preferredRatio;
     TimingDTO timing;
     String roomTable;
 }

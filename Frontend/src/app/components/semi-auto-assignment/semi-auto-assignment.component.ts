@@ -16,16 +16,15 @@ export class SemiAutoAssignmentComponent implements OnInit {
   selectedCourseSessions: String[] = [];
   selectedCourseSession: String | null = null;
   selectedCandidate: CandidateDTO | null = null;
-
   autoAssignEnabled = false;
   assignEnabled = false;
 
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalPages: number = 0;
-  courseSessionsCurrentPage: number = 1; // Startseite
-  courseSessionsItemsPerPage: number = 10; // Anzahl der CourseSessions pro Seite
-  courseSessionsTotalPages: number = 0; // Gesamtanzahl der Seiten
+  courseSessionsCurrentPage: number = 1;
+  courseSessionsItemsPerPage: number = 10;
+  courseSessionsTotalPages: number = 0;
 
   constructor(
     private semiAutoService: SemiAutoService,

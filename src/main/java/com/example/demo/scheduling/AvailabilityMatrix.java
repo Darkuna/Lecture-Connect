@@ -138,29 +138,24 @@ public class AvailabilityMatrix {
      * @param dayIndex index of the weekday starting at 0 for monday until 4 for friday
      * @param slotIndex index of the slot starting at 0
      * @param numberOfSlots number of slots to be checked starting at slotIndex
-     * @param preferredOnly specifies if only preferred slots (reserved for computer science) or also empty slots count
-     *                      as available
-     * @return true, if all slots specified slots are available, false if not.
+
+     * @return ratio of preferred slots, if the slots are available, -1.0f if not
      */
-    private boolean isSlotsAvailable(int dayIndex, int slotIndex, int numberOfSlots, boolean preferredOnly) {
+    private float isSlotsAvailable(int dayIndex, int slotIndex, int numberOfSlots) {
+        int preferredSlotsCounter = 0;
         if(slotIndex + numberOfSlots >= SLOTS_PER_DAY){
-            return false;
+            return -1.0f;
         }
-        if(preferredOnly){
-            for (int i = slotIndex; i < slotIndex + numberOfSlots; i++) {
-                if (matrix[dayIndex][i] != CourseSession.PREFERRED) {
-                    return false;
-                }
+        for (int i = slotIndex; i < slotIndex + numberOfSlots; i++) {
+            if (matrix[dayIndex][i] != null && matrix[dayIndex][i] != CourseSession.PREFERRED) {
+                return -1.0f;
+            }
+            if(matrix[dayIndex][i] == CourseSession.PREFERRED){
+                preferredSlotsCounter++;
             }
         }
-        else{
-            for (int i = slotIndex; i < slotIndex + numberOfSlots; i++) {
-                if (matrix[dayIndex][i] != null && matrix[dayIndex][i] != CourseSession.PREFERRED) {
-                    return false;
-                }
-            }
-        }
-        return true;
+
+        return ((float) preferredSlotsCounter) / numberOfSlots;
     }
 
     /**
@@ -203,8 +198,8 @@ public class AvailabilityMatrix {
             matrix[candidate.getDay()][i] = courseSession;
         }
         totalAvailableTime -= candidate.getDuration();
-        if(candidate.isPreferredSlots()){
-            totalAvailablePreferredTime -= candidate.getDuration();
+        if(candidate.getPreferredRatio() >= 0){
+            totalAvailablePreferredTime -= (long) ((long)candidate.getDuration() * candidate.getPreferredRatio());
         }
     }
 
@@ -213,14 +208,42 @@ public class AvailabilityMatrix {
      * @param candidate with the information about the assignment of the courseSession
      */
     public void clearCandidate(Candidate candidate) {
-        CourseSession courseSession = candidate.isPreferredSlots() ? CourseSession.PREFERRED : null;
-        for(int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
-            matrix[candidate.getDay()][i] = courseSession;
+        Timing candidateTiming = toTiming(candidate);
+        CourseSession courseSession = null;
+        List<Timing> intersectingTimings;
+        List<Integer> slotIndexes = new ArrayList<>();
+        if(candidate.getPreferredRatio() > 0.0f){
+            intersectingTimings = roomTable.getTimingConstraints().stream()
+                    .filter(t -> t.intersects(candidateTiming)).toList();
+            for(Timing timing : intersectingTimings){
+                slotIndexes.addAll(getSlotIndexesOfTiming(timing));
+            }
+            for(int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
+                if(slotIndexes.contains(i)){
+                    matrix[candidate.getDay()][i] = CourseSession.PREFERRED;
+                    totalAvailablePreferredTime += 15;
+                }
+                matrix[candidate.getDay()][i] = null;
+            }
         }
+        else{
+            for(int i = candidate.getSlot(); i < candidate.getSlot() + candidate.getDuration() / DURATION_PER_SLOT; i++) {
+                matrix[candidate.getDay()][i] = null;
+            }
+        }
+
         totalAvailableTime += candidate.getDuration();
-        if(candidate.isPreferredSlots()){
-            totalAvailablePreferredTime += candidate.getDuration();
+        if(candidate.getPreferredRatio() >= 0){
+            totalAvailablePreferredTime -= (long) ((long)candidate.getDuration() * candidate.getPreferredRatio());
         }
+    }
+
+    private List<Integer> getSlotIndexesOfTiming(Timing timing) {
+        List<Integer> slotIndexes = new ArrayList<>();
+        for (int i = timeToSlotIndex(timing.getStartTime()); i <= timeToSlotIndex(timing.getEndTime()); i++) {
+            slotIndexes.add(i);
+        }
+        return slotIndexes;
     }
 
     /**
@@ -255,15 +278,14 @@ public class AvailabilityMatrix {
      */
     public List<Candidate> getAllAvailableCandidates(CourseSession courseSession) {
         int numberOfSlots = courseSession.getDuration() / DURATION_PER_SLOT;
+        float preferredRatio;
         List<Candidate> possibleCandidates = new ArrayList<>();
         for (int i = 0; i < DAYS_IN_WEEK; i++) {
             for (int j = 0; j < SLOTS_PER_DAY; j++) {
                 if (matrix[i][j] == CourseSession.PREFERRED || matrix[i][j] == null) {
-                    if (isSlotsAvailable(i, j, numberOfSlots, true)) {
-                        possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), true));
-                    }
-                    else if (isSlotsAvailable(i, j, numberOfSlots, false)) {
-                        possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), false));
+                    preferredRatio = isSlotsAvailable(i, j, numberOfSlots);
+                    if (preferredRatio != -1.0f) {
+                        possibleCandidates.add(new Candidate(this, i, j, courseSession.getDuration(), preferredRatio));
                     }
                 }
             }

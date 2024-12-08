@@ -6,5 +6,5 @@ export class CandidateDTO {
   day!: number;
   slot!: number;
   duration!: number;
-  preferredSlots!: boolean;
+  preferredRatio!: number;
 }

@@ -209,7 +209,7 @@ public class BacktrackingScheduler implements Scheduler {
 
             List<Candidate> filteredCandidates = candidates.stream()
                     .filter(c -> checkConstraintsFulfilled(courseSession, c))
-                    .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed()
+                    .sorted(Comparator.comparing(Candidate::getPreferredRatio).reversed()
                             .thenComparingInt(Candidate::getSlot))
                     .collect(Collectors.toList());
             if(filteredCandidates.isEmpty()){
@@ -228,7 +228,7 @@ public class BacktrackingScheduler implements Scheduler {
     public Candidate assignedCourseSessionToCandidate(CourseSession courseSession){
         return new Candidate(getAvailabilityMatrixOfRoomTable(courseSession.getRoomTable().getRoomId()),
                 courseSession.getTiming().getDay().ordinal(), AvailabilityMatrix.timeToSlotIndex(courseSession.getTiming().getStartTime()),
-                courseSession.getDuration(), false);
+                courseSession.getDuration(), 1.0f);
     }
 
     /**
@@ -481,7 +481,7 @@ public class BacktrackingScheduler implements Scheduler {
             if(cs.isGroupCourse() && cs.isFromSameCourse(currentCourseSession)){
                 candidates = candidates.stream()
                         .sorted(Comparator.comparingInt((Candidate c) -> Math.abs(c.getDay() - currentCandidate.getDay()))
-                                .thenComparing(Candidate::isPreferredSlots, Comparator.reverseOrder())
+                                .thenComparing(Candidate::getPreferredRatio, Comparator.reverseOrder())
                                 .thenComparingInt(Candidate::getSlot))
                         .collect(Collectors.toList());
 
@@ -489,13 +489,13 @@ public class BacktrackingScheduler implements Scheduler {
             }
             else if(cs.isSplitCourse()){
                 candidates = candidates.stream()
-                        .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed().
+                        .sorted(Comparator.comparing(Candidate::getPreferredRatio).reversed().
                                 thenComparingInt(Candidate::getSlot))
                         .collect(Collectors.toList());
             }
             else{
                 candidates = candidates.stream()
-                        .sorted(Comparator.comparing(Candidate::isPreferredSlots).reversed()
+                        .sorted(Comparator.comparing(Candidate::getPreferredRatio).reversed()
                                 .thenComparingInt((Candidate::getSlot)))
                         .collect(Collectors.toList());
             }

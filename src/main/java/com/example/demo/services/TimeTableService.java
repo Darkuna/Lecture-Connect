@@ -230,7 +230,8 @@ public class TimeTableService {
     public Map<CourseSession, List<Candidate>> updateAndReturnCandidatesMap(TimeTable timeTable, List<CourseSession> courseSessions,
                                                                             CourseSession courseSession, Candidate candidate, String roomTable){
         scheduler.setTimeTable(timeTable);
-        return scheduler.updateAndReturnCandidatesMap(timeTable, courseSessions, courseSession, candidate, roomTable);
+        Map<CourseSession, List<Candidate>> map = scheduler.updateAndReturnCandidatesMap(timeTable, courseSessions, courseSession, candidate, roomTable);
+        return map;
     }
 
     /**

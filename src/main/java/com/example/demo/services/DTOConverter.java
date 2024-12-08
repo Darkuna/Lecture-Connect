@@ -340,20 +340,25 @@ public class DTOConverter {
         dto.setSlot(candidate.getSlot());
         dto.setDay(candidate.getDay());
         dto.setDuration(candidate.getDuration());
-        dto.setPreferredSlots(candidate.isPreferredSlots());
+        dto.setPreferredRatio(candidate.getPreferredRatio());
         return dto;
     }
 
     public Candidate toCandidate(CandidateDTO dto) {
-        return new Candidate(null, dto.getDay(), dto.getSlot(), dto.getDuration(), dto.isPreferredSlots());
+        return new Candidate(null, dto.getDay(), dto.getSlot(), dto.getDuration(), dto.getPreferredRatio());
     }
 
     public CandidateDTO mapToCandidateDTO(Map<String, Object> candidateMap) {
         CandidateDTO candidateDTO = new CandidateDTO();
+
         candidateDTO.setDay((Integer) candidateMap.get("day"));
         candidateDTO.setSlot((Integer) candidateMap.get("slot"));
         candidateDTO.setDuration((Integer) candidateMap.get("duration"));
-        candidateDTO.setPreferredSlots((Boolean) candidateMap.get("preferredSlots"));
+
+        Object preferredRatioObj = candidateMap.get("preferredRatio");
+        if (preferredRatioObj instanceof Number) {
+            candidateDTO.setPreferredRatio(((Number) preferredRatioObj).floatValue());
+        }
 
         Map<String, Object> timingMap = (Map<String, Object>) candidateMap.get("timing");
         TimingDTO timingDTO = new TimingDTO();
@@ -375,6 +380,7 @@ public class DTOConverter {
 
         return candidateDTO;
     }
+
 
 
 }
