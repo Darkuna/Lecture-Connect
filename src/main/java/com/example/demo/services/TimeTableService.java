@@ -299,7 +299,6 @@ public class TimeTableService {
 
         for(CourseSession courseSession : toUpdate){
             CourseSession toCompare = orig.get(courseSession.getId());
-
             if(!toCompare.courseSessionChanged(courseSession)){
                 continue;
             }

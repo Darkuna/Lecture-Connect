@@ -209,7 +209,6 @@ public class AvailabilityMatrix {
      */
     public void clearCandidate(Candidate candidate) {
         Timing candidateTiming = toTiming(candidate);
-        CourseSession courseSession = null;
         List<Timing> intersectingTimings;
         List<Integer> slotIndexes = new ArrayList<>();
         if(candidate.getPreferredRatio() > 0.0f){
@@ -223,7 +222,10 @@ public class AvailabilityMatrix {
                     matrix[candidate.getDay()][i] = CourseSession.PREFERRED;
                     totalAvailablePreferredTime += 15;
                 }
-                matrix[candidate.getDay()][i] = null;
+                else{
+                    matrix[candidate.getDay()][i] = null;
+                }
+
             }
         }
         else{
@@ -233,9 +235,6 @@ public class AvailabilityMatrix {
         }
 
         totalAvailableTime += candidate.getDuration();
-        if(candidate.getPreferredRatio() >= 0){
-            totalAvailablePreferredTime -= (long) ((long)candidate.getDuration() * candidate.getPreferredRatio());
-        }
     }
 
     private List<Integer> getSlotIndexesOfTiming(Timing timing) {
