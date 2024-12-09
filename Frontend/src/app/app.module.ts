@@ -75,7 +75,8 @@ import { CollisionDialogComponent } from './components/collision-dialog/collisio
 import { CollisionTableComponent } from './components/collision-dialog/collision-table/collision-table.component';
 import { ScrollPanelModule } from "primeng/scrollpanel";
 import {SemiAutoAssignmentModule} from "./components/semi-auto-assignment/semi-auto-assignment.module";
-import {DialogService} from "primeng/dynamicdialog";
+import { DialogService } from "primeng/dynamicdialog";
+import { AuthInterceptor } from "./interceptor/auth.interceptor";
 
 @NgModule({ declarations: [
         AppComponent, HeaderSelfComponent, LoginComponent,
@@ -103,6 +104,14 @@ import {DialogService} from "primeng/dynamicdialog";
       useClass: LoadingInterceptor,
       multi: true
     },
-    provideHttpClient(withInterceptorsFromDi())] })
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+    provideHttpClient(withInterceptorsFromDi())
+  ]
+
+})
 export class AppModule {
 }

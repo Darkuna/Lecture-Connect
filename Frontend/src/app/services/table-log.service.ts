@@ -15,9 +15,7 @@ export class TableLogService {
   static API_PATH = `${environment.baseUrl}/api/global/changes`;
   private readonly httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' +
-        (localStorage.getItem('jwt-token') === null ? sessionStorage:localStorage).getItem('jwt-token')
+      'Content-Type': 'application/json'
     })
   };
 
@@ -48,9 +46,5 @@ export class TableLogService {
   clearChanges(){
     this.showChangeDialog = false;
     this.changes = null;
-  }
-
-  getCourseChanges(course: string){
-    return this.changes?.filter(c => c.description.includes(course));
   }
 }
