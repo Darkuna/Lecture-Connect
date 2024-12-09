@@ -24,7 +24,8 @@
   display: inline-block;
   align-content: baseline;
   text-align: center;
-  max-height: 83%;
+  max-height: 82vh;
+  width: 95%;
   overflow-y: scroll;
 }
 #calendarScroll{
@@ -35,15 +36,16 @@
 }
 
 .fc-event{
-  background-color: #6e6e6e; /* Gray background */
-  color: white; /* White text */
-  border-radius: 8px; /* Rounded corners */
-  border: 1px solid #4e4e4e; /* Optional: Darker border for emphasis */
-  width: 100%; /* Full width of the container */
-  box-sizing: border-box; /* Ensure padding doesn’t affect width */
+  background-color: #6e6e6e;
+  color: white;
+  border-radius: 8px;
+  border: 1px solid #4e4e4e;
+  width: 100%;
+  min-height: 3rem;
+  box-sizing: border-box;
   margin: 5px 0;
   padding: 5px;
-
+  align-content: center;
 }
 
 .event-time {
