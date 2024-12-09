@@ -90,4 +90,9 @@ public class Userx implements Persistable<String>, Serializable, Comparable<User
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
+    @Override
+    public String toString() {
+        return username;
+    }
 }

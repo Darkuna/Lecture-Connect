@@ -16,10 +16,14 @@ export class LoginUserInfoService {
 
   loginUser(loginObj: any, remember: boolean){
     return this.http.post(`${LoginUserInfoService.API_PATH}`, loginObj)
-      .pipe(tap((result) => {
-        (remember ? localStorage : sessionStorage)
-          .setItem("jwt-token", JSON.stringify(result));
-      }))
+      .pipe(
+        tap((result: any) => {
+          const token = result?.token; // Extrahiere den Token
+          if (token) {
+            (remember ? localStorage : sessionStorage).setItem("jwt-token", token);
+          }
+        })
+      )
   }
 
   clearCache(){

@@ -12,9 +12,7 @@ export class RoomService {
   roomsApiPath = `${environment.baseUrl}/api/rooms`;
   httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' +
-        (localStorage.getItem('jwt-token') === null ? sessionStorage:localStorage).getItem('jwt-token')
+      'Content-Type': 'application/json'
     })
   };
 

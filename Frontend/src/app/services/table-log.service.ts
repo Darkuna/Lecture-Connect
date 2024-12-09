@@ -15,9 +15,7 @@ export class TableLogService {
   static API_PATH = `${environment.baseUrl}/api/global/changes`;
   private readonly httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' +
-        (localStorage.getItem('jwt-token') === null ? sessionStorage:localStorage).getItem('jwt-token')
+      'Content-Type': 'application/json'
     })
   };
 

@@ -225,7 +225,6 @@ public class AvailabilityMatrix {
                 else{
                     matrix[candidate.getDay()][i] = null;
                 }
-
             }
         }
         else{

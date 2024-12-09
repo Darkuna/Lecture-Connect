@@ -1,6 +1,9 @@
 package com.example.demo.config;
 
 
+import com.example.demo.services.CustomUserDetailsService;
+import com.example.demo.services.JwtService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -25,13 +28,17 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.List;
 
 
 @Configuration
 @EnableWebSecurity
 @EnableWebMvc
 public class WebSecurityConfig implements WebMvcConfigurer {
-
+    @Autowired
+    private JwtService jwtService;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedMethods("*");
@@ -46,54 +53,52 @@ public class WebSecurityConfig implements WebMvcConfigurer {
             "/swagger-ui.html"
     };
 
-    // Inside your SecurityFilterChain bean method
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-        MvcRequestMatcher h2RequestMatcher = new MvcRequestMatcher(introspector, "/**");
-        h2RequestMatcher.setServletPath("/h2-console");
-
-        // Adjust the request matcher to consider /api prefix
-        MvcRequestMatcher apiRequestMatcher = new MvcRequestMatcher(introspector, "/api/**");
-
-        http.authorizeHttpRequests(authz -> authz
+    SecurityFilterChain filterChain(HttpSecurity http, CustomUserDetailsService cuds) throws Exception {
+        http
+                .addFilterBefore(jwtAuthenticationFilter(cuds), UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(authz -> authz
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
-                        .requestMatchers(h2RequestMatcher).permitAll()
-                        .requestMatchers(apiRequestMatcher).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/addNewUser", "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/auth/welcome").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/api/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/addNewUser").authenticated()
                         .requestMatchers("/auth/user/**", "/auth/admin/**").authenticated()
+                        .requestMatchers("/user/**").authenticated()
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(httpSecurityCorsConfigurer ->
-                        httpSecurityCorsConfigurer.configurationSource(request ->
-                                new CorsConfiguration().applyPermitDefaultValues()))
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration configuration = new CorsConfiguration();
+                    configuration.setAllowedOrigins(List.of("http://localhost:3000")); // Beispiel
+                    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+                    configuration.setExposedHeaders(List.of("Authorization"));
+                    configuration.setAllowCredentials(true);
+                    return configuration;
+                }))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
 
     @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        UserDetails user = User.withUsername("user")
-                .password(passwordEncoder().encode("userPass"))
-                .roles("USER")
-                .build();
-        return new InMemoryUserDetailsManager(user);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(CustomUserDetailsService customUserDetailsService) {
+        return new JwtAuthenticationFilter(jwtService, customUserDetailsService);
     }
 
-    // Password Encoding
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
+    public AuthenticationProvider authenticationProvider(CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(customUserDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {

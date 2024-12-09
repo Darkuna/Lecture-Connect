@@ -6,8 +6,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
@@ -17,25 +19,27 @@ import java.util.function.Function;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-@Component
+@Service
 public class JwtService {
 
-    public static final String SECRET = generateRandomSecret(32);
+    public static final String SECRET = "yoursecureandstaticbasekslfjksldkfjdsf64urlkey";
     public String generateToken(Userx user) {
         return createToken(
                 Map.of("id", Objects.requireNonNull(user.getId()),
                "username", user.getUsername(),
-               "role", user.getRoles())
+               "role", user.getRoles()), user.getUsername()
         );
     }
 
-    private String createToken(Map<String, Object> claims) {
+    private String createToken(Map<String, Object> claims, String username) {
         return Jwts.builder()
                 .setClaims(claims)
+                .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
+
 
     private Key getSignKey() {
         byte[] keyBytes= Decoders.BASE64.decode(SECRET);
@@ -73,14 +77,12 @@ public class JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    public static String generateRandomSecret(int length) {
-        // Use SecureRandom for generating cryptographically secure random bytes
+    public static String generateBase64UrlSecret() {
         SecureRandom secureRandom = new SecureRandom();
-        byte[] randomBytes = new byte[length];
-        secureRandom.nextBytes(randomBytes);
-
-        // Encode the random bytes to Base64 to get a string representation
-        return Base64.getEncoder().encodeToString(randomBytes);
+        byte[] keyBytes = new byte[32]; // 256-bit Schlüssel
+        secureRandom.nextBytes(keyBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(keyBytes);
     }
+
 }
 

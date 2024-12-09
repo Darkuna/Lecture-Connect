@@ -325,7 +325,7 @@ public class DTOConverter {
         dto.setDescription(globalTableChange.getDescription());
         dto.setChangeType(globalTableChange.getChangeType().toString());
         dto.setTimeTable(globalTableChange.getTimeTable());
-        dto.setChangeUser(dto.getChangeUser());
+        dto.setChangeUser(globalTableChange.getChangeUser());
         dto.setDate(globalTableChange.getDate());
 
         return dto;

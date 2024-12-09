@@ -1,7 +1,9 @@
 package com.example.demo.services;
 
+import com.example.demo.beans.SessionInfoBean;
 import com.example.demo.models.GlobalTableChange;
 import com.example.demo.models.TimeTable;
+import com.example.demo.models.Userx;
 import com.example.demo.models.enums.ChangeType;
 import com.example.demo.repositories.GlobalTableChangeRepository;
 import org.springframework.context.annotation.Scope;
@@ -15,17 +17,20 @@ import java.util.List;
 @Scope("session")
 public class GlobalTableChangeService {
     private final GlobalTableChangeRepository globalTableChangeRepository;
+    private final SessionInfoBean sessionInfoBean;
 
-    public GlobalTableChangeService(GlobalTableChangeRepository globalTableChangeRepository) {
+    public GlobalTableChangeService(GlobalTableChangeRepository globalTableChangeRepository, SessionInfoBean sessionInfoBean) {
         this.globalTableChangeRepository = globalTableChangeRepository;
+        this.sessionInfoBean = sessionInfoBean;
     }
 
     public void create(ChangeType changeType, TimeTable timeTable, String description){
-        String user = SecurityContextHolder.getContext().getAuthentication().getName();
+        Userx user = sessionInfoBean.getCurrentUser();
+        System.out.println("this is the user"+user);
         GlobalTableChange globalTableChange = new GlobalTableChange();
         globalTableChange.setChangeType(changeType);
         globalTableChange.setTimeTable(timeTable.getName());
-        globalTableChange.setChangeUser(user);
+        globalTableChange.setChangeUser(user.getUsername());
         globalTableChange.setDescription(description);
         globalTableChange.setDate(LocalDateTime.now());
 

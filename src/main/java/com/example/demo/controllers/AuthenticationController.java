@@ -1,5 +1,6 @@
 package com.example.demo.controllers;
 
+import com.example.demo.beans.SessionInfoBean;
 import com.example.demo.dto.AuthRequest;
 import com.example.demo.exceptions.user.UserAlreadyExistsException;
 import com.example.demo.exceptions.user.UserInvalidEmailException;
@@ -21,10 +22,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
     private final UserService userService;
     private final JwtService jwtService;
+    private final SessionInfoBean sessionInfoBean;
+
     @Autowired
-    public AuthenticationController(UserService userService, JwtService jwtService) {
+    public AuthenticationController(UserService userService, JwtService jwtService, SessionInfoBean sessionInfoBean) {
         this.jwtService = jwtService;
         this.userService = userService;
+        this.sessionInfoBean = sessionInfoBean;
     }
 
     @PostMapping("/addNewUser")
@@ -56,5 +60,6 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred during the login process");
         }
     }
+
 
 }

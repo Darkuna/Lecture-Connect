@@ -85,6 +85,7 @@ export class SemiAutoAssignmentComponent implements OnInit {
           console.error('Auto-Assign Error', error);
         },
       });
+      this.selectedCourseSessions = []
     }
   }
 
