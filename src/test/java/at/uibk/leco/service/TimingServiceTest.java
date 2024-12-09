@@ -30,8 +30,6 @@ public class TimingServiceTest {
     private TimingService timingService;
     @Autowired
     private RoomTableService roomTableService;
-    @Autowired
-    private CourseService courseService;
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})

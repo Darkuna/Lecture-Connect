@@ -58,18 +58,4 @@ public class AvailabilityMatrixTest {
 
         assertEquals(timeBefore - minusTime, availabilityMatrix.getTotalAvailableTime());
     }
-
-    @Test
-    public void testInitializeAvailabilityMatrixWithOneTimingConstraint(){
-        Timing timing = new Timing(TimingConstants.START_TIME, TimingConstants.END_TIME, Day.MONDAY, TimingType.BLOCKED);
-
-        RoomTable roomTable = new RoomTable();
-        roomTable.setComputersAvailable(false);
-        roomTable.setCapacity(20);
-        roomTable.setRoomId("Test");
-        roomTable.setTimingConstraints(List.of(timing));
-
-        AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(List.of(timing), null);
-
-    }
 }

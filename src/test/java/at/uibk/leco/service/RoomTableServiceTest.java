@@ -34,8 +34,6 @@ public class RoomTableServiceTest {
     private RoomService roomService;
     @Autowired
     private TimeTableService timeTableService;
-    @Autowired
-    private TimingService timingService;
 
     @Test
     @WithMockUser(username = "user1", authorities = {"USER"})
