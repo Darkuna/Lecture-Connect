@@ -1,6 +1,5 @@
-package com.example.demo.controllers;
+package at.uibk.leco.controllers;
 
-import at.uibk.leco.controllers.CourseController;
 import at.uibk.leco.dto.CourseDTO;
 import at.uibk.leco.models.Course;
 import at.uibk.leco.services.CourseService;

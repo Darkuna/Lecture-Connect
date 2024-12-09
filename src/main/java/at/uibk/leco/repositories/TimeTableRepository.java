@@ -4,7 +4,6 @@ import at.uibk.leco.dto.TimeTableNameDTO;
 import at.uibk.leco.models.TimeTable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import at.uibk.leco.dto.TimeTableNameDTO;
 
 import java.util.List;
 

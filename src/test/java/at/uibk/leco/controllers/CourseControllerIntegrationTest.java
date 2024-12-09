@@ -1,6 +1,6 @@
-package com.example.demo.controllers;
+package at.uibk.leco.controllers;
 
-import at.uibk.leco.repositories.RoomRepository;
+import at.uibk.leco.repositories.CourseRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,27 +14,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class RoomControllerIntegrationTest {
+public class CourseControllerIntegrationTest {
 
-    @Autowired
-    private RoomRepository roomRepository;
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private CourseRepository courseRepository;
 
     @Test
-    public void testGetRoomsFromDatabase() throws Exception {
-        int numberOfRooms = roomRepository.findAll().size();
+    public void testGetCoursesFromDatabase() throws Exception {
+        int numberOfCourses = courseRepository.findAll().size();
 
-        mockMvc.perform(get("/api/rooms"))
+        mockMvc.perform(get("/api/courses"))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(numberOfRooms)));
-    }
-
-    @Test
-    public void testGetRoomByID() throws Exception {
-        mockMvc.perform(get("/api/rooms/HS A"))
-                .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(jsonPath("$", hasSize(numberOfCourses)));
     }
 }

@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package at.uibk.leco.service;
 
 import at.uibk.leco.models.Course;
 import at.uibk.leco.models.CourseSession;

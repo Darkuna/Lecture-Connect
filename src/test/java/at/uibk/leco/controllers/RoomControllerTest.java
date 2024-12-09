@@ -1,6 +1,5 @@
-package com.example.demo.controllers;
+package at.uibk.leco.controllers;
 
-import at.uibk.leco.controllers.RoomController;
 import at.uibk.leco.dto.RoomDTO;
 import at.uibk.leco.models.Room;
 import at.uibk.leco.services.DTOConverter;

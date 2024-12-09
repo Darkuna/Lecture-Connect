@@ -1,4 +1,4 @@
-package com.example.demo.scheduling;
+package at.uibk.leco.scheduling;
 
 import at.uibk.leco.constants.TimingConstants;
 import at.uibk.leco.models.CourseSession;
@@ -6,7 +6,6 @@ import at.uibk.leco.models.RoomTable;
 import at.uibk.leco.models.Timing;
 import at.uibk.leco.models.enums.Day;
 import at.uibk.leco.models.enums.TimingType;
-import at.uibk.leco.scheduling.AvailabilityMatrix;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;

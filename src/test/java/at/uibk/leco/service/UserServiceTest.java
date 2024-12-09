@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package at.uibk.leco.service;
 
 import at.uibk.leco.exceptions.user.UserAlreadyExistsException;
 import at.uibk.leco.exceptions.user.UserInvalidEmailException;
