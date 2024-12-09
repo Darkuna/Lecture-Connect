@@ -24,10 +24,9 @@ public class AuthenticationController {
     private final JwtService jwtService;
 
     @Autowired
-    public AuthenticationController(UserService userService, JwtService jwtService, SessionInfoBean sessionInfoBean) {
+    public AuthenticationController(UserService userService, JwtService jwtService) {
         this.jwtService = jwtService;
         this.userService = userService;
-        this.sessionInfoBean = sessionInfoBean;
     }
 
     @PostMapping("/addNewUser")
