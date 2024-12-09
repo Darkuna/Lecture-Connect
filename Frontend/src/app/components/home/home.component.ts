@@ -34,7 +34,6 @@ import {ProgressService} from "../../services/progress.service";
 import {CollisionService} from "../../services/collision.service";
 import {TableLogService} from "../../services/table-log.service";
 import {SemiAutoAssignmentComponent} from "../semi-auto-assignment/semi-auto-assignment.component";
-import {SemiAutoService} from "../../services/semi-auto.service";
 
 @Component({
   selector: 'app-home',
@@ -117,7 +116,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
     private collisionService: CollisionService,
     private logService: TableLogService,
     private dialogService: DialogService,
-    private semiautoService: SemiAutoService,
   ) {
     this.availableTableSubs = this.globalTableService.getTimeTableByNames().subscribe({
       next: (data) => {
@@ -443,7 +441,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit, AfterVie
   }
 
   openSemiAutoDialog() {
-    console.log(this.shownTableDD!.id)
     const ref = this.dialogService.open(SemiAutoAssignmentComponent, {
       header: 'Semi-Automatic Assignment',
       width: '70%',

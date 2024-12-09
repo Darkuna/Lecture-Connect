@@ -311,11 +311,23 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       const room = this.timeTable.roomTables
         .find(r => r.roomId === event['description']);
 
-      if(room && this.selectedRoom === room){
-        this.messageService.add({severity: 'info', summary: 'Info', detail: 'the course is in the current room'});
-      } else {
-        this.loadNewRoom(room!);
+      if(!room) {
+        const targetIndex = this.dragTableEvents.findIndex(r => r.id === event.id);
+        const [targetElement] = this.dragTableEvents.splice(targetIndex, 1);
+        this.dragTableEvents.unshift(targetElement);
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Info',
+          detail: 'the course was moved to the top of selection list'
+        });
+        return;
       }
+
+      if(room && this.selectedRoom === room) {
+        this.messageService.add({severity: 'info', summary: 'Info', detail: 'the course is in the current room'});
+        return;
+      }
+      this.loadNewRoom(room!);
     }
   }
 
