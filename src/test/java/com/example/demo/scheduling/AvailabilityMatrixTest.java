@@ -1,11 +1,12 @@
 package com.example.demo.scheduling;
 
-import com.example.demo.constants.TimingConstants;
-import com.example.demo.models.CourseSession;
-import com.example.demo.models.RoomTable;
-import com.example.demo.models.Timing;
-import com.example.demo.models.enums.Day;
-import com.example.demo.models.enums.TimingType;
+import at.uibk.leco.constants.TimingConstants;
+import at.uibk.leco.models.CourseSession;
+import at.uibk.leco.models.RoomTable;
+import at.uibk.leco.models.Timing;
+import at.uibk.leco.models.enums.Day;
+import at.uibk.leco.models.enums.TimingType;
+import at.uibk.leco.scheduling.AvailabilityMatrix;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;

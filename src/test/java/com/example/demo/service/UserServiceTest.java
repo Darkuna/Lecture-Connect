@@ -1,12 +1,12 @@
 package com.example.demo.service;
 
-import com.example.demo.exceptions.user.UserAlreadyExistsException;
-import com.example.demo.exceptions.user.UserInvalidEmailException;
-import com.example.demo.exceptions.user.UserRequiredFieldEmptyException;
-import com.example.demo.models.Userx;
-import com.example.demo.models.UserxRole;
-import com.example.demo.repositories.UserRepository;
-import com.example.demo.services.UserService;
+import at.uibk.leco.exceptions.user.UserAlreadyExistsException;
+import at.uibk.leco.exceptions.user.UserInvalidEmailException;
+import at.uibk.leco.exceptions.user.UserRequiredFieldEmptyException;
+import at.uibk.leco.models.Userx;
+import at.uibk.leco.models.UserxRole;
+import at.uibk.leco.repositories.UserRepository;
+import at.uibk.leco.services.UserService;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;

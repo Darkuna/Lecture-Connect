@@ -1,6 +1,6 @@
 package com.example.demo.controllers;
 
-import com.example.demo.repositories.CourseRepository;
+import at.uibk.leco.repositories.CourseRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

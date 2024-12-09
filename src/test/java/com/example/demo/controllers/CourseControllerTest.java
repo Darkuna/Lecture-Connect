@@ -1,9 +1,10 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dto.CourseDTO;
-import com.example.demo.models.Course;
-import com.example.demo.services.CourseService;
-import com.example.demo.services.DTOConverter;
+import at.uibk.leco.controllers.CourseController;
+import at.uibk.leco.dto.CourseDTO;
+import at.uibk.leco.models.Course;
+import at.uibk.leco.services.CourseService;
+import at.uibk.leco.services.DTOConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

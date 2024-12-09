@@ -1,14 +1,14 @@
 package com.example.demo.service;
 
-import com.example.demo.models.*;
-import com.example.demo.models.enums.Day;
-import com.example.demo.models.enums.Semester;
-import com.example.demo.models.enums.TimingType;
-import com.example.demo.scheduling.AvailabilityMatrix;
-import com.example.demo.services.RoomService;
-import com.example.demo.services.RoomTableService;
-import com.example.demo.services.TimeTableService;
-import com.example.demo.services.TimingService;
+import at.uibk.leco.models.Room;
+import at.uibk.leco.models.RoomTable;
+import at.uibk.leco.models.TimeTable;
+import at.uibk.leco.models.enums.Semester;
+import at.uibk.leco.scheduling.AvailabilityMatrix;
+import at.uibk.leco.services.RoomService;
+import at.uibk.leco.services.RoomTableService;
+import at.uibk.leco.services.TimeTableService;
+import at.uibk.leco.services.TimingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +19,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import jakarta.persistence.EntityNotFoundException;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 

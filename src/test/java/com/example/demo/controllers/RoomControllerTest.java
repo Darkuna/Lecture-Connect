@@ -1,9 +1,10 @@
 package com.example.demo.controllers;
 
-import com.example.demo.dto.RoomDTO;
-import com.example.demo.models.Room;
-import com.example.demo.services.DTOConverter;
-import com.example.demo.services.RoomService;
+import at.uibk.leco.controllers.RoomController;
+import at.uibk.leco.dto.RoomDTO;
+import at.uibk.leco.models.Room;
+import at.uibk.leco.services.DTOConverter;
+import at.uibk.leco.services.RoomService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

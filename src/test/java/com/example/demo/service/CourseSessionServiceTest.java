@@ -1,11 +1,11 @@
 package com.example.demo.service;
 
-import com.example.demo.models.Course;
-import com.example.demo.models.CourseSession;
-import com.example.demo.models.RoomTable;
-import com.example.demo.services.CourseService;
-import com.example.demo.services.CourseSessionService;
-import com.example.demo.services.RoomTableService;
+import at.uibk.leco.models.Course;
+import at.uibk.leco.models.CourseSession;
+import at.uibk.leco.models.RoomTable;
+import at.uibk.leco.services.CourseService;
+import at.uibk.leco.services.CourseSessionService;
+import at.uibk.leco.services.RoomTableService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

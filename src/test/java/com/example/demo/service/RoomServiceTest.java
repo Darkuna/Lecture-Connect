@@ -1,9 +1,9 @@
 package com.example.demo.service;
 
-import com.example.demo.models.Room;
-import com.example.demo.models.TimeTable;
-import com.example.demo.services.RoomService;
-import com.example.demo.services.TimeTableService;
+import at.uibk.leco.models.Room;
+import at.uibk.leco.models.TimeTable;
+import at.uibk.leco.services.RoomService;
+import at.uibk.leco.services.TimeTableService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

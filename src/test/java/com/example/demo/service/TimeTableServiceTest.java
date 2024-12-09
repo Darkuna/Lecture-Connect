@@ -1,13 +1,13 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.TimeTableNameDTO;
-import com.example.demo.models.*;
-import com.example.demo.models.enums.CourseType;
-import com.example.demo.models.enums.Semester;
-import com.example.demo.repositories.TimeTableRepository;
-import com.example.demo.services.CourseService;
-import com.example.demo.services.RoomService;
-import com.example.demo.services.TimeTableService;
+import at.uibk.leco.dto.TimeTableNameDTO;
+import at.uibk.leco.models.*;
+import at.uibk.leco.models.enums.CourseType;
+import at.uibk.leco.models.enums.Semester;
+import at.uibk.leco.repositories.TimeTableRepository;
+import at.uibk.leco.services.CourseService;
+import at.uibk.leco.services.RoomService;
+import at.uibk.leco.services.TimeTableService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

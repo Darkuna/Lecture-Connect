@@ -1,15 +1,15 @@
 package com.example.demo.service;
 
-import com.example.demo.models.Course;
-import com.example.demo.models.TimeTable;
-import com.example.demo.models.Timing;
-import com.example.demo.models.enums.CourseType;
-import com.example.demo.models.enums.Day;
-import com.example.demo.models.enums.StudyType;
-import com.example.demo.models.enums.TimingType;
-import com.example.demo.services.CourseService;
-import com.example.demo.services.TimeTableService;
-import com.example.demo.services.TimingService;
+import at.uibk.leco.models.Course;
+import at.uibk.leco.models.TimeTable;
+import at.uibk.leco.models.Timing;
+import at.uibk.leco.models.enums.CourseType;
+import at.uibk.leco.models.enums.Day;
+import at.uibk.leco.models.enums.StudyType;
+import at.uibk.leco.models.enums.TimingType;
+import at.uibk.leco.services.CourseService;
+import at.uibk.leco.services.TimeTableService;
+import at.uibk.leco.services.TimingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
