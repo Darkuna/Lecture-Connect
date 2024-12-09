@@ -220,6 +220,11 @@ export class EditorComponent implements AfterViewInit, OnDestroy{
       )
   }
 
+  onMenuHide(){
+    this.items = [{label: 'add new Course', icon: 'pi pi-book', command: () => this.addNewCourse() }];
+    this.rightClickEvent = null;
+  }
+
   private allowDrop(nrOfParticipants: number):boolean{
     const roomCapacity = this.selectedRoom?.capacity;
 

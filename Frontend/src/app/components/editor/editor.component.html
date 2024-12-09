@@ -66,7 +66,7 @@
 </div>
 
 <p-contextMenu [model]="items" [global]="true"
-               (onShow)="getItemMenuOptions()"/>
+               (onShow)="getItemMenuOptions()" (onHide)="onMenuHide()"/>
 
 <p-dialog header="Add new Courses" [modal]="true" [closable]="true"
           [(visible)]="showNewDialog" [style]="{ width: '45rem' }">
