@@ -1,6 +1,5 @@
 package com.example.demo.controllers;
 
-import com.example.demo.beans.SessionInfoBean;
 import com.example.demo.dto.AuthRequest;
 import com.example.demo.exceptions.user.UserAlreadyExistsException;
 import com.example.demo.exceptions.user.UserInvalidEmailException;
