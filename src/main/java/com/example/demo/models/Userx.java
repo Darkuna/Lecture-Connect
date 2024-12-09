@@ -22,7 +22,6 @@ import java.util.Set;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class Userx implements Persistable<String>, Serializable, Comparable<Userx> {
 
     @Serial
@@ -38,7 +37,7 @@ public class Userx implements Persistable<String>, Serializable, Comparable<User
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createDate;
-    @ManyToOne(optional = true)
+    @ManyToOne
     private Userx updateUser;
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateDate;

@@ -6,9 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.context.annotation.Scope;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -76,13 +74,5 @@ public class JwtService {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-
-    public static String generateBase64UrlSecret() {
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] keyBytes = new byte[32]; // 256-bit Schlüssel
-        secureRandom.nextBytes(keyBytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(keyBytes);
-    }
-
 }
 

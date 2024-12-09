@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
     private final UserService userService;
     private final JwtService jwtService;
-    private final SessionInfoBean sessionInfoBean;
 
     @Autowired
     public AuthenticationController(UserService userService, JwtService jwtService, SessionInfoBean sessionInfoBean) {

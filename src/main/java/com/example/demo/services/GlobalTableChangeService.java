@@ -7,7 +7,6 @@ import com.example.demo.models.Userx;
 import com.example.demo.models.enums.ChangeType;
 import com.example.demo.repositories.GlobalTableChangeRepository;
 import org.springframework.context.annotation.Scope;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
