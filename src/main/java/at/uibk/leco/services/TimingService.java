@@ -7,7 +7,6 @@ import at.uibk.leco.models.enums.Day;
 import at.uibk.leco.models.enums.TimingType;
 import at.uibk.leco.repositories.TimingRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -81,36 +80,6 @@ public class TimingService {
         timing = timingRepository.save(timing);
         log.debug("Created timing with id {}", timing.getId());
         return timing;
-    }
-
-    /**
-     * Updates an existing timing with new start time, end time, and day of the week.
-     *
-     * @param timing The Timing object to be updated.
-     * @param startTime The new start time for the timing.
-     * @param endTime The new end time for the timing.
-     * @param day The new day of the week for the timing.
-     * @return The updated and persisted Timing object.
-     * @throws IllegalArgumentException if the start time is after the end time.
-     * @throws IllegalArgumentException if the start time is before global start time.
-     * @throws IllegalArgumentException if the end time is after global end time.
-     */
-    @Transactional
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public Timing updateTiming(Timing timing, LocalTime startTime, LocalTime endTime, Day day, TimingType timingType){
-        if(startTime.isAfter(endTime)){
-            throw new IllegalArgumentException("startTime must be before endTime");
-        }
-        if(startTime.isBefore(TimingConstants.START_TIME) || endTime.isAfter(TimingConstants.END_TIME)){
-            throw new IllegalArgumentException(String.format("startTime cannot be before %s, endTime cannot be after %s",
-                    TimingConstants.START_TIME, TimingConstants.END_TIME));
-        }
-        timing.setStartTime(startTime);
-        timing.setEndTime(endTime);
-        timing.setDay(day);
-        timing.setTimingType(timingType);
-        log.info("Updated timing with id {}", timing.getId());
-        return timingRepository.save(timing);
     }
 
     /**
