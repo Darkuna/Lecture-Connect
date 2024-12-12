@@ -67,6 +67,29 @@ public class CourseServiceTest {
     @Test
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testCreateCourseFromCourseObject() {
+        Course course = new Course();
+        course.setId("tc123");
+        course.setName("TestCourse");
+        course.setLecturer("Johannes Karrer");
+        course.setSemester(1);
+        course.setDuration(20);
+        course.setNumberOfParticipants(35);
+        course.setComputersNecessary(false);
+        course.setCourseType(CourseType.VO);
+        course.setElective(false);
+        course.setNumberOfGroups(1);
+        course.setStudyType(StudyType.BACHELOR_CS);
+        course.setSplit(false);
+
+        course = courseService.createCourse(course);
+
+        assertNotNull(courseService.loadCourseById("tc123"));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
     public void testDeleteCourseWithCourseSession() {
         Course course = courseService.loadCourseById("703003");
 
@@ -116,7 +139,7 @@ public class CourseServiceTest {
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testLoadAllCourses() {
         List<Course> courses = courseService.loadAllCourses();
-        assertEquals(92, courses.size());
+        assertEquals(95, courses.size());
     }
 
     @Test
