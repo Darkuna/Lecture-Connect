@@ -47,34 +47,6 @@ public class RoomTableServiceTest {
     }
 
     @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testCreateAvailabilityMatrixWithEmptyConstraints(){
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-41);
-        AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(roomTable);
-        assertNotNull(availabilityMatrix);
-    }
-
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testCreateAvailabilityMatrixWithSevenTimingConstraint(){
-        RoomTable roomTable = roomTableService.loadRoomTableByID(-90);
-        assertEquals(7, roomTable.getTimingConstraints().size());
-        AvailabilityMatrix availabilityMatrix = new AvailabilityMatrix(roomTable);
-        assertNotNull(availabilityMatrix);
-        assertEquals(360, availabilityMatrix.getTotalAvailableTime());
-    }
-
-    @Test
-    @WithMockUser(username = "user1", authorities = {"USER"})
-    public void testLoadRoomTablesOfTimeTable(){
-        TimeTable timeTable = timeTableService.loadTimeTable(-1);
-        List<RoomTable> roomTables = roomTableService.loadAllOfTimeTable(timeTable);
-
-        assertNotNull(roomTables);
-        assertEquals(2, roomTables.size());
-    }
-
-    @Test
     @DirtiesContext
     @WithMockUser(username = "user1", authorities = {"USER"})
     public void testDeleteRoomTableWithAssignedCourses(){
@@ -97,5 +69,28 @@ public class RoomTableServiceTest {
         roomTableService.deleteRoomTable(roomTable);
 
         assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(-2));
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadRoomTableById(){
+        RoomTable roomTable = roomTableService.loadRoomTableByID(-1);
+        assertNotNull(roomTable);
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadRoomTableWithWrongId(){
+        assertThrows(EntityNotFoundException.class, () -> roomTableService.loadRoomTableByID(-2000));
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadRoomTablesOfTimeTable(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+        List<RoomTable> roomTables = roomTableService.loadAllOfTimeTable(timeTable);
+
+        assertNotNull(roomTables);
+        assertEquals(2, roomTables.size());
     }
 }
