@@ -69,6 +69,9 @@ public class TimingService {
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
     public Timing createTiming(Timing timing){
+        if(timing == null){
+            return null;
+        }
         timing.setId(null);
         if(timing.getStartTime().isAfter(timing.getEndTime())){
             throw new IllegalArgumentException("startTime must be before endTime");
