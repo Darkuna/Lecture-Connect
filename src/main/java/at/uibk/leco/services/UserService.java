@@ -183,17 +183,6 @@ public class UserService {
         }
     }
 
-    /**
-     * Retrieves the currently authenticated user.
-     *
-     * @return The currently authenticated Userx entity, or null if not found.
-     */
-    public Userx getAuthenticatedUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        Optional<Userx> user = userRepository.findById(auth.getName());
-        return user.orElse(null);
-    }
-
     public Userx allowLogin(String name, String password){
         Optional<Userx> user = userRepository.findByUsername(name);
         if(user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())){
