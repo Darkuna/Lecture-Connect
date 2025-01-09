@@ -1,11 +1,11 @@
 package at.uibk.leco.service;
 
-import at.uibk.leco.models.Course;
-import at.uibk.leco.models.CourseSession;
-import at.uibk.leco.models.RoomTable;
+import at.uibk.leco.models.*;
+import at.uibk.leco.models.enums.Day;
 import at.uibk.leco.services.CourseService;
 import at.uibk.leco.services.CourseSessionService;
 import at.uibk.leco.services.RoomTableService;
+import at.uibk.leco.services.TimeTableService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +16,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import jakarta.persistence.EntityNotFoundException;
+
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,6 +32,8 @@ public class CourseSessionServiceTest {
     private CourseService courseService;
     @Autowired
     private RoomTableService roomTableService;
+    @Autowired
+    private TimeTableService timeTableService;
 
     @Test
     @DisplayName("Tests the creation of courseSessions for a course without groups that is not split")
@@ -103,7 +107,7 @@ public class CourseSessionServiceTest {
         List<CourseSession> courseSessions = courseSessionService.loadAllAssignedToRoomTable(roomTable);
         System.out.println(courseSessions);
         assertNotNull(courseSessions);
-        assertEquals(41, courseSessions.size());
+        assertEquals(19, courseSessions.size());
     }
 
     @Test
@@ -128,5 +132,143 @@ public class CourseSessionServiceTest {
         courseSessionService.deleteCourseSession(courseSession);
 
         assertThrows(EntityNotFoundException.class, () -> courseSessionService.loadCourseSessionByID(-420));
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testUnassignCourseSessions(){
+        RoomTable roomTableWithAssignedCourseSessions = roomTableService.loadRoomTableByID(-41);
+        List<CourseSession> courseSessions = roomTableWithAssignedCourseSessions.getAssignedCourseSessions();
+
+        assertFalse(courseSessions.isEmpty());
+
+        courseSessions = courseSessionService.unassignCourseSessions(courseSessions);
+
+        for(CourseSession courseSession : courseSessions){
+            assertFalse(courseSession.isAssigned());
+        }
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testLoadAllFromTimeTable(){
+        int expected = 22;
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+
+        List<CourseSession> courseSessions = courseSessionService.loadAllFromTimeTable(timeTable);
+
+        assertEquals(expected, courseSessions.size());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testUpdateCourseSessionThatWasUnassigned(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-3);
+        CourseSession original = courseSessionService.loadCourseSessionByID(-1);
+        CourseSession updated = courseSessionService.copyCourseSession(original);
+        updated.setTiming(null);
+        updated.setRoomTable(null);
+        updated.setAssigned(false);
+
+        courseSessionService.updateCourseSession(timeTable,updated,original);
+        original = courseSessionService.loadCourseSessionByID(-1);
+
+        assertEquals(original.getTiming(), updated.getTiming());
+        assertEquals(original.getRoomTable(), updated.getRoomTable());
+        assertEquals(original.isAssigned(), updated.isAssigned());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testUpdateCourseSessionThatWasAssigned(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+        CourseSession original = courseSessionService.loadCourseSessionByID(-430);
+        CourseSession updated = courseSessionService.copyCourseSession(original);
+        Timing timing = new Timing();
+        timing.setDay(Day.MONDAY);
+        timing.setStartTime(LocalTime.of(10,0));
+        timing.setEndTime(LocalTime.of(11,0));
+        updated.setAssigned(true);
+        updated.setTiming(timing);
+        updated.setRoomTable(timeTable.getRoomTables().getFirst());
+
+        courseSessionService.updateCourseSession(timeTable,updated,original);
+        original = courseSessionService.loadCourseSessionByID(-430);
+
+        assertEquals(original.isAssigned(), updated.isAssigned());
+        assertEquals(original.getTiming().getStartTime(), updated.getTiming().getStartTime());
+        assertEquals(original.getTiming().getEndTime(), updated.getTiming().getEndTime());
+        assertEquals(original.getTiming().getDay(), updated.getTiming().getDay());
+        assertEquals(original.getRoomTable(), updated.getRoomTable());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testUpdateCourseSessionThatWasMoved(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-3);
+        CourseSession original = courseSessionService.loadCourseSessionByID(-1);
+        CourseSession updated = courseSessionService.copyCourseSession(original);
+        Timing timing = new Timing();
+        timing.setDay(Day.MONDAY);
+        timing.setStartTime(LocalTime.of(19,0));
+        timing.setEndTime(LocalTime.of(20,0));
+        updated.setTiming(timing);
+
+        courseSessionService.updateCourseSession(timeTable,updated,original);
+        original = courseSessionService.loadCourseSessionByID(-1);
+
+        assertEquals(original.getTiming().getDay(), updated.getTiming().getDay());
+        assertEquals(original.getTiming().getStartTime(), updated.getTiming().getStartTime());
+        assertEquals(original.getTiming().getEndTime(), updated.getTiming().getEndTime());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testUpdateCourseSessionThatWasFixed(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-3);
+        CourseSession original = courseSessionService.loadCourseSessionByID(-1);
+        CourseSession updated = courseSessionService.copyCourseSession(original);
+        updated.setFixed(true);
+
+        courseSessionService.updateCourseSession(timeTable,updated,original);
+        original = courseSessionService.loadCourseSessionByID(-1);
+
+        assertEquals(original.isFixed(), updated.isFixed());
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testUpdateCourseSessionWithNoChanges(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+        CourseSession original = courseSessionService.loadCourseSessionByID(-430);
+        CourseSession updated = courseSessionService.copyCourseSession(original);
+
+        courseSessionService.updateCourseSession(timeTable,updated,original);
+        original = courseSessionService.loadCourseSessionByID(-430);
+
+        assertEquals(original.getRoomTable(), updated.getRoomTable());
+        assertEquals(original.isAssigned(), updated.isAssigned());
+
+    }
+
+    @Test
+    @DirtiesContext
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testCreateCourseSession(){
+        TimeTable timeTable = timeTableService.loadTimeTable(-1);
+        int numberOfCourseSession = timeTable.getCourseSessions().size();
+        CourseSession courseSession = courseSessionService.loadCourseSessionByID(-430);
+
+        courseSessionService.createCourseSession(courseSession,timeTable);
+        timeTable = timeTableService.loadTimeTable(-1);
+
+        assertEquals(numberOfCourseSession + 1, timeTable.getCourseSessions().size());
     }
 }

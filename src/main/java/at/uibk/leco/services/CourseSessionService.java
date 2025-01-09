@@ -172,11 +172,10 @@ public class CourseSessionService {
     /**
      * Method to save all entries in a list of courseSessions.
      * @param courseSessions list of CourseSession objects
-     * @return updated courseSessions
      */
     @PreAuthorize("hasAnyAuthority('ADMIN', 'USER')")
-    public List<CourseSession> saveAll(List<CourseSession> courseSessions) {
-        return courseSessionRepository.saveAll(courseSessions);
+    public void saveAll(List<CourseSession> courseSessions) {
+        courseSessionRepository.saveAll(courseSessions);
     }
 
     /**
@@ -259,5 +258,18 @@ public class CourseSessionService {
         newCourseSession.setComputersNecessary(toCopy.isComputersNecessary());
 
         courseSessionRepository.save(newCourseSession);
+    }
+
+    /**
+     * This copy method is only used in unit tests
+     * @param courseSession to be copied
+     * @return copy of courseSession
+     */
+    public CourseSession copyCourseSession(CourseSession courseSession){
+        CourseSession copy = new CourseSession(courseSession);
+        if(courseSession.getTiming() != null){
+            copy.setTiming(timingService.createTiming(courseSession.getTiming()));
+        }
+        return copy;
     }
 }

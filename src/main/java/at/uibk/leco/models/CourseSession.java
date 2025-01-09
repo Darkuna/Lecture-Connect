@@ -41,6 +41,26 @@ public class CourseSession implements Persistable<Long>, Serializable {
     public static final CourseSession BLOCKED = new CourseSession();
     public static final CourseSession PREFERRED = new CourseSession();
 
+    public CourseSession() {}
+    public CourseSession(CourseSession courseSession) {
+        this.id = courseSession.id;
+        this.name = courseSession.name;
+        this.lecturer = courseSession.lecturer;
+        this.studyType = courseSession.studyType;
+        this.semester = courseSession.semester;
+        this.numberOfParticipants = courseSession.numberOfParticipants;
+        this.computersNecessary = courseSession.computersNecessary;
+        this.elective = courseSession.elective;
+        this.timingConstraints = courseSession.timingConstraints;
+        this.isAssigned = courseSession.isAssigned;
+        this.isFixed = courseSession.isFixed;
+        this.duration = courseSession.duration;
+        this.courseId = courseSession.courseId;
+        this.timeTable = courseSession.timeTable;
+        this.roomTable = courseSession.roomTable;
+        this.timing = null;
+    }
+
     @Override
     public Long getId() {
         return id;
