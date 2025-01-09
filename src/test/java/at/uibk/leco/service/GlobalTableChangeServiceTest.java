@@ -1,6 +1,6 @@
 package at.uibk.leco.service;
 
-import at.uibk.leco.models.TimeTable;
+import at.uibk.leco.models.*;
 import at.uibk.leco.models.enums.ChangeType;
 import at.uibk.leco.models.GlobalTableChange;
 import at.uibk.leco.services.*;
