@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import {Userx, UserxDTO} from '../../assets/Models/userx';
 import {MessageService} from "primeng/api";
 import {UserxConverterService} from "./converter/userx-converter.service";
+import {environment} from "../environment/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  userApiPath = '/proxy/api/users';
+  userApiPath = `${environment.baseUrl}//api/users`;
 
   constructor(
     private http: HttpClient,
