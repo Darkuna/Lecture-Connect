@@ -47,7 +47,7 @@
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-nextCallback="nextCallback" let-prevCallback="prevCallback">
-      <app-detail-selection [globalTable]="selectedTable.courseTable" ></app-detail-selection>
+      <app-detail-selection [courses]="selectedTable.courseTable" ></app-detail-selection>
 
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
@@ -86,12 +86,12 @@
           <i class="pi pi-table" style="font-size: 1.5rem;"></i>
         </div>
         <p class="box-around-text" [style]="{'color': getColorBasedOnIndex('t', index)}">
-          blocked Slots
+          Room Constraints
         </p>
       </div>
     </ng-template>
     <ng-template pTemplate="content" let-prevCallback="prevCallback">
-      <app-base-selection [globalTable]="selectedTable"/>
+      <app-base-selection [globalTable]="selectedTable" (changeDirtyData)="clearDirtyData()"/>
       <div class="flex pt-4 justify-content-between">
         <p-button (onClick)="prevCallback.emit()" (click)="saveLocal()" severity="secondary" icon="pi pi-arrow-left" class="PrevButton"/>
         <p-button [disabled]="true" icon="pi pi-arrow-right" class="NextButton"/>

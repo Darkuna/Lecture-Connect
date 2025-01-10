@@ -1,0 +1,108 @@
+<div class="moveDownHeader">
+  <p-toolbar styleClass="mb-4 gap-2">
+    <ng-template pTemplate="left">
+      <p-multiSelect [options]="headers" [(ngModel)]="selectedHeaders" optionLabel="header"
+                     [style]="{'min-width': '200px', 'margin-right':'.4rem'}"
+                     placeholder="Choose Columns"/>
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input pInputText type="text" (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+               placeholder="Search..."/>
+      </span>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table  #dt dataKey="id"
+            [value]="tables" [globalFilterFields]="['id']"
+            [(selection)]="selectedTable" [columns]="selectedHeaders" [expandedRowKeys]="expandedRows"
+            (onRowExpand)="loadTable($event.data)" (onRowCollapse)="onDialogClose()">
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th></th>
+        <th *ngFor="let col of columns">
+          {{ col.header }}
+        </th>
+        <th>Delete</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded">
+      <tr>
+        <td>
+          <p-button type="button" pRipple [pRowToggler]="rowData" [text]="true" [rounded]="true" [plain]="true"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" />
+        </td>
+        <td *ngFor="let col of columns">
+          {{ rowData[col.field] }}
+        </td>
+        <td style="width: 5%">
+          <p-button pButton pRipple icon="pi pi-trash" severity="danger" (click)="deleteSingleItem(rowData)"/>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="rowexpansion">
+      <tr>
+        <td colspan="7">
+          <div class="p-3">
+            <div style="display: flex; justify-content: space-between; gap: 2rem; width: 100%;">
+              <!-- First table for Room Information with background and 100% width -->
+              <div style="background-color: #f0f0f0; padding: 1rem; flex: 1; width: 30%">
+                <p-table [value]="loadedTable!.roomTables" dataKey="id" [loading]="loadingService.getLoading()">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <td>Room ID</td>
+                      <td>Capacity</td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-sub>
+                    <tr>1
+                      <td>{{ sub.roomId }}</td>
+                      <td>{{ sub.capacity }}</td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="2">There are no orders for this product yet.</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+
+              <!-- Second table for Course Sessions with background and 100% width -->
+              <div style="background-color: #f0f0f0; padding: 1rem; flex: 1; width: 70%">
+                <p-table [value]="loadedTable!.courseSessions" dataKey="id" [loading]="loadingService.getLoading()">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <td>Name</td>
+                      <td>Assigned</td>
+                      <td>Semester</td>
+                      <td>Degree</td>
+                      <td>in Room</td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-sub>
+                    <tr>
+                      <td>{{ sub.name }}</td>
+                      <td>{{ sub.assigned ? 'yes' : 'no'}}</td>
+                      <td>{{ sub.semester }}</td>
+                      <td>{{ sub.studyType }}</td>
+                      <td>{{ sub.roomTable === null ? 'not assigned' : sub.roomTable['roomId'] }}</td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="5">There are no orders for this product yet.</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+

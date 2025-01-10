@@ -1,5 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {Course} from "../../../../assets/Models/course";
+import {calculateTableHeight, getTableSettings} from "../wizard.component";
 
 @Component({
   selector: 'app-detail-selection',
@@ -7,7 +8,7 @@ import {Course} from "../../../../assets/Models/course";
   styleUrl: '../wizard.component.css'
 })
 export class DetailSelectionComponent {
-  @Input() globalTable!: Course[];
+  @Input() courses!: Course[];
   showEditDialog: boolean = false;
   headers: any[];
   selectedCourse!: Course;
@@ -30,7 +31,9 @@ export class DetailSelectionComponent {
   }
 
   hasPsType() {
-    return this.selectedCourse!.courseType?.toString() === 'PS';
+    return this.selectedCourse!.courseType?.toString() === 'PS'
+      || this.selectedCourse!.courseType?.toString() === 'SL'
+      || this.selectedCourse!.courseType?.toString() === 'SE';
   }
 
   hasVoType() {
@@ -109,4 +112,6 @@ export class DetailSelectionComponent {
 
     protected readonly String = String;
     protected readonly screen = screen;
+  protected readonly getTableSettings = getTableSettings;
+  protected readonly calculateTableHeight = calculateTableHeight;
 }

@@ -1,35 +1,36 @@
-<p-contextMenu [global]="true" [model]="contextItems" (onShow)="getItemMenuOptions()"/>
+<p-contextMenu [global]="true" [model]="contextItems"/>
 
-<p-dialog [(visible)]="showHoverDialogBool && activateLens" header="{{hoverEventInfo?.event!.title}}"
-          [modal]="false" [closable]="false"
-          [style]="{ width: '30rem','position':'absolute',
-          'top.px': calculateDialogPosition(hoverEventInfo?.jsEvent!.clientY, screen.height),
-          'left.px': calculateDialogPosition(hoverEventInfo?.jsEvent!.clientX, screen.width)}">
-  <ng-template pTemplate="content" class="parent">
-    <div id="cssportal-grid">
-      <div id="startTime">
-        <label for="start">Start Time</label>
-        <input pInputText id="start"
-               [ngModel]="hoverEventInfo?.event!.start!.toLocaleTimeString()" [disabled]="true"/>
-        <label for="studyType">Degree</label>
-        <input pInputText id="studyType"
-               [ngModel]="hoverEventInfo?.event!.extendedProps['studyType']" [disabled]="true"/>
-      </div>
-
-      <div id="endTime">
-        <label for="end">End Time</label>
-        <input pInputText id="end"
-               [ngModel]="hoverEventInfo?.event!.end!.toLocaleTimeString()" [disabled]="true"/>
-        <label for="semester">Semester</label>
-        <input pInputText id="semester"
-               [ngModel]="hoverEventInfo?.event!.extendedProps['semester']" [disabled]="true"/>
-      </div>
-
-      <div id="details">
-        <br>
-        <label for="room">Room</label>
-        <input pInputText id="room"
-               [ngModel]="hoverEventInfo?.event!.extendedProps['description']" [disabled]="true"/>
+<p-dialog [(visible)]="activateLens && showHoverDialogBool"
+          [draggable]="true" [focusOnShow]="false"
+          [modal]="false" [closable]="true"
+          (onHide)="closeDialog()" [style]="{width: '25rem'}">
+  <ng-template pTemplate="content">
+    <div class="plan">
+      <div class="inner">
+			<span class="pricing">
+				<span>
+					Course
+				</span>
+			</span>
+        <p class="title">{{ hoverEventInfo?.event!.title }}</p>
+        <ul class="features">
+          <li>
+            <span> Time:
+              {{hoverEventInfo?.event!.start!.toLocaleTimeString()}}
+              -
+              {{hoverEventInfo?.event!.end!.toLocaleTimeString()}}
+            </span>
+          </li>
+          <li>
+            <span>Degree: {{ hoverEventInfo?.event!.extendedProps['studyType'] }}</span>
+          </li>
+          <li>
+            <span>Semester: {{hoverEventInfo?.event!.extendedProps['semester']}}</span>
+          </li>
+          <li>
+            <span>Room: {{hoverEventInfo?.event!.extendedProps['description'] ?? 'not assigned'}}</span>
+          </li>
+        </ul>
       </div>
     </div>
   </ng-template>

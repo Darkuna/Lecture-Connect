@@ -15,8 +15,7 @@ export class EventConverterService {
   }
 
   getColorBasedOnPage(session: CourseSessionDTO, call: 'editor' | 'home'): string{
-    if(call === 'home') return '#666666';
-    if (session.fixed && call === 'editor') return  '#5D6B5B';
+    if (session.fixed && call === 'editor') return  '#7a4444';
     else return '#666666';
   }
 
@@ -30,14 +29,15 @@ export class EventConverterService {
       endTime: session.timing?.endTime ?? '',
       editable: this.getValueBasedOnPage(session, call),
       backgroundColor: this.getColorBasedOnPage(session, call),
-      droppable: true,
       durationEditable: false,
+      droppable: true,
       extendedProps: {
         'type': session.name.slice(0, 2),
         'semester': session.semester,
         'studyType': session.studyType,
         'assigned': session.assigned,
-        'duration': this.convertDurationToHours(session.duration)
+        'duration': this.convertDurationToHours(session.duration),
+        'nrOfParticipants': session.numberOfParticipants
       }
     };
   }
@@ -60,43 +60,32 @@ export class EventConverterService {
 
     timing.id = 0;
     timing.timingType = event.title;
-    if(event.start){
-      timing.day = this.weekNumberToDay(event.start?.getDay());
-    }
-    if (event.start) {
-      timing.startTime = this.convertLocalDateToString(event.start);
-    }
-    if (event.end) {
-      timing.endTime = this.convertLocalDateToString(event.end);
-    }
+    if(event.start) timing.day = this.weekNumberToDay(event.start?.getDay());
+    if (event.start) timing.startTime = this.convertLocalDateToString(event.start);
+    if (event.end) timing.endTime = this.convertLocalDateToString(event.end);
 
     return timing;
   }
 
   convertLocalDateToString(date: Date):string{
-    let hours: number = date.getHours();
-    let minutes: number = date.getMinutes();
-    let seconds: number = date.getSeconds();
+    const hours: number = date.getHours();
+    const minutes: number = date.getMinutes();
+    const seconds: number = date.getSeconds();
 
-    // Pad single digit minutes and seconds with leading zeroes
-    let formattedHours: string = hours < 10 ? '0' + hours : hours.toString();
-    let formattedMinutes: string = minutes < 10 ? '0' + minutes : minutes.toString();
-    let formattedSeconds: string = seconds < 10 ? '0' + seconds : seconds.toString();
+    const formattedHours: string = hours < 10 ? '0' + hours : hours.toString();
+    const formattedMinutes: string = minutes < 10 ? '0' + minutes : minutes.toString();
+    const formattedSeconds: string = seconds < 10 ? '0' + seconds : seconds.toString();
 
-    // Combine into a string of 'hh:mm:ss' format
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
   }
 
   convertDurationToHours(duration: number): string {
-    // Calculate hours and remaining minutes
     const hours = Math.floor(duration / 60);
     const mins = duration % 60;
 
-    // Format with leading zero if needed
     const formattedHours = hours.toString().padStart(2, '0');
     const formattedMinutes = mins.toString().padStart(2, '0');
 
-    // Return formatted time string
     return `${formattedHours}:${formattedMinutes}`;
   }
 
@@ -138,15 +127,6 @@ export class EventConverterService {
   }
 
   formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
     return date.toString().split(' ')[4];
-  }
-
-  convertImplToInput(event: EventImpl): EventInput {
-    return {
-      id: event.id,
-      title: event.title,
-      extendedProps: event.extendedProps,
-    }
   }
 }

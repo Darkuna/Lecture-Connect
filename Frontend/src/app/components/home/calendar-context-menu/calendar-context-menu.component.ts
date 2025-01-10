@@ -1,10 +1,12 @@
-import {AfterViewInit, Component, Injectable,  OnInit} from '@angular/core';
+import {Component, Injectable,  OnInit} from '@angular/core';
 import {MenuItem, MessageService} from "primeng/api";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {EventClickArg} from "@fullcalendar/core";
-import {BehaviorSubject} from "rxjs";
 import {CourseSessionDTO} from "../../../../assets/Models/dto/course-session-dto";
 import {EventImpl} from "@fullcalendar/core/internal";
+import {getDegreeOptions} from "../../../../assets/Models/enums/study-type";
+import {TableLogService} from "../../../services/table-log.service";
+import {CollisionService} from "../../../services/collision.service";
 
 @Injectable()
 @Component({
@@ -12,12 +14,11 @@ import {EventImpl} from "@fullcalendar/core/internal";
   templateUrl: './calendar-context-menu.component.html',
   styleUrl: './calendar-context-menu.component.css'
 })
-export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
+export class CalendarContextMenuComponent implements OnInit{
   private _calendarComponent!: FullCalendarComponent;
-
   contextItems: MenuItem[] = [];
-  showHoverDialogBool: boolean = false;
 
+  showHoverDialogBool: boolean = false;
   activateLens: boolean = true;
   hoverEventInfo: EventClickArg |null = null;
 
@@ -27,73 +28,75 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
 
   constructor(
     private messageService: MessageService,
+    protected logService: TableLogService,
+    protected collisionService: CollisionService
   ) { }
 
-  ngAfterViewInit(): void {
-    this.activateLens = true
-  }
-
-  private loadingSubject = new BehaviorSubject<boolean>(false);
-  loading$ = this.loadingSubject.asObservable();
-
-
-  loadingOn() {
-    this.loadingSubject.next(true);
-  }
-
-  loadingOff() {
-    this.loadingSubject.next(false);
+  getCourseCollisions(){
+    return this.collisionService.getCourseCollisions(this.hoverEventInfo?.event!.title!);
   }
 
   renderEventType(type: string){
-    this.loadingOn();
-
     let newItems = this._calendarComponent.getApi().getEvents()
       .filter(e => e.extendedProps['type'] === type);
 
     this.tmpRenderSelection = this.tmpRenderSelection.concat(newItems);
     newItems.forEach(e => e.setProp('display', 'none'));
-
-    this.loadingOff();
   }
 
-  calculateDialogPosition(coordinate:number, screenMax:number){
-    return Math.min(coordinate, screenMax*0.65);
+  renderSemesterType(semester: number){
+    let newItems = this._calendarComponent.getApi().getEvents()
+      .filter(e => e.extendedProps['semester'] !== semester);
+
+    this.tmpRenderSelection = this.tmpRenderSelection.concat(newItems);
+    newItems.forEach(e => e.setProp('display', 'none'));
   }
+
+  renderStudyType(type: string){
+    let newItems = this._calendarComponent.getApi().getEvents()
+      .filter(e => e.extendedProps['studyType'] !== type);
+
+    this.tmpRenderSelection = this.tmpRenderSelection.concat(newItems);
+    newItems.forEach(e => e.setProp('display', 'none'));
+  }
+
+  closeDialog(): void {
+    this.showHoverDialogBool = false;
+
+    if (this.hoverEventInfo) {
+      this.hoverEventInfo.event.setProp("backgroundColor", '#666666');
+    }
+    this.tmpPartners.forEach(e => e.setProp('backgroundColor', '#666666'));
+
+    this.hoverEventInfo = null;
+    this.tmpPartners = [];
+  }
+
+
 
   showAllEvents(){
-    this.loadingOn();
     this.tmpRenderSelection.forEach(e => {
       e.setProp('display','auto');
     });
 
     this.tmpRenderSelection = [];
-
-    this.loadingOff();
   }
 
   colorEventType(type: string, color: string){
-    this.loadingOn();
-
     let newItems = this._calendarComponent.getApi().getEvents()
       .filter(e => e.extendedProps['type'] === type);
 
     this.tmpColorSelection = this.tmpColorSelection.concat(newItems);
     newItems.forEach(e => e.setProp('backgroundColor', color));
-
-    this.loadingOff();
   }
 
   clearEvents(){
-    this.loadingOff();
-
     this.tmpColorSelection
       .forEach(e => {
         e.setProp('backgroundColor', '#666666');
       });
 
     this.tmpColorSelection = [];
-    this.loadingOff();
   }
 
   colorPartnerEvents(event: EventImpl, color: string): EventImpl[]{
@@ -106,42 +109,26 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     return partner;
   }
 
-  clearAll(){
+  resetAllChanges(){
     this.clearEvents();
     this.showAllEvents();
-    this.activateLens = false;
   }
 
   changeLensStatus(){
     this.activateLens = !this.activateLens;
 
-    if(this.activateLens){
-      this.messageService.add({severity: 'success', summary: 'Hover Mode', detail: 'Lens is activated'});
-    } else {
-      this.messageService.add({severity: 'error', summary: 'Hover Mode', detail: 'Lens is deactivated'});
-    }
-  }
-
-  colorCollisionEvents(collision: CourseSessionDTO[]) {
-    const calendarApi = this.calendarComponent.getApi();
-    const originalColors: { [eventId: string]: string } = {};
-
-    collision.forEach(collisionEvent => {
-      calendarApi.getEvents().forEach(event => {
-        if (event.id === collisionEvent.id.toString()) {
-          this.tmpColorSelection.push(event) //so i can clear the events again
-          originalColors[event.id] = event.backgroundColor;
-          event.setProp("backgroundColor", "#34675C");
-        }
-      });
-    });
+    this.messageService.add({
+      severity: this.activateLens ? 'success' : 'error',
+      summary: 'Hover Mode',
+      detail: `Lens is ${this.activateLens ? 'activated' : 'deactivated' }`})
+    this.getItemMenuOptions();
   }
 
   getItemMenuOptions() : void {
     if(this.activateLens){
-      this.contextItems[2].label = 'Lens (inactive)'
+      this.contextItems[4].label = 'Lens (active)'
     } else {
-      this.contextItems[2].label = 'Lens (active)'
+      this.contextItems[4].label = 'Lens (inactive)'
     }
   }
 
@@ -196,14 +183,35 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
         ],
       },
       {
-        label: 'Lens ',
+        label: 'Semester Filter',
+        icon: 'pi pi-flag',
+        items: [
+          ...Array.from({ length: 6 }, (_, i) => ({
+            label: (i + 1).toString(),
+            command: () => this.renderSemesterType(i + 1)
+          }))
+        ]
+      },
+      {
+        label: 'Study Type Filter',
+        icon: 'pi pi-flag-fill',
+        items: [
+          ...getDegreeOptions()
+            .map(value => ({
+              label: value,
+              command: () => this.renderStudyType(value.toString())
+            }))
+        ]
+      },
+      {
+        label: `Lens (${this.activateLens ? 'activated' : 'deactivated'})`,
         icon: 'pi pi-bullseye',
         command: () => this.changeLensStatus()
       },
       {
-        label: 'Clear',
-        icon: 'pi pi-trash',
-        command: () => this.clearAll()
+        label: 'Reset',
+        icon: 'pi pi-sync',
+        command: () => this.resetAllChanges()
       }
     ];
   }
@@ -216,5 +224,4 @@ export class CalendarContextMenuComponent implements OnInit, AfterViewInit{
     this._calendarComponent = value;
   }
 
-  protected readonly screen = screen;
 }

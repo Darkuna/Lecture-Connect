@@ -17,30 +17,35 @@
   display: inline-block;
   align-content: baseline;
   text-align: center;
-  height: 100%;
   border-radius: 15px;
 }
 
+#dragEvents{
+  display: inline-block;
+  align-content: baseline;
+  text-align: center;
+  max-height: 82vh;
+  width: 95%;
+  overflow-y: scroll;
+}
 #calendarScroll{
   overflow-y: auto;
   max-height: 86vh;
   height: 100%;
-}
 
-#external-events{
-  overflow-y: scroll;
 }
 
 .fc-event{
-  background-color: #6e6e6e; /* Gray background */
-  color: white; /* White text */
-  border-radius: 8px; /* Rounded corners */
-  border: 1px solid #4e4e4e; /* Optional: Darker border for emphasis */
-  width: 100%; /* Full width of the container */
-  box-sizing: border-box; /* Ensure padding doesn’t affect width */
+  background-color: #6e6e6e;
+  color: white;
+  border-radius: 8px;
+  border: 1px solid #4e4e4e;
+  width: 100%;
+  min-height: 3rem;
+  box-sizing: border-box;
   margin: 5px 0;
   padding: 5px;
-
+  align-content: center;
 }
 
 .event-time {

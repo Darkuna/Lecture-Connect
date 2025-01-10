@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
 import {Subscription} from "rxjs";
-import {MessageService} from "primeng/api";
 import {RoomService} from "../../../services/room-service";
 import {Room} from "../../../../assets/Models/room";
+import {getTableSettings} from "../wizard.component";
 
 @Component({
   selector: 'app-room-selection',
@@ -19,86 +19,20 @@ export class RoomSelectionComponent implements OnDestroy {
   courseSub: Subscription;
   availableRooms!: Room[];
 
-  CreateDialogVisible: boolean = false;
-  selectedRooms: Room[] = [];
-  draggedRoom: Room | undefined | null;
-  headers: any[];
-
   constructor(
     private roomService: RoomService,
-    private messageService: MessageService,
   ) {
-    this.courseSub = this.roomService.getAllRooms().subscribe(
-      (data => this.availableRooms = data)
-    );
-
-    this.headers = [
-      {field: 'id', header: 'Id'},
-      {field: 'capacity', header: 'Capacity'},
-      {field: 'computersAvailable', header: 'Room has PCs'},
-    ];
+    this.courseSub = this.roomService.getAllRooms().subscribe(data => {
+      // Filter out rooms that are already in roomTables
+      const roomTableIds = new Set(this.roomTables.map(room => room.id));
+      this.availableRooms = data.filter(room => !roomTableIds.has(room.id));
+    });
   }
 
   ngOnDestroy(): void {
     this.courseSub.unsubscribe();
   }
 
-  showCreateDialog(): void {
-    this.draggedRoom = new Room();
-    this.CreateDialogVisible = true;
-  }
-
-  hideDialog() {
-    this.CreateDialogVisible = false;
-  }
-
-  saveNewItem(): void {
-    if (this.draggedRoom) {
-      this.draggedRoom.timingConstraints = [];
-      this.draggedRoom.createdAt = undefined;
-      this.draggedRoom.updatedAt = undefined;
-
-      this.availableRooms.push(this.roomService.createSingleRoom(this.draggedRoom!));
-
-      this.messageService.add({severity: 'success', summary: 'Upload', detail: 'Element saved to DB'});
-      this.draggedRoom = null;
-      this.hideDialog();
-    }
-  }
-
-  dragStart(item: Room) {
-    this.draggedRoom = item;
-  }
-
-  drag() {
-  }
-
-  drop() {
-    if (this.draggedRoom) {
-      this.addRoomInParent.emit(this.draggedRoom);
-    }
-  }
-
-  dragEnd() {
-    this.draggedRoom = null;
-  }
-
-  deleteSingleItem(room: Room) {
-    this.removeRoomInParent.emit(room);
-  }
-
-  roomsSelected() : boolean{
-    return this.selectedRooms.length !== 0;
-  }
-
-  deleteMultipleItems() {
-    if(this.roomsSelected()){
-      this.selectedRooms.forEach(
-        c => this.deleteSingleItem(c)
-      );
-    }
-  }
-
   protected readonly String = String;
-  protected readonly screen = screen;
+  protected readonly getTableSettings = getTableSettings;
 }

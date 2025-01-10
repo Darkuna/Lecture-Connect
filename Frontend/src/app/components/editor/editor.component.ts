@@ -1,14 +1,14 @@
-import {AfterViewInit, Component, ElementRef,  OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {CalendarOptions, EventApi, EventChangeArg, EventInput, EventMountArg} from "@fullcalendar/core";
+import {AfterViewInit, Component, ElementRef, OnDestroy, ViewChild} from '@angular/core';
+import {CalendarOptions, EventApi, EventInput, EventMountArg} from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import {GlobalTableService} from "../../services/global-table.service";
-import {Observable} from "rxjs";
+import {BehaviorSubject, Observable} from "rxjs";
 import {TimeTableDTO} from "../../../assets/Models/dto/time-table-dto";
 import {EventConverterService} from "../../services/converter/event-converter.service";
 import {FullCalendarComponent} from "@fullcalendar/angular";
 import {RoomTableDTO} from "../../../assets/Models/dto/room-table-dto";
-import interactionPlugin, {Draggable, DropArg, EventReceiveArg} from "@fullcalendar/interaction";
+import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import {MenuItem, MessageService} from "primeng/api";
 import {CourseSessionDTO} from "../../../assets/Models/dto/course-session-dto";
@@ -16,13 +16,15 @@ import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {EditorService} from "../../services/editor.service";
 import {Router} from "@angular/router";
 import {ContextMenu} from "primeng/contextmenu";
+import {CourseService} from "../../services/course-service";
+import {CourseDTO} from "../../../assets/Models/dto/course-dto";
 
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrl: './editor.component.css'
 })
-export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
+export class EditorComponent implements AfterViewInit, OnDestroy{
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   @ViewChild('external') external!: ElementRef;
   @ViewChild('cm') contextMenu!: ContextMenu;
@@ -82,11 +84,17 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
   nrOfEvents: number = 0;
   maxEvents: number = 0;
+  nrOfNewEvents: number = 0;
 
   items: MenuItem[] = [];
-  rightClickEvent: EventMountArg | null = null;
+  rightClickEvent: EventMountArg | null | undefined = null;
   firstSearchedEvent: EventInput | null = null;
   dirtyData: boolean = false;
+  searchCourse: string = '';
+
+  showNewDialog: boolean = false;
+  private tmpUnassignedCoursesSubject = new BehaviorSubject<CourseDTO[]>([]);
+  tmpUnassignedCourses$: Observable<CourseDTO[]> = this.tmpUnassignedCoursesSubject.asObservable();
 
   constructor(
     private globalTableService: GlobalTableService,
@@ -94,26 +102,25 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     private editorService: EditorService,
     private router: Router,
     private messageService: MessageService,
+    private courseService: CourseService
   ) {
     this.selectedTimeTable = this.globalTableService.currentTimeTable ?? new Observable<TimeTableDTO>();
     this.selectedTimeTable.subscribe( r => {
-        this.availableRooms = r.roomTables;
-        this.selectedRoom = r.roomTables[0];
+        this.availableRooms = r.roomTables.sort((a, b) => {
+          if (a.capacity == null) return 1;
+          if (b.capacity == null) return -1;
 
+          const capacityComparison = b.capacity - a.capacity;
+          if (capacityComparison !== 0) return capacityComparison;
+
+          return a.roomId.localeCompare(b.roomId);
+        });
+        this.selectedRoom = r.roomTables[0];
         this.timeTable = r;
         this.loadNewRoom(this.selectedRoom!);
       }
     );
   }
-
-  ngOnInit(): void{
-    this.items = [
-      { label: 'fix Course', icon: 'pi pi-copy', command: () => { this.changeSessionBlockState() }},
-      { label: 'unassign Course', icon: 'pi pi-copy', command: () => { this.unassignCourse() } },
-      { label: 'add Group', icon: 'pi pi-file-edit', disabled: true },
-      { label: 'remove Group', icon: 'pi pi-file-edit', disabled: true },
-      { label: 'split Course', icon: 'pi pi-file-edit', disabled: true }
-    ]  }
 
   ngAfterViewInit(): void {
     this.draggable = new Draggable(this.external.nativeElement, {
@@ -124,7 +131,8 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
           title: eventEl.getAttribute('data-title'),
           duration: eventEl.getAttribute('data-duration'),
           editable: true,
-        };
+          extendedProps: {nrOfParticipants: eventEl.getAttribute('data-participants')}
+          };
       }
     });
   }
@@ -164,12 +172,11 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
     this.dirtyData = false;
     this.editorService.pushSessionChanges(this.timeTable.id, this.timeTable.courseSessions)
       .subscribe(s => this.timeTable.courseSessions = s);
-
-    this.globalTableService.getSpecificTimeTable(this.timeTable.id);
   }
 
   saveAndGoHome(){
     this.saveChanges();
+    this.globalTableService.tableId = this.timeTable.id;
 
     this.router.navigate(['/user/home']).catch(message => {
       this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
@@ -179,6 +186,7 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
   unassignCourse(){
     if(this.rightClickEvent?.event.title !== 'BLOCKED' && this.rightClickEvent?.event.title !== 'COMPUTER_SCIENCE') {
       const updatedSession = this.updateSession(this.rightClickEvent?.event! , false)!;
+      updatedSession.roomTable = null;
       updatedSession.timing = null;
       this.dirtyData = true;
 
@@ -188,53 +196,94 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
 
       this.rightClickEvent?.event.remove();
       this.nrOfEvents -= 1;
+      this.rightClickEvent = null;
     }
   }
 
   getItemMenuOptions() : void {
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.rightClickEvent?.event.id);
+    this.items = [{label: 'add new Course', icon: 'pi pi-book', command: () => this.addNewCourse() }];
+    if(!this.rightClickEvent?.event.id){
+      return;
+    }
 
-    if(session && session.fixed){
-      this.items[0].label = 'free Course';
+    const session = this.findSession()
+    this.items.push(
+      { label: session!.fixed ? 'free Course' : 'fix Course', icon: session!.fixed ? 'pi pi-unlock':'pi pi-lock', command: () => { this.changeSessionBlockState() }},
+      { label: 'unassign Course', icon: 'pi pi-reply', command: () => { this.unassignCourse() } },
+      { label: 'remove Group', icon: 'pi pi-delete-left', command: ()=> { this.deleteCourse()} }
+    )
+
+    const tmp = session!.name.slice(0, 2);
+    this.items.push((tmp == 'PS' || tmp == 'SL') ?
+      { label: 'add Group', icon: 'pi pi-plus-circle', command: ()=> { this.addCourseWithPsCharacter() } }
+        : { label: 'split Course', icon: 'pi pi-arrow-up-right-and-arrow-down-left-from-center', disabled: true }
+      )
+  }
+
+  onMenuHide(){
+    this.rightClickEvent = null;
+  }
+
+  private allowDrop(nrOfParticipants: number):boolean{
+    const roomCapacity = this.selectedRoom?.capacity;
+
+    return (nrOfParticipants > roomCapacity!);
+  }
+
+  private drop(arg: DropArg) {
+    const nrOfParticipants = Number(arg.draggedEl.getAttribute('data-participants'));
+    if(this.allowDrop(nrOfParticipants)){
+      this.messageService.add({severity: 'error', summary: 'ROOM CAPACITY  COLLISION', life: 5000,
+        detail: `The selected course (${arg.draggedEl.getAttribute('data-title')}) has to many participants (${nrOfParticipants})
+         for the selected room(${this.selectedRoom?.capacity})`});
     } else {
-      this.items[0].label = 'fix Course';
+      this.dragTableEvents = this.dragTableEvents.filter(
+        e => e.id !== arg.draggedEl.getAttribute('data-id'))
+      this.nrOfEvents += 1;
+      this.dirtyData = true;
     }
   }
 
-  drop(arg: DropArg) {
-    this.dragTableEvents =
-      this.dragTableEvents.filter(
-        e => e.id !== arg.draggedEl.getAttribute('data-id'))
-    this.nrOfEvents += 1;
-    this.dirtyData = true;
+  private eventReceive(args: any){
+    if(this.allowDrop(args.event.extendedProps['nrOfParticipants'])){
+      args.revert();
+    } else {
+      this.dirtyData = true;
+      this.rightClickEvent = args;
+      this.updateSession(args.event, true);
+    }
   }
 
-  eventReceive(args: EventReceiveArg){
+  private eventChange(args: any){
+    this.rightClickEvent = args;
     this.updateSession(args.event, true);
     this.dirtyData = true;
   }
 
-  eventChange(args: EventChangeArg){
-    this.updateSession(args.event, true);
-    this.dirtyData = true;
-  }
-
-  eventDidMount(arg: EventMountArg){
+  private eventDidMount(arg: EventMountArg){
     arg.el.addEventListener("contextmenu", (jsEvent)=>{
       jsEvent.preventDefault()
       this.rightClickEvent = arg;
     })
   }
 
-  eventAllow(args: any):boolean{
-    return args.start.getHours() > 7 && args.end.getHours() < 23;
+  private eventAllow(args: any): boolean {
+    const startHour = args.start.getHours();
+    const startMinutes = args.start.getMinutes();
+
+    const isBefore815AM = startHour < 8 || (startHour === 8 && startMinutes < 15);
+    const isAfter10PM = args.end.getHours() >= 22;
+
+    return !isBefore815AM && !isAfter10PM;
+  }
+
+
+  private assignRoomToCourseSession(newSessionID: string, roomTable: string | null){
+    this.allEvents.find(e => e['id'] === newSessionID)!['description'] = roomTable;
   }
 
   private updateSession(event:EventApi, assigned: boolean): CourseSessionDTO | undefined{
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === event.id);
-
+    const session = this.findSession();
     if(session){
       session!.roomTable = this.selectedRoom!;
       session!.assigned = assigned;
@@ -242,41 +291,23 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       session!.timing!.startTime = this.converter.convertLocalDateToString(event.start!);
       session!.timing!.endTime = this.converter.convertLocalDateToString(event.end!);
       session!.timing!.day = this.converter.weekNumberToDay(event.start?.getDay() || 1);
+
+      const room = assigned ? this.selectedRoom?.roomId! : null;
+      this.assignRoomToCourseSession(session.id.toString(), room);
     }
-    return session ;
+    return session;
   }
 
-  changeSessionBlockState(){
-    const session = this.timeTable.courseSessions
-      .find(s => s.id.toString() === this.rightClickEvent?.event.id);
+  private changeSessionBlockState(){
+    const session = this.findSession()
 
     if(session){
       this.rightClickEvent?.event.setProp('editable', session.fixed);
       session.fixed = !session.fixed
 
-      let color = '#666666';
-      if(session.fixed){
-        color = '#7a4444';
-      }
-
+      const color = session.fixed ? '#7a4444' : '#666666';
       this.rightClickEvent?.event.setProp('backgroundColor', color);
     }
-  }
-
-  updateCalendar(calendarOption: any, value: string) {
-    if(calendarOption.includes('slot') && value === '00:00:00'){
-      value = '00:00:05';
-    }
-    this.calendarComponent.getApi().setOption(calendarOption, value);
-  }
-
-  formatTime(date: Date): string {
-    // equal returns date as hour:minute:second (00:00:00)
-    return date.toString().split(' ')[4];
-  }
-
-  getCalendarEvents(): EventInput[]{
-    return this.allEvents;
   }
 
   changeRoom(event:EventInput){
@@ -284,18 +315,137 @@ export class EditorComponent implements AfterViewInit, OnInit,OnDestroy{
       const room = this.timeTable.roomTables
         .find(r => r.roomId === event['description']);
 
-      if(room && this.selectedRoom === room){
-        this.messageService.add({severity: 'info', summary: 'Info', detail: 'the course is in the current room'});
-      } else {
-        this.loadNewRoom(room!);
+      if(!room) {
+        const targetIndex = this.dragTableEvents.findIndex(r => r.id === event.id);
+        const [targetElement] = this.dragTableEvents.splice(targetIndex, 1);
+        this.dragTableEvents.unshift(targetElement);
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Info',
+          detail: 'the course was moved to the top of selection list'
+        });
+        return;
       }
+
+      if(room && this.selectedRoom === room) {
+        this.messageService.add({severity: 'info', summary: 'Info', detail: 'the course is in the current room'});
+        return;
+      }
+      this.loadNewRoom(room!);
     }
   }
 
   canDeactivate(): boolean {
-    if (this.dirtyData) {
-      return confirm('You have unsaved changes. Do you really want to leave?');
+    return this.dirtyData ? confirm('You have unsaved changes. Do you really want to leave?') : true;
+  }
+
+
+  get filteredEvents() {
+    if (!this.searchCourse) {
+      return this.dragTableEvents;
     }
-    return true; // If no unsaved changes, allow navigation
+
+    return this.dragTableEvents.filter(event =>
+      event.title!.toLowerCase().includes(this.searchCourse.toLowerCase())
+    );
+  }
+
+  unassignedCourses(){
+    return this.dragTableEvents.length == 0;
+  }
+
+  private addCourseWithPsCharacter(){
+    const session = this.findSession();
+    const slicedName = session!.name.replace(/[0-9]/g, '');
+    const lastNumber = this.findStringWithBiggestNumber(slicedName);
+
+    let newSession = {
+      id: Math.floor(Math.random() * 10000000),
+      name: `${slicedName}${lastNumber + 1}`,
+      assigned: false,
+      fixed: false,
+      duration: session?.duration,
+      courseId: session?.courseId,
+      semester: session?.semester,
+      studyType: session?.studyType,
+      timingConstraints: session?.timingConstraints,
+      roomTable: null
+    } as CourseSessionDTO;
+
+    const convertedCourse = this.converter.convertTimingToEventInput(newSession, "editor")
+
+    this.timeTable.courseSessions.push(newSession);
+    this.dragTableEvents.push(convertedCourse);
+    this.allEvents.push(convertedCourse);
+    this.nrOfNewEvents += 1;
+  }
+
+  private deleteCourse(){
+    const session = this.findSession();
+    let baseCourse = session!.name;
+
+    if(baseCourse.slice(0, 2) === 'PS'){
+      const slicedName = session!.name.slice(0, session!.name.length-1);
+      baseCourse = `${slicedName}${this.findStringWithBiggestNumber(slicedName)}`;
+    }
+
+    const deleteCourse = this.timeTable.courseSessions
+      .find(s => s.name == baseCourse);
+
+    this.timeTable.courseSessions = this.timeTable.courseSessions
+      .filter(s => !s.name.includes(baseCourse));
+
+    this.allEvents = this.allEvents
+      .filter(e => e.title !== deleteCourse?.name);
+    this.dragTableEvents = this.dragTableEvents
+      .filter(e => e.title !== deleteCourse?.name);
+    this.combinedTableEvents = this.combinedTableEvents
+      .filter(e => e.title !== deleteCourse?.name);
+
+    this.nrOfEvents -= 1;
+    this.messageService.add({severity: 'error', summary: 'DELETE', detail: `deleted ${baseCourse}`});
+  }
+
+  private findStringWithBiggestNumber(baseCourse: string): number{
+    const allCourses = this.timeTable.courseSessions
+            .filter(str => str.name.includes(baseCourse));
+
+    let maxNumber = -Infinity;
+
+    for (const str of allCourses) {
+      const number = str.name.match(/\d+(\.\d+)?/g)?.map(Number) || [0]
+      if (number[0] > maxNumber) maxNumber = number[0];
+    }
+
+    return maxNumber;
+  }
+
+  private findSession():CourseSessionDTO | undefined{
+    return this.timeTable.courseSessions.find(s => s.id.toString() === this.rightClickEvent!.event.id.toString());
+  }
+
+  newAddedCourses():string {
+    return (this.nrOfNewEvents != 0) ? `(+${this.nrOfNewEvents})` : '';
+  }
+
+  async addNewCourse(){
+    this.showNewDialog = true;
+    this.tmpUnassignedCoursesSubject.next(await this.courseService.getUnassignedCourses(this.timeTable.id));
+  }
+
+  async receiveNewSession(course: CourseDTO){
+    const newSession = await this.courseService.getNewSession(this.timeTable.id, course);
+    const convertedCourse = this.converter.convertTimingToEventInput(newSession[0], "editor")
+
+    const updatedCourses = this.tmpUnassignedCoursesSubject.value
+      .filter(course => course.id !== newSession[0].courseId.toString());
+    this.tmpUnassignedCoursesSubject.next(updatedCourses);
+
+    this.timeTable.courseSessions.push(newSession[0]);
+    this.dragTableEvents.push(convertedCourse);
+    this.allEvents.push(convertedCourse);
+    this.nrOfNewEvents += 1;
+
+    this.messageService.add({severity: 'info', summary: 'Added new Course!', detail: `added new Course ${newSession[0].name}`});
   }
 }

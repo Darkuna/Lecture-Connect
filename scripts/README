@@ -1,0 +1,7 @@
+Start the app as super user:
+
+./app-controller start
+
+Stop the app as super user:
+
+./app-controller stop

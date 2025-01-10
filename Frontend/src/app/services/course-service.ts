@@ -1,34 +1,34 @@
 import {Injectable} from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import {LocalStorageService} from "ngx-webstorage";
 import {MessageService} from "primeng/api";
-import {Observable, switchMap} from "rxjs";
+import {firstValueFrom, Observable, switchMap} from "rxjs";
 import {Course} from "../../assets/Models/course";
 import {GlobalTableService} from "./global-table.service";
+import { environment } from '../environment/environment';
+import {CourseDTO} from "../../assets/Models/dto/course-dto";
+import {CourseSessionDTO} from "../../assets/Models/dto/course-session-dto";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CourseService {
-  courseApiPath = "/proxy/api/courses";
+  courseApiPath = `${environment.baseUrl}/api/courses`;
 
   httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
+      'Content-Type': 'application/json'
     })
   };
 
   constructor(
     private http: HttpClient,
-    private storage: LocalStorageService,
     private messageService: MessageService,
     private currentTable: GlobalTableService
   ) {
   }
 
-  getAllCourses() {
-    return this.http.get<Course[]>(this.courseApiPath, this.httpOptions);
+  async getAllCourses() {
+    return firstValueFrom(this.http.get<Course[]>(this.courseApiPath, this.httpOptions));
   }
 
   getUnselectedCourses(): Observable<Course[]> {
@@ -46,11 +46,6 @@ export class CourseService {
     return this.http.post<Course>(this.courseApiPath, course, this.httpOptions);
   }
 
-  getSingleCourse(courseID: string): Observable<any> {
-    let newUrl = `${this.courseApiPath}/${courseID}`;
-    return this.http.get(newUrl, this.httpOptions);
-  }
-
   updateSingleCourse(course: Course): Course {
     let newUrl = `${this.courseApiPath}/${course.id}`;
     this.http.put<Course>(newUrl, course, this.httpOptions)
@@ -66,5 +61,16 @@ export class CourseService {
         this.messageService.add({severity: 'failure', summary: 'Failure', detail: error.toString()});
       }
     }).unsubscribe();
+  }
+
+  async getUnassignedCourses(tableID: number):Promise<CourseDTO[]>{
+    let newUrl = `/proxy/api/global/courses/${tableID}`;
+    return firstValueFrom(this.http.get<CourseDTO[]>(newUrl, this.httpOptions));
+  }
+
+
+  async getNewSession(tableID: number, newCourse: CourseDTO): Promise<CourseSessionDTO[]> {
+    const newUrl = `/proxy/api/global/add-courses-to-timetable/${tableID}`;
+    return firstValueFrom(this.http.post<CourseSessionDTO[]>(newUrl, [newCourse], this.httpOptions));
   }
 }

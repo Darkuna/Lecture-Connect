@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from "@angular/router";
-import {LocalStorageService, SessionStorageService} from "ngx-webstorage";
+import {SessionStorageService} from "ngx-webstorage";
 import {LoginUserInfoService} from "../../services/login-user-info.service";
 
 @Component({
@@ -13,14 +13,13 @@ export class HeaderSelfComponent {
 
   constructor(
     private router: Router,
-    private storage: LocalStorageService,
     private userInfoService: LoginUserInfoService,
     private sessionStorageService: SessionStorageService,
   ) {
   }
 
   isLoggedIn(): boolean {
-    return this.userInfoService.userIsLoggedIn();
+    return this.userInfoService.isLoggedIn();
   }
 
   hasAdminRole(): boolean {
@@ -32,10 +31,8 @@ export class HeaderSelfComponent {
   }
 
   logout(): void {
-    this.userInfoService.userLoggedIn = false;
-    this.storage.clear();
+    this.userInfoService.clearCache();
     this.sessionStorageService.clear();
     this.redirectToPage('/login');
   }
-
 }

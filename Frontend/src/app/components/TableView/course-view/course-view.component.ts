@@ -35,8 +35,8 @@ export class CourseViewComponent implements OnInit, OnDestroy {
     this.selectedHeaders = this.headers;
   }
 
-  ngOnInit(): void {
-    this.courseSub = this.courseService.getAllCourses().subscribe(data => this.courses = data)
+  async ngOnInit() {
+    this.courses = await this.courseService.getAllCourses();
     this.cd.markForCheck();
   }
 

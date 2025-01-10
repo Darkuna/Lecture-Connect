@@ -1,25 +1,23 @@
 import {Injectable} from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import {LocalStorageService} from "ngx-webstorage";
 import {Observable} from "rxjs";
 import {Room} from "../../assets/Models/room";
 import {MessageService} from "primeng/api";
+import {environment} from "../environment/environment";
 
 @Injectable({
   providedIn: 'root'
 })
 export class RoomService {
-  roomsApiPath = "/proxy/api/rooms";
+  roomsApiPath = `${environment.baseUrl}/api/rooms`;
   httpOptions = {
     headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + this.storage.retrieve('jwt-token')
+      'Content-Type': 'application/json'
     })
   };
 
   constructor(
     private http: HttpClient,
-    private storage: LocalStorageService,
     private messageService: MessageService,
   ) {
   }

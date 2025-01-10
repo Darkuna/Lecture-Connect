@@ -22,7 +22,7 @@ export class WizardComponent {
   currentDialog: InfoDialogInterface;
   InfoDialogOptions: InfoDialogInterface[];
 
-  dirtyData: boolean = true;
+  private _dirtyData: boolean = true;
 
   constructor(
     private shareService: TableShareService,
@@ -71,11 +71,12 @@ export class WizardComponent {
 
   addCourse(course: Course) {
     if (course) {
+      console.log('add course: ', course.id);
       if (this.selectedTable.courseTable.findIndex(x => x.id == course.id) > -1) {
+        console.log('course list: ', course);
         this.messageService.add({severity: 'error', summary: 'Duplicate', detail: 'Course is already in List'});
       } else {
         this.selectedTable.courseTable.push(course);
-
       }
     }
   }
@@ -153,7 +154,7 @@ export class WizardComponent {
 
   closeWizard() {
     this.saveLocal();
-    this.router.navigate(['/users/home'])
+    this.router.navigate(['/user/home'])
       .catch(message => {
         this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
       }
@@ -166,4 +167,24 @@ export class WizardComponent {
     }
     return true; // If no unsaved changes, allow navigation
   }
+
+  get dirtyData(): boolean {
+    return this._dirtyData;
+  }
+
+  set dirtyData(value: boolean) {
+    this._dirtyData = value;
+  }
+
+  clearDirtyData() {
+    this.dirtyData = false;
+  }
+}
+
+export function calculateTableHeight(contextContainer: HTMLDivElement){
+  return contextContainer.clientHeight ? contextContainer.clientHeight * 0.8 : 600;
+}
+
+export function getTableSettings(container: HTMLDivElement) {
+  return {'height': `${calculateTableHeight(container)}px`};
 }

@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import {CourseDTO} from "../../../assets/Models/dto/course-dto";
 import {Course} from "../../../assets/Models/course";
-import {TimingDTO} from "../../../assets/Models/dto/timing-dto";
 import {TimingToDtoConverterService} from "./timing-to-dto-converter.service";
 
 @Injectable({

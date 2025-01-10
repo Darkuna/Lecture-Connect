@@ -1,9 +1,10 @@
 import {Component, ChangeDetectorRef, OnInit, OnDestroy} from '@angular/core';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { UserService } from '../../../services/user-service';
-import { Userx } from '../../../../assets/Models/userx';
+import {Userx, UserxDTO} from '../../../../assets/Models/userx';
 import {getRoleOptions} from "../../../../assets/Models/enums/role";
 import {Subscription} from "rxjs";
+import {UserxConverterService} from "../../../services/converter/userx-converter.service";
 
 @Component({
   selector: 'app-users-view',
@@ -23,6 +24,7 @@ export class UsersViewComponent implements OnInit, OnDestroy{
   constructor(
     private cd: ChangeDetectorRef,
     private messageService: MessageService,
+    private userConverter: UserxConverterService,
     private confirmationService: ConfirmationService,
     private userService: UserService,
   ) {
@@ -33,7 +35,10 @@ export class UsersViewComponent implements OnInit, OnDestroy{
   }
 
   ngOnInit(): void {
-    this.usersSub = this.userService.getAllUsers().subscribe(data => this.users = data);
+    this.usersSub = this.userService.getAllUsers().subscribe(
+      (data:UserxDTO[]) => {
+        this.users = this.userConverter.convertUserList(data);
+      });
     this.cd.markForCheck();
   }
 
@@ -61,16 +66,18 @@ export class UsersViewComponent implements OnInit, OnDestroy{
 
   saveNewItem(): void {
     if (this.itemIsEdited) {
-      this.users[this.findIndexById(this.singleUserx.serialVersionUID)] =
+      const idx = this.users.findIndex(u => u.id === this.singleUserx.id);
+      this.users[idx] =
         this.userService.updateSingleUser(this.singleUserx);
 
       this.itemIsEdited = false;
       this.hideDialog();
       this.messageService.add({severity: 'success', summary: 'Change', detail: 'Element was updated'});
-    } else if (this.isInList(this.singleUserx)) {
+    } else if (this.users.find(user => user.id === this.singleUserx.id)) {
       this.messageService.add({severity: 'error', summary: 'Failure', detail: 'Element already in List'});
     } else {
-      this.singleUserx.serialVersionUID = 5463728;
+      this.singleUserx.id = '5463728';
+      this.singleUserx.new = true;
       this.userService.createSingleUser(this.singleUserx).subscribe({
         next: value => {
           this.users.push(value);
@@ -79,17 +86,17 @@ export class UsersViewComponent implements OnInit, OnDestroy{
         },
 
         error: err => {
-          this.messageService.add({severity: 'error', summary: 'Upload', detail: err.toString()});
+          this.messageService.add({severity: 'error', summary: 'Upload', detail: err.error});
         }
       });
     }
   }
 
-  deleteSingleItem(user: Userx) {
-    if (this.isInList(user)) {
+  deleteSingleItem(userx: Userx) {
+    if (this.users.find(user => user.id === userx.id)) {
       this.users.forEach((item, index) => {
-        if (item === user) {
-          this.userService.deleteSingleUser(user.serialVersionUID);
+        if (item === userx) {
+          this.userService.deleteSingleUser(userx.id);
           this.users.splice(index, 1);
         }
       });
@@ -106,31 +113,6 @@ export class UsersViewComponent implements OnInit, OnDestroy{
         this.messageService.add({severity: 'success', summary: 'Successful', detail: 'Users deleted permanently'});
       }
     });
-  }
-
-  isInList(item: Userx): boolean {
-    for (const listItem of this.users) {
-      if (item.constructor !== listItem.constructor) {
-        continue;
-      }
-
-      if (item.serialVersionUID && listItem.serialVersionUID && item.serialVersionUID === listItem.serialVersionUID) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  findIndexById(id: number): number {
-    let index = -1;
-    for (let i = 0; i < this.users.length; i++) {
-      if (this.users[i].serialVersionUID === id) {
-        index = i;
-        break;
-      }
-    }
-
-    return index;
   }
 
   protected readonly roleOptions = getRoleOptions();

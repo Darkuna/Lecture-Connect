@@ -58,8 +58,6 @@ import {InplaceModule} from "primeng/inplace";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {InputGroupModule} from "primeng/inputgroup";
 import {FloatLabelModule} from "primeng/floatlabel";
-import { RoomSelectionPageComponent } from './components/home/room-selection-page/room-selection-page.component';
-import { CourseSelectionPageComponent } from './components/home/course-selection-page/course-selection-page.component';
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import { CalendarContextMenuComponent } from './components/home/calendar-context-menu/calendar-context-menu.component';
 import { EditorComponent } from './components/editor/editor.component';
@@ -67,77 +65,53 @@ import {PanelMenuModule} from "primeng/panelmenu";
 import { DataWizardComponent } from './components/wizzard/data-wizard/data-wizard.component';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import {LoadingInterceptor} from "./interceptor/loading.interceptor";
+import { UserSettingsComponent } from './components/header-self/user-settings/user-settings.component';
+import { TableViewComponent } from './components/TableView/table-view/table-view.component';
+import {CheckboxModule} from "primeng/checkbox";
+import { ProgressComponent } from './components/progress/progress.component';
+import { TableLogComponent } from './components/table-log/table-log.component';
+import {PickListModule} from "primeng/picklist";
+import { CollisionDialogComponent } from './components/collision-dialog/collision-dialog.component';
+import { CollisionTableComponent } from './components/collision-dialog/collision-table/collision-table.component';
+import { ScrollPanelModule } from "primeng/scrollpanel";
+import {SemiAutoAssignmentModule} from "./components/semi-auto-assignment/semi-auto-assignment.module";
+import { DialogService } from "primeng/dynamicdialog";
+import { AuthInterceptor } from "./interceptor/auth.interceptor";
 
 @NgModule({ declarations: [
-        AppComponent,
-        HeaderSelfComponent,
-        LoginComponent,
-        HomeComponent,
-        PageNotFoundComponentComponent,
-        RoomViewComponent,
-        CourseViewComponent,
-        UsersViewComponent,
-        WizardComponent,
-        CourseSelectionComponent,
-        DetailSelectionComponent,
-        RoomSelectionComponent,
-        BaseSelectionComponent,
-        CourseSelectionComponent,
-        DetailSelectionComponent,
-        RoomSelectionComponent,
-        BaseSelectionComponent,
-        RoomSelectionPageComponent,
-        CourseSelectionPageComponent,
-        CalendarContextMenuComponent,
-        EditorComponent,
-        DataWizardComponent,
-        SpinnerComponent,
+        AppComponent, HeaderSelfComponent, LoginComponent,
+        HomeComponent, PageNotFoundComponentComponent, RoomViewComponent,
+        CourseViewComponent, UsersViewComponent, WizardComponent,
+        CourseSelectionComponent, DetailSelectionComponent, RoomSelectionComponent,
+        BaseSelectionComponent, CourseSelectionComponent, DetailSelectionComponent,
+        RoomSelectionComponent, BaseSelectionComponent, CalendarContextMenuComponent, EditorComponent,
+        DataWizardComponent, SpinnerComponent, UserSettingsComponent, TableViewComponent, ProgressComponent, TableLogComponent, CollisionDialogComponent, CollisionTableComponent,
     ],
   bootstrap: [AppComponent],
-  imports: [BrowserAnimationsModule,
-    BrowserModule,
-    AppRoutingModule,
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    PasswordModule,
-    ToastModule,
-    FormsModule,
+  imports: [
     NgxWebstorageModule.forRoot(),
-    RippleModule,
-    TableModule,
-    FileUploadModule,
-    ToolbarModule,
-    MultiSelectModule,
-    DialogModule,
-    DropdownModule,
-    TagModule,
-    RadioButtonModule,
-    InputNumberModule,
-    ConfirmDialogModule,
-    InputTextareaModule,
-    InputSwitchModule,
-    SelectButtonModule,
-    FullCalendarModule,
-    MenuModule,
-    BadgeModule,
-    AvatarModule,
-    CarouselModule,
-    MenubarModule,
-    CalendarModule,
-    StepperModule,
-    IconFieldModule,
-    InputIconModule,
-    ToggleButtonModule,
-    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule],
+    BrowserAnimationsModule, BrowserModule, AppRoutingModule, ButtonModule, CardModule, InputTextModule, PasswordModule, ToastModule,
+    FormsModule, RippleModule, TableModule, FileUploadModule, ToolbarModule, MultiSelectModule, DialogModule, DropdownModule, TagModule, RadioButtonModule,
+    InputNumberModule, ConfirmDialogModule, InputTextareaModule, InputSwitchModule, SelectButtonModule, SemiAutoAssignmentModule,
+    FullCalendarModule, MenuModule, BadgeModule, AvatarModule, CarouselModule, MenubarModule, CalendarModule, StepperModule, IconFieldModule, InputIconModule, ToggleButtonModule,
+    DragDropModule, ConfirmPopupModule, ContextMenuModule, InplaceModule, OverlayPanelModule, InputGroupModule, FloatLabelModule, ProgressSpinnerModule, PanelMenuModule, CheckboxModule, PickListModule, ScrollPanelModule],
   providers: [
     ConfirmationService,
     MessageService,
+    DialogService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: LoadingInterceptor,
       multi: true
     },
-    provideHttpClient(withInterceptorsFromDi())] })
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+    provideHttpClient(withInterceptorsFromDi())
+  ]
+
+})
 export class AppModule {
 }

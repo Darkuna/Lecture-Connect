@@ -8,6 +8,6 @@ import {LoaderService} from "../../services/loader.service";
 })
 export class SpinnerComponent {
   constructor(
-    public loader: LoaderService
+    protected loader: LoaderService
   ) { }
 }

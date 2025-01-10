@@ -32,3 +32,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Launch script ###
+scripts/app-pids.txt

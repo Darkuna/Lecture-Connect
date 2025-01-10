@@ -1,4 +1,4 @@
-import {Component, Input, signal, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, Output, signal, ViewChild} from '@angular/core';
 import {TmpTimeTable} from "../../../../assets/Models/tmp-time-table";
 import {CalendarOptions, DateSelectArg, EventClickArg, EventInput} from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -25,22 +25,23 @@ import {LocalStorageService} from "ngx-webstorage";
 })
 export class BaseSelectionComponent{
   @Input() globalTable!: TmpTimeTable;
+  @Output() changeDirtyData: EventEmitter<boolean> = new EventEmitter<boolean>();
+
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
   selectedRoom: Room | null = null;
 
   protected readonly CourseColor = CourseColor;
   lastUsedColor: CourseColor = CourseColor.COMPUTER_SCIENCE;
 
-  activeDialog: boolean = true;
+  activeDialog: boolean = false;
   showTimeDialog: boolean = false;
   dataSelectStart!: Date;
   dataSelectEnd!: Date;
 
-  //to be saved in the config file
-  tmpStartDate: Date = new Date('2024-07-10T07:00:00');
-  tmpEndDate: Date = new Date('2024-07-10T23:00:00');
+  tmpStartDate: Date = new Date('2024-07-10T08:00:00');
+  tmpEndDate: Date = new Date('2024-07-10T22:00:00');
   tmpDuration: Date = new Date('2024-07-10T00:15:00');
-  tmpSlotInterval: Date = new Date('2024-07-10T01:00:00');
+  tmpSlotInterval: Date = new Date('2024-07-10T00:30:00');
 
   constructor(
     private confirmationService: ConfirmationService,
@@ -117,6 +118,7 @@ export class BaseSelectionComponent{
     eventClick: this.handleEventClick.bind(this),
     eventAdd: this.interactWithModel.bind(this),
     eventRemove: this.interactWithModel.bind(this),
+    eventAllow: this.eventAllow.bind(this),
     allDaySlot: false,
     height: "auto",
     eventBackgroundColor: this.lastUsedColor,
@@ -132,7 +134,6 @@ export class BaseSelectionComponent{
     nowIndicator: false,
     eventDurationEditable: true,
     eventStartEditable: true,
-
   });
 
   handleDateSelect(selectInfo: DateSelectArg) {
@@ -140,8 +141,13 @@ export class BaseSelectionComponent{
     this.dataSelectEnd = selectInfo.end;
     this.showDialog();
 
-    if(!this.activeDialog){
+    const onlyOnASingleDay = selectInfo.start.getDay() == selectInfo.end.getDay();
+
+    if(!this.activeDialog && onlyOnASingleDay){
       this.saveEvent();
+    } else {
+      this.calendarComponent.getApi().unselect();
+      this.messageService.add({severity:'error', summary:'Rejected', detail:'Multiple Day Events are not allowed'});
     }
   }
 
@@ -221,18 +227,27 @@ export class BaseSelectionComponent{
     return dto;
   }
 
-  sendToBackend() {
-    this.globalTableService.pushTmpTableObject(this.convertGlobalTableItems())
-      .then((message) => {
-          this.localStorage.clear('tmptimetable');
-          this.messageService.add({severity: 'success', summary: 'Upload Success', detail: message});
+  eventAllow(args: any): boolean {
+    const startHour = args.start?.getHours();
+    const startMinutes = args.start?.getMinutes();
 
-          this.router.navigate(['/user/home']).catch(message => {
-            this.messageService.add({severity: 'error', summary: 'Failure in Redirect', detail: message});
-          });
-      })
-      .catch((message) => {
-        this.messageService.add({severity: 'error', summary: 'Upload Fault', detail: message});
-      });
+    const isBefore815AM = startHour! < 8 || (startHour === 8 && startMinutes! < 15);
+    const isAfter10PM = args.end!.getHours() >= 22;
+
+    return !isBefore815AM && !isAfter10PM;
+  }
+
+  async sendToBackend() {
+    this.changeDirtyData.emit(false);
+    const tableID = await this.globalTableService.pushTmpTableObject(this.convertGlobalTableItems());
+    this.globalTableService.tableId = Number(tableID);
+    if(Number(tableID)){
+      this.localStorage.clear('tmptimetable');
+      this.messageService.add({severity: 'success', summary: 'Upload Success', detail: 'upload successfully'});
+      this.router.navigate(['/user/home']).catch(() => {})
+    } else {
+      this.messageService.add({severity: 'error', summary: 'Failure', detail: 'there was an unexpected error'});
+    }
+
   }
 }

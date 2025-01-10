@@ -2,6 +2,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "preserveSymlinks": true,
     "types": ["jquery"],
     "outDir": "./dist/out-tsc",
     "strict": true,
