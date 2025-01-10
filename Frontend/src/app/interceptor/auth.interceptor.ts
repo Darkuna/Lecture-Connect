@@ -16,7 +16,12 @@ export class AuthInterceptor implements HttpInterceptor {
     if (token) {
       // Anfrage klonen und Authorization-Header hinzufügen
       const clonedRequest = req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${token}`)
+        headers:
+          req.headers
+            .set('Authorization', `Bearer ${token}`)
+            .set("Access-Control-Allow-Origin", "*")
+            .set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+            .set('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS'),
       });
       return next.handle(clonedRequest);
     }
