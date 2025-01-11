@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import * as decoder from "jwt-decode";
 import {tap} from "rxjs";
 import {environment} from "../environment/environment";
@@ -15,10 +15,14 @@ export class LoginUserInfoService {
   ) { }
 
   loginUser(loginObj: any, remember: boolean){
-    return this.http.post(`${LoginUserInfoService.API_PATH}`, loginObj)
+    const authKey = `${loginObj.name.toString()}:${loginObj.password}`;
+    const headers = new HttpHeaders({
+      Authorization: `Basic ${btoa(authKey)}`
+    });
+    return this.http.post(`${LoginUserInfoService.API_PATH}`, loginObj, {headers})
       .pipe(
         tap((result: any) => {
-          const token = result?.token; // Extrahiere den Token
+          const token = result?.token;
           if (token) {
             (remember ? localStorage : sessionStorage).setItem("jwt-token", token);
           }
