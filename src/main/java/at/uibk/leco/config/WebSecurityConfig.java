@@ -22,7 +22,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -69,7 +68,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://lectore-connect.ifi-tpt.uibk.ac.at"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200", "http://lectore-connect.ifi-tpt.uibk.ac.at:4200", "http://lectore-connect.ifi-tpt.uibk.ac.at:8080"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
