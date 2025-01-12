@@ -66,16 +66,11 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable))
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:4200")); // Frontend-Origin
-                    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
-                    config.setExposedHeaders(List.of("Authorization"));
-                    config.setAllowCredentials(true);
-
-                    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                    source.registerCorsConfiguration("/**", config);
-                    return config;
+                    CorsConfiguration configuration = new CorsConfiguration();
+                    configuration.setAllowedOrigins(List.of("*"));
+                    configuration.setAllowedMethods(List.of("*"));
+                    configuration.setAllowedHeaders(List.of("*"));
+                    return configuration;
                 }))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
